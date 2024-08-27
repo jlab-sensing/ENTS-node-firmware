@@ -14,6 +14,13 @@
 
 #include <stm32wlxx_hal_gpio.h>
 
+#define CALIBRATION
+
+const double voltage_calibration_m = -0.00039367;
+const double voltage_calibration_b = -1.6887690619205245;
+const double current_calibration_m = -1.18844302e-10;
+const double current_calibration_b = 3.554079888291547e-05;
+
 /**
  * @brief GPIO port for adc data ready line
  * 
@@ -123,13 +130,12 @@ double ADC_readVoltage(void){
   }
   reading = (double) temp;
 
-  // Uncomment these lines if you wish to see the raw and shifted values from the ADC for calibration purpouses
-  // You will have to use these lines to get the raw x values to plug into the linear_regression.py file
-  // char raw[45];
-  // sprintf(raw, "Raw: %x %x %x Shifted: %f \r\n\r\n",rx_data[0], rx_data[1], rx_data[2], reading);
-  // HAL_UART_Transmit(&huart1, (const uint8_t *) raw, 36, 19);
+  #ifndef CALIBRATION
+  reading = (voltage_calibration_m * reading) + voltage_calibration_b;
+  #endif /* CALIBRATION */
 
-  //reading =  (VOLTAGE_SLOPE * reading) + VOLTAGE_B; // Calculated from linear regression
+
+
   return reading;
 }
 
@@ -155,16 +161,20 @@ double ADC_readCurrent(void){
     return -1;
   }
 
-  uint64_t temp = ((uint64_t)rx_data[0] << 16) | ((uint64_t)rx_data[1] << 8) | ((uint64_t)rx_data[2]); 
+  // Combine the 3 bytes into a 24-bit value
+  int32_t temp = ((int32_t)rx_data[0] << 16) | ((int32_t)rx_data[1] << 8) | ((int32_t)rx_data[2]); 
+  // Check if the sign bit (24th bit) is set
+  if (temp & 0x800000) {
+    // Extend the sign to 32 bits
+    temp |= 0xFF000000;
+  }
   reading = (double) temp;
 
-  // Uncomment these lines if you wish to see the raw and shifted values from the ADC for calibration purpouses
-  // You will have to use these lines to get the raw x values to plug into the linear_regression.py file
-  // char raw[45];
-  // sprintf(raw, "Raw: %x %x %x Shifted: %f \r\n\r\n",rx_data[0], rx_data[1], rx_data[2], reading);
-  // HAL_UART_Transmit(&huart1, (const uint8_t *) raw, 36, 19);
 
+  #ifndef CALIBRATION
   //reading =  (CURRENT_SLOPE * reading) + CURRENT_B; // Calculated from linear regression
+  #endif /* CALIBRATION */
+
   return reading;
 }
 
@@ -178,13 +188,13 @@ size_t ADC_measure(uint8_t *data) {
   // get timestamp
   SysTime_t ts = SysTimeGet();
 
-  // read voltage
-  int adc_voltage = ADC_readVoltage();
-  double adc_voltage_float = ((double) adc_voltage) / 1000.;
+  // read power
+  double adc_voltage = ADC_readVoltage();
+  double adc_current = ADC_readCurrent();
 
   // encode measurement
   size_t data_len = EncodePowerMeasurement(ts.Seconds, LOGGER_ID, CELL_ID,
-                                           adc_voltage_float, 0.0, data);
+                                           adc_voltage, adc_current, data);
 
   // return number of bytes in serialized measurement 
   return data_len;

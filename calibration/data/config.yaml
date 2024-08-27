@@ -1,0 +1,8 @@
+# Load resistor
+r_load: 2200
+# Measured sensing resistor value in ohms
+r_sense: 249
+# Gain settings, valid options are [10, 100]
+gain: 10
+# Ref Select setting, valid options are ["bidirectional", "unidirection"]
+ref: "unidirectional"

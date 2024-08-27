@@ -32,13 +32,11 @@ extern "C"{
 #define ADS12_RESET_CODE 0x06
 #define ADS12_READ_DATA_CODE 0x10
 
-#define VOLTAGE_SLOPE -0.1 // Change this to the slope output from the linear_regression.py file
-#define VOLTAGE_B 6575 // Change this to the b output from the linear_regression.py file
+#define VOLTAGE_SLOPE -0.00039367 // Change this to the slope output from the linear_regression.py file
+#define VOLTAGE_B -1.6887690619205245 // Change this to the b output from the linear_regression.py file
 
-#define CURRENT_SLOPE 0
-#define CURRENT_B 0
-
-
+#define CURRENT_SLOPE -1.18844302e-10
+#define CURRENT_B 3.554079888291547e-05
 
 /**
 ******************************************************************************
