@@ -17,7 +17,7 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  'protobuf~=4.21.1',
+  'protobuf>=4.21.1,<5.29.0',
 ]
 
 
