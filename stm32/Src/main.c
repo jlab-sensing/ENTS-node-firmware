@@ -39,6 +39,7 @@
 #include "phytos31.h"
 #include "rtc.h"
 #include "sensors.h"
+#include "fram.h"  
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,7 +60,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint16_t read_addr = 0;
+uint16_t write_addr = 0;
+uint16_t buffer_len = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -113,6 +116,9 @@ int main(void)
   MX_RTC_Init();
   SensorsInit();
 
+  // Load the buffer state from FRAM
+  load_buffer_state(&read_addr, &write_addr, &buffer_len);
+
   // Debug message, gets printed after init code
   APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
 
@@ -121,6 +127,8 @@ int main(void)
   //SensorsAdd(SDI12_Teros12Measure);
   //SensorsAdd(Phytos31_measure);
 
+  // Store the buffer state in FRAM
+  store_buffer_state(read_addr, write_addr, buffer_len);
 
   /* USER CODE END 2 */
 

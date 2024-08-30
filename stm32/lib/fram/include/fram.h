@@ -119,6 +119,25 @@ HAL_StatusTypeDef ConfigureSettings(configuration c);
  */
 configuration ReadSettings(void);
 
+/**
+ * @brief Stores the buffer state in FRAM.
+ *
+ * @param read_addr The current read address.
+ * @param write_addr The current write address.
+ * @param buffer_len The current buffer length.
+ */
+void store_buffer_state(uint16_t read_addr, uint16_t write_addr, uint16_t buffer_len);
+
+/**
+ * @brief Loads the buffer state from FRAM.
+ *
+ * @param read_addr Pointer to store the read address.
+ * @param write_addr Pointer to store the write address.
+ * @param buffer_len Pointer to store the buffer length.
+ */
+void load_buffer_state(uint16_t *read_addr, uint16_t *write_addr, uint16_t *buffer_len);
+
+
 #ifdef __cplusplus
 }
 #endif

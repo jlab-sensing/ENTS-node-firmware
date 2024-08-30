@@ -1,7 +1,7 @@
 {
-    "files.associations": {
-        "xmemory": "c",
-        "adc.h": "c",
-        "app_lorawan.h": "c"
-    }
+  "files.associations": {
+    "xmemory": "c",
+    "adc.h": "c",
+    "app_lorawan.h": "c"
+  }
 }
