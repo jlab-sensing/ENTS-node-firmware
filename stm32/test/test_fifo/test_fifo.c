@@ -242,6 +242,61 @@ void test_FramBuffer_Wraparound(void) {
   TEST_ASSERT_EQUAL(FRAM_BUFFER_FULL, status);
 }
 
+void test_FramInitBuffer(void) {
+  // First, put some data in the buffer and save the state
+  uint8_t data[] = {1, 2, 3, 4, 5, 6};
+  FramPut(data, sizeof(data));
+  FramSaveBufferState();
+  
+  // Clear the buffer (this simulates a reset)
+  FramBufferClear();
+  
+  // Now initialize the buffer, which should restore the saved state
+  FramStatus status = FramInitBuffer();
+  
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+  TEST_ASSERT_EQUAL(1, FramBufferLen());  // Expect 1 item in buffer, not 6
+}
+
+void test_FramSaveBufferState(void) {
+  // Clear the buffer to start fresh
+  FramBufferClear();
+  
+  // Put some data in the buffer
+  uint8_t data[] = {1, 2, 3, 4, 5};
+  FramStatus status = FramPut(data, sizeof(data));
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+  
+  // Save the buffer state
+  status = FramSaveBufferState();
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+  
+  // Clear the buffer (this simulates a reset)
+  FramBufferClear();
+  
+  // Now initialize the buffer, which should restore the saved state
+  status = FramInitBuffer();
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+  
+  // Check if the buffer length is restored correctly
+  TEST_ASSERT_EQUAL(1, FramBufferLen());
+}
+
+void test_FramGetReadAddr(void) {
+  uint16_t read_addr = FramGetReadAddr();
+  TEST_ASSERT_EQUAL(FRAM_BUFFER_START, read_addr);
+}
+
+void test_FramGetWriteAddr(void) {
+  uint16_t write_addr = FramGetWriteAddr();
+  TEST_ASSERT_EQUAL(FRAM_BUFFER_START, write_addr);
+}
+
+void test_FramGetBufferLen(void) {
+  uint16_t buffer_len = FramGetBufferLen();
+  TEST_ASSERT_EQUAL(0, buffer_len);
+}
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -288,6 +343,12 @@ int main(void)
   RUN_TEST(test_FramGet_Sequential);
   RUN_TEST(test_FramGet_Sequential_BufferFull);
   RUN_TEST(test_FramBuffer_Wraparound);
+  // test data recovery
+  RUN_TEST(test_FramInitBuffer);
+  RUN_TEST(test_FramSaveBufferState);
+  RUN_TEST(test_FramGetReadAddr);
+  RUN_TEST(test_FramGetWriteAddr);
+  RUN_TEST(test_FramGetBufferLen);
   UNITY_END();
   /* USER CODE END 3 */
 }

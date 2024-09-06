@@ -8,11 +8,11 @@
 
 #include "fifo.h"
 
-static uint16_t read_addr = FRAM_BUFFER_START;
-static uint16_t write_addr = FRAM_BUFFER_START;
+uint16_t read_addr = FRAM_BUFFER_START;
+uint16_t write_addr = FRAM_BUFFER_START;
 
 /** Number of measurements stored in buffer */
-static uint16_t buffer_len = 0;
+uint16_t buffer_len = 0;
 
 /**
  * @brief Updates circular buffer address based on number of bytes
@@ -80,8 +80,7 @@ FramStatus FramPut(const uint8_t *data, const uint16_t num_bytes) {
 
   // increment buffer length
   ++buffer_len;
-
-  return FRAM_OK;
+  return FramSaveBufferState();
 }
 
 FramStatus FramGet(uint8_t *data, uint8_t *len) {
@@ -108,8 +107,7 @@ FramStatus FramGet(uint8_t *data, uint8_t *len) {
 
   // Decrement buffer length
   --buffer_len;
-
-  return FRAM_OK;
+  return FramSaveBufferState();
 }
 
 uint16_t FramBufferLen(void) {
@@ -123,6 +121,39 @@ FramStatus FramBufferClear(void) {
 
   // reset buffer len
   buffer_len = 0;
+  return FramSaveBufferState();
+}
 
-  return FRAM_OK;
+FramStatus FramInitBuffer(void)
+{
+    FramStatus status = FramLoadBufferState(&read_addr, &write_addr, &buffer_len);
+    if (status != FRAM_OK)
+    {
+        // If loading fails, initialize with default values
+        read_addr = FRAM_BUFFER_START;
+        write_addr = FRAM_BUFFER_START;
+        buffer_len = 0;
+        status = FramSaveBufferState();
+    }
+    return status;
+}
+
+FramStatus FramSaveBufferState(void)
+{
+    return FramSaveBufferState_Internal(read_addr, write_addr, buffer_len);
+}
+
+uint16_t FramGetReadAddr(void)
+{
+    return read_addr;
+}
+
+uint16_t FramGetWriteAddr(void)
+{
+    return write_addr;
+}
+
+uint16_t FramGetBufferLen(void)
+{
+    return buffer_len;
 }

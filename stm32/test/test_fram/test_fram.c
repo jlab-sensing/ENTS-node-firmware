@@ -128,6 +128,39 @@ void test_FramRead_MultiplePages(void) {
   TEST_ASSERT_EQUAL_UINT8_ARRAY(write_data, read_data, 5);
 }
 
+void test_FramSaveBufferState(void) {
+  uint16_t read_addr = 100;
+  uint16_t write_addr = 200;
+  uint16_t buffer_len = 50;
+
+  FramStatus status = FramSaveBufferState_Internal(read_addr, write_addr, buffer_len);
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+
+  uint16_t loaded_read_addr, loaded_write_addr, loaded_buffer_len;
+  status = FramLoadBufferState(&loaded_read_addr, &loaded_write_addr, &loaded_buffer_len);
+  
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+  TEST_ASSERT_EQUAL(read_addr, loaded_read_addr);
+  TEST_ASSERT_EQUAL(write_addr, loaded_write_addr);
+  TEST_ASSERT_EQUAL(buffer_len, loaded_buffer_len);
+}
+
+void test_FramLoadBufferState(void) {
+  uint16_t read_addr = 150;
+  uint16_t write_addr = 250;
+  uint16_t buffer_len = 75;
+
+  FramSaveBufferState_Internal(read_addr, write_addr, buffer_len);
+
+  uint16_t loaded_read_addr, loaded_write_addr, loaded_buffer_len;
+  FramStatus status = FramLoadBufferState(&loaded_read_addr, &loaded_write_addr, &loaded_buffer_len);
+  
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+  TEST_ASSERT_EQUAL(read_addr, loaded_read_addr);
+  TEST_ASSERT_EQUAL(write_addr, loaded_write_addr);
+  TEST_ASSERT_EQUAL(buffer_len, loaded_buffer_len);
+}
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -157,6 +190,8 @@ int main(void)
   RUN_TEST(test_FramRead_ZeroLength);
   RUN_TEST(test_FramRead_OutOfRange); 
   RUN_TEST(test_FramRead_MultiplePages);
+  RUN_TEST(test_FramSaveBufferState);
+  RUN_TEST(test_FramLoadBufferState);
   UNITY_END();
 }
 
