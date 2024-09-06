@@ -99,6 +99,42 @@ FramStatus FramRead(uint16_t addr, uint8_t len, uint8_t *data)
   return FRAM_OK;
 }
 
+FramStatus FramSaveBufferState_Internal(uint16_t read_addr, uint16_t write_addr, uint16_t buffer_len)
+{
+    uint8_t state[6];
+    state[0] = read_addr & 0xFF;
+    state[1] = (read_addr >> 8) & 0xFF;
+    state[2] = write_addr & 0xFF;
+    state[3] = (write_addr >> 8) & 0xFF;
+    state[4] = buffer_len & 0xFF;
+    state[5] = (buffer_len >> 8) & 0xFF;
+    
+    printf("Saving state: read=%u, write=%u, len=%u\n", read_addr, write_addr, buffer_len);
+    
+    return FramWrite(BUFFER_STATE_ADDR, state, 6);
+}
+
+FramStatus FramLoadBufferState(uint16_t *read_addr, uint16_t *write_addr, uint16_t *buffer_len)
+{
+    uint8_t state[6];
+    FramStatus status = FramRead(BUFFER_STATE_ADDR, 6, state);
+    
+    if (status == FRAM_OK)
+    {
+        *read_addr = (state[1] << 8) | state[0];
+        *write_addr = (state[3] << 8) | state[2];
+        *buffer_len = (state[5] << 8) | state[4];
+        
+        printf("Loaded state: read=%u, write=%u, len=%u\n", *read_addr, *write_addr, *buffer_len);
+    }
+    else
+    {
+        printf("Failed to load state, status: %d\n", status);
+    }
+    
+    return status;
+}
+
 HAL_StatusTypeDef ConfigureSettings(configuration c)
 {
   HAL_StatusTypeDef status = HAL_OK;

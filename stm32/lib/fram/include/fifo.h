@@ -71,11 +71,19 @@ FramStatus FramPut(const uint8_t *data, uint16_t num_bytes);
 FramStatus FramGet(uint8_t *data, uint8_t *len);
 
 /**
- * @brief Get the current number of measurements stored in the buffer
+ * @brief To get the buffer state stored in FRAM
  * 
- * @return Number of measurements
+ * @return See FRAMStatus
  */
-uint16_t FramBufferLen(void);
+FramStatus FramInitBuffer(void);
+
+/**
+ * @brief To save the buffer state in FRAM
+ * 
+ * @return See FRAMStatus
+ */
+FramStatus FramSaveBufferState(void);
+FramStatus FramSaveBufferState_Internal(uint16_t read_addr, uint16_t write_addr, uint16_t buffer_len);
 
 /**
  * @brief Clears the buffer
@@ -84,6 +92,34 @@ uint16_t FramBufferLen(void);
  * buffer to be overwritten.
  */
 FramStatus FramBufferClear(void);
+
+/**
+ * @brief Get the current number of measurements stored in the buffer
+ * 
+ * @return Number of measurements
+ */
+uint16_t FramBufferLen(void);
+
+/**
+ * @brief Get the buffer state read address from the FRAM
+ * 
+ * @return Number of measurements
+ */
+uint16_t FramGetReadAddr(void);
+
+/**
+ * @brief Get the write address of buffer state to the FRAM
+ * 
+ * @return Number of measurements
+ */
+uint16_t FramGetWriteAddr(void);
+
+/**
+ * @brief Get the length of the buffer state
+ * 
+ * @return Number of measurements
+ */
+uint16_t FramGetBufferLen(void);
 
 #ifdef __cplusplus
 }

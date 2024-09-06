@@ -41,6 +41,11 @@ extern "C"{
 #define FRAM_SEG_SIZE 256
 #endif
 
+#ifndef BUFFER_STATE_ADDR
+/** Address where we will store the buffer state*/
+#define BUFFER_STATE_ADDR 1792
+#endif
+
 #define USER_DATA_PAGE_ADDRESS 0x07
 #define CELL_ID_MEMORY_ADDRESS 0x00
 #define LOGGER_ID_MEMORY_ADDRESS 0x08
@@ -93,6 +98,27 @@ FramStatus FramWrite(uint16_t addr, const uint8_t *data, uint8_t len);
  * @return See FramStatus
  */
 FramStatus FramRead(uint16_t addr, uint8_t len, uint8_t *data);
+
+/**
+ * @brief    This function saves buffer state to FRAM.
+ * 
+ * @param addr Address of store
+ * @param data Array to be store into
+ * @param len Number of bytes to store
+ * @return See FramStatus
+ */
+FramStatus FramSaveBufferState_Internal(uint16_t read_addr, uint16_t write_addr, uint16_t buffer_len);
+FramStatus FramSaveBufferState(void);
+
+/**
+ * @brief    This function loads buffer state from FRAM.
+ * 
+ * @param addr Address to load
+ * @param data Array to be load
+ * @param len Number of sequential bytes to load
+ * @return See FramStatus
+ */
+FramStatus FramLoadBufferState(uint16_t *read_addr, uint16_t *write_addr, uint16_t *buffer_len);
 
 /**
  * @brief This function stores user configurable settings to non-volatile
