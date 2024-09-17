@@ -17,7 +17,7 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  'protobuf~=4.21.1',
+  'protobuf',
 ]
 
 
@@ -29,3 +29,6 @@ Issues = "https://github.com/jlab-sensing/soil-power-sensor-firmware/issues"
 exclude = [
   "src/soil_power_sensor_protobuf/soil_power_sensor_pb2.py",
 ]
+
+[project.scripts]
+sps = "soil_power_sensor_protobuf.cli:entry"
