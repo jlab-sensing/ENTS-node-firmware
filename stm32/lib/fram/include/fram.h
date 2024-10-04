@@ -1,24 +1,20 @@
-// Copyright 2023 UCSC
-
 /**
- * @file     fram.h
- * @author   Stephen Taylor
- * @brief    This file contains all the function prototypes for the fram.c file
+ * @file fram.h
+ * @author John Madden (jmadden173@pm.me)
+ * @brief
+ * @version 0.1
+ * @date 2024-10-02
  *
- * The FM24CL16B memory architecture is structured around 8 segments of 256
- * bytes each. The library can be used with other memory chips with the same
- * memory layout.  The defines FRAM_PAGES and FRAM_SEG_SIZE can used to change
- * the configuration from the compiler.
+ * Function calls for read/write ensures data does not exceed size of the
+ * buffers.
  *
- * Internally addressing is converted from matrix-style (pages and segments) to
- * a flat memory address space starting at 0x0. The max available memory
- * address is stored in fram_max_addr that can be used for higher level
- * implementations.
+ * TODO:
+ * - Add function for checking the device ID as a test. Export expected output
+ * in each library
+ * - Fix multiple pages test to be universal across boards
  *
- * Currently user configuration template is provided by this library but will
- * moved in a future version.
+ * @copyright Copyright (c) 2024
  *
- * @date     11/17/2023
  */
 
 #ifndef LIB_FRAM_INCLUDE_FRAM_H_
@@ -29,19 +25,8 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include <stdio.h>
 
-#include "i2c.h"
-
-#ifndef FRAM_PAGES
-/** Number of pages on the fram chip */
-#define FRAM_PAGES 8
-#endif
-
-#ifndef FRAM_SEG_SIZE
-/** Size of each memory segment in bytes */
-#define FRAM_SEG_SIZE 256
-#endif
+#include "stm32wlxx_hal.h"
 
 #define USER_DATA_PAGE_ADDRESS 0x07
 #define CELL_ID_MEMORY_ADDRESS 0x00
@@ -71,20 +56,18 @@ typedef enum {
   FRAM_BUFFER_EMPTY = -4,
 } FramStatus;
 
-/** Max writeable address */
-static const uint16_t fram_max_addr = (FRAM_SEG_SIZE * FRAM_PAGES) - 1;
+/** Address size definition */
+typedef uint32_t FramAddr;
 
 /**
  * @brief Writes bytes to an address
- *
- *
  *
  * @param addr Address of write
  * @param data An array of data bytes.
  * @param len The number of bytes to be written.
  * @return See FramStatus
  */
-FramStatus FramWrite(uint16_t addr, const uint8_t *data, uint8_t len);
+FramStatus FramWrite(FramAddr addr, const uint8_t *data, size_t len);
 
 /**
  * @brief    This function reads a dynamic number of bytes to FRAM.
@@ -94,30 +77,38 @@ FramStatus FramWrite(uint16_t addr, const uint8_t *data, uint8_t len);
  * @param len Number of sequential bytes to read
  * @return See FramStatus
  */
-FramStatus FramRead(uint16_t addr, uint8_t len, uint8_t *data);
+FramStatus FramRead(FramAddr addr, size_t len, uint8_t *data);
 
 /**
- * @brief This function stores user configurable settings to non-volatile
- * memory.
+ * @brief Get the number of available bytes in FRAM
  *
- * Specifically cell ID, logger ID, LoRaWAN gateway EUI, LoRaWAN application
- * EUI and end device EUI. As well as the logging and upload intervals.
- *
- * @param configuration an instance of the typedef struct user_configurations.
- * Containing all the user defined settings to be stored in non-volatile
- * memory.
- *
- * @return HAL_StatusTypeDef, status of the I2C function
+ * @return Number of bytes
  */
-HAL_StatusTypeDef ConfigureSettings(configuration c);
+FramAddr FramSize(void);
 
 /**
- * @brief This function reads the user configurable settings from non-volatile
- * memory.
+ * @brief Get number of pages
+ *
+ * A page is defined as a space of memory requiring the change of address.
+ *
+ * @return Number of pages
+ */
+unsigned int FramPages(void);
+
+/**
+ * @brief Gets the size of a segment
+ *
+ * @return Number of bytes in each segment
+ */
+unsigned int FramSegmentSize(void);
+
+/**
+ * @brief This function reads the user configurable settings from
+ * non-volatile memory.
  *
  * @return configuration, an instance of the typedef struct
- * user_configurations.  Containing all the user defined settings to be stored
- * in non-volatile memory.
+ * user_configurations.  Containing all the user defined settings to be
+ * stored in non-volatile memory.
  */
 configuration ReadSettings(void);
 
