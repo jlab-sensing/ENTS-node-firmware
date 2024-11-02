@@ -605,70 +605,70 @@ class SMULANController(LANController):
         return float(reply)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="""Automated data recorder
-        for Soil Power Sensor board using serial to control Keithley 2400 SMU""")
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser(description="""Automated data recorder
+#         for Soil Power Sensor board using serial to control Keithley 2400 SMU""")
     
-    parser.add_argument("--source_mode", type=str, choices=["voltage", "current"], required=True, help="Mode to source either voltage or current")
+#     parser.add_argument("--source_mode", type=str, choices=["voltage", "current"], required=True, help="Mode to source either voltage or current")
     
-    range_group = parser.add_argument_group("Range")
-    parser.add_argument("--samples", type=int, default=10, required=False, help="Number of samples to take at each voltage level")
-    parser.add_argument("--startV", type=float, default= -2.0, required=False, help="Start value in voltage")
-    parser.add_argument("--stopV", type=float, default= 2.0, required=False, help="End value in voltage")
-    parser.add_argument("--stepV", type=float, default= 0.1, required=False, help="Step between voltages")
+#     range_group = parser.add_argument_group("Range")
+#     parser.add_argument("--samples", type=int, default=10, required=False, help="Number of samples to take at each voltage level")
+#     parser.add_argument("--startV", type=float, default= -2.0, required=False, help="Start value in voltage")
+#     parser.add_argument("--stopV", type=float, default= 2.0, required=False, help="End value in voltage")
+#     parser.add_argument("--stepV", type=float, default= 0.1, required=False, help="Step between voltages")
 
-    parser.add_argument("--startI", type=float, default= -0.0009, required=False, help="Start value in amps")
-    parser.add_argument("--stopI", type=float, default= 0.0009, required=False, help="End value in amps")
-    parser.add_argument("--stepI", type=float, default= 0.0001, required=False, help="Step between amps")
+#     parser.add_argument("--startI", type=float, default= -0.0009, required=False, help="Start value in amps")
+#     parser.add_argument("--stopI", type=float, default= 0.0009, required=False, help="End value in amps")
+#     parser.add_argument("--stepI", type=float, default= 0.0001, required=False, help="Step between amps")
     
-    source_group = parser.add_mutually_exclusive_group(required=True)
-    source_group.add_argument("--smu_port", type=str, help="SMU serial port (if SMU is configured to serial)")
-    source_group.add_argument("--smu_host", type=str, help="SMU host in the format ip:port")
+#     source_group = parser.add_mutually_exclusive_group(required=True)
+#     source_group.add_argument("--smu_port", type=str, help="SMU serial port (if SMU is configured to serial)")
+#     source_group.add_argument("--smu_host", type=str, help="SMU host in the format ip:port")
     
-    parser.add_argument("sps_port", type=str, help="SPS serial port")
-    parser.add_argument("data_file", type=str, default="data.csv", help="Path to store data file")
+#     parser.add_argument("sps_port", type=str, help="SPS serial port")
+#     parser.add_argument("data_file", type=str, default="data.csv", help="Path to store data file")
 
-    args = parser.parse_args() 
+#     args = parser.parse_args() 
      
-    sps = SoilPowerSensorController(args.sps_port) 
-    if args.smu_port:
-        smu = SMUSerialController(args.smu_port, args.source_mode)
-    elif args.smu_host:
-        host, port = args.smu_host.split(":")
-        smu = SMULANController(host, int(port), args.source_mode)
+#     sps = SoilPowerSensorController(args.sps_port) 
+#     if args.smu_port:
+#         smu = SMUSerialController(args.smu_port, args.source_mode)
+#     elif args.smu_host:
+#         host, port = args.smu_host.split(":")
+#         smu = SMULANController(host, int(port), args.source_mode)
 
-    data = {
-        "V": [],
-        "I": [],
-        "V_in": [],
-        "I_in": [],
-        "I_sps": [],
-        "V_sps": [],
-    }
+#     data = {
+#         "V": [],
+#         "I": [],
+#         "V_in": [],
+#         "I_in": [],
+#         "I_sps": [],
+#         "V_sps": [],
+#     }
 
-    if args.source_mode == "voltage":
-        iterator = smu.vrange(args.startV, args.stopV, args.stepV)
-    elif args.source_mode == "current":
-        iterator = smu.irange(args.startI, args.stopI, args.stepI)
+#     if args.source_mode == "voltage":
+#         iterator = smu.vrange(args.startV, args.stopV, args.stepV)
+#     elif args.source_mode == "current":
+#         iterator = smu.irange(args.startI, args.stopI, args.stepI)
 
-    for value in tqdm(iterator):
-        time.sleep(5)
-        for _ in range(args.samples):
-            if args.source_mode == "voltage":
-                data["V"].append(value)
-                data["I"].append(0)
-            elif args.source_mode == "current":
-                data["I"].append(value)
-                data["V"].append(0)
+#     for value in tqdm(iterator):
+#         time.sleep(5)
+#         for _ in range(args.samples):
+#             if args.source_mode == "voltage":
+#                 data["V"].append(value)
+#                 data["I"].append(0)
+#             elif args.source_mode == "current":
+#                 data["I"].append(value)
+#                 data["V"].append(0)
             
-            measured_voltage, measured_current = sps.get_power()
+#             measured_voltage, measured_current = sps.get_power()
 
-            data["I_in"].append(smu.get_current())
-            data["V_in"].append(smu.get_voltage())
+#             data["I_in"].append(smu.get_current())
+#             data["V_in"].append(smu.get_voltage())
 
-            data["V_sps"].append(measured_voltage)
-            data["I_sps"].append(measured_current)
+#             data["V_sps"].append(measured_voltage)
+#             data["I_sps"].append(measured_current)
 
-    data_df = pd.DataFrame(data)
-    print(data_df)
-    data_df.to_csv(args.data_file, index=False)
+#     data_df = pd.DataFrame(data)
+#     print(data_df)
+#     data_df.to_csv(args.data_file, index=False)

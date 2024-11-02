@@ -22,7 +22,7 @@ except ImportError:
 print("Voltage calibration")
 #%%
 ### Load the data ###
-def load_data(cfg, datafiles):
+def load_data(datafiles):
     df_list = []
     for d in datafiles:
         df = pd.read_csv(d)
@@ -40,15 +40,13 @@ def load_data(cfg, datafiles):
 
 #%%
 ### Load the calibration CSVs ###
-cfg_path = "data/config.yaml"
-datafiles = ["data/calibration_data/220_1_voltage_calib_-2to2v.csv"] # load voltage
+datafiles = ["voltage.csv"] # load voltage
 
 #%%
 ### Load into a data frame ##
-with open(cfg_path, "r") as f:
-    cfg = yaml.load(f, Loader=Loader)
 
-data = load_data(cfg, datafiles)
+
+data = load_data(datafiles)
 #data = data[(data["V_in"] > -2000) & (data["V_in"] < 2000)]
 
 
@@ -74,8 +72,8 @@ print("Voltage coefficients: ", v_model_pos.coef_, "Voltage intercept: ", v_mode
 
 #%%
 ### Load the eval files ###
-evalfiles = ["data/eval_data/220_1_voltage_eval_-2to2v.csv"]
-eval_data = load_data(cfg, evalfiles)
+evalfiles = ["voltage.csv"]
+eval_data = load_data(evalfiles)
 eval_data = eval_data[(eval_data["V_in"] > -2000) & (eval_data["V_in"] < 2000)]
 
 #%%
