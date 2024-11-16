@@ -10,9 +10,10 @@
  * Copyright [2024] <Ahmed Hassan Falah>
  */
 
-
-/* Includes ------------------------------------------------------------------*/
 #include "userConfig.h"
+
+#include "stm32_adv_trace.h"
+
 // variable to store each byte received from interrupt
 static uint8_t charRx;
 // Receive buffer to store encoded data
@@ -23,12 +24,6 @@ static uint16_t fram_addr = FRAM_START_ADDRESS;
 uint8_t ack[] = "ACK";
 // Static variable to store the loaded user configuration in RAM
 static UserConfiguration loadedConfig;
-
-// Initialize UART for interrupt-based receiving
-void UserConfig_InterruptInit(void) {
-    // Enable UART receive interrupt( read 1-byte )
-    HAL_UART_Receive_IT(&huart1, &charRx, 1);
-}
 
 // Interrupt handler for UART receive
 void UserConfig_ReceiveInterruptHandler(void) {

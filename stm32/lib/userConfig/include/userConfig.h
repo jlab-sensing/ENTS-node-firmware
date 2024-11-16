@@ -15,6 +15,7 @@
  *            data.
  *          - The received data length is stored alongside the encoded data in 
  *            FRAM to facilitate data retrieval upon startup.
+ *          - Requires app to be initialized.
  * 
  * @date    10/13/2024
  ******************************************************************************
@@ -28,6 +29,10 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+
 #include "usart.h"
 #include "fram.h"
 #include "transcoder.h"
@@ -35,9 +40,6 @@ extern "C" {
 #include "stm32_systime.h"
 #include "usart_if.h"
 #include "soil_power_sensor.pb.h"
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
 
 
 #define RX_BUFFER_SIZE UserConfiguration_size      // Maximum size of the received data buffer
@@ -50,39 +52,6 @@ typedef enum {
     USERCONFIG_FRAM_ERROR,
     USERCONFIG_DECODE_ERROR
 } UserConfigStatus;
-
-// /* Enum definitions */
-// typedef enum _EnabledSensor {
-//     EnabledSensor_Voltage = 0,
-//     EnabledSensor_Current = 1,
-//     EnabledSensor_Teros12 = 2,
-//     EnabledSensor_Teros21 = 3,
-//     EnabledSensor_BME280 = 4
-// } EnabledSensor;
-
-// typedef enum _Uploadmethod {
-//     Uploadmethod_LoRa = 0,
-//     Uploadmethod_WiFi = 1
-// } Uploadmethod;
-// typedef struct _UserConfiguration {
-//     /* ********* Upload Settings ********* */
-//     uint32_t logger_id; /* id of the logging device */
-//     uint32_t cell_id; /* id of the cell measured */
-//     Uploadmethod Upload_method; /* indicates whether LoRa or WiFi is used */
-//     uint32_t Upload_interval; /* upload time in seconds */
-//     /* ********* Measurement Settings ********* */
-//     pb_size_t enabled_sensors_count;
-//     EnabledSensor enabled_sensors[5]; /* List of enabled sensors */
-//     double Voltage_Slope; /* Calibration slope for voltage */
-//     double Voltage_Offset; /* Calibration offset for voltage */
-//     double Current_Slope; /* Calibration slope for current */
-//     double Current_Offset; /* Calibration offset for current */
-//     /* ********* WiFi Settings ********* */
-//     char WiFi_SSID[33];
-//     char WiFi_Password[65];
-//     char API_Endpoint_URL[257];
-//     uint32_t API_Endpoint_Port;
-// } UserConfiguration;
 
 /**
  ******************************************************************************
