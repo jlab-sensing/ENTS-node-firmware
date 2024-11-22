@@ -2,6 +2,8 @@ import argparse
 import os
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 from .calibrate.recorder import Recorder
 from .calibrate.linear_regression import (
@@ -42,9 +44,9 @@ def calibrate(args):
     V_STOP = 2.0
     V_STEP = 0.5
 
-    I_START = -0.009
-    I_STOP = 0.009
-    I_STEP = 0.0045
+    I_START = -0.0009
+    I_STOP = 0.0009
+    I_STEP = 0.00045
 
     def record_calibrate(start, stop, step, name: str):
         """Record and calibrate
@@ -96,20 +98,22 @@ def calibrate(args):
             plot_residuals(pred, residuals, title=name)
             plot_residuals_hist(residuals, title=name)
 
+    image_path = "../images/board_connection_calibration.png"
+    img = mpimg.imread(image_path)
+    plt.imshow(img)
+    plt.axis('off')
+    plt.title("Connect the Source Measure Unit to your ENTS board as illustrate below. \n\nCLOSE this window to START the calibration process.")
+    plt.show()
+
     if run_v:
-        print("Connect smu to voltage inputs device and press ENTER")
-        input()
         record_calibrate(V_START, V_STOP, V_STEP, "voltage")
 
     if run_i:
-        print(
-            "Connect smu to a resistor in series with the current channels and press ENTER"
-        )
-        input()
         record_calibrate(I_START, I_STOP, I_STEP, "current")
 
-    print("Press enter to close plots")
-    input()
+    if args.plot:
+        print("Press enter to close plots")
+        input()
 
 
 def save_csv(data: dict[str, list], path: str, name: str):
