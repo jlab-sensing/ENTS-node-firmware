@@ -91,21 +91,21 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB5 PBPin */
+  /*Configure GPIO pins : PB5 ESP32_EN_Pin */
   GPIO_InitStruct.Pin = GPIO_PIN_5|ESP32_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PCPin PCPin PCPin PCPin */
+  /*Configure GPIO pins : RF_CTRL3_Pin RF_CTRL2_Pin SDI_12_MUX_Pin RF_CTRL1_Pin */
   GPIO_InitStruct.Pin = RF_CTRL3_Pin|RF_CTRL2_Pin|SDI_12_MUX_Pin|RF_CTRL1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
+  /*Configure GPIO pin : POWERDOWN_Pin */
   GPIO_InitStruct.Pin = POWERDOWN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;

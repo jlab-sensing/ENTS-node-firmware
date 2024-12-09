@@ -28,7 +28,6 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "fifo.h"
 
 /* USER CODE END Includes */
 
@@ -129,12 +128,6 @@ extern "C" {
 #define LORAWAN_DEFAULT_CLASS_B_C_RESP_TIMEOUT      8000
 
 /* USER CODE BEGIN EC */
-
-/*!
- * LoRaWAN User application port
- * @note do not use 224. It is reserved for certification
- */
-#define LORAWAN_SPS_MEAS_PORT                       1
 
 /* USER CODE END EC */
 

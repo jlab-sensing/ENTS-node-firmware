@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -76,9 +76,6 @@ void Error_Handler(void);
 #define ESP32_EN_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
-/** Global variable for HAL return codes */
-HAL_StatusTypeDef rc;
 
 /* USER CODE END Private defines */
 

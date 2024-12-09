@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -171,11 +171,6 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
       Error_Handler();
     }
 
-    if (HAL_DMA_ConfigChannelAttributes(&hdma_usart1_tx, DMA_CHANNEL_NPRIV) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
     __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart1_tx);
 
     /* USART1_RX Init */
@@ -189,11 +184,6 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart1_rx.Init.Mode = DMA_NORMAL;
     hdma_usart1_rx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart1_rx) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    if (HAL_DMA_ConfigChannelAttributes(&hdma_usart1_rx, DMA_CHANNEL_NPRIV) != HAL_OK)
     {
       Error_Handler();
     }

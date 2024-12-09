@@ -170,14 +170,7 @@ extern "C" {
 #define DISABLE_LORAWAN_RX_WINDOW                       0
 
 /* USER CODE BEGIN EC */
-/** Enable the clock sync package */
-#define LORAWAN_ENABLE_CLOCK_SYNC 1
 
-/** Enable remote multicast setup package */
-#define LORAWAN_ENABLE_REMOTE_MCAST_SETUP 0
-
-/** Enable the fragmentation package*/
-#define LORAWAN_ENABLE_FRAGMENTATION 0
 /* USER CODE END EC */
 
 /* External variables --------------------------------------------------------*/

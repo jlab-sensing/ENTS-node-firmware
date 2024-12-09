@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file    lora_app.c
- * @author  MCD Application Team
- * @brief   Application of the LRWAN Middleware
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2024 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file    lora_app.c
+  * @author  MCD Application Team
+  * @brief   Application of the LRWAN Middleware
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2024 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -36,13 +36,7 @@
 #include "flash_if.h"
 
 /* USER CODE BEGIN Includes */
-#include "LmhpClockSync.h"
 
-#include "sdi12.h"
-#include "rtc.h"
-#include "sensors.h"
-
-#include <time.h>
 /* USER CODE END Includes */
 
 /* External variables ---------------------------------------------------------*/
@@ -94,7 +88,7 @@ typedef enum TxEventType_e
 #define LORAWAN_NVM_BASE_ADDRESS                    ((void *)0x0803F000UL)
 
 /* USER CODE BEGIN PD */
-#define TIMESYNC_PERIOD 1000
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -221,6 +215,7 @@ static void OnPingSlotPeriodicityChanged(uint8_t pingSlotPeriodicity);
 static void OnSystemReset(void);
 
 /* USER CODE BEGIN PFP */
+
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -295,17 +290,6 @@ static UTIL_TIMER_Time_t TxPeriodicity = APP_TX_DUTYCYCLE;
 static UTIL_TIMER_Object_t StopJoinTimer;
 
 /* USER CODE BEGIN PV */
-
-/**
- * @brief User application buffer
- */
-static uint8_t AppDataBuffer[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
-
-/**
- * @brief User application data structure
- */
-static LmHandlerAppData_t AppData = {0, 0, AppDataBuffer};
-
 /* USER CODE END PV */
 
 /* Exported functions ---------------------------------------------------------*/
@@ -344,9 +328,18 @@ void LoRaWAN_Init(void)
 
   LmHandlerJoin(ActivationType, ForceRejoin);
 
-  // start the tx timer
-  UTIL_TIMER_Create(&TxTimer, TxPeriodicity, UTIL_TIMER_ONESHOT, OnTxTimerEvent, NULL);
-  UTIL_TIMER_Start(&TxTimer);
+  if (EventType == TX_ON_TIMER)
+  {
+    /* send every time timer elapses */
+    UTIL_TIMER_Create(&TxTimer, TxPeriodicity, UTIL_TIMER_ONESHOT, OnTxTimerEvent, NULL);
+    UTIL_TIMER_Start(&TxTimer);
+  }
+  else
+  {
+    /* USER CODE BEGIN LoRaWAN_Init_3 */
+
+    /* USER CODE END LoRaWAN_Init_3 */
+  }
 
   /* USER CODE BEGIN LoRaWAN_Init_Last */
 
@@ -389,21 +382,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
   /* USER CODE BEGIN OnRxData_1 */
-  if ((appData != NULL) || (params != NULL))
-  {
-
-    static const char *slotStrings[] = {"1", "2", "C", "C Multicast", "B Ping-Slot", "B Multicast Ping-Slot"};
-
-    APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### ========== MCPS-Indication ==========\r\n");
-    APP_LOG(TS_OFF, VLEVEL_H, "###### D/L FRAME:%04d | SLOT:%s | PORT:%d | DR:%d | RSSI:%d | SNR:%d\r\n",
-            params->DownlinkCounter, slotStrings[params->RxSlot], appData->Port, params->Datarate, params->Rssi, params->Snr);
-    switch (appData->Port)
-    {
-    // TODO add cases for incoming data on ports
-    default:
-      break;
-    }
-  }
   /* USER CODE END OnRxData_1 */
 }
 
@@ -411,72 +389,6 @@ static void SendTxData(void)
 {
   /* USER CODE BEGIN SendTxData_1 */
 
-
-  // preconditions
-
-  // local flag for if clock has been synced
-  static bool clock_synced = false;
-
-  // Sync clock
-  if (!clock_synced) {
-    // send request and heck return
-    if (LmhpClockSyncAppTimeReq() == LORAMAC_HANDLER_SUCCESS) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Clock sync request send successfully\r\n")
-      // toggle flag
-      clock_synced = true;
-      // start taking measurements
-      SensorsStart();
-    }
-    else {
-      APP_LOG(TS_OFF, VLEVEL_M, "Could not sync clock, retrying on next tx\r\n");
-    }
-    // otherwise return
-    return;
-  }
-
-  // check if radio is busy
-  if (LmHandlerIsBusy())
-  {
-    APP_LOG(TS_ON, VLEVEL_M, "LmHandler is busy\r\n");
-    return;
-  }
-
-  // check if buffer is empty
-  if (FramBufferLen() <= 0)
-  {
-    APP_LOG(TS_ON, VLEVEL_M, "Nothing in buffer\r\n");
-    return;
-  }
-
-  uint8_t battery_level = GetBatteryLevel();
-  uint16_t temperature = SYS_GetTemperatureLevel();
-
-  FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
-  if (status != FRAM_OK)
-  {
-    APP_LOG(TS_OFF, VLEVEL_M,
-            "Error getting data from fram buffer. FramStatus = %d", status);
-    return;
-  }
-
-  APP_LOG(TS_ON, VLEVEL_M, "Payload: ");
-  for (int i = 0; i < AppData.BufferSize; i++)
-  {
-    APP_LOG(TS_OFF, VLEVEL_M, "%x ", AppData.Buffer[i]);
-  }
-  APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
-  APP_LOG(TS_ON, VLEVEL_M, "%d\r\n", AppData.BufferSize);
-
-  AppData.Port = LORAWAN_SPS_MEAS_PORT;
-
-  if (LORAMAC_HANDLER_SUCCESS == LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false))
-  {
-    APP_LOG(TS_ON, VLEVEL_L, "SEND REQUEST\r\n");
-  }
-  else
-  {
-    APP_LOG(TS_OFF, VLEVEL_M, "Could not send request\r\n");
-  }
   /* USER CODE END SendTxData_1 */
 }
 
@@ -501,52 +413,12 @@ static void OnTxTimerEvent(void *context)
 static void OnTxData(LmHandlerTxParams_t *params)
 {
   /* USER CODE BEGIN OnTxData_1 */
-  if ((params != NULL))
-  {
-    /* Process Tx event only if its a mcps response to prevent some internal events (mlme) */
-    if (params->IsMcpsConfirm != 0)
-    {
-      APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### ========== MCPS-Confirm =============\r\n");
-      APP_LOG(TS_OFF, VLEVEL_H, "###### U/L FRAME:%04d | PORT:%d | DR:%d | PWR:%d", params->UplinkCounter,
-              params->AppData.Port, params->Datarate, params->TxPower);
-
-      APP_LOG(TS_OFF, VLEVEL_H, " | MSG TYPE:");
-      if (params->MsgType == LORAMAC_HANDLER_CONFIRMED_MSG)
-      {
-        APP_LOG(TS_OFF, VLEVEL_H, "CONFIRMED [%s]\r\n", (params->AckReceived != 0) ? "ACK" : "NACK");
-      }
-      else
-      {
-        APP_LOG(TS_OFF, VLEVEL_H, "UNCONFIRMED\r\n");
-      }
-    }
-  }
   /* USER CODE END OnTxData_1 */
 }
 
 static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
 {
   /* USER CODE BEGIN OnJoinRequest_1 */
-  if (joinParams != NULL)
-  {
-    if (joinParams->Status == LORAMAC_HANDLER_SUCCESS)
-    {
-      APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### = JOINED = ");
-      if (joinParams->Mode == ACTIVATION_TYPE_ABP)
-      {
-        APP_LOG(TS_OFF, VLEVEL_M, "ABP ======================\r\n");
-      }
-      else
-      {
-        APP_LOG(TS_OFF, VLEVEL_M, "OTAA =====================\r\n");
-      }
-
-    }
-    else
-    {
-      APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### = JOIN FAILED\r\n");
-    }
-  }
   /* USER CODE END OnJoinRequest_1 */
 }
 
