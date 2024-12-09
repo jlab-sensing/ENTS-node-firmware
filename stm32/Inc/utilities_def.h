@@ -80,7 +80,8 @@ typedef enum
   CFG_SEQ_Task_LoRaStoreContextEvent,
   CFG_SEQ_Task_LoRaStopJoinEvent,
   /* USER CODE BEGIN CFG_SEQ_Task_Id_t */
-
+  CFG_SEQ_Task_Measurement,
+  CFG_SEQ_Task_TimeSync,
   /* USER CODE END CFG_SEQ_Task_Id_t */
   CFG_SEQ_Task_NBR
 } CFG_SEQ_Task_Id_t;

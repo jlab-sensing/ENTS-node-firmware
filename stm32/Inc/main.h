@@ -77,6 +77,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
+/** Global variable for HAL return codes */
+HAL_StatusTypeDef rc;
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
