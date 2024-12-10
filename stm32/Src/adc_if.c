@@ -46,6 +46,9 @@ extern ADC_HandleTypeDef hadc;
 
 /* USER CODE BEGIN PD */
 
+/** Number of ADC channels configured */
+#define ADC_CHANNELS 3
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,6 +59,12 @@ extern ADC_HandleTypeDef hadc;
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+/** Volatile DMA storage of ADC readings */
+volatile uint32_t adc_values_dma[ADC_CHANNELS];
+
+/** Static storage of ADC readings */
+uint32_t adc_values[ADC_CHANNELS];
 
 /* USER CODE END PV */
 
@@ -79,10 +88,21 @@ static uint32_t ADC_ReadChannels(uint32_t channel);
 void SYS_InitMeasurement(void)
 {
   /* USER CODE BEGIN SYS_InitMeasurement_1 */
-
+  HAL_StatusTypeDef rc;
   /* USER CODE END SYS_InitMeasurement_1 */
   hadc.Instance = ADC;
   /* USER CODE BEGIN SYS_InitMeasurement_2 */
+
+  // Run ADC initialization code  
+  MX_ADC_Init();
+
+  /* Start Calibration */
+  rc = HAL_ADCEx_Calibration_Start(&hadc);
+  if (rc != HAL_OK) Error_Handler();
+
+  // Start ADC conversions with DMA
+  rc = HAL_ADC_Start_DMA(&hadc, adc_values_dma, ADC_CHANNELS);
+  if (rc != HAL_OK) Error_Handler();
 
   /* USER CODE END SYS_InitMeasurement_2 */
 }
@@ -90,7 +110,12 @@ void SYS_InitMeasurement(void)
 void SYS_DeInitMeasurement(void)
 {
   /* USER CODE BEGIN SYS_DeInitMeasurement_1 */
+  HAL_StatusTypeDef rc;
+  HAL_ADC_Stop_DMA(&hadc);
+  if (rc != HAL_OK) Error_Handler();
 
+  // Deinit ADC
+  HAL_ADC_DeInit(&hadc);
   /* USER CODE END SYS_DeInitMeasurement_1 */
 }
 
@@ -103,7 +128,7 @@ int16_t SYS_GetTemperatureLevel(void)
   uint32_t measuredLevel = 0;
   uint16_t batteryLevelmV = SYS_GetBatteryLevel();
 
-  measuredLevel = ADC_ReadChannels(ADC_CHANNEL_TEMPSENSOR);
+  measuredLevel = ADC_ReadChannels(1);
 
   /* convert ADC level to temperature */
   /* check whether device has temperature sensor calibrated in production */
@@ -144,7 +169,7 @@ uint16_t SYS_GetBatteryLevel(void)
   uint16_t batteryLevelmV = 0;
   uint32_t measuredLevel = 0;
 
-  measuredLevel = ADC_ReadChannels(ADC_CHANNEL_VREFINT);
+  measuredLevel = ADC_ReadChannels(2);
 
   if (measuredLevel == 0)
   {
@@ -176,6 +201,18 @@ uint16_t SYS_GetBatteryLevel(void)
 /* Private Functions Definition -----------------------------------------------*/
 /* USER CODE BEGIN PrFD */
 
+/**
+ * @brief ADC callback on the completion of a conversion
+ * 
+ * Copies measurements from buffer into non-volatile storage for later access.
+ * 
+ * @param hadc Handle to ADC
+*/
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+  memcpy(adc_values, adc_values_dma, ADC_CHANNELS);
+}
+
 /* USER CODE END PrFD */
 
 static uint32_t ADC_ReadChannels(uint32_t channel)
@@ -183,42 +220,7 @@ static uint32_t ADC_ReadChannels(uint32_t channel)
   /* USER CODE BEGIN ADC_ReadChannels_1 */
 
   /* USER CODE END ADC_ReadChannels_1 */
-  uint32_t ADCxConvertedValues = 0;
-  ADC_ChannelConfTypeDef sConfig = {0};
-
-  MX_ADC_Init();
-
-  /* Start Calibration */
-  if (HAL_ADCEx_Calibration_Start(&hadc) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /* Configure Regular Channel */
-  sConfig.Channel = channel;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLINGTIME_COMMON_1;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  if (HAL_ADC_Start(&hadc) != HAL_OK)
-  {
-    /* Start Error */
-    Error_Handler();
-  }
-  /** Wait for end of conversion */
-  HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
-
-  /** Wait for end of conversion */
-  HAL_ADC_Stop(&hadc);   /* it calls also ADC_Disable() */
-
-  ADCxConvertedValues = HAL_ADC_GetValue(&hadc);
-
-  HAL_ADC_DeInit(&hadc);
-
-  return ADCxConvertedValues;
+  return adc_values[channel];
   /* USER CODE BEGIN ADC_ReadChannels_2 */
 
   /* USER CODE END ADC_ReadChannels_2 */

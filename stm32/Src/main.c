@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "dma.h"
 #include "i2c.h"
 #include "app_lorawan.h"
@@ -27,7 +28,17 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 
+#include "sys_app.h"
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include "ads.h"
+#include "sdi12.h"
+#include "phytos31.h"
+#include "rtc.h"
+#include "sensors.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,7 +63,7 @@
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -68,7 +79,6 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
-
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -92,11 +102,25 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
+  MX_ADC_Init();
+  MX_USART1_UART_Init();
   MX_LoRaWAN_Init();
-  MX_USART2_UART_Init();
   MX_I2C2_Init();
+  MX_USART2_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+  ADC_init();
+  MX_RTC_Init();
+  SensorsInit();
+
+  // Debug message, gets printed after init code
+  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
+
+  // configure sensors
+  SensorsAdd(ADC_measure);
+  //SensorsAdd(SDI12_Teros12Measure);
+  //SensorsAdd(Phytos31_measure);
+
 
   /* USER CODE END 2 */
 
@@ -172,6 +196,10 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
+  // char error[30];
+  // int error_len = sprintf(error, "Error!  HAL Status: %d\n", rc);
+  // HAL_UART_Transmit(&huart1, (const uint8_t *)error, error_len, 1000);
+
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
   while (1)

@@ -79,6 +79,7 @@ void MX_ADC_Init(void)
 
   /** Configure Regular Channel
   */
+  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
   sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
@@ -87,6 +88,7 @@ void MX_ADC_Init(void)
 
   /** Configure Regular Channel
   */
+  sConfig.Channel = ADC_CHANNEL_VREFINT;
   sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
@@ -128,9 +130,14 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc.Init.MemInc = DMA_MINC_ENABLE;
     hdma_adc.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-    hdma_adc.Init.Mode = DMA_NORMAL;
+    hdma_adc.Init.Mode = DMA_CIRCULAR;
     hdma_adc.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_adc) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    if (HAL_DMA_ConfigChannelAttributes(&hdma_adc, DMA_CHANNEL_NPRIV) != HAL_OK)
     {
       Error_Handler();
     }
@@ -168,5 +175,6 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 }
 
 /* USER CODE BEGIN 1 */
+
 
 /* USER CODE END 1 */
