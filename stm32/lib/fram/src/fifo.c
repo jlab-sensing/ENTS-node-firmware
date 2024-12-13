@@ -10,11 +10,17 @@
 
 #include "fifo.h"
 
-static uint16_t read_addr = FRAM_BUFFER_START;
-static uint16_t write_addr = FRAM_BUFFER_START;
+#include "sys_app.h"
+#include "usart.h"
 
-/** Number of measurements stored in buffer */
-static uint16_t buffer_len = 0;
+static const uint16_t FRAM_BUFFER_READ_ADDR = 0x06F0;  // 1776 (close to the end of buffer space)
+static const uint16_t FRAM_BUFFER_WRITE_ADDR = 0x06F2; // 1778
+static const uint16_t FRAM_BUFFER_LEN_ADDR = 0x06F4;   // 1780
+
+// head and tail
+static uint16_t read_addr;
+static uint16_t write_addr;
+static uint16_t buffer_len;
 
 /**
  * @brief Updates circular buffer address based on number of bytes
@@ -64,7 +70,7 @@ FramStatus FramPut(const uint8_t *data, const uint16_t num_bytes) {
   FramStatus status;
 
   // write single byte length to buffer
-  status = FramWrite(write_addr, &num_bytes, 1);
+  status = FramWrite(write_addr, (uint8_t *)&num_bytes, 1);
   if (status != FRAM_OK) {
     return status;
   }
@@ -80,6 +86,7 @@ FramStatus FramPut(const uint8_t *data, const uint16_t num_bytes) {
   // increment buffer length
   ++buffer_len;
 
+  FramSaveBufferState(read_addr, write_addr, buffer_len);
   return FRAM_OK;
 }
 
@@ -107,6 +114,7 @@ FramStatus FramGet(uint8_t *data, uint8_t *len) {
   // Decrement buffer length
   --buffer_len;
 
+  FramSaveBufferState(read_addr, write_addr, buffer_len);
   return FRAM_OK;
 }
 
@@ -119,6 +127,95 @@ FramStatus FramBufferClear(void) {
 
   // reset buffer len
   buffer_len = 0;
+  FramSaveBufferState(read_addr, write_addr, buffer_len);
+
+  return FRAM_OK;
+}
+
+FramStatus FIFO_Init(void) {
+  FramStatus status = FramLoadBufferState(&read_addr, &write_addr, &buffer_len);
+  if (status != FRAM_OK) {
+    // APP_PRINTF("Failed to load FIFO state. FRAM Status: %d\n", status);
+    // If loading the buffer state fails, assume it's an empty state
+    read_addr = FRAM_BUFFER_START;
+    write_addr = FRAM_BUFFER_START;
+    buffer_len = 0;
+    FramSaveBufferState(read_addr, write_addr, buffer_len);
+    // APP_PRINTF("Initialized to empty buffer state.\n");
+    return FRAM_OK;
+  } else {
+    if (read_addr == FRAM_BUFFER_START && write_addr == FRAM_BUFFER_START &&
+        buffer_len == 0) {
+      APP_PRINTF("Buffer is empty or freshly initialized.\n");
+    } else {
+      APP_PRINTF("Buffer contains data. Ready to resume operations.\n");
+    }
+  }
+  return FRAM_OK;
+}
+
+FramStatus FramSaveBufferState(uint16_t read_addr, uint16_t write_addr,
+                               uint16_t buffer_len) {
+  uint8_t *read_addr_bytes = (uint8_t *)&read_addr;
+  uint8_t *write_addr_bytes = (uint8_t *)&write_addr;
+  uint8_t *buffer_len_bytes = (uint8_t *)&buffer_len;
+
+  // Save read_addr
+  FramStatus status = FramWrite(FRAM_BUFFER_READ_ADDR, read_addr_bytes, sizeof(read_addr));
+  if (status != FRAM_OK) {
+    // APP_PRINTF("Failed to save read address. FRAM Status: %d\n", status);
+    return status;
+  }
+
+  // Save write_addr
+  status =
+      FramWrite(FRAM_BUFFER_WRITE_ADDR, write_addr_bytes, sizeof(write_addr));
+  if (status != FRAM_OK) {
+    // APP_PRINTF("Failed to save write address. FRAM Status: %d\n", status);
+    return status;
+  }
+
+  // Save buffer_len
+  status =
+      FramWrite(FRAM_BUFFER_LEN_ADDR, buffer_len_bytes, sizeof(buffer_len));
+  if (status != FRAM_OK) {
+    // APP_PRINTF("Failed to save buffer length. FRAM Status: %d\n", status);
+    return status;
+  }
+
+  // Print a single message summarizing the saved buffer state
+  // APP_PRINTF(
+  //     "Buffer State Saved Successfully. Read Address: 0x%04X (%d), Write "
+  //     "Address: 0x%04X (%d), Buffer Length: %d\n",
+  //     read_addr, read_addr, write_addr, write_addr, buffer_len);
+
+  return status;
+}
+
+FramStatus FramLoadBufferState(uint16_t *read_addr, uint16_t *write_addr,
+                               uint16_t *buffer_len) {
+  FramStatus status;
+
+  // Load read_addr and print each byte
+  status =
+      FramRead(FRAM_BUFFER_READ_ADDR, sizeof(*read_addr), (uint8_t *)read_addr);
+  if (status != FRAM_OK) return status;
+  // APP_PRINTF("Loaded Read Address: 0x%02X 0x%02X (%d)\n", ((uint8_t *)read_addr)[0],
+  //       ((uint8_t *)read_addr)[1], *read_addr);
+
+  // Load write_addr and print each byte
+  status = FramRead(FRAM_BUFFER_WRITE_ADDR, sizeof(*write_addr),
+                    (uint8_t *)write_addr);
+  if (status != FRAM_OK) return status;
+  // APP_PRINTF("Loaded Write Address: 0x%02X 0x%02X (%d)\n",
+  //       ((uint8_t *)write_addr)[0], ((uint8_t *)write_addr)[1], *write_addr);
+
+  // Load buffer_len and print each byte
+  status = FramRead(FRAM_BUFFER_LEN_ADDR, sizeof(*buffer_len),
+                    (uint8_t *)buffer_len);
+  if (status != FRAM_OK) return status;
+  // APP_PRINTF("Loaded Buffer Length: 0x%02X 0x%02X (%d)\n",
+  //       ((uint8_t *)buffer_len)[0], ((uint8_t *)buffer_len)[1], *buffer_len);
 
   return FRAM_OK;
 }

@@ -241,6 +241,39 @@ void test_FramBuffer_Wraparound(void) {
   TEST_ASSERT_EQUAL(FRAM_BUFFER_FULL, status);
 }
 
+void test_LoadSaveBufferState(void) {
+  // Clear the buffer and check initial state
+  FramStatus status = FramBufferClear();
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+
+  // Add some data
+  const uint8_t test_data[] = {0x11, 0x22, 0x33};
+  for (int i = 0; i < 10; i++) {
+    // note that FramPut() calls FramSaveBufferState()
+    status = FramPut(test_data, sizeof(test_data));
+    TEST_ASSERT_EQUAL(FRAM_OK, status);
+  }
+
+  // Load the new buffer state
+  uint16_t saved_read_addr, saved_write_addr, saved_buffer_len;
+  status = FramLoadBufferState(&saved_read_addr, &saved_write_addr,
+                               &saved_buffer_len);
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+
+  // Validate the updated state: buffer_len should reflect 10 puts
+  TEST_ASSERT_EQUAL(10, saved_buffer_len);
+  TEST_ASSERT_NOT_EQUAL(FRAM_BUFFER_START, saved_write_addr);
+  TEST_ASSERT_EQUAL(FRAM_BUFFER_START, saved_read_addr);
+
+  uint8_t retrieved_data[sizeof(test_data)];
+  uint8_t retrieved_len;
+  for (int i = 0; i < 10; i++) {
+    status = FramGet(retrieved_data, &retrieved_len);
+    TEST_ASSERT_EQUAL(FRAM_OK, status);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(test_data, retrieved_data, sizeof(test_data));
+  }
+}
+
 /**
  * @brief  The application entry point.
  * @retval int
@@ -287,6 +320,7 @@ int main(void) {
   RUN_TEST(test_FramGet_Sequential);
   RUN_TEST(test_FramGet_Sequential_BufferFull);
   RUN_TEST(test_FramBuffer_Wraparound);
+  RUN_TEST(test_LoadSaveBufferState);
   UNITY_END();
   /* USER CODE END 3 */
 }
