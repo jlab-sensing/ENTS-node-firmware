@@ -13,8 +13,8 @@
 /** Baud rate for serial interface */
 #define SERIAL_BAUD 115200
 
-const char ssid[] = "ResWiFi-Devices";
-const char pass[] = "RbRr2V7X3h288qScPg";
+const char ssid[] = "HARE_Lab";
+const char pass[] = "";
 
 Dirtviz api("dirtviz.jlab.ucsc.edu", 443);
 
