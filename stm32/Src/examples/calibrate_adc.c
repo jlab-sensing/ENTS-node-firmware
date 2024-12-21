@@ -15,27 +15,21 @@
  *
  ******************************************************************************
  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "adc.h"
+#include "ads.h"
 #include "app_lorawan.h"
 #include "dma.h"
 #include "gpio.h"
 #include "i2c.h"
-#include "usart.h"
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-#include "ads.h"
 #include "rtc.h"
 #include "sdi12.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,6 +44,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+const int uart_timeout = 1000;
 
 /* USER CODE END PM */
 
@@ -109,48 +104,76 @@ int main(void) {
   /* USER CODE BEGIN 2 */
   ADC_init();
 
-  // Print the compilation time at startup
-  char info_str[100];
-  int info_len;
-  info_len = snprintf(info_str, sizeof(info_str),
-                      "Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n",
-                      __DATE__, __TIME__);
-  HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
-
   /* USER CODE BEGIN 2 */
-
-  char output[20];
-  char output2[20];
   char controller_input[3];
+  char check_input[7];
+  char check_result[4];
+  char size_proto_string[4];
+  uint8_t encoded_measurment[256];
+  int size_check = snprintf(check_result, sizeof(check_result), "ok\n");
+  // status for HAL_UART_* functions
+  HAL_StatusTypeDef status = HAL_OK;
 
-  double voltage_reading;
-  double current_reading;
-  size_t reading_len;
+  // block for host to send check command
+  status = HAL_UART_Receive(&huart1, (uint8_t *)check_input, 6, HAL_MAX_DELAY);
+  if (status != HAL_OK) {
+    Error_Handler();
+  }
+
+  // check for first chararcter in "check"
+  if (check_input[0] == 'c') {
+    status = HAL_UART_Transmit(
+        &huart1, (uint8_t *)check_result, size_check,
+        uart_timeout);  // send response to the 'check' command
+    if (status != HAL_OK) {
+      Error_Handler();
+    }
+  }
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_UART_Receive(&huart1, (uint8_t *)controller_input, 2, 1000);
 
-    if (controller_input[0] == '0') {
-      voltage_reading = ADC_readVoltage();
-      reading_len =
-          snprintf(output, sizeof(output), "Voltage: %f\r\n", voltage_reading);
-      HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
-                        HAL_MAX_DELAY);
-
-      current_reading = ADC_readCurrent();
-      reading_len = snprintf(output2, sizeof(output2), "Current: %f\r\n",
-                             current_reading);
-      HAL_UART_Transmit(&huart1, (const uint8_t *)output2, reading_len,
-                        HAL_MAX_DELAY);
-
-      controller_input[0] = 'n';
+    // block until receive request for measurement
+    status = HAL_UART_Receive(
+        &huart1, (uint8_t *)controller_input, 1,
+        HAL_MAX_DELAY);  // On every other iteration, send the encoded
+                         // measurment in response to the '0' command
+    if (status != HAL_OK) {
+      continue;
     }
+
+    // check command input
+    if (controller_input[0] == '0') {
+      size_t measurement_size = ADC_measure(
+          encoded_measurment);  // Read the measurment, and store it's size in
+                                // measurement_size (size int 64)
+      if (measurement_size == -1) {
+        continue;
+      }
+
+      // send length
+      status = HAL_UART_Transmit(&huart1, (uint8_t *)&measurement_size, 1,
+                                 uart_timeout);
+      if (status != HAL_OK) {
+        continue;
+      }
+
+      // send data
+      status = HAL_UART_Transmit(&huart1, (uint8_t *)encoded_measurment,
+                                 measurement_size, uart_timeout);
+      if (status != HAL_OK) {
+        continue;
+      }
+    }
+
+    // delay between measurements
     HAL_Delay(100);
     /* USER CODE END 3 */
   }

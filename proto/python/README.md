@@ -74,6 +74,48 @@ meas_dict = {
 }
 ```
 
+Type `bme280` with `raw=True` (default)
+```python
+meas_dict = {
+  "type": "bme280",
+  "loggerId": ...,
+  "cellId": ...,
+  "ts": ...,
+  "data": {
+    "pressure": ...,
+    "temperature": ...,
+    "humidity": ...,
+  },
+  "data_type": {
+    "pressure": int,
+    "temperature": int,
+    "humidity": int, 
+  }
+}
+```
+
+Type `bme280` with `raw=False`
+```python
+meas_dict = {
+  "type": "bme280",
+  "loggerId": ...,
+  "cellId": ...,
+  "ts": ...,
+  "data": {
+    "pressure": ...,
+    "temperature": ...,
+    "humidity": ...,
+  },
+  "data_type": {
+    "pressure": float,
+    "temperature": float,
+    "humidity": float, 
+  }
+}
+```
+
+
+
 ## Testing
 
 To run the package tests, create a virtual environment, install as an editable package, and run `unittest`.
@@ -82,5 +124,5 @@ To run the package tests, create a virtual environment, install as an editable p
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
-python -m unittest discover tests
+python -m unittest
 ```

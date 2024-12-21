@@ -32,12 +32,6 @@ extern "C" {
 #define ADS12_RESET_CODE 0x06
 #define ADS12_READ_DATA_CODE 0x10
 
-#define VOLTAGE_SLOPE -0.1  // Change to slope o/p from the linear_regression.py
-#define VOLTAGE_B 6575  // Change to the b output from the linear_regression.py
-
-#define CURRENT_SLOPE 0
-#define CURRENT_B 0
-
 /**
 ******************************************************************************
 * @brief    This function starts up the ADS1219

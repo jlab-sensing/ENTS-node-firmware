@@ -4,7 +4,7 @@ NANOPB = nanopb_generator
 C_SRC_DIR = c/src
 C_INC_DIR = c/include
 
-PYTHON_DIR = python/src/soil_power_sensor_protobuf
+PYTHON_DIR = python/src/soil_power_sensor_protobuf/proto
 
 BUILD_DIR = build
 

@@ -19,33 +19,42 @@ void SystemClock_Config(void);
 HAL_StatusTypeDef rc;
 
 /**
- * @brief Entry point for managing and retrieving data stored in FRAM across restarts.
+ * @brief Entry point for managing and retrieving data stored in FRAM across
+restarts.
 
 * This code performs the following functions:
-* 1. Initializes the STM32 system, GPIO, I2C, UART, and other application-specific modules.
-* 2. Writes example data multiple times to a FRAM buffer to test data storage functionality.
-* 3. Blinks an LED on GPIO_PIN_5 of port GPIOB to indicate the program is running.
-* 4. (Optional) Includes a section to read and print stored data from FRAM, currently commented out.
-* 
-* Expected behavior: The LED should blink continuously, and pressing the "Restart" button will
+* 1. Initializes the STM32 system, GPIO, I2C, UART, and other
+application-specific modules.
+* 2. Writes example data multiple times to a FRAM buffer to test data storage
+functionality.
+* 3. Blinks an LED on GPIO_PIN_5 of port GPIOB to indicate the program is
+running.
+* 4. (Optional) Includes a section to read and print stored data from FRAM,
+currently commented out.
+*
+* Expected behavior: The LED should blink continuously, and pressing the
+"Restart" button will
 * trigger additional data entries in the FRAM buffer.
-* 
+*
 * @retval int
 */
 
 int main(void) {
   HAL_Init();
   SystemClock_Config();
-  MX_GPIO_Init();
-  MX_I2C2_Init();
-  MX_USART1_UART_Init();
   SystemApp_Init();
+
+  MX_GPIO_Init();
+  MX_USART1_UART_Init();
+  MX_DMA_Init();
+  MX_I2C2_Init();
+
   FIFO_Init();
 
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   GPIO_InitStruct.Pin = GPIO_PIN_5;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;   // Set as push-pull output
-  GPIO_InitStruct.Pull = GPIO_NOPULL;           // No pull-up or pull-down
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;  // Set as push-pull output
+  GPIO_InitStruct.Pull = GPIO_NOPULL;          // No pull-up or pull-down
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;  // Low frequency for LED
 
   FramStatus status;
@@ -61,7 +70,7 @@ int main(void) {
   uint8_t retrieved_data[sizeof(test_data)];
   uint8_t retrieved_len;
 
-  printf("Press the Restart button to add more data to FRAM...\n");
+  APP_PRINTF("Press the Restart button to add more data to FRAM...\n");
 
   // Visualizing actual data (commented out)
   // while (FramBufferLen() > 0) {
@@ -70,7 +79,7 @@ int main(void) {
   //         // Loop through retrieved_data and print each byte in hexadecimal
   //         format print("Data length: %d\n", retrieved_len); for (int i = 0; i
   //         < retrieved_len; i++) {
-  //             print("Data[%d]: 0x%02X\n", i, retrieved_data[i]);
+  //             APP_PRINTF("Data[%d]: 0x%02X\n", i, retrieved_data[i]);
   //         }
   //     } else {
   //         // Handle error if needed

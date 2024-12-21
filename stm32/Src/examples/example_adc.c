@@ -22,10 +22,10 @@
 #include <stdlib.h>
 
 #include "adc.h"
-#include "app_lorawan.h"
 #include "dma.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "sys_app.h"
 #include "usart.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -34,7 +34,6 @@
 #include "ads.h"
 #include "rtc.h"
 #include "sdi12.h"
-#include "sys_app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,30 +98,22 @@ int main(void) {
   MX_USART1_UART_Init();
   MX_I2C2_Init();
 
+  // init systemapp
+  SystemApp_Init();
+
   /*Initialize timer and RTC*/
   /*Have to be initilized in example files because LoRaWan cannot be initialized
    * like in main*/
-  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-  UTIL_TIMER_Init();
+  // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+  // UTIL_TIMER_Init();
+
+  APP_PRINTF("example_adc, compiled on %s %s\r\n", __DATE__, __TIME__);
 
   /* USER CODE BEGIN 2 */
-  char fail_str[100];
-
-  // Print the compilation time at startup
-  char info_str[100];
-  int info_len;
-  info_len = snprintf(info_str, sizeof(info_str),
-                      "Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n",
-                      __DATE__, __TIME__);
-  HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
-
-  /* USER CODE BEGIN 2 */
+  // HAL_Delay(50);
   ADC_init();
   // int size = sprintf(fail_str, "Failed at ADC_init\n");
   // HAL_UART_Transmit(&huart1, (const uint8_t *) fail_str, size, 100);
-
-  char output[20];
-  char output2[20];
 
   double voltage_reading;
   double current_reading;
@@ -135,17 +126,18 @@ int main(void) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    // Looked into enabling floating prints with printf and scanf but did not
+    // work. Fix is tbd
+
     voltage_reading = ADC_readVoltage();
-    reading_len =
-        snprintf(output, sizeof(output), "Voltage: %f\r\n", voltage_reading);
-    HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
-                      HAL_MAX_DELAY);
+    char voltage_str[20];
+    snprintf(voltage_str, sizeof(voltage_str), "%lf", voltage_reading);
+    APP_PRINTF("Voltage: %s\r\n", voltage_str);
 
     current_reading = ADC_readCurrent();
-    reading_len =
-        snprintf(output2, sizeof(output), "Current: %f\r\n", current_reading);
-    HAL_UART_Transmit(&huart1, (const uint8_t *)output2, reading_len,
-                      HAL_MAX_DELAY);
+    char current_str[20];
+    snprintf(current_str, sizeof(current_str), "%f", current_reading);
+    APP_PRINTF("Current: %s\r\n", current_str);
 
     HAL_Delay(1000);
   }

@@ -75,7 +75,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install cpplint
-        run: pip install cpplint==1.6.1
+        run: pip install --upgrade cpplint==1.6.1
 
       - name: Run linter
         run: cpplint --recursive lib Src/examples test

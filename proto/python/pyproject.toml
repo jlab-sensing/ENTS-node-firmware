@@ -4,22 +4,29 @@ build-backend = "hatchling.build"
 
 [project]
 name = "soil-power-sensor-protobuf"
-version = "2.2.0"
+version = "2.2.2"
 authors = [
   { name="John Madden", email="jmadden173@pm.me" },
 ]
 description = "Python package for encoding/decoding measurement data from the Soil Power Sensor"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
 dependencies = [
+  'matplotlib',
+  'pandas',
   'protobuf~=4.21.1',
+  'pyserial',
+  'scikit-learn',
+  'tqdm',
 ]
 
+[project.scripts]
+ents = "soil_power_sensor_protobuf.cli:entry"
 
 [project.urls]
 Homepage = "https://github.com/jlab-sensing/soil-power-sensor-firmware"
@@ -27,5 +34,8 @@ Issues = "https://github.com/jlab-sensing/soil-power-sensor-firmware/issues"
 
 [tool.ruff]
 exclude = [
-  "src/soil_power_sensor_protobuf/soil_power_sensor_pb2.py",
+  "src/soil_power_sensor_protobuf/proto/soil_power_sensor_pb2.py",
 ]
+
+[tool.black]
+exclude = ".*_pb2.py"

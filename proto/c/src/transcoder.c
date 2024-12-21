@@ -81,6 +81,26 @@ size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
+size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
+                               uint32_t cell_id, uint32_t pressure,
+                               int32_t temperature, uint32_t humidity,
+                               uint8_t *buffer) {
+  Measurement meas = Measurement_init_zero;
+
+  meas.has_meta = true;
+
+  meas.meta.ts = ts;
+  meas.meta.logger_id = logger_id;
+  meas.meta.cell_id = cell_id;
+
+  meas.which_measurement = Measurement_bme280_tag;
+  meas.measurement.bme280.pressure = pressure;
+  meas.measurement.bme280.temperature = temperature;
+  meas.measurement.bme280.humidity = humidity;
+
+  return EncodeMeasurement(&meas, buffer);
+}
+
 Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len) {
   Response resp;
 
@@ -107,4 +127,32 @@ size_t EncodeMeasurement(Measurement *meas, uint8_t *buffer) {
 
   // return number of bytes written
   return ostream.bytes_written;
+}
+
+size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer) {
+  // create output stream
+  pb_ostream_t ostream = pb_ostream_from_buffer(buffer, UserConfiguration_size);
+
+  // Encode the UserConfiguration message and check if successful
+  bool status = pb_encode(&ostream, UserConfiguration_fields, config);
+  if (!status) {
+    return -1;
+  }
+
+  // Return the number of bytes written
+  return ostream.bytes_written;
+}
+
+int DecodeUserConfiguration(const uint8_t *data, const size_t len,
+                            UserConfiguration *config) {
+  // Create a protobuf input stream from the data buffer
+  pb_istream_t istream = pb_istream_from_buffer(data, len);
+
+  // Decode the UserConfiguration message and check if successful
+  bool status = pb_decode(&istream, UserConfiguration_fields, config);
+  if (!status) {
+    return -1;  // Return -1 if there was a decoding error
+  }
+
+  return 0;  // Return 0 on success
 }

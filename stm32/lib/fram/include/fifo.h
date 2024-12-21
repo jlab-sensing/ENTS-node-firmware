@@ -43,12 +43,6 @@ extern "C" {
 #define FRAM_BUFFER_END 1770
 #endif /* FRAM_BUFFER_END */
 
-/** Addresses in FRAM for buffer state variables */
-#define FRAM_BUFFER_READ_ADDR 0x06F0  // 1776 (close to the end of buffer space)
-#define FRAM_BUFFER_WRITE_ADDR 0x06F2  // 1778
-#define FRAM_BUFFER_LEN_ADDR 0x06F4    // 1780
-#define FRAM_BUFFER_START 0x0000       // 0
-
 #if FRAM_BUFFER_START > FRAM_BUFFER_END
 #error "Buffer end address must be greater than buffer start address"
 #endif

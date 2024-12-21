@@ -52,6 +52,15 @@ message Phytos31Measurement {
   double leaf_wetness = 2;
 }
 
+message BME280Measurement {
+  // pressure
+  uint32 pressure = 1;
+  // temperature
+  int32 temperature = 2;
+  // humidity
+  uint32 humidity = 3;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -62,6 +71,7 @@ message Measurement {
     PowerMeasurement power = 2;
     Teros12Measurement teros12 = 3;
     Phytos31Measurement phytos31 = 4;
+    BME280Measurement bme280 = 5;
   }
 }
 
@@ -77,4 +87,38 @@ message Response {
 
   /* Response from server */
   ResponseType resp = 1; 
+}
+
+message UserConfiguration {
+  /********** Upload Settings **********/
+  uint32 logger_id = 1; // id of the logging device
+  uint32 cell_id = 2;   // id of the cell measured
+  Uploadmethod Upload_method = 3; // indicates whether LoRa or WiFi is used
+  uint32 Upload_interval = 4; // upload time in seconds
+
+  /********** Measurement Settings **********/
+  repeated EnabledSensor enabled_sensors = 5; // List of enabled sensors
+  double Voltage_Slope = 6; // Calibration slope for voltage
+  double Voltage_Offset = 7; // Calibration offset for voltage
+  double Current_Slope = 8; // Calibration slope for current
+  double Current_Offset = 9; // Calibration offset for current
+
+  /********** WiFi Settings **********/
+  string WiFi_SSID = 10;
+  string WiFi_Password = 11;
+  string API_Endpoint_URL = 12;
+  uint32 API_Endpoint_Port = 13;
+}
+
+enum EnabledSensor {
+  Voltage = 0;
+  Current = 1;
+  Teros12 = 2;
+  Teros21 = 3;
+  BME280 = 4;
+}
+
+enum Uploadmethod {
+  LoRa = 0;
+  WiFi = 1;
 }

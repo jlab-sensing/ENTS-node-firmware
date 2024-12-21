@@ -91,6 +91,43 @@ size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
                                  double leaf_wetness, uint8_t *buffer);
 
 /**
+ * @brief Encodes a BME280 measurement
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * Below shows the relation between raw measurements taken from the device in
+ * relation to real-world or si units.
+ *
+ * Raw values
+ *
+ * pressure: 98473
+ * temperature: 2275
+ * humidity: 43600
+ *
+ * SI unit values
+ *
+ * pressure: 9847.3 hPa
+ * temperature: 22.75 C
+ * humidity: 43.600 %
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param pressure Air pressure in hPa
+ * @param temperature Air temperature in celsius (C)
+ * @param humidity Relative humidity in percent (%)
+ * @param buffer Buffer to store serialized measurement
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
+                               uint32_t cell_id, uint32_t pressure,
+                               int32_t temperature, uint32_t humidity,
+                               uint8_t *buffer);
+
+/**
  * @brief Decodes a response message
  *
  * Take bytes in @p data withy length @p len and decodes into a response type.
@@ -103,6 +140,35 @@ size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
  * @return Response type
  */
 Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len);
+
+/**
+ * @brief Encodes user configuration data.
+ *
+ * This function serializes user configuration settings, including upload
+ * settings, measurement settings, and WiFi settings, using protobuf and stores
+ * the result in a buffer. The serialized data length is returned, or -1 if an
+ * encoding error occurred.
+ *
+ * @param config User configuration to encode
+ * @param buffer Buffer to store serialized data
+ * @return Number of bytes in the buffer, or -1 on error
+ */
+size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer);
+
+/**
+ * @brief Decodes user configuration data.
+ *
+ * This function deserializes a user configuration protobuf message from a
+ * buffer. The message length is specified, and a return value of -1 indicates a
+ * decoding error.
+ *
+ * @param data Serialized data buffer
+ * @param len Length of data buffer
+ * @param config Decoded user configuration output
+ * @return 0 on success, -1 on error
+ */
+int DecodeUserConfiguration(const uint8_t *data, const size_t len,
+                            UserConfiguration *config);
 
 #ifdef __cplusplus
 }

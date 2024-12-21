@@ -249,6 +249,7 @@ void test_LoadSaveBufferState(void) {
   // Add some data
   const uint8_t test_data[] = {0x11, 0x22, 0x33};
   for (int i = 0; i < 10; i++) {
+    // note that FramPut() calls FramSaveBufferState()
     status = FramPut(test_data, sizeof(test_data));
     TEST_ASSERT_EQUAL(FRAM_OK, status);
   }

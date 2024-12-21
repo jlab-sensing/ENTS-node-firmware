@@ -15,7 +15,8 @@ The `soil_power_sensor_protobuf` package needs to be installed first.
 from soil_power_sensor_protobuf import (encode_response,
                                         encode_power_measurement,
                                         encode_teros12_measurement,
-                                        encode_phytos31_measurement)
+                                        encode_phytos31_measurement,
+                                        encode_bme280_measurement)
 
 
 def print_bytes_c(data : bytes) -> str:
@@ -24,7 +25,7 @@ def print_bytes_c(data : bytes) -> str:
     # format data string
     data_str = "uint8_t data[] = {"
     hex_str = [hex(d) for d in data]
-    data_str += ", ".join(hex_str) 
+    data_str += ", ".join(hex_str)
     data_str += "};"
 
     # print data string
@@ -50,6 +51,12 @@ if __name__ == "__main__":
     meas_phytos31 = encode_phytos31_measurement(1436079600, 4, 7, 1425.12,
                                                 1962.2)
     print_bytes_c(meas_phytos31)
+    print()
+    
+    print("BME280 Bytes")
+    meas_bme280 = encode_bme280_measurement(1436079600, 4, 7, 98473, 2275,
+                                            43600)
+    print_bytes_c(meas_bme280)
     print()
 
     print("Response Success Bytes")

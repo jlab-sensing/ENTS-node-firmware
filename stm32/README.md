@@ -1,5 +1,35 @@
 # STM32 Firmware
 
+## Flashing the firmware
+
+> Before running the following ensure you have updated the ports in `platformio.ini` described in the root [README.md](../README.md).
+
+Connect the ST-Link to `D2` at the top of the board. Connect Wio-E5 to your computer using a USB-C cable.
+
+### VSCode
+
+Check the correct environment is selected. Should be `env:stm32 (stm32)`
+
+![VSCode env](../images/vscode_env_stm32.jpeg)
+
+Goto *PlatformIO Tab -> Project Tasks -> Upload and Monitor*
+
+![VSCode Upload and Monitor](../images/vscode_upload_monitor.jpeg)
+
+### CLI
+
+To build and upload the firmware and open a serial monitor run the following command. You should see LoRaWAN EUIs printed and the device attempting to connect to a network.
+
+```bash
+pio run -e stm32 -t upload -t monitor
+```
+
+There are other firmware (mainly examples) that can be flashed to the board. For example the environment *example_adc* prints measurements and can be flashed with the following
+
+```bash
+pio run -e example_adc -t upload -t monitor
+```
+
 ## Structure of `platformio.ini`
 
 Since this project is monolithic and requires all components to be built together, the structure of @ref platformio.ini does not follow standard platformio practices. The default environment (`stm32`) builds the project with `main.c`. For the `example_battery` environment `main.c` needs to be excluded as follows

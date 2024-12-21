@@ -1,6 +1,8 @@
 # user-defined
 *.code-workspace
 **/.vscode/settings.json
+.mypy_cache
+tags*
 
 # docs
 docs/html

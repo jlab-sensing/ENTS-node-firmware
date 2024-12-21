@@ -4,7 +4,27 @@ The ESP32 firmware acts as a WiFi interface the STM32 module. It gets binary dat
 
 ## Flashing
 
-TODO
+> Before running the following ensure you have updated the ports in `platformio.ini` described in the root [README.md](../README.md).
+
+The esp32 is programmed through a bootloader through UART. A USB to TTL convert is required to program the microcontroller with your computer and can be found cheaply online. Ensure it supports 3.3V logic levels.
+
+### VSCode
+
+Check the correct environment is selected. Should be `env:esp32 (esp32)`
+
+![VSCode env](../images/vscode_env_esp32.jpeg)
+
+Goto *PlatformIO Tab -> Project Tasks -> Upload and Monitor*
+
+![VSCode Upload and Monitor](../images/vscode_upload_monitor.jpeg)
+
+### CLI
+
+The following can be used to flash the firmware on the esp32
+
+```bash
+pio run -e esp32 -t upload -t monitor
+```
 
 ## Testing
 

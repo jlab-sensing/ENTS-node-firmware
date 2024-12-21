@@ -1,0 +1,4 @@
+UserConfiguration.WiFi_SSID max_length: 32
+UserConfiguration.WiFi_Password max_length: 64
+UserConfiguration.API_Endpoint_URL max_length: 64
+UserConfiguration.enabled_sensors max_count:5

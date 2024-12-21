@@ -180,6 +180,41 @@ void test_teros12(void) {
                             teros12_decode.measurement.teros12.vwc_raw);
 }
 
+void test_bme280(void) {
+  Measurement bme280_encode = Measurement_init_zero;
+  bme280_encode.which_measurement = Measurement_bme280_tag;
+  bme280_encode.has_meta = true;
+  bme280_encode.meta = meta_default;
+  bme280_encode.measurement.bme280.temperature = 27;
+  bme280_encode.measurement.bme280.pressure = 300;
+  bme280_encode.measurement.bme280.humidity = 10;
+
+  status = pb_encode(&ostream, Measurement_fields, &bme280_encode);
+  msg_len = ostream.bytes_written;
+
+  TEST_ASSERT_TRUE(status);
+  TEST_ASSERT_GREATER_THAN(0, msg_len);
+
+  Measurement bme280_decode;
+
+  istream = pb_istream_from_buffer(buffer, msg_len);
+  status = pb_decode(&istream, Measurement_fields, &bme280_decode);
+
+  TEST_ASSERT_TRUE(status);
+
+  // Meta
+  TEST_ASSERT_TRUE(bme280_decode.has_meta);
+  TEST_ASSERT_EQUAL(0, bme280_decode.meta.cell_id);
+  TEST_ASSERT_EQUAL(0, bme280_decode.meta.logger_id);
+  // Timestamp
+  TEST_ASSERT_EQUAL(UNIX_EPOCHS, bme280_decode.meta.ts);
+
+  TEST_ASSERT_EQUAL(Measurement_bme280_tag, bme280_decode.which_measurement);
+  TEST_ASSERT_EQUAL(27, bme280_decode.measurement.bme280.temperature);
+  TEST_ASSERT_EQUAL(300, bme280_decode.measurement.bme280.pressure);
+  TEST_ASSERT_EQUAL(10, bme280_decode.measurement.bme280.humidity);
+}
+
 void test_response(void) {
   Response response_encode = Response_init_zero;
   response_encode.resp = Response_ResponseType_SUCCESS;
