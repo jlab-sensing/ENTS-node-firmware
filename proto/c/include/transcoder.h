@@ -21,6 +21,7 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
 #include <string.h>
 
 #include "soil_power_sensor.pb.h"
@@ -140,6 +141,56 @@ size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
  * @return Response type
  */
 Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len);
+
+/**
+ * @brief Decodes an Esp32Command message
+ *
+ * The type of command and the data from the command will need to be manually
+ * extracted, @see soil_power_sensor.ph.h.
+ *
+ * @returns Esp32Command data
+ */
+Esp32Command DecodeEsp32Command(const uint8_t *data, const size_t len);
+
+/**
+ * @brief Encodes a page command
+ *
+ * @param req Request type
+ * @param fd File descriptor
+ * @param bs Block size
+ * @param n Number of bytes
+ * @param buffer Buffer to store serialized command
+ * @param size Size of buffer
+ *
+ * @returns Number of bytes in @p buffer
+ */
+size_t EncodePageCommand(PageCommand_RequestType req, int fd, size_t bs,
+                         size_t n, uint8_t *buffer, size_t size);
+
+/**
+ * @brief Encodes a test command
+ *
+ * @param state State to change to
+ * @param data Data to encode
+ * @param buffer Buffer to store serialized command
+ * @param size Size of buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
+                         uint8_t *buffer, size_t size);
+
+/**
+ * @brief Encodes a WiFiCommand
+ *
+ * @param wifi_cmd Command containing the data
+ * @param buffer Buffer to store serialized measurement
+ * @param size Size of buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
+                         size_t size);
 
 /**
  * @brief Encodes user configuration data.

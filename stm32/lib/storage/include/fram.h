@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef LIB_FRAM_INCLUDE_FRAM_H_
-#define LIB_FRAM_INCLUDE_FRAM_H_
+#ifndef LIB_STORAGE_INCLUDE_FRAM_H_
+#define LIB_STORAGE_INCLUDE_FRAM_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -142,4 +142,4 @@ FramStatus FramDump(uint16_t linesize, uint8_t displayformat, uint8_t omitjunk,
 }
 #endif
 
-#endif  // LIB_FRAM_INCLUDE_FRAM_H_
+#endif  // LIB_STORAGE_INCLUDE_FRAM_H_

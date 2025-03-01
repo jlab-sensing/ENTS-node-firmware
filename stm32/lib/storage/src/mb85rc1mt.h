@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef LIB_FRAM_SRC_MB85RC1MT_H_
-#define LIB_FRAM_SRC_MB85RC1MT_H_
+#ifndef LIB_STORAGE_SRC_MB85RC1MT_H_
+#define LIB_STORAGE_SRC_MB85RC1MT_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,4 +56,4 @@ FramStatus Mb85rc1mtRead(FramAddr addr, size_t len, uint8_t *data);
 }
 #endif
 
-#endif  // LIB_FRAM_SRC_MB85RC1MT_H_
+#endif  // LIB_STORAGE_SRC_MB85RC1MT_H_

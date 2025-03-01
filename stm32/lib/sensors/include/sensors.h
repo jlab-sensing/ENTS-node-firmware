@@ -105,6 +105,16 @@ void SensorsStop(void);
  */
 int SensorsAdd(SensorsPrototypeMeasure cb);
 
+/**
+ * @brief Function for adding static test measurements
+ *
+ * Uses adc measurements
+ * a c 8 c8 1 10 c8 1 18 88 ba f3 ba 6 12 9 11 d9 ce f7 53 3 88 b7 c0
+ *
+ * @see SensorsPrototypeMeasure
+ */
+size_t SensorsMeasureTest(uint8_t* data);
+
 #ifdef __cplusplus
 }
 #endif

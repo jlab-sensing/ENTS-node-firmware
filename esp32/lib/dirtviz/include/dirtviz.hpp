@@ -17,21 +17,19 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "http.hpp"
+
 /**
  * @brief HTTP interface for Dirtviz API
  */
 class Dirtviz {
- private:
-  /** URL of API */
-  char *url = nullptr;
-
-  /** Port of API*/
-  uint16_t port;
-
-  /** Buffer for the HTTP response */
-  char *response = nullptr;
-
  public:
+  /**
+   * @brief Construct a new Dirtviz object
+   *
+   */
+  Dirtviz(void);
+
   /**
    * @brief Default constructor
    *
@@ -76,29 +74,35 @@ class Dirtviz {
   uint16_t GetPort(void) const;
 
   /**
-   * @brief Send serialized measurement to the API
+   * @brief Health check for API endpoint
    *
-   * The entire response is stored in a dynamically allocated buffer. Use
-   * Dirtviz::GetResponse to get the binary response data.
+   * @return HTTP code from health check
+   */
+  unsigned int Check() const;
+
+  /**
+   * @brief Send serialized measurement to the API
    *
    * @param meas Pointer to serialized measurement data
    * @param meas_len Number of bytes in @p meas
    *
-   * @return HTTP response code, -1 indicates an error in parsing
+   * @return Response from http server
    */
-  int SendMeasurement(const uint8_t *meas, size_t meas_len);
+  HttpClient SendMeasurement(const uint8_t *meas, size_t meas_len);
+
+ private:
+  /** URL of API */
+  char *url = nullptr;
+
+  /** Port of API*/
+  uint16_t port;
 
   /**
-   * @brief Get binary data from response
+   * @brief Starts connection with server
    *
-   * A returned length of 0 indicates an error and the pointer @p data has not
-   * been modified.
-   *
-   * @param data Pointer to response binary data
-   *
-   * @return Length of @p data
+   * @return Returns true if the connection succeeds, false if not
    */
-  size_t GetResponse(const uint8_t *data) const;
+  bool ClientConnect();
 };
 
 #endif  // LIB_DIRTVIZ_INCLUDE_DIRTVIZ_HPP_

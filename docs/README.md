@@ -4,6 +4,7 @@ This folder stores any extra documentation that is useful for the overall projec
 
 - @subpage create-pio-cubemx
 - @subpage rg191
-- @subpage add-device-to-tnn
+- @subpage add-device-to-ttn
 - @subpage bsp-components
 - @subpage remote-dev
+- @subpage controller

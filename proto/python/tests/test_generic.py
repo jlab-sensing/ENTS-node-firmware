@@ -9,12 +9,22 @@ correct dictionary format is returned.
 """
 
 import unittest
+import base64
 
-from soil_power_sensor_protobuf.proto import encode_response, decode_measurement
+from soil_power_sensor_protobuf.proto import (
+    encode_response,
+    decode_measurement,
+    encode_esp32command,
+    decode_esp32command,
+)
+
 from soil_power_sensor_protobuf.proto.soil_power_sensor_pb2 import (
     Measurement,
     Response,
     MeasurementMetadata,
+    Esp32Command,
+    PageCommand,
+    TestCommand,
 )
 
 
@@ -197,6 +207,166 @@ class TestDecode(unittest.TestCase):
         # decode
         with self.assertRaises(KeyError):
             decode_measurement(data=meas_str)
+
+
+class TestEsp32(unittest.TestCase):
+    def test_cmd_not_implemented(self):
+        """Checks that an exception is raised when a non-existing command is
+        called"""
+
+        with self.assertRaises(NotImplementedError):
+            encode_esp32command("agg", req="open", fd=123, bs=456, n=789)
+
+    def test_page_encode(self):
+        """Test encoding a page command"""
+
+        req = "open"
+        fd = 1
+        bs = 512
+        n = 1024
+
+        cmd_str = encode_esp32command("page", req=req, fd=fd, bs=bs, n=n)
+
+        cmd = Esp32Command()
+        cmd.ParseFromString(cmd_str)
+
+        # check the command type
+        cmd_type = cmd.WhichOneof("command")
+        self.assertEqual(cmd_type, "page_command")
+
+        # check individual values
+        self.assertEqual(cmd.page_command.file_request, PageCommand.RequestType.OPEN)
+        self.assertEqual(cmd.page_command.file_descriptor, fd)
+        self.assertEqual(cmd.page_command.block_size, bs)
+        self.assertEqual(cmd.page_command.num_bytes, n)
+
+    def test_page_decode(self):
+        """Test decoding a page command"""
+
+        req = "open"
+        fd = 1
+        bs = 512
+        n = 1024
+
+        cmd_str = encode_esp32command("page", req=req, fd=fd, bs=bs, n=n)
+
+        cmd = decode_esp32command(cmd_str)
+
+        # check page command
+        self.assertIn("pageCommand", cmd)
+
+        cmd = cmd["pageCommand"]
+
+        # check individual values
+        self.assertEqual(cmd["fileRequest"], "OPEN")
+        self.assertEqual(cmd["fileDescriptor"], fd)
+        self.assertEqual(cmd["blockSize"], bs)
+        self.assertEqual(cmd["numBytes"], n)
+
+    def test_page_req_not_implemented(self):
+        """Test encoding a page command with a not implemented request"""
+
+        with self.assertRaises(NotImplementedError):
+            encode_esp32command("page", req="agg", fd=123, bs=456, n=789)
+
+    def test_test_encode(self):
+        """Test encoding a test command"""
+
+        state = "receive"
+        num = 123
+
+        cmd_str = encode_esp32command("test", state=state, data=num)
+
+        cmd = Esp32Command()
+        cmd.ParseFromString(cmd_str)
+
+        # check the command type
+        cmd_type = cmd.WhichOneof("command")
+        self.assertEqual(cmd_type, "test_command")
+
+        # check individual values
+        self.assertEqual(cmd.test_command.state, TestCommand.ChangeState.RECEIVE)
+        self.assertEqual(cmd.test_command.data, num)
+
+    def test_test_decode(self):
+        """Test decoding a test command"""
+
+        state = "receive"
+        num = 123
+
+        cmd_str = encode_esp32command("test", state=state, data=num)
+
+        cmd = decode_esp32command(cmd_str)
+
+        # check test command
+        self.assertIn("testCommand", cmd)
+
+        cmd = cmd["testCommand"]
+
+        # check individual values
+        self.assertEqual(cmd["state"], "RECEIVE")
+        self.assertEqual(cmd["data"], num)
+
+    def test_test_state_not_implemented(self):
+        """Test encoding a page command with a not implemented state"""
+
+        with self.assertRaises(NotImplementedError):
+            encode_esp32command("test", state="agg", data=123)
+
+    def test_wifi(self):
+        """Test encoding/decoding a WiFi command
+
+        All parameters are tested at once. This is not the intended
+        implementation.
+        """
+
+        _type = "POST"
+        ssid = "HelloWorld"
+        passwd = "password"
+        url = "https://test.com"
+        port = 6969
+        rc = 200
+        ts = 1652346246
+        resp = b"agga"
+
+        # encode
+        cmd_str = encode_esp32command(
+            "wifi",
+            _type=_type,
+            ssid=ssid,
+            passwd=passwd,
+            url=url,
+            port=port,
+            rc=rc,
+            ts=ts,
+            resp=resp,
+        )
+
+        # decode
+        cmd = decode_esp32command(cmd_str)
+
+        # check the command key exists
+        self.assertIn("wifiCommand", cmd)
+
+        cmd = cmd["wifiCommand"]
+
+        # check individual values
+        self.assertEqual(cmd["type"], _type)
+        self.assertEqual(cmd["ssid"], ssid)
+        self.assertEqual(cmd["passwd"], passwd)
+        self.assertEqual(cmd["url"], url)
+        self.assertEqual(cmd["port"], port)
+        self.assertEqual(cmd["rc"], rc)
+        self.assertEqual(cmd["ts"], ts)
+        self.assertEqual(base64.b64decode(cmd["resp"]), resp)
+
+    def test_wifi_type_not_implemented(self):
+        """Encode a WiFiCommand with a improper type to check for
+        NotImplementedError
+        """
+
+        with self.assertRaises(NotImplementedError):
+            encode_esp32command("wifi", _type="bla")
 
 
 if __name__ == "__main__":

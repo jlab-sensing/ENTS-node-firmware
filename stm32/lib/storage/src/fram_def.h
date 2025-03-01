@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef LIB_FRAM_SRC_FRAM_DEF_H_
-#define LIB_FRAM_SRC_FRAM_DEF_H_
+#ifndef LIB_STORAGE_SRC_FRAM_DEF_H_
+#define LIB_STORAGE_SRC_FRAM_DEF_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,4 +57,4 @@ inline FramStatus ConvertStatus(HAL_StatusTypeDef status) {
 }
 #endif
 
-#endif  // LIB_FRAM_SRC_FRAM_DEF_H_
+#endif  // LIB_STORAGE_SRC_FRAM_DEF_H_

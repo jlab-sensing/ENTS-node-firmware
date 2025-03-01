@@ -21,8 +21,8 @@
  * @date     11/17/2023
  */
 
-#ifndef LIB_FRAM_INCLUDE_FIFO_H_
-#define LIB_FRAM_INCLUDE_FIFO_H_
+#ifndef LIB_STORAGE_INCLUDE_FIFO_H_
+#define LIB_STORAGE_INCLUDE_FIFO_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -120,4 +120,4 @@ FramStatus FIFO_Init(void);
 }
 #endif
 
-#endif  // LIB_FRAM_INCLUDE_FIFO_H_
+#endif  // LIB_STORAGE_INCLUDE_FIFO_H_

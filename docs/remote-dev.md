@@ -1,4 +1,4 @@
-# Remote Development
+# Remote Development {#remote-dev}
 
 Platformio has the unique feature to remotely flash and monitor devices, see [here](https://docs.platformio.org/en/latest/plus/pio-remote.html) for more information. This describes how to setup remote development for *stm32* portion of the project and any pitfalls you may encounter. Remote development for the *esp32* is a WIP ([#109](https://github.com/jlab-sensing/soil-power-sensor-firmware/issues/109)).
 

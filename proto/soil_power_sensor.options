@@ -1,3 +1,8 @@
+WiFiCommand.ssid max_length:32
+WiFiCommand.passwd max_length:64
+WiFiCommand.url max_length:256
+WiFiCommand.resp max_size:222
+
 UserConfiguration.WiFi_SSID max_length: 32
 UserConfiguration.WiFi_Password max_length: 64
 UserConfiguration.API_Endpoint_URL max_length: 64

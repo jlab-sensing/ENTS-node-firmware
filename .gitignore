@@ -4,6 +4,9 @@
 .mypy_cache
 tags*
 
+# configuration files
+proto/python/src/soil_power_sensor_protobuf/config/Load/*.json
+
 # docs
 docs/html
 

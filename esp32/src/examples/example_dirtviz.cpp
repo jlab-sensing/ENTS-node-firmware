@@ -55,20 +55,17 @@ void setup() {
 }
 
 void loop() {
-  int resp_code;
-
   const uint8_t *resp_data;
   size_t resp_data_len;
 
   // Send example measurement
-  resp_code = api.SendMeasurement((const uint8_t *)data, data_len);
+  HttpClient http_client = api.SendMeasurement((const uint8_t *)data, data_len);
   Serial.print("Response Code: ");
-  Serial.println(resp_code);
+  Serial.println(http_client.ResponseCode());
 
   // Get response data
-  resp_data_len = api.GetResponse(resp_data);
   Serial.println("Response:");
-  Serial.write(resp_data, resp_data_len);
+  Serial.println(http_client.Data().c_str());
 
   // wait 1s
   delay(1000);

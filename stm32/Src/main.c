@@ -40,6 +40,9 @@
 #include "bme280_sensor.h"
 #include "rtc.h"
 #include "sensors.h"
+#include "wifi.h"
+#include "controller/controller.h"
+#include "controller/wifi.h"
 #include "userConfig.h"
 #include "teros21.h"
 /* USER CODE END Includes */
@@ -126,15 +129,13 @@ int main(void)
 
   UserConfigPrint();
 
-  MX_LoRaWAN_Init();
-
   // required for SDI-12
-  MX_USART2_UART_Init();
-  MX_TIM1_Init();
+  //MX_USART2_UART_Init();
+  //MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  ADC_init();
+
+  // init external adc
   //MX_RTC_Init();
-  SensorsInit();
 
   // initialize the user config interrupt
   UserConfig_InitAdvanceTrace();
@@ -148,31 +149,57 @@ int main(void)
   // Debug message, gets printed after init code
   APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
 
+  // configure sensors
+  //SensorsAdd(SensorsMeasureTest);
+  //SensorsAdd(ADC_measure);
+  //SensorsAdd(SDI12_Teros12Measure);
+  //SensorsAdd(Phytos31_measure);
+  
+  //BME280Init();
+  //SensorsAdd(BME280Measure); 
+
+  // initialize WiFi
+  ControllerInit();
+
   // get the current user config
   const UserConfiguration* cfg = UserConfigGet();
- 
+  
+  // init senors interface
+  SensorsInit();
 
   // configure enabled sensors
   for (int i=0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
+      ADC_init();
       SensorsAdd(ADC_measure);
-      APP_LOG(TS_ON, VLEVEL_M, "ADS Enabled!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
-      APP_LOG(TS_ON, VLEVEL_M, "Teros12 not implemented!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "Teros12 not implemented!\n");
       //SensorsAdd(SDI12_Teros12Measure);
     }
     if (sensor == EnabledSensor_BME280) {
       BME280Init();
       SensorsAdd(BME280Measure);
-      APP_LOG(TS_ON, VLEVEL_M, "BME280 Enabled!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "BME280 Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros21) {
       SensorsAdd(Teros21Measure);
-      APP_LOG(TS_ON, VLEVEL_M, "Teros21 Enabled!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "Teros21 Enabled!\n");
     }
+    // TODO add support for dummy sensor
   }
+  
+  // init either WiFi or LoRaWAN
+  if (cfg->Upload_method == Uploadmethod_LoRa) {
+    MX_LoRaWAN_Init();
+  } else if (cfg->Upload_method == Uploadmethod_WiFi) {
+    WiFiInit();
+  } else {
+    APP_LOG(TS_ON, VLEVEL_M, "Invalid upload method!\n");
+    Error_Handler();
+  } 
   
   /* USER CODE END 2 */
 

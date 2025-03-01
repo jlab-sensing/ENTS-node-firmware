@@ -148,6 +148,74 @@ void TestDecodeResponseError(void) {
 }
 
 /**
+ * Command used to generate the code for validating the output
+ *
+ * sps encode --c esp32command wifi --ssid Hello --passwd World --url
+ * "http://www.test.com/" --port 443 --rc 200 --ts 1600000 CONNECT
+ */
+void TestEncodeWiFi() {
+  uint8_t buffer[WiFiCommand_size];
+  size_t buffer_len;
+
+  char hello[] = "Hello";
+  char world[] = "World";
+  char url[] = "http://www.test.com/";
+
+  WiFiCommand wifi_cmd = WiFiCommand_init_zero;
+  wifi_cmd.type = WiFiCommand_Type_CONNECT;
+  strncpy(wifi_cmd.ssid, hello, sizeof(wifi_cmd.ssid));
+  strncpy(wifi_cmd.passwd, world, sizeof(wifi_cmd.passwd));
+  strncpy(wifi_cmd.url, url, sizeof(wifi_cmd.url));
+  wifi_cmd.port = 443;
+  wifi_cmd.rc = 200;
+  wifi_cmd.ts = 1600000;
+  // WiFiCommand.resp is left NULL
+
+  buffer_len = EncodeWiFiCommand(&wifi_cmd, buffer, sizeof(buffer));
+
+  uint8_t data[] = {0x1a, 0x2e, 0x12, 0x5,  0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x1a,
+                    0x5,  0x57, 0x6f, 0x72, 0x6c, 0x64, 0x22, 0x14, 0x68, 0x74,
+                    0x74, 0x70, 0x3a, 0x2f, 0x2f, 0x77, 0x77, 0x77, 0x2e, 0x74,
+                    0x65, 0x73, 0x74, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x28, 0xc8,
+                    0x1,  0x30, 0x80, 0xd4, 0x61, 0x40, 0xbb, 0x3};
+  size_t data_len = 48;
+
+  TEST_ASSERT_EQUAL(data_len, buffer_len);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(data, buffer, buffer_len);
+}
+
+/**
+ * Command used to generate the code for validating the output
+ *
+ * sps encode --c esp32command wifi --ssid Hello --passwd World --url
+ * "http://www.test.com/" --port 443 --rc 200 --ts 1600000 CONNECT
+ */
+void TestDecodeWiFi() {
+  uint8_t data[] = {0x1a, 0x2e, 0x12, 0x5,  0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x1a,
+                    0x5,  0x57, 0x6f, 0x72, 0x6c, 0x64, 0x22, 0x14, 0x68, 0x74,
+                    0x74, 0x70, 0x3a, 0x2f, 0x2f, 0x77, 0x77, 0x77, 0x2e, 0x74,
+                    0x65, 0x73, 0x74, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x28, 0xc8,
+                    0x1,  0x30, 0x80, 0xd4, 0x61, 0x40, 0xbb, 0x3};
+  size_t data_len = 48;
+
+  Esp32Command cmd = DecodeEsp32Command(data, data_len);
+
+  char ssid[] = "Hello";
+  char passwd[] = "World";
+  char url[] = "http://www.test.com/";
+
+  TEST_ASSERT_EQUAL(Esp32Command_wifi_command_tag, cmd.which_command);
+  TEST_ASSERT_EQUAL_STRING(ssid, cmd.command.wifi_command.ssid);
+  TEST_ASSERT_EQUAL_STRING(passwd, cmd.command.wifi_command.passwd);
+  TEST_ASSERT_EQUAL_STRING(url, cmd.command.wifi_command.url);
+  TEST_ASSERT_EQUAL(443, cmd.command.wifi_command.port);
+  TEST_ASSERT_EQUAL(200, cmd.command.wifi_command.rc);
+  TEST_ASSERT_EQUAL(1600000, cmd.command.wifi_command.ts);
+  // bytes is not checked since statically allocated
+  TEST_ASSERT_EQUAL(0, cmd.command.wifi_command.resp.size);
+}
+
+/**
  * @brief Entry point for protobuf test
  * @retval int
  */
@@ -178,6 +246,8 @@ int main(void) {
   RUN_TEST(TestEncodeTeros21);
   RUN_TEST(TestDecodeResponseSuccess);
   RUN_TEST(TestDecodeResponseError);
+  RUN_TEST(TestEncodeWiFi);
+  RUN_TEST(TestDecodeWiFi);
 
   UNITY_END();
 }
