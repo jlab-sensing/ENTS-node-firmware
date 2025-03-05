@@ -31,6 +31,34 @@ typedef enum _Response_ResponseType {
     Response_ResponseType_ERROR = 1
 } Response_ResponseType;
 
+/* Type of request */
+typedef enum _PageCommand_RequestType {
+    PageCommand_RequestType_OPEN = 0,
+    PageCommand_RequestType_CLOSE = 1,
+    PageCommand_RequestType_READ = 2,
+    PageCommand_RequestType_WRITE = 3
+} PageCommand_RequestType;
+
+typedef enum _TestCommand_ChangeState {
+    /* Data is received by the module */
+    TestCommand_ChangeState_RECEIVE = 0,
+    /* Data is received by the module indicating data for subsequent request */
+    TestCommand_ChangeState_RECEIVE_REQUEST = 1,
+    /* Data is sent my the module */
+    TestCommand_ChangeState_REQUEST = 2
+} TestCommand_ChangeState;
+
+typedef enum _WiFiCommand_Type {
+    /* Connect to WiFi network */
+    WiFiCommand_Type_CONNECT = 0,
+    /* Post data to endpoint */
+    WiFiCommand_Type_POST = 1,
+    /* Check API status */
+    WiFiCommand_Type_CHECK = 2,
+    /* Timesync request */
+    WiFiCommand_Type_TIME = 3
+} WiFiCommand_Type;
+
 /* Struct definitions */
 /* Data shared between all measurement messages */
 typedef struct _MeasurementMetadata {
@@ -108,6 +136,53 @@ typedef struct _Response {
     Response_ResponseType resp;
 } Response;
 
+typedef struct _PageCommand {
+    /* File request type */
+    PageCommand_RequestType file_request;
+    /* Integer for file descriptor */
+    uint32_t file_descriptor;
+    /* Block size of read/write */
+    uint32_t block_size;
+    /* Number of bytes */
+    uint32_t num_bytes;
+} PageCommand;
+
+typedef struct _TestCommand {
+    /* State to put module into */
+    TestCommand_ChangeState state;
+    /* Data field for test command data */
+    int32_t data;
+} TestCommand;
+
+typedef PB_BYTES_ARRAY_T(222) WiFiCommand_resp_t;
+typedef struct _WiFiCommand {
+    /* Command type */
+    WiFiCommand_Type type;
+    /* WiFI SSID */
+    char ssid[33];
+    /* WiFi Password */
+    char passwd[65];
+    /* Endpoint url */
+    char url[257];
+    /* Return code */
+    uint32_t rc;
+    /* Timestamp n unix epochs */
+    uint32_t ts;
+    /* binary data response */
+    WiFiCommand_resp_t resp;
+    /* Port */
+    uint32_t port;
+} WiFiCommand;
+
+typedef struct _Esp32Command {
+    pb_size_t which_command;
+    union {
+        PageCommand page_command;
+        TestCommand test_command;
+        WiFiCommand wifi_command;
+    } command;
+} Esp32Command;
+
 typedef struct _UserConfiguration {
     /* ********* Upload Settings ********* */
     uint32_t logger_id; /* id of the logging device */
@@ -146,6 +221,18 @@ extern "C" {
 #define _Response_ResponseType_MAX Response_ResponseType_ERROR
 #define _Response_ResponseType_ARRAYSIZE ((Response_ResponseType)(Response_ResponseType_ERROR+1))
 
+#define _PageCommand_RequestType_MIN PageCommand_RequestType_OPEN
+#define _PageCommand_RequestType_MAX PageCommand_RequestType_WRITE
+#define _PageCommand_RequestType_ARRAYSIZE ((PageCommand_RequestType)(PageCommand_RequestType_WRITE+1))
+
+#define _TestCommand_ChangeState_MIN TestCommand_ChangeState_RECEIVE
+#define _TestCommand_ChangeState_MAX TestCommand_ChangeState_REQUEST
+#define _TestCommand_ChangeState_ARRAYSIZE ((TestCommand_ChangeState)(TestCommand_ChangeState_REQUEST+1))
+
+#define _WiFiCommand_Type_MIN WiFiCommand_Type_CONNECT
+#define _WiFiCommand_Type_MAX WiFiCommand_Type_TIME
+#define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_TIME+1))
+
 
 
 
@@ -154,6 +241,13 @@ extern "C" {
 
 
 #define Response_resp_ENUMTYPE Response_ResponseType
+
+
+#define PageCommand_file_request_ENUMTYPE PageCommand_RequestType
+
+#define TestCommand_state_ENUMTYPE TestCommand_ChangeState
+
+#define WiFiCommand_type_ENUMTYPE WiFiCommand_Type
 
 #define UserConfiguration_Upload_method_ENUMTYPE Uploadmethod
 #define UserConfiguration_enabled_sensors_ENUMTYPE EnabledSensor
@@ -168,6 +262,10 @@ extern "C" {
 #define BME280Measurement_init_default           {0, 0, 0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
+#define Esp32Command_init_default                {0, {PageCommand_init_default}}
+#define PageCommand_init_default                 {_PageCommand_RequestType_MIN, 0, 0, 0}
+#define TestCommand_init_default                 {_TestCommand_ChangeState_MIN, 0}
+#define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
 #define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
 #define PowerMeasurement_init_zero               {0, 0}
@@ -177,6 +275,10 @@ extern "C" {
 #define BME280Measurement_init_zero              {0, 0, 0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
+#define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
+#define PageCommand_init_zero                    {_PageCommand_RequestType_MIN, 0, 0, 0}
+#define TestCommand_init_zero                    {_TestCommand_ChangeState_MIN, 0}
+#define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
 #define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -203,6 +305,23 @@ extern "C" {
 #define Measurement_bme280_tag                   5
 #define Measurement_teros21_tag                  6
 #define Response_resp_tag                        1
+#define PageCommand_file_request_tag             1
+#define PageCommand_file_descriptor_tag          2
+#define PageCommand_block_size_tag               3
+#define PageCommand_num_bytes_tag                4
+#define TestCommand_state_tag                    1
+#define TestCommand_data_tag                     2
+#define WiFiCommand_type_tag                     1
+#define WiFiCommand_ssid_tag                     2
+#define WiFiCommand_passwd_tag                   3
+#define WiFiCommand_url_tag                      4
+#define WiFiCommand_rc_tag                       5
+#define WiFiCommand_ts_tag                       6
+#define WiFiCommand_resp_tag                     7
+#define WiFiCommand_port_tag                     8
+#define Esp32Command_page_command_tag            1
+#define Esp32Command_test_command_tag            2
+#define Esp32Command_wifi_command_tag            3
 #define UserConfiguration_logger_id_tag          1
 #define UserConfiguration_cell_id_tag            2
 #define UserConfiguration_Upload_method_tag      3
@@ -279,6 +398,42 @@ X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
 #define Response_CALLBACK NULL
 #define Response_DEFAULT NULL
 
+#define Esp32Command_FIELDLIST(X, a) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,page_command,command.page_command),   1) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,test_command,command.test_command),   2) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,wifi_command,command.wifi_command),   3)
+#define Esp32Command_CALLBACK NULL
+#define Esp32Command_DEFAULT NULL
+#define Esp32Command_command_page_command_MSGTYPE PageCommand
+#define Esp32Command_command_test_command_MSGTYPE TestCommand
+#define Esp32Command_command_wifi_command_MSGTYPE WiFiCommand
+
+#define PageCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    file_request,      1) \
+X(a, STATIC,   SINGULAR, UINT32,   file_descriptor,   2) \
+X(a, STATIC,   SINGULAR, UINT32,   block_size,        3) \
+X(a, STATIC,   SINGULAR, UINT32,   num_bytes,         4)
+#define PageCommand_CALLBACK NULL
+#define PageCommand_DEFAULT NULL
+
+#define TestCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    state,             1) \
+X(a, STATIC,   SINGULAR, INT32,    data,              2)
+#define TestCommand_CALLBACK NULL
+#define TestCommand_DEFAULT NULL
+
+#define WiFiCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
+X(a, STATIC,   SINGULAR, STRING,   ssid,              2) \
+X(a, STATIC,   SINGULAR, STRING,   passwd,            3) \
+X(a, STATIC,   SINGULAR, STRING,   url,               4) \
+X(a, STATIC,   SINGULAR, UINT32,   rc,                5) \
+X(a, STATIC,   SINGULAR, UINT32,   ts,                6) \
+X(a, STATIC,   SINGULAR, BYTES,    resp,              7) \
+X(a, STATIC,   SINGULAR, UINT32,   port,              8)
+#define WiFiCommand_CALLBACK NULL
+#define WiFiCommand_DEFAULT NULL
+
 #define UserConfiguration_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   logger_id,         1) \
 X(a, STATIC,   SINGULAR, UINT32,   cell_id,           2) \
@@ -304,6 +459,10 @@ extern const pb_msgdesc_t Phytos31Measurement_msg;
 extern const pb_msgdesc_t BME280Measurement_msg;
 extern const pb_msgdesc_t Measurement_msg;
 extern const pb_msgdesc_t Response_msg;
+extern const pb_msgdesc_t Esp32Command_msg;
+extern const pb_msgdesc_t PageCommand_msg;
+extern const pb_msgdesc_t TestCommand_msg;
+extern const pb_msgdesc_t WiFiCommand_msg;
 extern const pb_msgdesc_t UserConfiguration_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
@@ -315,19 +474,27 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define BME280Measurement_fields &BME280Measurement_msg
 #define Measurement_fields &Measurement_msg
 #define Response_fields &Response_msg
+#define Esp32Command_fields &Esp32Command_msg
+#define PageCommand_fields &PageCommand_msg
+#define TestCommand_fields &TestCommand_msg
+#define WiFiCommand_fields &WiFiCommand_msg
 #define UserConfiguration_fields &UserConfiguration_msg
 
 /* Maximum encoded size of messages (where known) */
 #define BME280Measurement_size                   23
+#define Esp32Command_size                        607
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
+#define PageCommand_size                         20
 #define Phytos31Measurement_size                 18
 #define PowerMeasurement_size                    18
 #define Response_size                            2
-#define SOIL_POWER_SENSOR_PB_H_MAX_SIZE          UserConfiguration_size
+#define SOIL_POWER_SENSOR_PB_H_MAX_SIZE          Esp32Command_size
 #define Teros12Measurement_size                  33
 #define Teros21Measurement_size                  18
+#define TestCommand_size                         13
 #define UserConfiguration_size                   238
+#define WiFiCommand_size                         604
 
 #ifdef __cplusplus
 } /* extern "C" */

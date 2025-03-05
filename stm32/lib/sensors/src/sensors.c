@@ -127,6 +127,15 @@ void SensorsMeasure(void) {
   }
 }
 
+size_t SensorsMeasureTest(uint8_t* data) {
+  uint8_t static_data[] = {0xa,  0xc,  0x8,  0xc8, 0x1,  0x10, 0xc8, 0x1,  0x18,
+                           0x88, 0xba, 0xf3, 0xba, 0x6,  0x12, 0x9,  0x11, 0xd9,
+                           0xce, 0xf7, 0x53, 0x3,  0x88, 0xb7, 0xc0};
+
+  memcpy(data, static_data, sizeof(static_data));
+  return sizeof(static_data);
+}
+
 void SensorsRun(void) {
   // trigger task to run
   UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_Measurement), CFG_SEQ_Prio_0);

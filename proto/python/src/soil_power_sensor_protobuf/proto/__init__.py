@@ -7,7 +7,16 @@ from .encode import (
     encode_user_configuration,
 )
 
-from .decode import decode_response, decode_measurement, decode_user_configuration
+from .decode import (
+    decode_response,
+    decode_measurement,
+    decode_user_configuration,
+)
+
+from .esp32 import (
+    encode_esp32command,
+    decode_esp32command,
+)
 
 __all__ = [
     "encode_response",
@@ -19,4 +28,6 @@ __all__ = [
     "decode_measurement",
     "encode_user_configuration",
     "decode_user_configuration",
+    "encode_esp32command",
+    "decode_esp32command",
 ]

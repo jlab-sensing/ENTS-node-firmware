@@ -428,8 +428,6 @@ class Ui_MainWindow(object):
             if upload_method == "WiFi":
                 if not self.lineEdit_WiFi_SSID.text():
                     raise ValueError("WiFi SSID cannot be empty.")
-                if not self.lineEdit_WiFi_Password.text():
-                    raise ValueError("WiFi Password cannot be empty.")
 
             # Construct the configuration dictionary to be saved in json file
             configuration = {

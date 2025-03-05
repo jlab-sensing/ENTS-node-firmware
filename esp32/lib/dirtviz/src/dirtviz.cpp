@@ -8,146 +8,169 @@
 #include "dirtviz.hpp"
 
 #include <Arduino.h>
+#include <ArduinoLog.h>
 
-#include <cstdio>
+#include <iomanip>
+#include <sstream>
+#include <vector>
 
-Dirtviz::Dirtviz(const char *url, const uint16_t &port)
-    : url(nullptr), response(nullptr) {
-  // set parameters
-  this->SetUrl(url);
-  this->SetPort(port);
+/** Timeout for http responses */
+unsigned int g_resp_timeout = 1000;
+
+/** Max size of HTTP POST request */
+const size_t g_request_size = 512;
+
+// TODO(jmadden173): update to dynamic version
+/** User agent string */
+const char g_user_agent[] = "ents/2.3.0";
+
+Dirtviz::Dirtviz(void) {}
+
+Dirtviz::Dirtviz(const char* url) { SetUrl(url); }
+
+Dirtviz::~Dirtviz() {}
+
+void Dirtviz::SetUrl(const char* url) {
+  Log.traceln("Dirtviz::SetUrl");
+  Log.traceln("Setting URL to %s", url);
+  this->url.setUrl(url);
+  Log.traceln("URL stored is %s", this->url.getUrl().c_str());
 }
 
-Dirtviz::~Dirtviz() {
-  // free memory
-  free(this->url);
-  free(this->response);
-}
-
-void Dirtviz::SetUrl(const char *new_url) {
-  // get length of new url string, add 1 for null char
-  size_t url_len = strlen(new_url);
-  ++url_len;
-
-  // allocate memory
-  char *temp_url = reinterpret_cast<char *>(realloc(this->url, url_len));
-
-  if (temp_url != nullptr) {
-    this->url = temp_url;
-    // strcpy is safe here because we just allocated enough space
-    strncpy(this->url, new_url, url_len);
-  } else {
-    // Handle allocation failure (e.g., set an error flag, use a default URL,
-    // etc.)
-  }
-}
-
-const char *Dirtviz::GetUrl(void) const { return this->url; }
-
-void Dirtviz::SetPort(const uint16_t &new_port) { this->port = new_port; }
-
-uint16_t Dirtviz::GetPort(void) const { return this->port; }
-
-int Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
-  // WiFi client for connection with API
-  // WiFiClientSecure client;
+unsigned int Dirtviz::Check() {
+  Log.traceln("Dirtviz::Check");
   WiFiClient client;
 
-  // buffer for making post requests
-  char buffer[100];
-  Serial.print(this->url);
-  Serial.print(":");
-  Serial.print(this->port);
-  // try connection return negative length if error
-  // client.setInsecure();
-  // client.setCACert(rootCACertificate);
-  if (!client.connect(this->url, this->port)) {
-    Serial.println("Connection failure");
-    return -1;
+  Log.noticeln("Connecting to %s:%d", url.getHost().c_str(), url.getPort());
+
+  if (!client.connect(url.getHost().c_str(), (uint16_t)url.getPort())) {
+    return 0;
   }
 
-  // send data
+  Log.traceln("Sending GET request");
 
-  // HTTP command, path, and version
-  client.println("POST / HTTP/1.1");
-  // who we are posting to
-  client.print("Host: ");
-  client.print(this->url);
-  client.print(":");
-  client.println(this->port);
-  // type of data
-  client.println("Content-Type: application/octet-stream");
-  // length of data (specific to application/octet-stream)
-  snprintf(buffer, sizeof(buffer), "Content-Length: %d", meas_len);
-  client.println(buffer);
-  // close connection after data is sent
-  client.println("Connection: close");
-  // newline indicating end of headers
-  client.println();
-  // send data
-  for (int idx = 0; idx < meas_len; ++idx) {
-    client.write(meas[idx]);
+  // format request
+  std::ostringstream req;
+  req << "GET " << "/api/" << " HTTP/1.1" << "\r\n";
+  req << "Host: " << url.getHost().c_str() << "\r\n";
+  req << "User-Agent: " << g_user_agent << "\r\n";
+  req << "\r\n";
+
+  // send full request to server
+  int bytes_written = client.write(req.str().c_str());
+  Log.noticeln("Wrote %d bytes to server", bytes_written);
+
+  // wait until there's bytes available with timeout
+  unsigned int timeout = millis() + g_resp_timeout;
+  while (!client.available()) {
+    // timeout
+    if (millis() > timeout) {
+      Log.errorln("API Check timeout!");
+      return (uint32_t)-1;
+    }
+
+    // Log.traceln("Delaying until available");
+    delay(100);
   }
 
   // read response
-
-  // get length of response
-  int resp_len = client.available();
-
-  // free memory before allocating to prevent leaks
-  free(this->response);
-  this->response = nullptr;
-
-  // allocate memory
-  this->response =
-      reinterpret_cast<char *>(realloc(this->response, resp_len + 1));
-
-  // copy into buffer
-  if (this->response != nullptr) {
-    // Ensure to read only available bytes and null-terminate the response
-    int bytesRead = 0;
-    while (client.available() && bytesRead < resp_len) {
-      this->response[bytesRead++] = client.read();
-    }
-    this->response[bytesRead] = '\0';  // Null-terminate the response
-  } else {
-    Serial.println("Null pointer failure");
-    return -1;
+  std::string resp;
+  while (client.available()) {
+    char c = client.read();
+    resp += c;
   }
-  Serial.println(this->response);
 
-  // disconnect after message is sent
+  // close connection
+  client.flush();
   client.stop();
 
-  // find status code
-  int status_code;
-  if (sscanf(this->response, "%*s %d", &status_code) != 1) {
-    Serial.println("Unable to parse status code");
-    return -1;
+  // read string into an object
+  HttpClient http_client(resp);
+
+  unsigned int http_code = http_client.ResponseCode();
+  if (http_code != 200) {
+    Log.errorln("Api health check failed! Reponse code: %d", http_code);
   }
 
-  return status_code;
+  return http_code;
 }
 
-size_t Dirtviz::GetResponse(const uint8_t *data) const {
-  // find response length from header
+HttpClient Dirtviz::SendMeasurement(const uint8_t* meas, size_t meas_len) {
+  WiFiClient client;
 
-  // get pointer to start of line
-  const char *length_start = strstr(this->response, "Content-Length:");
-  if (length_start == nullptr) {
-    return 0;
+  char buffer[100];
+
+  Log.noticeln("Sending measurement");
+  Log.traceln("WiFi status: %d", WiFi.status());
+
+  // connect to server
+  if (!client.connect(url.getHost().c_str(), (uint16_t)url.getPort())) {
+    Log.errorln("Connection to %s:%d failed!", url.getHost(), url.getPort());
+    HttpClient empty;
+    return empty;
   }
 
-  // parse the length
-  size_t data_len;
-  if (sscanf(length_start, "%*s %u", &data_len)) {
-    return 0;
+  // send data
+
+  // format request
+  std::ostringstream headers;
+  headers << "POST " << "/" << url.getPath().c_str() << " HTTP/1.1" << "\r\n";
+  headers << "Host: " << url.getHost().c_str() << "\r\n";
+  headers << "User-Agent: " << g_user_agent << "\r\n";
+  headers << "Content-Type: application/octet-stream" << "\r\n";
+  headers << "Content-Length: " << meas_len << "\r\n";
+  headers << "Connection: close" << "\r\n";
+  headers << "\r\n";
+
+  // copy stream to string
+  std::string headers_str = headers.str();
+
+  Log.verboseln("Headers:\r\n----\r\n%s\r\n----\r\n", headers_str.c_str());
+
+  // copy data into request array
+  std::vector<char> request;
+  std::copy(headers_str.begin(), headers_str.end(),
+            std::back_inserter(request));
+  std::copy(meas, meas + meas_len, std::back_inserter(request));
+
+  Log.traceln("Length of request: %d", request.size());
+  int bytes_written = client.write(request.data(), request.size());
+  Log.noticeln("Wrote %d bytes to server", bytes_written);
+
+  // read response
+
+  // wait until there's bytes available with timeout
+  unsigned int timeout = millis() + g_resp_timeout;
+  while (!client.available()) {
+    // timeout
+    if (millis() > timeout) {
+      Log.warningln("Send measurement timeout!");
+      Log.warningln("WiFi status: %d", WiFi.status());
+      HttpClient empty_resp;
+
+      client.flush();
+      client.stop();
+
+      return empty_resp;
+    }
+
+    // Log.traceln("Delaying until available");
+    delay(100);
   }
 
-  // read binary data, look for double CRLF
-  data = (const uint8_t *)strstr(this->response, "\r\n\r\n");
-  data += 4;
+  // read response
+  std::string resp;
+  while (client.available()) {
+    char c = client.read();
+    resp += c;
+  }
 
-  // return the length of data
-  return data_len;
+  // close connection
+  client.flush();
+  client.stop();
+
+  // read string into an object
+  HttpClient http_client(resp);
+
+  return http_client;
 }

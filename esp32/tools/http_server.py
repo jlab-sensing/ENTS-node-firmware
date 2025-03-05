@@ -14,6 +14,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
 class DirtvizRequestHandler(BaseHTTPRequestHandler):
+    simulate_error = 0
+
     def do_POST(self):
         # print request
         content_length = int(self.headers['Content-Length'])
@@ -26,7 +28,7 @@ class DirtvizRequestHandler(BaseHTTPRequestHandler):
         print(data.decode('utf-8'))
 
         # send response
-        if hasattr(self.server, 'simulate_error') and self.server.simulate_error:
+        if self.server.simulate_error:
             self.send_response(418)
             self.send_header('Content-type', 'text/octet-stream')
             self.end_headers()

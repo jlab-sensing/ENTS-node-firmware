@@ -9,3 +9,18 @@ in the development cycle.
 
 More information about PlatformIO Unit Testing:
 - https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
+
+## Testing WiFi
+
+1. Start a hotspot with NetworkManager. Keep the samd `ssid` and `password` to
+ensuree tests will work.
+
+```bash
+nmcli d wifi hotspot ifname wlp61s0u1u2 ssid ents-testing password securepassword
+```
+
+2. Start a local HTTP server that will receive WiFI tests.
+
+```bash
+./esp32/tools/http_server.py
+```

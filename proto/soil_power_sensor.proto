@@ -97,6 +97,83 @@ message Response {
   ResponseType resp = 1; 
 }
 
+message Esp32Command {
+  oneof command {
+    PageCommand page_command = 1;
+    TestCommand test_command = 2;
+    WiFiCommand wifi_command = 3;
+  }
+}
+
+message PageCommand {
+  /* Type of request */
+  enum RequestType {
+    OPEN = 0;
+    CLOSE = 1;
+    READ = 2;
+    WRITE = 3;
+  }
+
+  /* File request type */
+  RequestType file_request = 1;
+  /* Integer for file descriptor */
+  uint32 file_descriptor = 2;
+  /* Block size of read/write */
+  uint32 block_size = 3;
+  /* Number of bytes */
+  uint32 num_bytes = 4;
+}
+
+message TestCommand {
+  enum ChangeState {
+    /* Data is received by the module */
+    RECEIVE = 0;
+    /* Data is received by the module indicating data for subsequent request */
+    RECEIVE_REQUEST = 1;
+    /* Data is sent my the module */
+    REQUEST = 2;
+  }
+
+  /* State to put module into */
+  ChangeState state = 1;
+  /* Data field for test command data */
+  int32 data = 2;
+}
+
+message WiFiCommand {
+  enum Type {
+    /* Connect to WiFi network*/
+    CONNECT = 0;
+    /* Post data to endpoint */
+    POST = 1;
+    /* Check API status */
+    CHECK = 2;
+    /* Timesync request */
+    TIME = 3;
+  }
+
+  /* Command type */
+  Type type = 1;
+
+  /* Group for Connect */
+  /* WiFI SSID */
+  string ssid = 2;
+  /* WiFi Password */
+  string passwd = 3;
+  /* Endpoint url */
+  string url = 4;
+  /* Port */
+  uint32 port = 8;
+ 
+  /* Group for request repsonses */
+  /* Return code */
+  uint32 rc = 5;
+  /* Timestamp n unix epochs */
+  uint32 ts = 6;
+  // binary data response
+  bytes resp = 7;
+}
+
 message UserConfiguration {
   /********** Upload Settings **********/
   uint32 logger_id = 1; // id of the logging device

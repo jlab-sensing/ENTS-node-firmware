@@ -1,4 +1,4 @@
-# Adding device to The Things Network
+# Adding device to The Things Network {#add-device-to-ttn}
 
 The following tutorial covers the end to end procedure for setting up the device with [The Things Network](https://www.thethingsnetwork.org/) (TTN). The process covers (1) creating an account to get access to TTN resouces, (2) Adding an end device to the `soil-power-sensor` application, and (3) verifying uplinks and downlinks from the serial link.
 

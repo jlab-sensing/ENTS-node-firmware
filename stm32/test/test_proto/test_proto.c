@@ -234,6 +234,51 @@ void test_response(void) {
   TEST_ASSERT_EQUAL(Response_ResponseType_SUCCESS, response_decode.resp);
 }
 
+void test_esp32_wifi() {
+  char ssid[] = "Hello";
+  char passwd[] = "World";
+  char url[] = "http://test.com";
+  uint8_t bytes[] = {0, 1, 2, 3, 4};
+
+  // encoding
+  Esp32Command encode = Esp32Command_init_zero;
+  encode.which_command = Esp32Command_wifi_command_tag;
+  encode.command.wifi_command.type = WiFiCommand_Type_CONNECT;
+  strncpy(encode.command.wifi_command.ssid, ssid, sizeof(ssid));
+  strncpy(encode.command.wifi_command.passwd, passwd, sizeof(passwd));
+  strncpy(encode.command.wifi_command.url, url, sizeof(url));
+  encode.command.wifi_command.rc = 200;
+  encode.command.wifi_command.ts = 1600000;
+  memcpy(encode.command.wifi_command.resp.bytes, bytes, sizeof(bytes));
+  encode.command.wifi_command.resp.size = 5;
+  encode.command.wifi_command.port = 443;
+
+  status = pb_encode(&ostream, Esp32Command_fields, &encode);
+  msg_len = ostream.bytes_written;
+
+  TEST_ASSERT_TRUE(status);
+  TEST_ASSERT_GREATER_THAN(0, msg_len);
+
+  // decoding
+  Esp32Command decode = Esp32Command_init_zero;
+  istream = pb_istream_from_buffer(buffer, msg_len);
+  status = pb_decode(&istream, Esp32Command_fields, &decode);
+
+  TEST_ASSERT_TRUE(status);
+
+  TEST_ASSERT_EQUAL(Esp32Command_wifi_command_tag, decode.which_command);
+  TEST_ASSERT_EQUAL(WiFiCommand_Type_CONNECT, decode.command.wifi_command.type);
+  TEST_ASSERT_EQUAL_STRING(ssid, decode.command.wifi_command.ssid);
+  TEST_ASSERT_EQUAL_STRING(passwd, decode.command.wifi_command.passwd);
+  TEST_ASSERT_EQUAL_STRING(url, decode.command.wifi_command.url);
+  TEST_ASSERT_EQUAL(200, decode.command.wifi_command.rc);
+  TEST_ASSERT_EQUAL(1600000, decode.command.wifi_command.ts);
+  TEST_ASSERT_EQUAL_INT8_ARRAY(bytes, decode.command.wifi_command.resp.bytes,
+                               sizeof(bytes));
+  TEST_ASSERT_EQUAL(5, decode.command.wifi_command.resp.size);
+  TEST_ASSERT_EQUAL(443, decode.command.wifi_command.port);
+}
+
 /**
  * @brief Entry point for protobuf test
  * @retval int
@@ -266,6 +311,8 @@ int main(void) {
   RUN_TEST(test_teros12);
   // Tests for Response
   RUN_TEST(test_response);
+  // Tests Esp32Command WiFI
+  RUN_TEST(test_esp32_wifi);
 
   UNITY_END();
 }
