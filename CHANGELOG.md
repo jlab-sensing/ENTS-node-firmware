@@ -13,6 +13,7 @@ firmware versions for a hardware version.
 ### Added
 
 - WiFi upload method [#46](i46)
+- Time synchronization via NTP [#176](i176)
 
 ### Changed
 
@@ -20,6 +21,7 @@ firmware versions for a hardware version.
 
 [i46]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/46
 [i174]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/174
+[i176]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/176
 
 ## [2.3.0] - 2025-02-26
 
