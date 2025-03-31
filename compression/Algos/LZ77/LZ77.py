@@ -5,27 +5,35 @@ class LZ77Encoder:
 
     def encode(self, data):
         encoded_data = []
-        i = 0
+        i = 0  # Start at the beginning
         
         while i < len(data):
             match_distance = 0
             match_length = 0
+            next_symbol = data[i] if i < len(data) else ""
+
+            # Define the search window
+            search_start = max(0, i - self.window_size)
+            search_window = data[search_start:i]
             lookahead = min(self.lookahead_buffer_size, len(data) - i)
             
-            for j in range(1, min(self.window_size, i) + 1):
-                substring = data[i:i + lookahead]
-                start_index = max(0, i - j)
-                window = data[start_index:i]
-                
-                for k in range(lookahead, 0, -1):
-                    if substring[:k] in window:
-                        match_distance = j
-                        match_length = k
-                        break
-                
-            next_symbol = data[i + match_length] if i + match_length < len(data) else ""
+            # Find longest match in the search window
+            for j in range(1, lookahead + 1):
+                match_candidate = data[i:i + j]
+                if match_candidate in search_window:
+                    match_distance = i - search_window.rfind(match_candidate) - search_start
+                    match_length = j
+                else:
+                    break  # Stop if match is broken
+            
+            # Next symbol after match
+            next_symbol = data[i + match_length] if (i + match_length) < len(data) else ""
+
+            # Append (distance, length, next symbol)
             encoded_data.append((match_distance, match_length, next_symbol))
-            i += match_length + 1
+            
+            # Move forward
+            i += match_length + 1 if match_length > 0 else 1
         
         return encoded_data
     
@@ -58,7 +66,7 @@ print("Compressed:", data)
 
 decoder = LZ77Decoder()
 decompressed = decoder.decode(compressed)
-print("Decompressed matches data:", decompressed)
+print("Decompressed matches data:", (data == decompressed))
 
 print("\nArbitrary Binary")# Arbitratry binary
 test_str = "This is a binary" 
