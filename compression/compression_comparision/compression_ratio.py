@@ -1,0 +1,1 @@
+from Algos.LZ77.LZ77 import LZ77Compressor
