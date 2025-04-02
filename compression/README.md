@@ -18,7 +18,7 @@ Algos contains rough implementations and test harnesses for each of the algorith
 
 ## LZ77
 
-LZ77 is implemented using this [LZ77 library]{https://github.com/manassra/LZ77-Compressor}
+LZ77 is implemented using this {LZ77 library}[https://github.com/manassra/LZ77-Compressor]
 
 # Compression Comparison
 
