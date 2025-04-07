@@ -1,61 +1,56 @@
-class LZ78Encoder:
-    def __init__(self):
-        self.dictionary = {}
-        self.current_index = 1  # Dictionary indices start from 1
+class LZ78Compressor:
+    def compress(self, input_file_path, output_file_path=None):
+        with open(input_file_path, 'r') as input_file:
+            text = input_file.read()
 
-    def encode(self, data):
-        encoded_data = []
-        phrase = ""
-        
-        for symbol in data:
-            new_phrase = phrase + symbol
-            if new_phrase in self.dictionary:
-                phrase = new_phrase
+        dictionary = {}
+        current = ''
+        code = 1
+        result = []
+
+        for char in text:
+            temp = current + char
+            if temp in dictionary:
+                current = temp
             else:
-                pointer = self.dictionary.get(phrase, 0)
-                encoded_data.append((pointer, symbol))
-                self.dictionary[new_phrase] = self.current_index
-                self.current_index += 1
-                phrase = ""
-        
-        if phrase:
-            encoded_data.append((self.dictionary[phrase], ""))
-        
-        return encoded_data
+                if current == '':
+                    result.append(f'0{char}')
+                else:
+                    result.append(f'{dictionary[current]}{char}')
+                dictionary[temp] = str(code)
+                code += 1
+                current = ''
 
-class LZ78Decoder:
-    def __init__(self):
-        self.dictionary = {0: ""}  # Initialize dictionary with empty phrase
-        self.current_index = 1
+        if output_file_path:
+            with open(output_file_path, 'w') as output_file:
+                output_file.write(''.join(result))
+        return ''.join(result)
 
-    def decode(self, encoded_data):
-        decoded_string = ""
-        
-        for index, symbol in encoded_data:
-            phrase = self.dictionary.get(index, "") + symbol
-            decoded_string += phrase
-            self.dictionary[self.current_index] = phrase
-            self.current_index += 1
-        
-        return decoded_string
+    def decompress(self, input_file_path, output_file_path=None):
+        with open(input_file_path, 'r') as input_file:
+            encoded_text = input_file.read()
 
-# Example usage
-print("\nLZ78\n")
-print("Simple String") # Simple string
-data = "ABABABA"
-encoder = LZ78Encoder()
-compressed = encoder.encode(data)
-print("Compressed:", data)
+        dictionary = {'0': ''}
+        result = []
+        i = 0
+        code = 1
 
-decoder = LZ78Decoder()
-decompressed = decoder.decode(compressed)
-print("Decompressed matches data:", (data == decompressed))
+        while i < len(encoded_text):
+            index = ''
+            while i < len(encoded_text) and encoded_text[i].isdigit():
+                index += encoded_text[i]
+                i += 1
 
-print("\nArbitrary Binary")# Arbitratry binary
-test_str = "This is a binary" 
-print("Compressed binary of: " + str(test_str))
-binary = ''.join(format(ord(i), '08b') for i in test_str) # Converting String to binary
+            if i < len(encoded_text):
+                char = encoded_text[i]
+                i += 1
+                entry = dictionary[index] + char
+                result.append(entry)
+                dictionary[str(code)] = entry
+                code += 1
 
-comp_binary = encoder.encode(binary)
-decomp_binary = decoder.decode(comp_binary)
-print("Decompressed matches binary:", (binary == decomp_binary))
+        decoded_text = ''.join(result)
+        if output_file_path:
+            with open(output_file_path, 'w') as output_file:
+                output_file.write(decoded_text)
+        return decoded_text

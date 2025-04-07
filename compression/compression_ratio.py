@@ -1,31 +1,78 @@
 from Algos.LZ77.LZ77 import LZ77Compressor
+from Algos.LZ78.LZ78 import LZ78Compressor  # <-- Import LZ78
 
 from pathlib import Path
-import filecmp
+import time
+import csv
 
+def append_size_ratio(results, filename, algorithm, size_original, size_compressed, computation_time):
+    ratio = size_original / size_compressed if size_compressed != 0 else float('inf')
+    results.append({
+        "file": filename,
+        "algorithm": algorithm,
+        "original_size": size_original,
+        "compressed_size": size_compressed,
+        "ratio": ratio,
+        "computation_time": computation_time
+    })
 
-def append_size_ratio(algorithim, size_orginal, size_compressed):
-    """Appends the sizes and calculates the ratio between them"""
-    ratio = size_orginal/size_compressed
-    algorithim[0].append(size_orginal,)
-    algorithim[1].append(size_compressed)
-    algorithim[2].append(ratio)
-
-compression_ratio_LZ77 = [[],[],[]] # Struct containing [[original size of file in bytes], [size of compressed in bytes], ratio between them]
-compression_ratio_LZ78 = [[],[],[]]
+compression_results = []
 
 LZ77_compressor = LZ77Compressor()
+LZ78_compressor = LZ78Compressor()  # <-- Initialize LZ78
 
-compressed_data = Path("compressed.txt") # Define the file that the compressed data will be written to, will be wiped after every use
+compressed_data = Path("compressed.txt")
 sample_messages = Path('messages')
 
-# Iterate through all the files in the directory
 for filepath in sample_messages.iterdir():
     if filepath.is_file() and filepath.name != "__init__.py":
-        print(f"File: {filepath.name}")
-        # LZ77
-        LZ77_compressor.compress(str(filepath), compressed_data)
-        append_size_ratio(compression_ratio_LZ77, filepath.stat().st_size, compressed_data.stat().st_size)
-        compressed_data.write_text('')  # Clears the contents of the file
+        print(f"Compressing: {filepath.name}")
 
-print(compression_ratio_LZ77)
+        # ------------------- LZ77 -------------------
+        start = time.perf_counter()
+        LZ77_compressor.compress(str(filepath), compressed_data)
+        end = time.perf_counter()
+
+        append_size_ratio(
+            compression_results,
+            filepath.name,
+            "LZ77",
+            filepath.stat().st_size,
+            compressed_data.stat().st_size,
+            end - start
+        )
+
+        compressed_data.write_text('')  # Clear contents
+
+        # ------------------- LZ78 -------------------
+        start = time.perf_counter()
+        LZ78_compressor.compress(str(filepath), compressed_data)
+        end = time.perf_counter()
+
+        append_size_ratio(
+            compression_results,
+            filepath.name,
+            "LZ78",
+            filepath.stat().st_size,
+            compressed_data.stat().st_size,
+            end - start
+        )
+
+        compressed_data.write_text('')  # Clear contents again
+
+# ------------------- Write to file -------------------
+with open("compression_results.csv", "w", newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(["File", "Algorithm", "Original Size (B)", "Compressed Size (B)", "Compression Ratio", "Computation Time (s)"])
+
+    for result in compression_results:
+        writer.writerow([
+            result['file'],
+            result['algorithm'],
+            result['original_size'],
+            result['compressed_size'],
+            f"{result['ratio']:.4f}",
+            f"{result['computation_time']:.6f}"
+        ])
+
+print("Results saved to compression_results.txt")
