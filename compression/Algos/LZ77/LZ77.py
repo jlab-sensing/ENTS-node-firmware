@@ -137,36 +137,24 @@ class LZ77Compressor:
 
 
 	def findLongestMatch(self, data, current_position):
-		""" 
-		Finds the longest match to a substring starting at the current_position 
-		in the lookahead buffer from the history window
-		"""
-		end_of_buffer = min(current_position + self.lookahead_buffer_size, len(data) + 1)
-
+		end_of_buffer = min(current_position + self.lookahead_buffer_size, len(data))
 		best_match_distance = -1
 		best_match_length = -1
 
-		# Optimization: Only consider substrings of length 2 and greater, and just 
-		# output any substring of length 1 (8 bits uncompressed is better than 13 bits
-		# for the flag, distance, and length)
-		for j in range(current_position + 2, end_of_buffer):
+		start_index = max(0, current_position - self.window_size)
 
-			start_index = max(0, current_position - self.window_size)
-			substring = data[current_position:j]
+		for i in range(start_index, current_position):
+			length = 0
+			while (length < self.lookahead_buffer_size and
+				   current_position + length < len(data) and
+				   data[i + length] == data[current_position + length]):
+				length += 1
 
-			for i in range(start_index, current_position):
+			if length > best_match_length:
+				best_match_distance = current_position - i
+				best_match_length = length
 
-				repetitions = len(substring) // (current_position - i)
-
-				last = len(substring) % (current_position - i)
-
-				matched_string = data[i:current_position] * repetitions + data[i:i+last]
-
-				if matched_string == substring and len(substring) > best_match_length:
-					best_match_distance = current_position - i 
-					best_match_length = len(substring)
-
-		if best_match_distance > 0 and best_match_length > 0:
+		if best_match_distance > 0 and best_match_length > 1:
 			return (best_match_distance, best_match_length)
 		return None
 
