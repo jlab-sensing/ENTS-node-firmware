@@ -1,56 +1,56 @@
 class LZ78Compressor:
     def compress(self, input_file_path, output_file_path=None):
-        with open(input_file_path, 'r') as input_file:
+        with open(input_file_path, 'rb') as input_file:
             text = input_file.read()
 
         dictionary = {}
-        current = ''
+        current = b''  # Use bytes instead of strings
         code = 1
-        result = []
+        result = bytearray()  # Use bytearray to store binary data
 
         for char in text:
+            char = bytes([char])  # Convert the integer to a single-byte bytes object
             temp = current + char
             if temp in dictionary:
                 current = temp
             else:
-                if current == '':
-                    result.append(f'0{char}')
+                if current == b'':
+                    result.extend(b'0' + char)  # Add '0' + char to the result
                 else:
-                    result.append(f'{dictionary[current]}{char}')
-                dictionary[temp] = str(code)
+                    result.extend(dictionary[current] + char)  # Add dictionary index + char
+                dictionary[temp] = bytes([code])  # Store the code as bytes
                 code += 1
-                current = ''
+                current = b''
 
         if output_file_path:
-            with open(output_file_path, 'w') as output_file:
-                output_file.write(''.join(result))
-        return ''.join(result)
+            with open(output_file_path, 'wb') as output_file:  # Write in binary mode
+                output_file.write(result)
+        return result
 
     def decompress(self, input_file_path, output_file_path=None):
-        with open(input_file_path, 'r') as input_file:
-            encoded_text = input_file.read()
+        with open(input_file_path, 'rb') as input_file:  # Read in binary mode
+            encoded_data = input_file.read()
 
-        dictionary = {'0': ''}
-        result = []
+        dictionary = {b'0': b''}
+        result = bytearray()
         i = 0
         code = 1
 
-        while i < len(encoded_text):
-            index = ''
-            while i < len(encoded_text) and encoded_text[i].isdigit():
-                index += encoded_text[i]
+        while i < len(encoded_data):
+            index = b''
+            while i < len(encoded_data) and encoded_data[i:i+1].isdigit():
+                index += encoded_data[i:i+1]
                 i += 1
 
-            if i < len(encoded_text):
-                char = encoded_text[i]
+            if i < len(encoded_data):
+                char = encoded_data[i:i+1]
                 i += 1
                 entry = dictionary[index] + char
-                result.append(entry)
-                dictionary[str(code)] = entry
+                result.extend(entry)
+                dictionary[bytes([code])] = entry
                 code += 1
 
-        decoded_text = ''.join(result)
         if output_file_path:
-            with open(output_file_path, 'w') as output_file:
-                output_file.write(decoded_text)
-        return decoded_text
+            with open(output_file_path, 'wb') as output_file:  # Write in binary mode
+                output_file.write(result)
+        return bytes(result)
