@@ -65,7 +65,7 @@ for filepath in sample_messages.iterdir():
         print(f"Entropy: {entropy:.4f} bits")
 
         # Plot byte distribution
-        plot_byte_distribution(byte_frequencies, filepath.stem)
+        #plot_byte_distribution(byte_frequencies, filepath.stem)
 
         print("Data Length:", total_bytes)
         print(f"Unique Bytes: {len(byte_frequencies)}")

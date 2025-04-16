@@ -73,6 +73,23 @@ def encode_power_measurement(
     return meas.SerializeToString()
 
 
+def encode_adc_measurement(
+    adc: int,
+) -> bytes:
+    """Encodes a RawADCMeasurement within the Measurement message
+
+    Args:
+        adc: Raw ADC value
+
+    Returns:
+        Serialized Power measurement
+    """
+
+    meas = Measurement()
+    meas.meta.ts = adc
+
+    return meas.SerializeToString()
+
 def encode_teros12_measurement(
     ts: int,
     cell_id: int,

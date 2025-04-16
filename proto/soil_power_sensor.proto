@@ -195,6 +195,10 @@ message UserConfiguration {
   uint32 API_Endpoint_Port = 13;
 }
 
+message adcValue {
+  int32 adc = 1;
+}
+
 enum EnabledSensor {
   Voltage = 0;
   Current = 1;
