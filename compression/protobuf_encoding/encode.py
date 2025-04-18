@@ -16,6 +16,7 @@ from .soil_power_sensor_pb2 import (
     UserConfiguration,
     EnabledSensor,
     Uploadmethod,
+    adcValue,
 )
 
 
@@ -82,13 +83,13 @@ def encode_adc_measurement(
         adc: Raw ADC value
 
     Returns:
-        Serialized Power measurement
+        Serialized ADC measurement
     """
 
-    meas = Measurement()
-    meas.meta.ts = adc
+    raw_adc = adcValue()
+    raw_adc.adc = adc
 
-    return meas.SerializeToString()
+    return raw_adc.SerializeToString()
 
 def encode_teros12_measurement(
     ts: int,

@@ -196,7 +196,7 @@ message UserConfiguration {
 }
 
 message adcValue {
-  int32 adc = 1;
+  uint32 adc = 1;
 }
 
 enum EnabledSensor {
