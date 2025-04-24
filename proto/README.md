@@ -2,7 +2,7 @@
 
 [Protobuf](https://protobuf.dev/) is used to serialize measurement data when uploading data. Over LoRa this is strictly necessary due to payload size restrictions of the LoRaWAN protocol.
 
-![Serialized data block diagram](/images/serialized_structure.png) {html: width=80%}
+![Serialized data block diagram](/images/Soil Power Sensor - meas.jpeg) {html: width=80%}
 
 ## Building
 
@@ -37,7 +37,7 @@ New sensors added to the platform should follow this convention of having a sing
 ## Best practices
 
 1. Integer data types are preferred. Protobuf encoded integers using varints, so there are space savings to be had by using integers instead of floats.
-2. ...
+2. For strings and byte arrays, specify the max length in the `*.options` file. See more details [here](https://jpa.kapsi.fi/nanopb/docs/reference.html#generator-options)
 
 ## Example messages
 
