@@ -11,14 +11,14 @@ correct dictionary format is returned.
 import unittest
 import base64
 
-from soil_power_sensor_protobuf.proto import (
+from ents.proto import (
     encode_response,
     decode_measurement,
     encode_esp32command,
     decode_esp32command,
 )
 
-from soil_power_sensor_protobuf.proto.soil_power_sensor_pb2 import (
+from ents.proto.soil_power_sensor_pb2 import (
     Measurement,
     Response,
     MeasurementMetadata,

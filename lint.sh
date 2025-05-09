@@ -13,4 +13,4 @@ python -m cpplint --recursive --quiet \
   proto/c/src/transcoder.c
 
 # lint python code
-ruff check proto/python
+ruff check python

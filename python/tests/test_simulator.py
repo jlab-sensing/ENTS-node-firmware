@@ -11,7 +11,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from multiprocessing import Process
 from datetime import datetime, timedelta
 
-from soil_power_sensor_protobuf.simulator.node import NodeSimulator
+from ents.simulator.node import NodeSimulator
 
 
 class Backend(BaseHTTPRequestHandler):

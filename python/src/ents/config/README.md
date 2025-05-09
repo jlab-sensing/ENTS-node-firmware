@@ -41,7 +41,7 @@ If you don't have Python installed or prefer to use a pre-built executable, foll
 - The executable file can be found in the following path:
 
 ```bash
-\proto\python\src\soil_power_sensor_protobuf\config\dist
+\proto\python\src\ents\config\dist
 ```
 
 **2- Run the Executable:**

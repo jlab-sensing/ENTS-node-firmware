@@ -14,7 +14,12 @@ firmware versions for a hardware version.
 
 - Simulation utility for WiFi uploads [#217][i217]
 
+### Updated
+
+- Restructured python code [#226][pr226]
+
 [i217]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/217
+[i226]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/226
 
 ## [2.3.1] - 2025-05-09
 

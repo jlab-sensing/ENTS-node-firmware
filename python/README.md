@@ -11,12 +11,29 @@ Use the following to install the `soil-power-sensor-protobuf` package with `pip`
 pip install soil-power-sensor-protobuf
 ```
 
+You can also install the package from source with the following:
+
+```bash
+# install package
+pip install .
+```
+
+If you are planning to develop the package we recommend you install the package
+in editable mode with development dependencies. This allows you to make changes
+to the source code and have them reflected in the package without needing to
+reinstall it.
+
+```bash
+# install development dependencies
+pip install -e .[dev]
+```
+
 ## Usage
 
 The following example code demonstrates decoding the measurement message and encoding a response.
 
 ```python
-from soil_power_sensor_protobuf import encode, decode
+from ents import encode, decode
 
 # get data encoded by the soil power sensor
 data = ...

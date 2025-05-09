@@ -5,5 +5,5 @@ tqdm
 scikit-learn
 rocketlogger
 pyyaml
-soil_power_sensor_protobuf
+ents
 protobuf==4.25.5
