@@ -1,4 +1,3 @@
-/* USER CODE BEGIN Header */
 /**
  ******************************************************************************
  * @file           : main.c
@@ -32,7 +31,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "ads.h"
-#include "phytos31.h"
+#include "waterPressure.h"
 #include "rtc.h"
 #include "sdi12.h"
 #include "sys_app.h"
@@ -119,16 +118,14 @@ int main(void) {
   HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
-  Phytos31Init();
+  PressureInit();
   // TIMER_IF_Init();
   // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
   // UTIL_TIMER_Init();
 
-  char output[20];
-  char output2[20];
+  char output[30];
 
-  double voltage_reading;
-  phytos_measurments measurment;
+  measurments measurment;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -140,9 +137,9 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
 
-    measurment = Phytos31GetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Phytos Raw: %f\r\n",
-                           measurment.phytos31_raw);
+    measurment = PressureGetMeasurment();
+    reading_len = snprintf(output, sizeof(output), "Pressure: %f KPa\r\n",
+                           measurment.pressure);
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
     // for (int i = 0; i < 10000; i++){

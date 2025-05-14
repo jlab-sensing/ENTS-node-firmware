@@ -134,6 +134,42 @@ size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
+size_t EncodeCapSoilMeasurement(uint32_t ts, uint32_t logger_id,
+  uint32_t cell_id, double voltage,
+  double soil_moister, uint8_t *buffer) {
+  Measurement meas = Measurement_init_zero;
+
+  meas.has_meta = true;
+
+  meas.meta.ts = ts;
+  meas.meta.logger_id = logger_id;
+  meas.meta.cell_id = cell_id;
+
+  meas.which_measurement = Measurement_capSoil_tag;
+  meas.measurement.capSoil.voltage = voltage;
+  meas.measurement.capSoil.soil_moisture = soil_moister;
+
+  return EncodeMeasurement(&meas, buffer);
+}
+
+size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
+  uint32_t cell_id, double voltage,
+  double water_pressure, uint8_t *buffer) {
+  Measurement meas = Measurement_init_zero;
+
+  meas.has_meta = true;
+
+  meas.meta.ts = ts;
+  meas.meta.logger_id = logger_id;
+  meas.meta.cell_id = cell_id;
+
+  meas.which_measurement = Measurement_watPress_tag;
+  meas.measurement.watPress.voltage = voltage;
+  meas.measurement.watPress.water_pressure = water_pressure;
+
+  return EncodeMeasurement(&meas, buffer);
+}
+
 Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len) {
   Response resp;
 

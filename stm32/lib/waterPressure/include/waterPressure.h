@@ -1,18 +1,18 @@
 /**
  ******************************************************************************
- * @file     capSoil.h
+ * @file     waterPressure.h
  * @author   Caden Jacobs
  * @brief    This file contains all the function prototypes for
- *           the capSoiil.c file.
+ *           the waterPressure.c file.
  *
- *           This library is designed to read measurements from a Capacitve Soil Moisture Sensor
- *           [link]
- * @date     4/8/2025
+ *           This library is designed to read measurements from a Water Pressure Sensor
+ *           https://wiki.dfrobot.com/Gravity__Water_Pressure_Sensor_SKU__SEN0257
+ * @date     4/23/2025
  ******************************************************************************
  */
 
- #ifndef LIB_CAPSOIL_INCLUDE_CAPSOIL_H_
- #define LIB_CAPSOIL_INCLUDE_CAPSOIL_H_
+ #ifndef LIB_WATERPRESSURE_INCLUDE_WATERPRESSURE_H_
+ #define LIB_WATERPRESSURE_INCLUDE_WATERPRESSURE_H_
  
  #ifdef __cplusplus
  extern "C" {
@@ -24,9 +24,9 @@
  #include "ads.h"
  
  typedef struct {
-   double capSoil_raw;
-   double capSoil_calibrated;
- } capSoil_measurments;
+   double voltage;
+   double pressure;
+ } SEN0257Data;
  
  /**
  ******************************************************************************
@@ -36,33 +36,32 @@
  * @return   HAL_StatusTypeDef
  ******************************************************************************
  */
- HAL_StatusTypeDef CapSoilInit(void);
+ HAL_StatusTypeDef PressureInit(void);
  
  /**
  ******************************************************************************
  * @brief    Returns both the raw voltage value and a calibrated measurment
- *           from a CapSoil sensor.
+ *           from a water pressure sensor.
  *
  * @param    void
- * @return   phytos_measurments
+ * @return   measurments
  ******************************************************************************
  */
-capSoil_measurments CapSoilGetMeasurment(void);
+SEN0257Data PressureGetMeasurment(void);
  
  /**
-  * @brief Read CapSoil sensor and serialize measurement
+  * @brief Read water pressure sensor and serialize measurement
   *
-  * The voltage output of the CapSoil is measured. A calibration is applied
+  * The voltage output of the water pressure is measured. A calibration is applied
   * to convert voltage into a leaf wetness measurement.
   *
-  * Current voltage and leaf wetness are the same value, until a calibration
+  * Current voltage and pressure are the same value, until a calibration
   * is obtained.
   *
-  * @note Implemented for the sensors library
   *
   * @see SensorsPrototypeMeasure
   */
- size_t CapSoil_measure(uint8_t *data);
+ size_t Presure_measure(uint8_t *data);
  
  #ifdef __cplusplus
  }

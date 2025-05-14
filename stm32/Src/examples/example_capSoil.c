@@ -26,6 +26,7 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "usart.h"
+#include "userConfig.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -104,6 +105,7 @@ int main(void) {
    * like in main*/
   __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
   UTIL_TIMER_Init();
+  UserConfigLoad();
 
   // TIMER_IF_Init();
   /* USER CODE BEGIN 2 */
@@ -122,11 +124,9 @@ int main(void) {
   // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
   // UTIL_TIMER_Init();
 
-  char output[20];
-  char output2[20];
+  char output[25];
 
-  double voltage_reading;
-  phytos_measurments measurment;
+  capSoil_measurments measurment;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -140,7 +140,7 @@ int main(void) {
 
     measurment = CapSoilGetMeasurment();
     reading_len = snprintf(output, sizeof(output), "Cap Soil Raw: %f\r\n",
-                           measurment.capSoil_raw);
+                           measurment.capSoil_calibrated);
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
     // for (int i = 0; i < 10000; i++){
