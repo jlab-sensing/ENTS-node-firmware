@@ -68,6 +68,13 @@ message BME280Measurement {
   uint32 humidity = 3;
 }
 
+message SEN0257Measurement {
+  // voltage
+  double voltage = 1;
+  // pressure
+  double pressure = 2;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
