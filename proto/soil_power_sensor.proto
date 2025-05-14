@@ -68,6 +68,15 @@ message BME280Measurement {
   uint32 humidity = 3;
 }
 
+//Capactive Soil Moister Measurement
+message CapSoilMeasurment {
+  // voltage
+  double voltage = 1;
+  // pressure
+  double pressure = 2;
+}
+
+//Water Pressure Sensor
 message SEN0257Measurement {
   // voltage
   double voltage = 1;
