@@ -24,9 +24,9 @@
  
  SEN0257Data PressureGetMeasurment() {
   SEN0257Data measurment;
-   measurment.voltage = ADC_readVoltage();
-   measurment.pressure = ((measurment.voltage - OffSet)) * 250 + 0.94;
-   return measurment;
+  measurment.voltage = ADC_readVoltage();
+  measurment.pressure = ((measurment.voltage - OffSet)) * 250 + 0.94;
+  return measurment;
  }
  
  size_t WatPress_measure(uint8_t* data) {

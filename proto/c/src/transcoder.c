@@ -147,7 +147,7 @@ size_t EncodeCapSoilMeasurement(uint32_t ts, uint32_t logger_id,
 
   meas.which_measurement = Measurement_capSoil_tag;
   meas.measurement.capSoil.voltage = voltage;
-  meas.measurement.capSoil.soil_moisture = soil_moister;
+  meas.measurement.capSoil.moister = soil_moister;
 
   return EncodeMeasurement(&meas, buffer);
 }
@@ -163,9 +163,9 @@ size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
   meas.meta.logger_id = logger_id;
   meas.meta.cell_id = cell_id;
 
-  meas.which_measurement = Measurement_watPress_tag;
-  meas.measurement.watPress.voltage = voltage;
-  meas.measurement.watPress.water_pressure = water_pressure;
+  meas.which_measurement = Measurement_sen0257_tag;
+  meas.measurement.sen0257.voltage = voltage;
+  meas.measurement.sen0257.pressure = water_pressure;
 
   return EncodeMeasurement(&meas, buffer);
 }
