@@ -143,6 +143,8 @@ typedef struct _Measurement {
         Phytos31Measurement phytos31;
         BME280Measurement bme280;
         Teros21Measurement teros21;
+        CapSoilMeasurment capSoil;
+        SEN0257Measurement sen0257;
     } measurement;
 } Measurement;
 
@@ -330,6 +332,8 @@ extern "C" {
 #define Measurement_phytos31_tag                 4
 #define Measurement_bme280_tag                   5
 #define Measurement_teros21_tag                  6
+#define Measurement_capSoil_tag                  7
+#define Measurement_sen0257_tag                  8
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -421,7 +425,9 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power,measurement.power),   2) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros12,measurement.teros12),   3) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,phytos31,measurement.phytos31),   4) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,bme280,measurement.bme280),   5) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,capSoil,measurement.capSoil),   7) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -430,6 +436,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   
 #define Measurement_measurement_phytos31_MSGTYPE Phytos31Measurement
 #define Measurement_measurement_bme280_MSGTYPE BME280Measurement
 #define Measurement_measurement_teros21_MSGTYPE Teros21Measurement
+#define Measurement_measurement_capSoil_MSGTYPE CapSoilMeasurment
+#define Measurement_measurement_sen0257_MSGTYPE SEN0257Measurement
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)

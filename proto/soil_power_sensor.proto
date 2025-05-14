@@ -96,6 +96,8 @@ message Measurement {
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;
     Teros21Measurement teros21 = 6;
+    CapSoilMeasurment capSoil = 7;
+    SEN0257Measurement sen0257 = 8;
   }
 }
 
