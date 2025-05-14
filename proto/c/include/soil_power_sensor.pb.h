@@ -119,8 +119,8 @@ typedef struct _BME280Measurement {
 typedef struct _CapSoilMeasurment {
     /* voltage */
     double voltage;
-    /* pressure */
-    double pressure;
+    /* moister */
+    double moister;
 } CapSoilMeasurment;
 
 /* Water Pressure Sensor */
@@ -323,7 +323,7 @@ extern "C" {
 #define BME280Measurement_temperature_tag        2
 #define BME280Measurement_humidity_tag           3
 #define CapSoilMeasurment_voltage_tag            1
-#define CapSoilMeasurment_pressure_tag           2
+#define CapSoilMeasurment_moister_tag            2
 #define SEN0257Measurement_voltage_tag           1
 #define SEN0257Measurement_pressure_tag          2
 #define Measurement_meta_tag                     1
@@ -409,7 +409,7 @@ X(a, STATIC,   SINGULAR, UINT32,   humidity,          3)
 
 #define CapSoilMeasurment_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
-X(a, STATIC,   SINGULAR, DOUBLE,   pressure,          2)
+X(a, STATIC,   SINGULAR, DOUBLE,   moister,           2)
 #define CapSoilMeasurment_CALLBACK NULL
 #define CapSoilMeasurment_DEFAULT NULL
 

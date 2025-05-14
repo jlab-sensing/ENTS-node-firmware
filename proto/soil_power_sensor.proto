@@ -72,8 +72,8 @@ message BME280Measurement {
 message CapSoilMeasurment {
   // voltage
   double voltage = 1;
-  // pressure
-  double pressure = 2;
+  // moister
+  double moister = 2;
 }
 
 //Water Pressure Sensor
