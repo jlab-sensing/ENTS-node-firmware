@@ -45,6 +45,7 @@
 #include "userConfig.h"
 #include "teros12.h"
 #include "teros21.h"
+#include "waterPressure.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -184,6 +185,11 @@ int main(void)
       SensorsAdd(Teros21Measure);
       APP_LOG(TS_OFF, VLEVEL_M, "Teros21 Enabled!\n");
     }
+   /* if (sensor == EnabledSensor_SEN0257) {
+      APP_LOG(TS_OFF, VLEVEL_M, "SEN0257 Enabled!\n");
+      SensorsAdd(WatPress_measure);
+    }
+    */
     // TODO add support for dummy sensor
   }
   

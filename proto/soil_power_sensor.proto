@@ -219,6 +219,7 @@ enum EnabledSensor {
   Teros12 = 2;
   Teros21 = 3;
   BME280 = 4;
+  /*SEN0257 = 5;*/
 }
 
 enum Uploadmethod {

@@ -61,7 +61,7 @@ SEN0257Data PressureGetMeasurment(void);
   *
   * @see SensorsPrototypeMeasure
   */
- size_t Presure_measure(uint8_t *data);
+ size_t WatPress_measure(uint8_t *data);
  
  #ifdef __cplusplus
  }

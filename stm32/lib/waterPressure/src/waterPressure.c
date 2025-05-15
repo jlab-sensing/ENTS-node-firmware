@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file    waterPressure.c
- * @author  Stephen Taylor
+ * @author  Caden Jacobs
  *
  * @brief   This library is designed to read measurements from a water pressure
  *          sensor from DFRobot.

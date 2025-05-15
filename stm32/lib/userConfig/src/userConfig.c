@@ -282,6 +282,10 @@ void UserConfigPrint(void) {
       case 4:
         sensor_name = "BME280";
         break;
+      /*case 5:
+        sensor_name = "SEN0257";
+        break;
+      */
     }
     APP_PRINTF("Enabled Sensor %d: %s\r\n", i + 1, sensor_name);
   }
