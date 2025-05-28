@@ -36,8 +36,12 @@ static const uint8_t cmd_rreg = 0x20;
 static const uint8_t cmd_wreg = 0x40;
 
 // #define CALIBRATION
+#define DELTA_ENCODING
+int32_t previous_voltage_reading = 0;
+int32_t previous_current_reading = 0; 
 
 // default sane calibration
+#ifdef CALIBRATION
 static double voltage_calibration_m = 0.0;
 static double voltage_calibration_b = 0.0;
 static double current_calibration_m = 0.0;
@@ -125,6 +129,7 @@ HAL_StatusTypeDef ADC_init(void) {
   const UserConfiguration *cfg = UserConfigGet();
 
   // read calibration values
+  #ifdef CALIBRATION
   voltage_calibration_m = cfg->Voltage_Slope;
   voltage_calibration_b = cfg->Voltage_Offset;
   current_calibration_m = cfg->Current_Slope;
@@ -160,15 +165,15 @@ double ADC_readVoltage(void) {
   ConfigReg reg_data = {0};
   reg_data.bits.vref = 1;
 
-  // 0x21 is single shot and 0x23 is continuos
-  ret = Configure(reg_data);  // configure to read current
+  // 0x01 is single shot 0x03 is continuous
+  ret = ADC_configure(0x01);
   if (ret != HAL_OK) {
-    return -1;
+    return -1;  // Return -1 on error
   }
 
   ret = Measure(&raw);
   if (ret != HAL_OK) {
-    return -1;
+    return -1;  // Return -1 on error
   }
 
 #ifdef CALIBRATION
@@ -193,12 +198,12 @@ double ADC_readCurrent(void) {
   // 0x21 is single shot and 0x23 is continuos
   ret = Configure(reg_data);  // configure to read current
   if (ret != HAL_OK) {
-    return -1;
+    return -1;  // Return -1 on error
   }
 
   ret = Measure(&raw);
   if (ret != HAL_OK) {
-    return -1;
+    return -1;  // Return -1 on error
   }
 
 #ifdef CALIBRATION
@@ -221,14 +226,19 @@ size_t ADC_measure(uint8_t *data) {
   SysTime_t ts = SysTimeGet();
 
   // read power
-  double adc_voltage = ADC_readVoltage();
-  double adc_current = ADC_readCurrent();
+  int32_t adc_voltage = ADC_readVoltage();
+  int32_t adc_current = ADC_readCurrent();
 
   const UserConfiguration *cfg = UserConfigGet();
 
   // encode measurement
+  #ifndef DELTA_ENCODING
   size_t data_len = EncodePowerMeasurement(
       ts.Seconds, cfg->logger_id, cfg->cell_id, adc_voltage, adc_current, data);
+  #else
+  size_t data_len = EncodePowerDeltaMeasurement(
+      ts.Seconds, cfg->logger_id, cfg->cell_id, (uint32_t)adc_voltage, (uint32_t)adc_current, data);
+  #endif /* DELTA_ENCODING */
 
   // return number of bytes in serialized measurement
   return data_len;

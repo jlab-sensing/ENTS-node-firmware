@@ -57,6 +57,24 @@ size_t EncodePowerMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
+size_t EncodePowerDeltaMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
+                                   uint32_t voltage_delta, uint32_t current_delta,
+                                   uint8_t *buffer) {
+  Measurement meas = Measurement_init_zero;
+
+  meas.has_meta = true;
+
+  meas.meta.ts = ts;
+  meas.meta.logger_id = logger_id;
+  meas.meta.cell_id = cell_id;
+
+  meas.which_measurement = Measurement_power_delta_tag;
+  meas.measurement.power_delta.voltage_delta = voltage_delta;
+  meas.measurement.power_delta.current_delta = current_delta;
+
+  return EncodeMeasurement(&meas, buffer);
+}
+
 size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double vwc_raw,
                                 double vwc_adj, double temp, uint32_t ec,

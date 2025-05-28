@@ -1,0 +1,7 @@
+File	Algorithm	Original Size (B)	Compressed Size (B)	Compression Ratio	Computation Time (s)
+meas_power.bin	LZ77	32	31	1.0323	0.001305
+meas_power.bin	LZ78	32	48	0.6667	0.000596
+meas_teros.bin	LZ77	39	36	1.0833	0.001123
+meas_teros.bin	LZ78	39	65	0.6000	0.000296
+power_data.txt	LZ77	40178	38256	1.0502	1.332159
+power_data.txt	LZ78	40178	21909	1.8339	0.004058
