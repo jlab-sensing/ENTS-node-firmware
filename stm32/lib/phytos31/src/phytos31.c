@@ -28,7 +28,7 @@ phytos_measurments Phytos31GetMeasurment() {
   return measurments;
 }
 
-size_t Phytos31_measure(uint8_t* data) {
+size_t Phytos31_measure(uint8_t *data) {
   // get timestamp
   SysTime_t ts = SysTimeGet();
   phytos_measurments measurment;
@@ -37,7 +37,7 @@ size_t Phytos31_measure(uint8_t* data) {
   measurment = Phytos31GetMeasurment();
   double adc_voltage_float = measurment.phytos31_raw / 1000.;
 
-  const UserConfiguration* cfg = UserConfigGet();
+  const UserConfiguration *cfg = UserConfigGet();
 
   // encode measurement
   size_t data_len = EncodePhytos31Measurement(

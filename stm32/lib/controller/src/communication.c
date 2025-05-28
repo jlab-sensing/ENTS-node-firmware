@@ -198,9 +198,9 @@ ControllerStatus ControllerTransaction(unsigned int timeout) {
   return status;
 }
 
-Buffer* ControllerTx(void) { return &tx; }
+Buffer *ControllerTx(void) { return &tx; }
 
-Buffer* ControllerRx(void) { return &rx; }
+Buffer *ControllerRx(void) { return &rx; }
 
 ControllerStatus HALToControllerStatus(HAL_StatusTypeDef hal_status) {
   if (hal_status == HAL_TIMEOUT) {

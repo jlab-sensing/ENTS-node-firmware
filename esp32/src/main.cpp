@@ -60,6 +60,7 @@ RESET!
 
   Log.noticeln("ents-node esp32 firmware, compiled at %s %s", __DATE__,
                __TIME__);
+  Log.noticeln("Git SHA: %s", GIT_REV);
 
   Log.noticeln("Starting i2c interface...");
 

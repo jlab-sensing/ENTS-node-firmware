@@ -24,16 +24,24 @@ extern "C" {
 #include "transcoder.h"
 #include "usart.h"
 
-#define ADS12_WRITE 0x80
-#define ADS12_READ 0x81
-
-#define ADS12_START_CODE 0x08
-#define ADS12_RESET_CODE 0x06
-#define ADS12_READ_DATA_CODE 0x10
-
-extern int32_t previous_voltage_reading;
-extern int32_t previous_current_reading;
-
+/**
+ * @ingroup stm32
+ * @defgroup ads ADS1219
+ * @brief Library for interfacing with the ADS1219 ADC
+ *
+ * This library is designed to read measurements from the ADS1219 ADC. When not
+ * actively taking measurements, the analog frontend is power down to reduce
+ * parasitic current.
+ *
+ * Library expected I2C and GPIO to be initialized before use.
+ *
+ * Example: @ref example_adc.c
+ *
+ * Datasheet: https://www.ti.com/product/ADS1219
+ *
+ *
+ * @{
+ */
 
 /**
 ******************************************************************************
@@ -49,30 +57,6 @@ extern int32_t previous_current_reading;
 ******************************************************************************
 */
 HAL_StatusTypeDef ADC_init(void);
-
-/**
-******************************************************************************
-* @brief    This function reconfigures the ADS1219 based on the parameter
-*reg_data
-*
-*
-* @param    reg_data
-* @return   HAL_StatusTypeDef
-******************************************************************************
-*/
-HAL_StatusTypeDef ADC_configure(uint8_t reg_data);
-
-/**
-******************************************************************************
-* @brief    Helper function to convert the int32_t 2's complement reading to 
-* 1's complement
-*
-*
-* @param    reading
-* @return   uint32_t, the converted 1's complement reading
-******************************************************************************
-*/
-int32_t ADC_twos_to_ones(int32_t delta);
 
 /**
 ******************************************************************************
@@ -121,6 +105,10 @@ HAL_StatusTypeDef ADC_probe(void);
 *******************************************f***********************************
 */
 size_t ADC_measure(uint8_t *data);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

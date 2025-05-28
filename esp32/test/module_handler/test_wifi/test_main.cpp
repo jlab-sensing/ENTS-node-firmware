@@ -35,8 +35,8 @@ void test_RegisterModule(void) {
 
   // check if module exists in map
   try {
-    ModuleHandler::Module* mod = module_handler.GetModule(2);
-  } catch (const std::out_of_range& oor) {
+    ModuleHandler::Module *mod = module_handler.GetModule(2);
+  } catch (const std::out_of_range &oor) {
     mod_exist = false;
   }
 
@@ -58,7 +58,7 @@ void test_Connect(void) {
 
   module_handler.OnReceive(cmd_len);
 
-  ModuleHandler::Module* mod = module_handler.GetModule(2);
+  ModuleHandler::Module *mod = module_handler.GetModule(2);
   TEST_ASSERT_EQUAL(ModuleWiFi::CONNECT, mod->State());
 
   // TODO(jtmadden) finish tests
@@ -74,8 +74,8 @@ void test_DeregisterModule(void) {
   // check that module doesn't exist anymore
   try {
     // get the module of that message type
-    ModuleHandler::Module* mod = module_handler.GetModule(2);
-  } catch (const std::out_of_range& oor) {
+    ModuleHandler::Module *mod = module_handler.GetModule(2);
+  } catch (const std::out_of_range &oor) {
     mod_exist = false;
   }
 

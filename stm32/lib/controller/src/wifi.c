@@ -6,10 +6,10 @@
 /** Timeout for i2c communication with esp32 */
 unsigned int g_controller_i2c_timeout = 10000;
 
-uint8_t ControllerWiFiInit(const char* ssid, const char* passwd) {
+uint8_t ControllerWiFiInit(const char *ssid, const char *passwd) {
   // get reference to tx and rx buffers
-  Buffer* tx = ControllerTx();
-  Buffer* rx = ControllerRx();
+  Buffer *tx = ControllerTx();
+  Buffer *rx = ControllerRx();
 
   WiFiCommand wifi_cmd = WiFiCommand_init_zero;
   wifi_cmd.type = WiFiCommand_Type_CONNECT;
@@ -41,8 +41,8 @@ uint8_t ControllerWiFiInit(const char* ssid, const char* passwd) {
 
 uint32_t ControllerWiFiTime(void) {
   // get reference to tx and rx buffers
-  Buffer* tx = ControllerTx();
-  Buffer* rx = ControllerRx();
+  Buffer *tx = ControllerTx();
+  Buffer *rx = ControllerRx();
 
   WiFiCommand wifi_cmd = WiFiCommand_init_zero;
   wifi_cmd.type = WiFiCommand_Type_TIME;
@@ -69,10 +69,10 @@ uint32_t ControllerWiFiTime(void) {
   return cmd.command.wifi_command.ts;
 }
 
-unsigned int ControllerWiFiCheck(const char* url, const uint32_t port) {
+unsigned int ControllerWiFiCheck(const char *url, const uint32_t port) {
   // get reference to tx and rx buffers
-  Buffer* tx = ControllerTx();
-  Buffer* rx = ControllerRx();
+  Buffer *tx = ControllerTx();
+  Buffer *rx = ControllerRx();
 
   WiFiCommand wifi_cmd = WiFiCommand_init_zero;
   wifi_cmd.type = WiFiCommand_Type_CHECK;
@@ -101,14 +101,14 @@ unsigned int ControllerWiFiCheck(const char* url, const uint32_t port) {
   return cmd.command.wifi_command.rc;
 }
 
-int ControllerWiFiPost(const uint8_t* data, size_t data_len, uint8_t* resp,
-                       uint8_t* resp_len) {
+int ControllerWiFiPost(const uint8_t *data, size_t data_len, uint8_t *resp,
+                       uint8_t *resp_len) {
   // return code
   int rc = 0;
 
   // get reference to tx and rx buffers
-  Buffer* tx = ControllerTx();
-  Buffer* rx = ControllerRx();
+  Buffer *tx = ControllerTx();
+  Buffer *rx = ControllerRx();
 
   WiFiCommand wifi_cmd = WiFiCommand_init_zero;
   wifi_cmd.type = WiFiCommand_Type_POST;

@@ -1,3 +1,12 @@
+/**
+ * @example example_teros12.c
+ *
+ * Prints teros21 measurements over serial.
+ *
+ * @author John Madden
+ * @date 2025-02-11
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 

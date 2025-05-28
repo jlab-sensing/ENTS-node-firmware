@@ -1,20 +1,13 @@
-/* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file           : main.c
- * @brief          : Main program body
- ******************************************************************************
- * @attention
+ * @example example_gui.c
  *
- * Copyright (c) 2023 STMicroelectronics.
- * All rights reserved.
+ * Demonstrates the functionality of the GUI. Exposes the communication
+ * interface for comunication with the desktop gui.
  *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
+ * @author Ahmed Hassan Falah
+ * @date N/A
  */
+
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"

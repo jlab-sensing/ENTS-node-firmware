@@ -1,7 +1,9 @@
 /**
- * @brief Example of using dirtviz library
+ * example example_dirtviz.cpp
  *
- * @author John Madden <jmadden173@pm.me>
+ * Example of using dirtviz library. Sends data to a specified endpoint.
+ *
+ * @author John Madden
  * @date 2023-11-30
  */
 

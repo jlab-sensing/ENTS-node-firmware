@@ -1,9 +1,9 @@
 /**
- * @brief Example teros12 code
+ * @example example_teros12.c
  *
- * Prints teros12 measurements over serial
+ * Prints teros12 measurements over serial.
  *
- * @author John Madden <jmadden173@pm.me>
+ * @author John Madden
  * @date 2025-02-11
  */
 

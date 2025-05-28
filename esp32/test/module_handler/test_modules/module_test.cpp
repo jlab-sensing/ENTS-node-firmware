@@ -4,7 +4,7 @@ ModuleTest::ModuleTest(void) {}
 
 ModuleTest::~ModuleTest(void) {}
 
-void ModuleTest::OnReceive(const Esp32Command& cmd) {
+void ModuleTest::OnReceive(const Esp32Command &cmd) {
   if (cmd.command.test_command.state == TestCommand_ChangeState_RECEIVE) {
     // set state to receive
     this->state = RECEIVE;
@@ -19,7 +19,7 @@ void ModuleTest::OnReceive(const Esp32Command& cmd) {
   }
 }
 
-size_t ModuleTest::OnRequest(uint8_t* buffer) {
+size_t ModuleTest::OnRequest(uint8_t *buffer) {
   // set state to init
   this->state = INIT;
 
@@ -30,7 +30,7 @@ size_t ModuleTest::OnRequest(uint8_t* buffer) {
   return this->buffer_len;
 }
 
-void ModuleTest::Int32ToByteArray(int32_t value, uint8_t* buffer) {
+void ModuleTest::Int32ToByteArray(int32_t value, uint8_t *buffer) {
   // Extract the highest byte
   buffer[0] = (value >> 24) & 0xFF;
   // Extract the second highest byte

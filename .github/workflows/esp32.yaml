@@ -59,24 +59,16 @@ jobs:
 
       - name: Run static code analysis
         run: pio check
-  
+
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-          key: ${{ runner.os }}-cpplint
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-
-      - name: Install cpplint
-        run: pip install cpplint==1.6.1
-
       - name: Run linter
-        run: cpplint --recursive Inc Src lib test
+        working-directory: ./esp32
+        run: >
+          find .
+          \( -name "*.c" -o -name "*.h" -o -name "*.cpp" -o -name "*.hpp" \)
+          -type f |
+          xargs clang-format -n -i -Werror --verbose --style=Google

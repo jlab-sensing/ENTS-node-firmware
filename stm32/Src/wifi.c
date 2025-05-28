@@ -9,6 +9,7 @@
 #include "fifo.h"
 #include "controller/wifi.h"
 #include "userConfig.h"
+#include "status_led.h"
 
 /**
  * @brief Timer for uploads
@@ -16,11 +17,6 @@
  */
 static UTIL_TIMER_Object_t UploadTimer = {};
 
-/**
- * @brief Period between uploads
- * 
- */
-static UTIL_TIMER_Time_t UploadPeriod = 10000;
 
 /**
  * @brief Function call for upload event
@@ -127,6 +123,14 @@ void Upload(void) {
     
     Connect();
   }
+
+  if (FramBufferLen() > 0) {
+    APP_LOG(TS_ON, VLEVEL_M, "Buffer not empty, starting another upload\r\n");
+    UploadEvent(NULL);
+  }
+
+
+  StatusLedOff();
 }
 
 void StartUploads(void) {
@@ -134,6 +138,10 @@ void StartUploads(void) {
   APP_LOG(TS_ON, VLEVEL_M, "Starting sensor measurements...\t");
   SensorsStart();
   APP_LOG(TS_OFF, VLEVEL_M, "Started!\r\n");
+
+  // get upload period from user config
+  const UserConfiguration* cfg = UserConfigGet();
+  UTIL_TIMER_Time_t UploadPeriod = cfg->Upload_interval * 1000; 
 
   // setup upload task
   APP_LOG(TS_ON, VLEVEL_M, "Starting upload task...\t")

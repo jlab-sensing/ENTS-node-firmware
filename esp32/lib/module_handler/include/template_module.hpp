@@ -17,6 +17,15 @@
 #include "soil_power_sensor.pb.h"
 
 namespace ModuleHandler {
+
+/**
+ * @ingroup moduleHandler
+ * @brief Class prototype for modules
+ *
+ * Provides a base class for modules to inherit from.
+ *
+ * @{
+ */
 class Module {
  public:
   /**
@@ -36,7 +45,7 @@ class Module {
    *
    * @param num_bytes Number of bytes received from controller
    */
-  virtual void OnReceive(const Esp32Command& cmd) = 0;
+  virtual void OnReceive(const Esp32Command &cmd) = 0;
 
   /**
    * @brief Arduino I2C onRequest
@@ -45,7 +54,7 @@ class Module {
    *
    * @returns Number of bytes in buffer
    */
-  virtual size_t OnRequest(uint8_t* buffer) = 0;
+  virtual size_t OnRequest(uint8_t *buffer) = 0;
 
   /**
    * @brief Get the current state of the module
@@ -79,5 +88,9 @@ class Module {
   int type = 0;
 };
 }  // namespace ModuleHandler
+
+/**
+ * @}
+ */
 
 #endif  // LIB_MODULE_HANDLER_INCLUDE_TEMPLATE_MODULE_HPP_

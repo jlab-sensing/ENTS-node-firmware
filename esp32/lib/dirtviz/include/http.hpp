@@ -11,6 +11,20 @@
 #include <map>
 #include <string>
 
+/**
+ * @ingroup dirtviz
+ * @brief HTTP request parser library
+ *
+ * This library is used to parse HTTP requests and responses.
+ *
+ * Examples:
+ * - @ref example_http.cpp
+ *
+ * @todo Add support for encoding for http requests
+ *
+ * @{
+ */
+
 class HttpClient {
  public:
   /**
@@ -127,5 +141,9 @@ class HttpClient {
    */
   void RemoveSpace(std::string *str);
 };
+
+/**
+ * @}
+ */
 
 #endif  // LIB_DIRTVIZ_INCLUDE_HTTP_HPP_

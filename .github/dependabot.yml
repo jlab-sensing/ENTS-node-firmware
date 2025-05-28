@@ -14,6 +14,6 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "/proto/python"
+    directory: "/python"
     schedule:
       interval: "daily"

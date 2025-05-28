@@ -12,11 +12,9 @@ The `soil_power_sensor_protobuf` package needs to be installed first.
 """
 
 
-from soil_power_sensor_protobuf import (encode_response,
-                                        encode_power_measurement,
-                                        encode_teros12_measurement,
-                                        encode_phytos31_measurement,
-                                        encode_bme280_measurement)
+from ents import (encode_response, encode_power_measurement,
+                  encode_teros12_measurement, encode_phytos31_measurement,
+                  encode_bme280_measurement)
 
 
 def print_bytes_c(data : bytes) -> str:

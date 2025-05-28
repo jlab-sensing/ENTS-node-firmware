@@ -1,7 +1,7 @@
 /**
  * @file teros21.h
  * @author John Madden <jmadden173@pm.me>
- * @brief Drives for reading measurements from Teros21 sensor
+ * @brief Drivers for reading measurements from Teros21 sensor
  * @date 2025-03-05
  */
 
@@ -15,6 +15,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @ingroup sdi12
+ * @defgroup teros21 Teros21
+ * @brief Library for interfacing with Teros21 sensors
+ *
+ * This library is designed to read measurements from Teros21 sensors.
+ *
+ * Datasheet: https://metergroup.com/products/teros-21/
+ *
+ * Examples:
+ * - @ref example_teros21.c
+ * - @ref example_rawTeros21.c
+ *
+ * @{
+ */
 
 typedef struct {
   char addr;
@@ -49,6 +65,10 @@ SDI12Status Teros21GetMeasurement(char addr, Teros21Data *data);
  *
  */
 size_t Teros21Measure(uint8_t *data);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

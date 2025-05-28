@@ -1,22 +1,7 @@
-// Copyright 2023 UCSC
-
 /**
  * @file     fifo.h
  * @author   Stephen Taylor
  * @brief    Circular buffer as FIFO data structure for buffering measurements
- *
- * A circular buffer is implemented on part of the memory space of the fram
- * chip. The address space used can be modified with FRAM_BUFFER_START and
- * FRAM_BUFFER_END depending on user needs.
- *
- * Measurements are stored with a single uint8_t of their length followed by
- * the serialized protobuf message. On reads, the length is first read, then
- * the length number of bytes are read into RAM. Ensure the read buffer used
- * is of sufficient size.
- *
- * The buffer's implementation does not allow for overwriting of data. Once
- * the buffer is full, indicated by FRAM_BUFFER_FULL, data needs to be removed
- * by getting the next measurement or clearing the buffer entirely.
  *
  * @date     11/17/2023
  */
@@ -32,6 +17,45 @@ extern "C" {
 
 #include "fram.h"
 #include "i2c.h"
+
+/**
+ * @ingroup storage
+ * @defgroup fifo FIFO
+ * @brief Circular buffer for measurements
+ *
+ * A circular buffer is implemented on part of the memory space of the fram
+ * chip. The address space used can be modified with FRAM_BUFFER_START and
+ * FRAM_BUFFER_END depending on user needs.
+ *
+ * Measurements are stored with a single uint8_t of their length followed by
+ * the serialized protobuf message. On reads, the length is first read, then
+ * the length number of bytes are read into RAM. Ensure the read buffer used
+ * is of sufficient size.
+ *
+ * The buffer's implementation does not allow for overwriting of data. Once
+ * the buffer is full, indicated by FRAM_BUFFER_FULL, data needs to be removed
+ * by getting the next measurement or clearing the buffer entirely.
+ *
+ * @todo Implement a clear pointer in the following
+ *
+ * The buffer operates as a circular queue with three pointers:
+ *
+ * - Read Pointer: Points to the address of the next measurement to be uploaded.
+ * - Write Pointer: Points to the address where the next measurement will be
+ * stored.
+ * - Clear Pointer: Points to the last measurement that has been confirmed by
+ * the backend.
+ *
+ * Unlike traditional circular buffers that maintain only read and write
+ * pointers with overflow protection, the ENTS design adds a clear pointer to
+ * track backend uplink confirmations. This pointer ensures that unacknowledged
+ * data is not overwritten by subsequent writes. The write pointer is allowed
+ * to wrap around but is restricted from advancing past the clear pointer. This
+ * constraint protects data integrity in field deployments where network
+ * failures may delay acknowledgment indefinitely.
+ *
+ * @{
+ */
 
 #ifndef FRAM_BUFFER_START
 /** Starting address of buffer, which is INCLUSIVE */
@@ -115,6 +139,10 @@ FramStatus FramLoadBufferState(uint16_t *read_addr, uint16_t *write_addr,
  * @return FramStatus, status of the FRAM operation.
  */
 FramStatus FIFO_Init(void);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

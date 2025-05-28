@@ -35,7 +35,7 @@ class ModuleTest : public ModuleHandler::Module {
    *
    * @param cmd
    */
-  void OnReceive(const Esp32Command& cmd);
+  void OnReceive(const Esp32Command &cmd);
 
   /**
    * @brief Handles i2c request messages
@@ -45,7 +45,7 @@ class ModuleTest : public ModuleHandler::Module {
    * @param buffer Reference to tx buffer
    * @return Number of bytes written to @p buffer
    */
-  size_t OnRequest(uint8_t* buffer);
+  size_t OnRequest(uint8_t *buffer);
 
  private:
   /** Internal buffer for byte array from int32 */
@@ -59,7 +59,7 @@ class ModuleTest : public ModuleHandler::Module {
    * @param value int32 value
    * @param buffer Buffer to store byte array
    */
-  void Int32ToByteArray(int32_t value, uint8_t* buffer);
+  void Int32ToByteArray(int32_t value, uint8_t *buffer);
 };
 
 #endif  // TEST_MODULE_HANDLER_TEST_MODULES_MODULE_TEST_HPP_

@@ -1,0 +1,19 @@
+---
+name: Build proto
+
+on: [workflow_dispatch, push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run linter
+        working-directory: ./proto
+        run: >
+          clang-format -n -Werror --verbose --style=Google
+          ./c/include/transcoder.h
+          ./c/src/transcoder.c
+          ./*.proto
+

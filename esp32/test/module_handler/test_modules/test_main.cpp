@@ -39,8 +39,8 @@ void TestRegister(void) {
 
   // check if module exists in map
   try {
-    ModuleHandler::Module* mod = module_handler.GetModule(2);
-  } catch (const std::out_of_range& oor) {
+    ModuleHandler::Module *mod = module_handler.GetModule(2);
+  } catch (const std::out_of_range &oor) {
     mod_exist = false;
   }
 
@@ -55,8 +55,8 @@ void TestDeregister(void) {
   // check that module doesn't exist anymore
   try {
     // get the module of that message type
-    ModuleHandler::Module* mod = module_handler.GetModule(2);
-  } catch (const std::out_of_range& oor) {
+    ModuleHandler::Module *mod = module_handler.GetModule(2);
+  } catch (const std::out_of_range &oor) {
     mod_exist = false;
   }
 
@@ -68,7 +68,7 @@ void TestReset(void) {
   module_handler.ResetModules();
 
   // get reference to module
-  ModuleHandler::Module* mod = module_handler.GetModule(2);
+  ModuleHandler::Module *mod = module_handler.GetModule(2);
 
   // check for the 0th state
   TEST_ASSERT_EQUAL(0, mod->State());
@@ -86,7 +86,7 @@ void TestOnReceive(void) {
   module_handler.OnReceive(cmd_len);
 
   // check state of module
-  ModuleHandler::Module* mod = module_handler.GetModule(2);
+  ModuleHandler::Module *mod = module_handler.GetModule(2);
   TEST_ASSERT_EQUAL(ModuleTest::RECEIVE, mod->State());
 
   // check tx buffer has not changed
@@ -106,7 +106,7 @@ void TestOnRequest(void) {
   module_handler.OnReceive(data_len);
 
   // check state of module
-  ModuleHandler::Module* mod = module_handler.GetModule(2);
+  ModuleHandler::Module *mod = module_handler.GetModule(2);
   TEST_ASSERT_EQUAL(ModuleTest::RECEIVE, mod->State());
 
   // check tx buffer has not changed
