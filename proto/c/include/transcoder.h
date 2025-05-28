@@ -46,6 +46,25 @@ size_t EncodePowerMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
                               double voltage, double current, uint8_t *buffer);
 
 /**
+ * @brief Encodes power delta measurements
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Unix epochs
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param voltage Voltage measured in mV
+ * @param current Current measured in uA
+ * @param buffer Buffer to store serialized measurement
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodePowerDeltaMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
+    uint32_t voltage, uint32_t current, uint8_t *buffer);
+
+/**
  * @brief Encodes a Teros12 measurement
  *
  * The timestamp is not able to encode timezones and is references from UTC+0.

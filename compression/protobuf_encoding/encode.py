@@ -17,6 +17,7 @@ from .soil_power_sensor_pb2 import (
     EnabledSensor,
     Uploadmethod,
     adcValue,
+    RepeatedPowerDeltas,
 )
 
 
@@ -73,6 +74,66 @@ def encode_power_measurement(
 
     return meas.SerializeToString()
 
+def encode_power_measurement_delta(
+    ts: int, cell_id: int, logger_id: int, voltage_delta: int, current_delta: int
+) -> bytes:
+    """Encodes a PowerMeasurement within the Measurement message
+
+    Args:
+        ts: Timestamp in unix epochs
+        cell_id: Cell Id from Dirtviz
+        logger_id: Logger Id from Dirtviz
+        voltage_delta: Voltage change in V (Volts)
+        current_delta: Current change in A (Amps)
+
+    Returns:
+        Serialized Power measurement deltas
+    """
+
+    meas = Measurement()
+
+    # metadata
+    meas.meta.ts = ts
+    meas.meta.cell_id = cell_id
+    meas.meta.logger_id = logger_id
+
+    # power
+    meas.power_delta.voltage_delta = voltage_delta
+    meas.power_delta.current_delta = current_delta
+
+    return meas.SerializeToString()
+
+def encode_repeated_power_deltas(
+    logger_id: int, cell_id: int, entries: list
+) -> bytes:
+    """
+    Encodes a RepeatedPowerDeltas message.
+
+    Args:
+        logger_id (int): Logger ID.
+        cell_id (int): Cell ID.
+        entries (list): A list of dictionaries, where each dictionary contains:
+            - ts (int): Timestamp in Unix epoch time.
+            - voltage_delta (int): Voltage delta in ADC units.
+            - current_delta (int): Current delta in ADC units.
+
+    Returns:
+        bytes: Serialized RepeatedPowerDeltas message.
+    """
+    # Create the RepeatedPowerDeltas message
+    repeated_deltas = RepeatedPowerDeltas()
+    repeated_deltas.logger_id = logger_id
+    repeated_deltas.cell_id = cell_id
+
+    # Add each entry to the repeated field
+    for entry in entries:
+        delta_entry = repeated_deltas.entries.add()
+        delta_entry.ts = entry["ts"]
+        delta_entry.voltage_delta = entry["voltage_delta"]
+        delta_entry.current_delta = entry["current_delta"]
+
+    # Serialize the message to bytes
+    return repeated_deltas.SerializeToString()
 
 def encode_adc_measurement(
     adc: int,
@@ -90,6 +151,7 @@ def encode_adc_measurement(
     raw_adc.adc = adc
 
     return raw_adc.SerializeToString()
+
 
 def encode_teros12_measurement(
     ts: int,

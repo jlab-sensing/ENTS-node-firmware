@@ -1,8 +1,0 @@
-Delta V: 0.0000, Delta I: 0.000450
-Delta V: 0.1256, Delta I: 0.000048
-Delta V: 0.1251, Delta I: 0.000046
-Delta V: 0.1241, Delta I: 0.000044
-Delta V: 0.1226, Delta I: 0.000042
-Delta V: 0.1207, Delta I: 0.000039
-Delta V: 0.1182, Delta I: 0.000036
-Delta V: 0.1153, Delta I: 0.000034

@@ -73,6 +73,35 @@ def encode_power_measurement(
 
     return meas.SerializeToString()
 
+def encode_power_measurement_delta(
+    ts: int, cell_id: int, logger_id: int, voltage_delta: int, current_delta: int
+) -> bytes:
+    """Encodes a PowerMeasurement within the Measurement message
+
+    Args:
+        ts: Timestamp in unix epochs
+        cell_id: Cell Id from Dirtviz
+        logger_id: Logger Id from Dirtviz
+        voltage_delta: Voltage change in V (Volts)
+        current_delta: Current change in A (Amps)
+
+    Returns:
+        Serialized Power measurement deltas
+    """
+
+    meas = Measurement()
+
+    # metadata
+    meas.meta.ts = ts
+    meas.meta.cell_id = cell_id
+    meas.meta.logger_id = logger_id
+
+    # power
+    meas.power_delta.voltage_delta = voltage_delta
+    meas.power_delta.current_delta = current_delta
+
+    return meas.SerializeToString()
+
 def encode_adc_measurement(
     adc: int,
 ) -> bytes:

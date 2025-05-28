@@ -79,6 +79,29 @@ typedef struct _PowerMeasurement {
     double current;
 } PowerMeasurement;
 
+/* Power deltas measurement message. Voltage and current deltas can be digitially combined to
+ obtain power. */
+typedef struct _PowerDeltaEntry {
+    uint32_t ts;
+    uint32_t voltage_delta;
+    uint32_t current_delta;
+} PowerDeltaEntry;
+
+typedef struct _PowerMeasurementDelta {
+    /* voltage */
+    uint32_t voltage_delta;
+    /* current */
+    uint32_t current_delta;
+} PowerMeasurementDelta;
+
+typedef struct _RepeatedPowerDeltas {
+    /* Shared metadata */
+    uint32_t logger_id;
+    uint32_t cell_id;
+    /* Repeating entries */
+    pb_callback_t entries;
+} RepeatedPowerDeltas;
+
 /* Teros12 measurement message */
 typedef struct _Teros12Measurement {
     /* raw volumetric water content */
@@ -127,6 +150,7 @@ typedef struct _Measurement {
         Phytos31Measurement phytos31;
         BME280Measurement bme280;
         Teros21Measurement teros21;
+        PowerMeasurementDelta power_delta;
     } measurement;
 } Measurement;
 
@@ -244,6 +268,9 @@ extern "C" {
 
 
 
+
+
+
 #define Response_resp_ENUMTYPE Response_ResponseType
 
 
@@ -261,6 +288,9 @@ extern "C" {
 /* Initializer values for message structs */
 #define MeasurementMetadata_init_default         {0, 0, 0}
 #define PowerMeasurement_init_default            {0, 0}
+#define PowerDeltaEntry_init_default             {0, 0, 0}
+#define PowerMeasurementDelta_init_default       {0, 0}
+#define RepeatedPowerDeltas_init_default         {0, 0, {{NULL}, NULL}}
 #define Teros12Measurement_init_default          {0, 0, 0, 0}
 #define Teros21Measurement_init_default          {0, 0}
 #define Phytos31Measurement_init_default         {0, 0}
@@ -275,6 +305,9 @@ extern "C" {
 #define adcValue_init_default                    {0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
 #define PowerMeasurement_init_zero               {0, 0}
+#define PowerDeltaEntry_init_zero                {0, 0, 0}
+#define PowerMeasurementDelta_init_zero          {0, 0}
+#define RepeatedPowerDeltas_init_zero            {0, 0, {{NULL}, NULL}}
 #define Teros12Measurement_init_zero             {0, 0, 0, 0}
 #define Teros21Measurement_init_zero             {0, 0}
 #define Phytos31Measurement_init_zero            {0, 0}
@@ -294,6 +327,14 @@ extern "C" {
 #define MeasurementMetadata_ts_tag               3
 #define PowerMeasurement_voltage_tag             2
 #define PowerMeasurement_current_tag             3
+#define PowerDeltaEntry_ts_tag                   1
+#define PowerDeltaEntry_voltage_delta_tag        2
+#define PowerDeltaEntry_current_delta_tag        3
+#define PowerMeasurementDelta_voltage_delta_tag  2
+#define PowerMeasurementDelta_current_delta_tag  3
+#define RepeatedPowerDeltas_logger_id_tag        1
+#define RepeatedPowerDeltas_cell_id_tag          2
+#define RepeatedPowerDeltas_entries_tag          3
 #define Teros12Measurement_vwc_raw_tag           2
 #define Teros12Measurement_vwc_adj_tag           3
 #define Teros12Measurement_temp_tag              4
@@ -311,6 +352,7 @@ extern "C" {
 #define Measurement_phytos31_tag                 4
 #define Measurement_bme280_tag                   5
 #define Measurement_teros21_tag                  6
+#define Measurement_power_delta_tag              7
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -358,6 +400,27 @@ X(a, STATIC,   SINGULAR, DOUBLE,   current,           3)
 #define PowerMeasurement_CALLBACK NULL
 #define PowerMeasurement_DEFAULT NULL
 
+#define PowerDeltaEntry_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   ts,                1) \
+X(a, STATIC,   SINGULAR, UINT32,   voltage_delta,     2) \
+X(a, STATIC,   SINGULAR, UINT32,   current_delta,     3)
+#define PowerDeltaEntry_CALLBACK NULL
+#define PowerDeltaEntry_DEFAULT NULL
+
+#define PowerMeasurementDelta_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   voltage_delta,     2) \
+X(a, STATIC,   SINGULAR, UINT32,   current_delta,     3)
+#define PowerMeasurementDelta_CALLBACK NULL
+#define PowerMeasurementDelta_DEFAULT NULL
+
+#define RepeatedPowerDeltas_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   logger_id,         1) \
+X(a, STATIC,   SINGULAR, UINT32,   cell_id,           2) \
+X(a, CALLBACK, REPEATED, MESSAGE,  entries,           3)
+#define RepeatedPowerDeltas_CALLBACK pb_default_field_callback
+#define RepeatedPowerDeltas_DEFAULT NULL
+#define RepeatedPowerDeltas_entries_MSGTYPE PowerDeltaEntry
+
 #define Teros12Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, DOUBLE,   vwc_raw,           2) \
 X(a, STATIC,   SINGULAR, DOUBLE,   vwc_adj,           3) \
@@ -391,7 +454,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power,measurement.power),   2) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros12,measurement.teros12),   3) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,phytos31,measurement.phytos31),   4) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,bme280,measurement.bme280),   5) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power_delta,measurement.power_delta),   7)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -400,6 +464,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   
 #define Measurement_measurement_phytos31_MSGTYPE Phytos31Measurement
 #define Measurement_measurement_bme280_MSGTYPE BME280Measurement
 #define Measurement_measurement_teros21_MSGTYPE Teros21Measurement
+#define Measurement_measurement_power_delta_MSGTYPE PowerMeasurementDelta
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
@@ -466,6 +531,9 @@ X(a, STATIC,   SINGULAR, UINT32,   adc,               1)
 
 extern const pb_msgdesc_t MeasurementMetadata_msg;
 extern const pb_msgdesc_t PowerMeasurement_msg;
+extern const pb_msgdesc_t PowerDeltaEntry_msg;
+extern const pb_msgdesc_t PowerMeasurementDelta_msg;
+extern const pb_msgdesc_t RepeatedPowerDeltas_msg;
 extern const pb_msgdesc_t Teros12Measurement_msg;
 extern const pb_msgdesc_t Teros21Measurement_msg;
 extern const pb_msgdesc_t Phytos31Measurement_msg;
@@ -482,6 +550,9 @@ extern const pb_msgdesc_t adcValue_msg;
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define MeasurementMetadata_fields &MeasurementMetadata_msg
 #define PowerMeasurement_fields &PowerMeasurement_msg
+#define PowerDeltaEntry_fields &PowerDeltaEntry_msg
+#define PowerMeasurementDelta_fields &PowerMeasurementDelta_msg
+#define RepeatedPowerDeltas_fields &RepeatedPowerDeltas_msg
 #define Teros12Measurement_fields &Teros12Measurement_msg
 #define Teros21Measurement_fields &Teros21Measurement_msg
 #define Phytos31Measurement_fields &Phytos31Measurement_msg
@@ -496,12 +567,15 @@ extern const pb_msgdesc_t adcValue_msg;
 #define adcValue_fields &adcValue_msg
 
 /* Maximum encoded size of messages (where known) */
+/* RepeatedPowerDeltas_size depends on runtime parameters */
 #define BME280Measurement_size                   23
 #define Esp32Command_size                        607
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
 #define PageCommand_size                         20
 #define Phytos31Measurement_size                 18
+#define PowerDeltaEntry_size                     18
+#define PowerMeasurementDelta_size               12
 #define PowerMeasurement_size                    18
 #define Response_size                            2
 #define SOIL_POWER_SENSOR_PB_H_MAX_SIZE          Esp32Command_size

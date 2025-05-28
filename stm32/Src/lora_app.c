@@ -42,6 +42,7 @@
 #include "rtc.h"
 #include "sensors.h"
 #include "userConfig.h"
+#include "gpio.h"
 
 #include <time.h>
 /* USER CODE END Includes */
@@ -439,35 +440,36 @@ static void SendTxData(void)
     }
     else {
       APP_LOG(TS_OFF, VLEVEL_M, "Could not sync clock, retrying on next tx\r\n");
+      clock_synced = true;
     }
     // otherwise return
     return;
   }
 
   // check if radio is busy
-  if (LmHandlerIsBusy())
-  {
-    APP_LOG(TS_ON, VLEVEL_M, "LmHandler is busy\r\n");
-    return;
-  }
+  // if (LmHandlerIsBusy())
+  // {
+  //   APP_LOG(TS_ON, VLEVEL_M, "LmHandler is busy\r\n");
+  //   return;
+  // }
 
   // check if buffer is empty
-  if (FramBufferLen() <= 0)
-  {
-    APP_LOG(TS_ON, VLEVEL_M, "Nothing in buffer\r\n");
-    return;
-  }
+  // if (FramBufferLen() <= 0)
+  // {
+  //   APP_LOG(TS_ON, VLEVEL_M, "Nothing in buffer\r\n");
+  //   return;
+  // }
 
   uint8_t battery_level = GetBatteryLevel();
   uint16_t temperature = SYS_GetTemperatureLevel();
 
-  FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
-  if (status != FRAM_OK)
-  {
-    APP_LOG(TS_OFF, VLEVEL_M,
-            "Error getting data from fram buffer. FramStatus = %d", status);
-    return;
-  }
+  // FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
+  // if (status != FRAM_OK)
+  // {
+  //   APP_LOG(TS_OFF, VLEVEL_M,
+  //           "Error getting data from fram buffer. FramStatus = %d", status);
+  //   return;
+  // }
 
   APP_LOG(TS_ON, VLEVEL_M, "Payload: ");
   for (int i = 0; i < AppData.BufferSize; i++)
@@ -479,13 +481,28 @@ static void SendTxData(void)
 
   AppData.Port = LORAWAN_SPS_MEAS_PORT;
 
-  if (LORAMAC_HANDLER_SUCCESS == LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false))
+  // Define your own buffer and size
+  uint8_t customBuffer[50];  // Example: 50 bytes of data
+  uint32_t customBufferSize = sizeof(customBuffer);
+  // Fill the buffer with dummy data (e.g., incremental values)
+  for (uint32_t i = 0; i < customBufferSize; i++) {
+    customBuffer[i] = i;  // Fill with values 0, 1, 2, ...
+  }
+
+  // Prepare the AppData structure
+  AppData.Buffer = customBuffer;
+  AppData.BufferSize = customBufferSize;
+
+  LmHandlerErrorStatus_t status;
+  status = LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false);
+  if (status == LORAMAC_HANDLER_SUCCESS)
   {
     APP_LOG(TS_ON, VLEVEL_L, "SEND REQUEST\r\n");
   }
   else
   {
     APP_LOG(TS_OFF, VLEVEL_M, "Could not send request\r\n");
+    APP_LOG(TS_OFF, VLEVEL_M, "LmHandlerSend status = %d\r\n", status);
   }
   /* USER CODE END SendTxData_1 */
 }

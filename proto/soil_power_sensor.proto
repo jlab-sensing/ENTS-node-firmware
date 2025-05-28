@@ -32,6 +32,30 @@ message PowerMeasurement {
   double current = 3;
 }
 
+/* Power deltas measurement message. Voltage and current deltas can be digitially combined to
+ * obtain power. */
+message PowerDeltaEntry {
+  uint32 ts = 1;
+  uint32 voltage_delta = 2;
+  uint32 current_delta = 3;
+}
+
+message PowerMeasurementDelta {
+  // voltage
+  uint32 voltage_delta = 2;
+  // current
+  uint32 current_delta = 3;
+}
+
+message RepeatedPowerDeltas {
+  // Shared metadata
+  uint32 logger_id = 1;
+  uint32 cell_id = 2;
+
+  // Repeating entries
+  repeated PowerDeltaEntry entries = 3;
+}
+
 /* Teros12 measurement message */
 message Teros12Measurement {
   // raw volumetric water content
@@ -80,6 +104,7 @@ message Measurement {
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;
     Teros21Measurement teros21 = 6;
+    PowerMeasurementDelta power_delta = 7;
   }
 }
 

@@ -12,6 +12,15 @@ PB_BIND(MeasurementMetadata, MeasurementMetadata, AUTO)
 PB_BIND(PowerMeasurement, PowerMeasurement, AUTO)
 
 
+PB_BIND(PowerDeltaEntry, PowerDeltaEntry, AUTO)
+
+
+PB_BIND(PowerMeasurementDelta, PowerMeasurementDelta, AUTO)
+
+
+PB_BIND(RepeatedPowerDeltas, RepeatedPowerDeltas, AUTO)
+
+
 PB_BIND(Teros12Measurement, Teros12Measurement, AUTO)
 
 

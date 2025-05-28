@@ -31,6 +31,10 @@ extern "C" {
 #define ADS12_RESET_CODE 0x06
 #define ADS12_READ_DATA_CODE 0x10
 
+extern int32_t previous_voltage_reading;
+extern int32_t previous_current_reading;
+
+
 /**
 ******************************************************************************
 * @brief    This function starts up the ADS1219
@@ -60,6 +64,18 @@ HAL_StatusTypeDef ADC_configure(uint8_t reg_data);
 
 /**
 ******************************************************************************
+* @brief    Helper function to convert the int32_t 2's complement reading to 
+* 1's complement
+*
+*
+* @param    reading
+* @return   uint32_t, the converted 1's complement reading
+******************************************************************************
+*/
+int32_t ADC_twos_to_ones(int32_t delta);
+
+/**
+******************************************************************************
 * @brief    This function reads the current ADC voltage value.
 *
 *           This function is a wrapper for the STM32 HAl I2C library. The
@@ -70,7 +86,7 @@ HAL_StatusTypeDef ADC_configure(uint8_t reg_data);
 * @return   double, current ADC reading in microvolts
 ******************************************************************************
 */
-double ADC_readVoltage(void);
+int32_t ADC_readVoltage(void);
 
 /**
 ******************************************************************************
@@ -81,10 +97,10 @@ double ADC_readVoltage(void);
 *noisy bits.
 *
 * @param    void
-* @return   double, current ADC reading in microamps
+* @return   int32_t, current ADC reading in microamps
 ******************************************************************************
 */
-double ADC_readCurrent(void);
+int32_t ADC_readCurrent(void);
 
 /**
 ******************************************************************************
