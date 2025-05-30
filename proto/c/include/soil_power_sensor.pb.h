@@ -56,7 +56,9 @@ typedef enum _WiFiCommand_Type {
     /* Check API status */
     WiFiCommand_Type_CHECK = 2,
     /* Timesync request */
-    WiFiCommand_Type_TIME = 3
+    WiFiCommand_Type_TIME = 3,
+    /* Save data to the micro SD card */
+    WiFiCommand_Type_SAVE_MICROSD_CARD = 4
 } WiFiCommand_Type;
 
 /* Struct definitions */

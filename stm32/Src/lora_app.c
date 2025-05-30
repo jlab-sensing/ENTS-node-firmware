@@ -488,6 +488,8 @@ static void SendTxData(void)
     APP_LOG(TS_OFF, VLEVEL_M, "Could not send request\r\n");
   }
 
+  // Optionally save to the micro SD card via the ESP32.
+
   StatusLedOff();
   /* USER CODE END SendTxData_1 */
 }

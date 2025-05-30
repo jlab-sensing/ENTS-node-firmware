@@ -129,6 +129,7 @@ void Upload(void) {
     UploadEvent(NULL);
   }
 
+  // Optionally save to the micro SD card via the ESP32.
 
   StatusLedOff();
 }
