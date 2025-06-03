@@ -1,6 +1,7 @@
 from arithmetic_compressor import AECompressor
 from arithmetic_compressor.models import StaticModel
 
+
 class ArithmeticEncodingCompressor:
     """
     Arithmetic Encoding Compressor and Decompressor using the arithmetic_compressor package.
@@ -11,7 +12,7 @@ class ArithmeticEncodingCompressor:
         Initialize the ArithmeticEncodingCompressor with a static model for byte values (0–255).
         """
         # Define a uniform probability distribution for all byte values (0–255)
-        symbol_possibilities = {i: 1/256 for i in range(256)}
+        symbol_possibilities = {i: 1 / 256 for i in range(256)}
         self.model = StaticModel(symbol_possibilities)
 
     def compress(self, input_file_path, output_file_path=None):
@@ -25,7 +26,7 @@ class ArithmeticEncodingCompressor:
         Returns:
             list: Compressed data as a list of bits.
         """
-        with open(input_file_path, 'rb') as input_file:
+        with open(input_file_path, "rb") as input_file:
             data = input_file.read()
 
         # Create an arithmetic encoder
@@ -36,8 +37,8 @@ class ArithmeticEncodingCompressor:
 
         # Save the compressed data if an output file is specified
         if output_file_path:
-            with open(output_file_path, 'w') as output_file:
-                output_file.write(' '.join(map(str, compressed_data)))
+            with open(output_file_path, "w") as output_file:
+                output_file.write(" ".join(map(str, compressed_data)))
 
         return compressed_data
 
@@ -52,7 +53,7 @@ class ArithmeticEncodingCompressor:
         Returns:
             bytes: Decompressed data as bytes.
         """
-        with open(input_file_path, 'r') as input_file:
+        with open(input_file_path, "r") as input_file:
             compressed_data = list(map(int, input_file.read().split()))
 
         # Create an arithmetic decoder
@@ -63,7 +64,7 @@ class ArithmeticEncodingCompressor:
 
         # Save the decompressed data if an output file is specified
         if output_file_path:
-            with open(output_file_path, 'wb') as output_file:
+            with open(output_file_path, "wb") as output_file:
                 output_file.write(decompressed_data)
 
         return decompressed_data

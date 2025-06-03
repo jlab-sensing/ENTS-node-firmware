@@ -1,15 +1,21 @@
 import math
 import matplotlib.pyplot as plt
 import re
-from protobuf_encoding.encode import encode_power_measurement  # Import the encoding function
+from protobuf_encoding.encode import (
+    encode_power_measurement,
+)  # Import the encoding function
 import time as time_module
 import argparse  # Import argparse for argument parsing
 
 # Argument Parsing
-parser = argparse.ArgumentParser(description="Generate sine wave data and serialize it.")
+parser = argparse.ArgumentParser(
+    description="Generate sine wave data and serialize it."
+)
 parser.add_argument(
-    "--bytes", type=int, required=True,
-    help="Maximum number of bytes for the generated data."
+    "--bytes",
+    type=int,
+    required=True,
+    help="Maximum number of bytes for the generated data.",
 )
 args = parser.parse_args()
 
@@ -30,7 +36,9 @@ sample_size_estimate = len(test_message)
 print(f"Estimated size of one serialized message: {sample_size_estimate} bytes")
 
 
-max_samples = args.bytes // sample_size_estimate  # Calculate the maximum number of samples
+max_samples = (
+    args.bytes // sample_size_estimate
+)  # Calculate the maximum number of samples
 time = [i / sample_rate for i in range(max_samples)]  # Generate time steps
 
 # Simulate sine waves and generate messages
@@ -39,7 +47,9 @@ serialized_data = bytearray()  # To store serialized protobuf data
 
 for idx, t in enumerate(time):
     V = 2 * math.sin(2 * math.pi * frequency * t)
-    I = 0.0009 * math.sin(2 * math.pi * frequency * t + math.pi / 6)  # small phase shift
+    I = 0.0009 * math.sin(
+        2 * math.pi * frequency * t + math.pi / 6
+    )  # small phase shift
     P = V * I
     message = f"V: {V:.4f}, I: {I:.6f}, P: {P:.8f}\n"
     messages.append(message)
@@ -81,7 +91,7 @@ for msg in messages:
 
 # Plot Voltage
 plt.figure(figsize=(10, 4))
-plt.plot(time[:len(voltages)], voltages, color='blue')
+plt.plot(time[: len(voltages)], voltages, color="blue")
 plt.title("Voltage over Time")
 plt.xlabel("Time (s)")
 plt.ylabel("Voltage (V)")
@@ -90,7 +100,7 @@ plt.tight_layout()
 
 # Plot Current
 plt.figure(figsize=(10, 4))
-plt.plot(time[:len(currents)], currents, color='green')
+plt.plot(time[: len(currents)], currents, color="green")
 plt.title("Current over Time")
 plt.xlabel("Time (s)")
 plt.ylabel("Current (A)")
@@ -99,7 +109,7 @@ plt.tight_layout()
 
 # Plot Power
 plt.figure(figsize=(10, 4))
-plt.plot(time[:len(powers)], powers, color='red')
+plt.plot(time[: len(powers)], powers, color="red")
 plt.title("Power over Time")
 plt.xlabel("Time (s)")
 plt.ylabel("Power (W)")

@@ -74,6 +74,7 @@ def encode_power_measurement(
 
     return meas.SerializeToString()
 
+
 def encode_power_measurement_delta(
     ts: int, cell_id: int, logger_id: int, voltage_delta: int, current_delta: int
 ) -> bytes:
@@ -103,9 +104,8 @@ def encode_power_measurement_delta(
 
     return meas.SerializeToString()
 
-def encode_repeated_power_deltas(
-    logger_id: int, cell_id: int, entries: list
-) -> bytes:
+
+def encode_repeated_power_deltas(logger_id: int, cell_id: int, entries: list) -> bytes:
     """
     Encodes a RepeatedPowerDeltas message.
 
@@ -134,6 +134,7 @@ def encode_repeated_power_deltas(
 
     # Serialize the message to bytes
     return repeated_deltas.SerializeToString()
+
 
 def encode_adc_measurement(
     adc: int,
@@ -282,7 +283,6 @@ def encode_teros21_measurement(
     matric_pot: float,
     temp: float,
 ) -> bytes:
-
     meas = Measurement()
 
     # metadata

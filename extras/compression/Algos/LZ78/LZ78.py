@@ -1,5 +1,6 @@
 # LZ78.py
 
+
 class LZ78Compressor:
     def encode_varint(self, number):
         """Encode an integer into varint bytes."""
@@ -31,16 +32,16 @@ class LZ78Compressor:
 
     def compress(self, input_file_path, output_file_path=None):
         """Compress the input file using LZ78 and write the result to output_file_path if provided.
-        
+
         The output format is a sequence of (index, character) pairs:
           - 'index' is stored as a varint.
           - 'character' is stored as a single byte.
         """
-        with open(input_file_path, 'rb') as input_file:
+        with open(input_file_path, "rb") as input_file:
             data = input_file.read()
 
         dictionary = {}  # Maps phrases (bytes) to integer indices.
-        current = b''
+        current = b""
         code = 1  # Next available dictionary index.
         result = bytearray()
 
@@ -56,25 +57,25 @@ class LZ78Compressor:
                 result.extend(char)
                 dictionary[candidate] = code
                 code += 1
-                current = b''
+                current = b""
 
         # Optionally, if there's a leftover current phrase without an accompanying char, you can handle it here.
         # Standard LZ78 doesn't require this because every new dictionary entry is output with a new char.
 
         if output_file_path:
-            with open(output_file_path, 'wb') as output_file:
+            with open(output_file_path, "wb") as output_file:
                 output_file.write(result)
         return bytes(result)
 
     def decompress(self, input_file_path, output_file_path=None):
         """Decompress the file compressed with LZ78 and write the result to output_file_path if provided.
-        
+
         It reads a sequence of (index, character) pairs where the index is encoded as a varint.
         """
-        with open(input_file_path, 'rb') as input_file:
+        with open(input_file_path, "rb") as input_file:
             data = input_file.read()
 
-        dictionary = {0: b''}  # Maps indices to phrases.
+        dictionary = {0: b""}  # Maps indices to phrases.
         result = bytearray()
         i = 0
         code = 1
@@ -83,17 +84,16 @@ class LZ78Compressor:
             # Decode the varint-encoded index.
             index, i = self.decode_varint(data, i)
             if i < len(data):
-                char = data[i:i+1]
+                char = data[i : i + 1]
                 i += 1
             else:
                 break  # No character follows; input might be corrupted.
-            phrase = dictionary.get(index, b'') + char
+            phrase = dictionary.get(index, b"") + char
             result.extend(phrase)
             dictionary[code] = phrase
             code += 1
 
         if output_file_path:
-            with open(output_file_path, 'wb') as output_file:
+            with open(output_file_path, "wb") as output_file:
                 output_file.write(result)
         return bytes(result)
-
