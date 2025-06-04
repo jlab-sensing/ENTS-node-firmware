@@ -24,7 +24,7 @@ import sys
 import serial
 import serial.tools.list_ports
 import re  # For validating URL input
-from soil_power_sensor_protobuf.proto import (
+from ents.proto import (
     encode_user_configuration,
     decode_user_configuration,
 )
@@ -153,7 +153,6 @@ class Ui_MainWindow(object):
         self.checkBox_Teros12 = QtWidgets.QCheckBox("Teros12")
         self.checkBox_Teros21 = QtWidgets.QCheckBox("Teros21")
         self.checkBox_BME280 = QtWidgets.QCheckBox("BME280")
-        self.checkBox_SEN0257 = QtWidgets.QCheckBox("SEN0257")
 
         self.measurementSettingsLayout.addWidget(self.Enabled_Sensors, 0, 0)
         self.measurementSettingsLayout.addWidget(self.checkBox_Voltage, 0, 1)
@@ -161,7 +160,6 @@ class Ui_MainWindow(object):
         self.measurementSettingsLayout.addWidget(self.checkBox_Teros12, 2, 1)
         self.measurementSettingsLayout.addWidget(self.checkBox_Teros21, 3, 1)
         self.measurementSettingsLayout.addWidget(self.checkBox_BME280, 4, 1)
-        self.measurementSettingsLayout.addWidget(self.checkBox_SEN0257, 5, 1)
 
         self.Calibration_V_Slope = self.createLabel("Calibration V Slope", font)
         self.lineEdit_V_Slope = self.createLineEdit(
