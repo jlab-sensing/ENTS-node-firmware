@@ -226,14 +226,14 @@ void ModuleWiFi::Save(const Esp32Command &cmd) {
   pinMode(cardDetect_pin, INPUT_PULLUP);
   if (digitalRead(cardDetect_pin) == LOW) {
     Log.trace("Card detected.\r\n");
+    pinMode(cardDetect_pin, INPUT);  // After checking the SD card, revert to
+                                     // the lowest power pin mode.
   } else {
     Log.error("Card NOT detected, aborting save to micro SD card.\r\n");
     pinMode(cardDetect_pin, INPUT);  // After checking the SD card, revert to
                                      // the lowest power pin mode.
     return;
   }
-  pinMode(cardDetect_pin, INPUT);  // After checking the SD card, revert to the
-                                   // lowest power pin mode.
 
   // Note: SD.begin(chipSelect) assumes the default SCLK, MISO, MOSI pins.
   // For non-default pin assignments, call SPI.begin(SCLK, MISO, MOSI, CS) prior
@@ -276,9 +276,56 @@ void ModuleWiFi::Save(const Esp32Command &cmd) {
     }
 
   } else {
-    Log.trace("'%s' does not exist.\r\n", filename);
+    Log.trace("'%s' does not exist, creating file: %s\r\n", filename, filename);
 
-    // TO DO: Write column headers based on measurment sensors
+    Log.trace("WRITING COLUMN HEADERS: Opening '%s' with '%s'\r\n", filename,
+              FILE_WRITE);
+    dataFile = SD.open(filename, FILE_WRITE);
+    if (dataFile) {
+      Log.trace("Successfully opened '%s' with '%s'\r\n", filename, FILE_WRITE);
+      printFileInfo(dataFile);
+
+      Measurement meas;
+      pb_istream_t istream =
+          pb_istream_from_buffer(cmd.command.wifi_command.resp.bytes,
+                                 cmd.command.wifi_command.resp.size);
+      if (!pb_decode(&istream, Measurement_fields, &meas)) {
+        Log.error("Failed to decode. Aborting save to micro SD card.\r\n");
+        return;
+      }
+
+      char headerString[50];
+      switch (meas.which_measurement) {
+        case Measurement_power_tag:
+          snprintf(headerString, sizeof(headerString), "%s\r\n",
+                   "timestamp");
+          break;
+        case Measurement_teros12_tag:
+          break;
+        case Measurement_phytos31_tag:
+          break;
+        case Measurement_bme280_tag:
+          break;
+        case Measurement_teros21_tag:
+          break;
+        default:
+          Log.error("Unrecognized measurement type: %d\r\n",
+                    meas.which_measurement);
+          break;
+      }
+
+      Log.trace("Writing '%s' to file.\r\n", headerString);
+      dataFile.printf("%s\r\n", headerString);
+
+      Log.trace("Closing '%s'\r\n", filename);
+      dataFile.close();
+      Log.trace("Closed '%s'\r\n", filename);
+    } else {
+      Log.error("WRITING COLUMN HEADERS: Error opening '%s' with '%s'\r\n",
+                filename, FILE_WRITE);
+      Log.error("Aborting save to micro SD card.\r\n");
+      return;
+    }
   }
 
   Log.trace("DURING WRITE: Opening '%s' with '%s'\r\n", filename, FILE_APPEND);
@@ -292,13 +339,16 @@ void ModuleWiFi::Save(const Esp32Command &cmd) {
         pb_istream_from_buffer(cmd.command.wifi_command.resp.bytes,
                                cmd.command.wifi_command.resp.size);
     if (!pb_decode(&istream, Measurement_fields, &meas)) {
-      Log.error("Failed to decode.\r\n");
+      Log.error("Failed to decode. Aborting save to micro SD card.\r\n");
+      return;
     }
 
     char dataString[50];
     switch (meas.which_measurement) {
       case Measurement_power_tag:
-        snprintf(dataString, sizeof(dataString), "%u,%u,%u\r\n", cmd.command.wifi_command.ts, meas.measurement.power.voltage, meas.measurement.power.current);
+        snprintf(dataString, sizeof(dataString), "%u,%u,%u\r\n",
+                 cmd.command.wifi_command.ts, meas.measurement.power.voltage,
+                 meas.measurement.power.current);
         break;
       case Measurement_teros12_tag:
         break;
