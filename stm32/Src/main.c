@@ -25,7 +25,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "waterPressure.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -46,7 +45,7 @@
 #include "userConfig.h"
 #include "teros12.h"
 #include "teros21.h"
-#include "waterPressure.h"
+#include "status_led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -117,6 +116,10 @@ int main(void)
   MX_I2C2_Init(); 
   SystemApp_Init();
 
+  StatusLedInit();
+  StatusLedFlashSlow();
+
+
   if (UserConfigLoad() != USERCONFIG_OK) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error loading user configuration!\n");
     APP_LOG(TS_OFF, VLEVEL_M, "Waiting for new configuration...\n");
@@ -137,6 +140,9 @@ int main(void)
 
   // initialize the user config interrupt
   UserConfig_InitAdvanceTrace();
+  
+  // placeholder for UserConfig polling
+  HAL_Delay(10000);
 
   // alternative blocking polling method
   //UserConfig_ProcessDataPolling();
@@ -146,6 +152,7 @@ int main(void)
 
   // Debug message, gets printed after init code
   APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
+  APP_PRINTF("Git SHA: %s\n", GIT_REV);
 
   // configure sensors
   //SensorsAdd(SensorsMeasureTest);
@@ -171,7 +178,6 @@ int main(void)
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
       ADC_init();
       SensorsAdd(ADC_measure);
-      //SensorsAdd(WatPress_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
@@ -187,14 +193,11 @@ int main(void)
       SensorsAdd(Teros21Measure);
       APP_LOG(TS_OFF, VLEVEL_M, "Teros21 Enabled!\n");
     }
-   /* if (sensor == EnabledSensor_SEN0257) {
-      APP_LOG(TS_OFF, VLEVEL_M, "SEN0257 Enabled!\n");
-      SensorsAdd(WatPress_measure);
-    }
-    */
     // TODO add support for dummy sensor
   }
-  
+ 
+  StatusLedFlashFast();
+
   // init either WiFi or LoRaWAN
   if (cfg->Upload_method == Uploadmethod_LoRa) {
     MX_LoRaWAN_Init();
@@ -287,6 +290,8 @@ void Error_Handler(void)
   // char error[30];
   // int error_len = sprintf(error, "Error!  HAL Status: %d\n", rc);
   // HAL_UART_Transmit(&huart1, (const uint8_t *)error, error_len, 1000);
+
+  StatusLedOn();
 
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
