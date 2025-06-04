@@ -5,16 +5,18 @@
  * @version 0.1
  * @date 2024-10-02
  *
- * Function calls for read/write ensures data does not exceed size of the
- * buffers.
- *
  * TODO:
  * - Add function for checking the device ID as a test. Export expected output
  * in each library
  * - Fix multiple pages test to be universal across boards
  *
  * @copyright Copyright (c) 2024
- *
+ */
+
+/**
+ * @ingroup stm32
+ * @defgroup storage Storage
+ * @brief Library for storing data on non-volatile memory
  */
 
 #ifndef LIB_STORAGE_INCLUDE_FRAM_H_
@@ -28,6 +30,20 @@ extern "C" {
 
 #include "stm32wlxx_hal.h"
 #include "sys_app.h"
+
+/**
+ * @ingroup storage
+ * @defgroup fram FRAM
+ * @brief Library for interfacing with the FRAM chip
+ *
+ * Function calls for read/write ensures data does not exceed size of the
+ * buffers.
+ *
+ * Examples:
+ * - @ref example_retrieve_data.c
+ *
+ * @{
+ */
 
 #define USER_DATA_PAGE_ADDRESS 0x07
 #define CELL_ID_MEMORY_ADDRESS 0x00
@@ -92,32 +108,6 @@ FramStatus FramRead(FramAddr addr, size_t len, uint8_t *data);
  */
 FramAddr FramSize(void);
 
-/**
- * @brief Get number of pages
- *
- * A page is defined as a space of memory requiring the change of address.
- *
- * @return Number of pages
- */
-unsigned int FramPages(void);
-
-/**
- * @brief Gets the size of a segment
- *
- * @return Number of bytes in each segment
- */
-unsigned int FramSegmentSize(void);
-
-/**
- * @brief This function reads the user configurable settings from
- * non-volatile memory.
- *
- * @return configuration, an instance of the typedef struct
- * user_configurations.  Containing all the user defined settings to be
- * stored in non-volatile memory.
- */
-configuration ReadSettings(void);
-
 //
 /**
  * @brief This function reads the entirety of non-volatile memory and
@@ -137,6 +127,10 @@ configuration ReadSettings(void);
 FramStatus FramDump(uint16_t linesize, uint8_t displayformat, uint8_t omitjunk,
                     uint8_t printdelay_ms, uint16_t startaddress,
                     uint16_t endaddress);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

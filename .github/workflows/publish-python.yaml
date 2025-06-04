@@ -19,16 +19,16 @@ jobs:
         cache: 'pip'
 
     - name: Install backend dependencies
-      run: pip install -r requirements.txt
+      run: pip install ./python[dev]
 
     - name: Lint backend
-      run: ruff check ./proto/python
+      run: ruff check ./python
 
     - name: Black format check
       uses: psf/black@stable
       with:
         options: '--check --verbose'
-        src: './proto/python'
+        src: './python'
         version: '24.3.0'
 
   build:
@@ -48,12 +48,12 @@ jobs:
         build
         --user
     - name: Build a binary wheel and a source tarball
-      run: python3 -m build proto/python
+      run: python3 -m build python
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
       with:
         name: python-package-distributions
-        path: proto/python/dist/
+        path: python/dist/
 
   test:
     name: Test package
@@ -67,9 +67,38 @@ jobs:
         python-version: "3.x"
     - name: Run tests
       run: >-
-        cd proto/python &&
+        cd python &&
         pip install --user . &&
         python -m unittest discover tests
+
+  publish-to-aws:
+    needs:
+      - build
+      - test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Login to AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Upload python package to S3
+      run: aws s3 sync dist/ s3://ents-python-package/${{ github.sha }}/
+
+    - name: Show path to uploaded package
+      run: |
+        for file in dist/*; do
+          echo "https://ents-python-package.s3.amazonaws.com/${{ github.sha }}/$(basename $file)" >> $GITHUB_STEP_SUMMARY
+        done
 
   publish-to-pypi:
     name: >-
@@ -81,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/soil-power-sensor-protobuf  # Replace <package-name> with your PyPI project name
+      url: https://pypi.org/p/ents  # Replace <package-name> with your PyPI project name
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
@@ -147,7 +176,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/soil-power-sensor-protobuf
+      url: https://test.pypi.org/p/ents
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing

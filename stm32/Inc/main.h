@@ -74,6 +74,8 @@ void Error_Handler(void);
 #define RF_CTRL1_GPIO_Port GPIOC
 #define ESP32_EN_Pin GPIO_PIN_10
 #define ESP32_EN_GPIO_Port GPIOB
+#define USER_LED_Pin GPIO_PIN_5
+#define USER_LED_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

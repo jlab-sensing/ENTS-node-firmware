@@ -5,24 +5,7 @@
  * @version 0.1
  * @date 2024-08-02
  *
- * Implements a linked list for storing pages on external memory.
- *
- * Front (Head)                   Back (Tail)
- *     |                              |
- *     v                              v
- * +--------+    +--------+       +--------+
- * | Page 1 | -> | Page 2 | -> ...| Page N |
- * +--------+    +--------+       +--------+
- *     ^                              ^
- *     |                              |
- *    NULL                           NULL
- *
- * Each page in the linked list contains a 'next' pointer pointing towards the
- * tail (Back) and a 'prev' pointer pointing towards the head (Front).
- *
- *
  * @copyright Copyright (c) 2024
- *
  */
 
 #ifndef LIB_STORAGE_INCLUDE_PAGE_H_
@@ -36,13 +19,38 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * @ingroup storage
+ * @defgroup page Page (WIP)
+ * @brief Paging system for fram with external sd card (WIP)
+ *
+ * @verbatim
+ * Implements a linked list for storing pages on external memory.
+ *
+ * Front (Head)                   Back (Tail)
+ *     |                              |
+ *     v                              v
+ * +--------+    +--------+       +--------+
+ * | Page 1 | -> | Page 2 | -> ...| Page N |
+ * +--------+    +--------+       +--------+
+ *     ^                              ^
+ *     |                              |
+ *    NULL                           NULL
+ * @endverbatim
+ *
+ * Each page in the linked list contains a 'next' pointer pointing towards the
+ * tail (Back) and a 'prev' pointer pointing towards the head (Front).
+ *
+ * @{
+ */
+
 typedef struct Page_s Page;
 
 struct Page_s {
   /** Next element in ll */
-  Page* next;
+  Page *next;
   /** Prev element in ll */
-  Page* prev;
+  Page *prev;
   /** File index the page corresponds to */
   size_t file_idx;
   /** Flag for file open */
@@ -65,18 +73,18 @@ void PageDeinit(void);
  * @brief Get the front page
  *
  */
-Page* PageFront(void);
+Page *PageFront(void);
 
 /**
  * @brief Get the back page
  *
  */
-Page* PageBack(void);
+Page *PageBack(void);
 
 /**
  * @brief Push a page to the front of the linked list
  */
-Page* PagePushFront(void);
+Page *PagePushFront(void);
 
 /**
  * @brief Pop a page from the front of the linked list
@@ -89,7 +97,7 @@ void PagePopFront(void);
  * @brief Push a page to the back of the linked list
  *
  */
-Page* PagePushBack(void);
+Page *PagePushBack(void);
 
 /**
  * @brief Pop a page from the back of the linked list
@@ -102,7 +110,7 @@ void PagePopBack(void);
  *
  * @return Reference to open
  */
-void PageOpen(Page* page);
+void PageOpen(Page *page);
 
 /**
  * @brief Close a page
@@ -110,7 +118,7 @@ void PageOpen(Page* page);
  * If the page is already closed, nothing is done
  *
  */
-void PageClose(Page* page);
+void PageClose(Page *page);
 
 /**
  * @brief Writes to a page
@@ -119,7 +127,7 @@ void PageClose(Page* page);
  * @param buf Pointer to buffer
  * @param len Number of bytes to write from buffer
  */
-void PageWrite(Page* page, const uint8_t* buf, size_t len);
+void PageWrite(Page *page, const uint8_t *buf, size_t len);
 
 /**
  * @brief Reads bytes from a page
@@ -129,7 +137,7 @@ void PageWrite(Page* page, const uint8_t* buf, size_t len);
  * @param buf_size Max number of bytes to write
  * @return Number of bytes written
  */
-size_t PageRead(Page* page, uint8_t* buf, size_t buf_size);
+size_t PageRead(Page *page, uint8_t *buf, size_t buf_size);
 
 /**
  * @brief Get the number of elements in the linked list
@@ -156,6 +164,10 @@ void PageStateSave(void);
  *
  */
 void PageStateLoad(void);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

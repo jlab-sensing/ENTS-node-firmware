@@ -1,9 +1,0 @@
-matplotlib
-pandas
-pyserial
-tqdm
-scikit-learn
-rocketlogger
-pyyaml
-soil_power_sensor_protobuf
-protobuf==4.25.5

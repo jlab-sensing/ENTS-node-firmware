@@ -1,10 +1,14 @@
 /**
  * @brief Library used to interface with the Dirtviz API
  *
- * Assumes that WiFi interface is connected to the network.
- *
  * @author John Madden <jmadden173@pm.me>
  * @date 2023-11-29
+ */
+
+/**
+ * @ingroup esp32
+ * @defgroup dirtviz Dirtviz
+ * @brief Library used to interface with the Dirtviz API
  */
 
 #ifndef LIB_DIRTVIZ_INCLUDE_DIRTVIZ_HPP_
@@ -19,6 +23,19 @@
 #include <cstring>
 
 #include "http.hpp"
+
+/**
+ * @ingroup dirtviz
+ * @brief Logic for interfacing with the Dirtviz API
+ *
+ * Assumes that WiFi interface is connected to the network. Uses @ref http to
+ * read http requests. Requests are formatted ad-hoc.
+ *
+ * Examples:
+ * - @ref example_dirtviz.cpp
+ *
+ * @{
+ */
 
 /**
  * @brief HTTP interface for Dirtviz API
@@ -80,5 +97,9 @@ class Dirtviz {
    */
   bool ClientConnect();
 };
+
+/**
+ * @}
+ */
 
 #endif  // LIB_DIRTVIZ_INCLUDE_DIRTVIZ_HPP_

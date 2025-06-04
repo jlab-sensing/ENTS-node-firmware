@@ -8,17 +8,17 @@
 void ControllerInit(void) {
   const size_t buffer_size = Esp32Command_size;
 
-  Buffer* tx = ControllerTx();
+  Buffer *tx = ControllerTx();
 
   // allocate tx buffer
-  tx->data = (uint8_t*)malloc(buffer_size);
+  tx->data = (uint8_t *)malloc(buffer_size);
   tx->size = buffer_size;
   tx->len = 0;
 
-  Buffer* rx = ControllerRx();
+  Buffer *rx = ControllerRx();
 
   // allocate rx buffer
-  rx->data = (uint8_t*)malloc(buffer_size);
+  rx->data = (uint8_t *)malloc(buffer_size);
   rx->size = buffer_size;
   rx->len = 0;
 
@@ -26,14 +26,14 @@ void ControllerInit(void) {
 }
 
 void ControllerDeinit(void) {
-  Buffer* tx = ControllerTx();
+  Buffer *tx = ControllerTx();
 
   // free tx buffer
   free(tx->data);
   tx->size = 0;
   tx->len = 0;
 
-  Buffer* rx = ControllerRx();
+  Buffer *rx = ControllerRx();
 
   // free rx buffer
   free(rx->data);

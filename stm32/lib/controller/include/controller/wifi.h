@@ -1,3 +1,10 @@
+/**
+ * @file wifi.h
+ * @date 2024-10-13
+ * @author John Madden <jmadden173@pm.me>
+ * @brief WiFi interface implementation with the esp32
+ */
+
 #ifndef LIB_CONTROLLER_INCLUDE_CONTROLLER_WIFI_H_
 #define LIB_CONTROLLER_INCLUDE_CONTROLLER_WIFI_H_
 
@@ -7,6 +14,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @ingroup controller
+ * @defgroup controllerWiFi WiFi
+ * @brief WiFi interface for the esp32
+ *
+ *
+ * The *WiFiCommand* message is used to control the WiFi hardware on the esp32
+ * module. There are two types: (1) `CONNECT` which is used to connect to the
+ * WiFi network and (2) `POST` which sends data to an API endpoint.
+
+ * @image html WiFiCommand.png "WiFiCommand Message Structure" width=60%
+ *
+ * The return code (`rc`) message serves dual purpose based on the type and
+ * direction of communication. For the `CONNECT`, the return code is used to
+ * send a WiFi enum directly from Arduino `WiFi.status()`. See [this
+ * file](https://github.com/arduino/wifishield/blob/0d0b242c794e3e91126fd72dbcca906829226128/firmware/wifiHD/src/wl_definitions.h#L28)
+ * for possible values. For `POST` the return code is used to store the HTTP
+ * response code from the *POST* request. See [HTTP status
+ * code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) for possible
+ * values.
+ *
+ * The software flow for WiFi is as follows:
+ *
+ * @image html esp32controller.png "Esp32 Controller" width=50%
+ *
+ * @{
+ */
 
 /**
  * @brief Initialize WiFi settings on the esp32
@@ -25,7 +60,7 @@ extern "C" {
  *
  * @return WiFi status code
  */
-uint8_t ControllerWiFiInit(const char* ssid, const char* passwd);
+uint8_t ControllerWiFiInit(const char *ssid, const char *passwd);
 
 /**
  * @brief Get the current time from the NTP server
@@ -42,7 +77,7 @@ uint32_t ControllerWiFiTime(void);
  *
  * @return HTTP response code
  */
-unsigned int ControllerWiFiCheck(const char* url, const uint32_t port);
+unsigned int ControllerWiFiCheck(const char *url, const uint32_t port);
 
 /**
  * @brief Post data to the configured endpoint
@@ -54,8 +89,12 @@ unsigned int ControllerWiFiCheck(const char* url, const uint32_t port);
  *
  * @return HTTP response code
  */
-int ControllerWiFiPost(const uint8_t* data, size_t data_len, uint8_t* resp,
-                       uint8_t* resp_len);
+int ControllerWiFiPost(const uint8_t *data, size_t data_len, uint8_t *resp,
+                       uint8_t *resp_len);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

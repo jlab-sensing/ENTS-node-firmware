@@ -26,11 +26,11 @@ const char g_user_agent[] = "ents/2.3.0";
 
 Dirtviz::Dirtviz(void) {}
 
-Dirtviz::Dirtviz(const char* url) { SetUrl(url); }
+Dirtviz::Dirtviz(const char *url) { SetUrl(url); }
 
 Dirtviz::~Dirtviz() {}
 
-void Dirtviz::SetUrl(const char* url) {
+void Dirtviz::SetUrl(const char *url) {
   Log.traceln("Dirtviz::SetUrl");
   Log.traceln("Setting URL to %s", url);
   this->url.setUrl(url);
@@ -95,7 +95,7 @@ unsigned int Dirtviz::Check() {
   return http_code;
 }
 
-HttpClient Dirtviz::SendMeasurement(const uint8_t* meas, size_t meas_len) {
+HttpClient Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
   WiFiClient client;
 
   char buffer[100];

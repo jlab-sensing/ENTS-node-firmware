@@ -1,11 +1,11 @@
 /**
- * @file example_http.cpp
- * @author John Madden <jmadden173@pm.me>
- * @brief Testing file for HttpClient
+ * @example example_http.cpp
+ *
+ * Parses a static HTTP request and prints the response code, headers, and
+ * body.
+ *
+ * @author John Madden
  * @date 2024-11-06
- *
- * @copyright Copyright (c) 2024
- *
  */
 
 #include <Arduino.h>

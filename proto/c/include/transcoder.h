@@ -27,6 +27,14 @@ extern "C" {
 #include "soil_power_sensor.pb.h"
 
 /**
+ * @ingroup proto
+ * @defgroup protoTranscoder Transcoder
+ * @brief Library for encoding/decoding protobuf messages
+ *
+ * @{
+ */
+
+/**
  * @brief Encodes a power measurement
  *
  * The timestamp is not able to encode timezones and is references from UTC+0.
@@ -267,6 +275,10 @@ size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer);
  */
 int DecodeUserConfiguration(const uint8_t *data, const size_t len,
                             UserConfiguration *config);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

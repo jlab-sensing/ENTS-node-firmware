@@ -13,16 +13,16 @@ static size_t size = 0;
 static size_t file_counter = 0;
 
 /** Reference to front of ll */
-static Page* front = NULL;
+static Page *front = NULL;
 
 /** Reference to back of ll */
-static Page* back = NULL;
+static Page *back = NULL;
 
-Page* AllocatePage(void);
+Page *AllocatePage(void);
 
-Page* AllocatePage(void) {
+Page *AllocatePage(void) {
   // allocate new page
-  Page* new_page = NULL;
+  Page *new_page = NULL;
   new_page = malloc(sizeof(Page));
   // initial values
   new_page->next = NULL;
@@ -45,13 +45,13 @@ void PageDeinit(void) {
   }
 }
 
-Page* PageFront(void) { return front; }
+Page *PageFront(void) { return front; }
 
-Page* PageBack(void) { return back; }
+Page *PageBack(void) { return back; }
 
-Page* PagePushFront(void) {
+Page *PagePushFront(void) {
   // allocate new page
-  Page* new_page = AllocatePage();
+  Page *new_page = AllocatePage();
 
   // check for malloc error
   if (new_page == NULL) {
@@ -101,7 +101,7 @@ void PagePopFront(void) {
     // free memory
     free(front);
     // store tmp pointer to next
-    Page* front_next = front->next;
+    Page *front_next = front->next;
     // "remove" front from linked list
     front_next->prev = NULL;
     // set next as the front
@@ -111,9 +111,9 @@ void PagePopFront(void) {
   --size;
 }
 
-Page* PagePushBack(void) {
+Page *PagePushBack(void) {
   // allocate new page
-  Page* new_page = AllocatePage();
+  Page *new_page = AllocatePage();
 
   // check for malloc error
   if (new_page == NULL) {
@@ -164,7 +164,7 @@ void PagePopBack(void) {
     // free memory
     free(back);
     // store tmp pointer to prev
-    Page* back_prev = back->prev;
+    Page *back_prev = back->prev;
     // "remove" back from linked list
     back_prev->next = NULL;
     // set next as the back
@@ -174,13 +174,13 @@ void PagePopBack(void) {
   --size;
 }
 
-void PageOpen(Page* page) {
+void PageOpen(Page *page) {
   // TODO(jtmadden): implement
 
   page->open = true;
 }
 
-void PageClose(Page* page) {
+void PageClose(Page *page) {
   // TODO(jtmadden): implement
 
   page->open = false;

@@ -5,10 +5,6 @@
  * @version 0.1
  * @date 2024-10-03
  *
- * Fram interface definitions and helper functions. Supported fram chips
- * implement read and write functions and expose @ref FramInterface type. See
- * @ref fm24cl16b.h.
- *
  * @copyright Copyright (c) 2024
  *
  */
@@ -23,6 +19,17 @@ extern "C" {
 #include <stdint.h>
 
 #include "fram.h"
+
+/**
+ * @ingroup fram
+ * @defgroup framDef FRAM Definitions
+ * @brief Definitions for interfacing with FRAM chips
+ * Fram interface definitions and helper functions. Supported fram chips
+ * implement read and write functions and expose @ref FramInterface type. See
+ * @ref fm24cl16b.h.
+ *
+ * @{
+ */
 
 typedef FramStatus (*FramWritePtrType)(FramAddr addr, const uint8_t *data,
                                        size_t len);
@@ -44,7 +51,7 @@ typedef struct {
  * @param status HAL status code
  * @return Fram status code
  */
-inline FramStatus ConvertStatus(HAL_StatusTypeDef status) {
+static inline FramStatus ConvertStatus(HAL_StatusTypeDef status) {
   switch (status) {
     case HAL_OK:
       return FRAM_OK;
@@ -52,6 +59,10 @@ inline FramStatus ConvertStatus(HAL_StatusTypeDef status) {
       return FRAM_ERROR;
   }
 }
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

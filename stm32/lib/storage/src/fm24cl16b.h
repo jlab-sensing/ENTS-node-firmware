@@ -27,6 +27,14 @@ extern "C" {
 
 #include <fram.h>
 
+/**
+ * @ingroup fram
+ * @defgroup fm24cl16b FM24CL16B
+ * @brief Library for interfacing with the FM24CL16B FRAM chip
+ *
+ * @{
+ */
+
 /** Size of chip in bytes */
 static const unsigned int fm24cl16b_size = 2048;
 
@@ -49,6 +57,10 @@ FramStatus Fm24cl16bWrite(FramAddr addr, const uint8_t *data, size_t len);
  * @return See FramStatus
  */
 FramStatus Fm24cl16bRead(FramAddr addr, size_t len, uint8_t *data);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

@@ -1,12 +1,12 @@
 /* @brief Implements serialization for measurements on the Soil Power Sensor
- * 
+ *
  * Each individual measurement has all identifying information for someone to
  * determine when the measurement happened, who performed the measurement, what
  * was being measured, and the measurement itself. In the scheme of the Soil
  * Power Sensor, single measurements are taken, then saved to NVRAM for a later
  * upload. This was perferred over using "repeated" types as the data would have
  * to be uploaded in blocks of LoRaWAN due to payload size limitations.
- * 
+ *
  * @author John Madden <jmadden173@pm.me>
  * @date 2023-11-21
  */
@@ -112,7 +112,7 @@ message Response {
   }
 
   /* Response from server */
-  ResponseType resp = 1; 
+  ResponseType resp = 1;
 }
 
 message Esp32Command {
@@ -182,7 +182,7 @@ message WiFiCommand {
   string url = 4;
   /* Port */
   uint32 port = 8;
- 
+
   /* Group for request repsonses */
   /* Return code */
   uint32 rc = 5;
@@ -194,17 +194,17 @@ message WiFiCommand {
 
 message UserConfiguration {
   /********** Upload Settings **********/
-  uint32 logger_id = 1; // id of the logging device
-  uint32 cell_id = 2;   // id of the cell measured
-  Uploadmethod Upload_method = 3; // indicates whether LoRa or WiFi is used
-  uint32 Upload_interval = 4; // upload time in seconds
+  uint32 logger_id = 1;            // id of the logging device
+  uint32 cell_id = 2;              // id of the cell measured
+  Uploadmethod Upload_method = 3;  // indicates whether LoRa or WiFi is used
+  uint32 Upload_interval = 4;      // upload time in seconds
 
   /********** Measurement Settings **********/
-  repeated EnabledSensor enabled_sensors = 5; // List of enabled sensors
-  double Voltage_Slope = 6; // Calibration slope for voltage
-  double Voltage_Offset = 7; // Calibration offset for voltage
-  double Current_Slope = 8; // Calibration slope for current
-  double Current_Offset = 9; // Calibration offset for current
+  repeated EnabledSensor enabled_sensors = 5;  // List of enabled sensors
+  double Voltage_Slope = 6;                    // Calibration slope for voltage
+  double Voltage_Offset = 7;                   // Calibration offset for voltage
+  double Current_Slope = 8;                    // Calibration slope for current
+  double Current_Offset = 9;                   // Calibration offset for current
 
   /********** WiFi Settings **********/
   string WiFi_SSID = 10;

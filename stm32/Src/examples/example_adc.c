@@ -15,6 +15,13 @@
  *
  ******************************************************************************
  */
+
+/**
+ * @example example_adc.c
+ *
+ * Example continuously reading voltage and current from the ADC.
+ */
+
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
@@ -100,6 +107,8 @@ int main(void) {
 
   // init systemapp
   SystemApp_Init();
+
+  UserConfigLoad();
 
   /*Initialize timer and RTC*/
   /*Have to be initilized in example files because LoRaWan cannot be initialized

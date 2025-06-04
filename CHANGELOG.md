@@ -8,12 +8,36 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
-## [Unreleased] - TDB
+## [2.3.2] - 2025-05-23
+
+### Added
+
+- Simulation utility for WiFi uploads [#217](i217)
+
+### Updated
+
+- Restructured python code [#226](pr226)
+- Made the doxygen documentation usable [#205](i205)
+- Getting started guide [#119](i119)
+- Renamed `soil-power-sensor-firmware` to `ents` [#151](i151)
+- Renamed `gui` to `ents-gui` [#235](pr235)
+
+[i119]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/119
+[i151]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/151
+[i205]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/205
+[i217]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/217
+[pr226]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/226
+[pr235]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/235
+
+## [2.3.1] - 2025-05-09
 
 ### Added
 
 - WiFi upload method [#46](i46)
 - Support for the Teros12 sensor [#172](i172)
+- LED status indicator [#197](i197)
+- Define for commit sha [#199](i199)
+- Turn off analog circuit when not in use [#202](i202)
 
 ### Changed
 
@@ -22,6 +46,9 @@ firmware versions for a hardware version.
 [i46]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/46
 [i172]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/172
 [i174]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/174
+[i197]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/197
+[i199]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/199
+[i202]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/202
 
 ## [2.3.0] - 2025-02-26
 

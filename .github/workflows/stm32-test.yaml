@@ -1,0 +1,70 @@
+---
+name: Test stm32
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request_target:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: remote-test
+    env:
+      bucket_url: https://ents-remote-tests-protobuf-lib.s3.us-west-2.amazonaws.com
+      protobuf_lib: ents-protobuf-lib-${{ github.sha }}.tar.gz
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        test:
+          - test_ads
+          - test_fifo
+          - test_fram
+          - test_main
+          - test_proto
+          - test_template
+          - test_transcoder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python_version }}
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Login to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Pack protobuf package
+        run: pio pkg pack -o ${protobuf_lib} proto/c
+
+      - name: Upload protobuf library
+        run: aws s3 cp ${protobuf_lib} s3://ents-remote-tests-protobuf-lib/${protobuf_lib}
+
+      - name: Replace protobuf package reference
+        env:
+          lib_url: ${{ env.bucket_url }}/${{ env.protobuf_lib }}
+        run: sed -i 's|\(Soil Power Sensor Protocal Buffer=\).*|\1${{ env.lib_url }}|' stm32/platformio.ini
+
+      - name: Run unit tests
+        working-directory: ./stm32
+        env:
+          PLATFORMIO_AUTH_TOKEN: ${{ secrets.PLATFORMIO_AUTH_TOKEN }}
+        run: pio remote test -e tests -f ${{ matrix.test }}

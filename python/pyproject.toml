@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ents"
+version = "2.3.2"
+authors = [
+  { name="John Madden", email="jmadden173@pm.me" },
+]
+description = "Python package for Environmental NeTworked Sensor (ENTS)"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  'protobuf>5.0.0',
+  'matplotlib',
+  'pandas',
+  'pyserial',
+  'scikit-learn',
+  'tqdm',
+  'requests',
+]
+
+[project.optional-dependencies]
+gui = [
+  'PyQt5',
+]
+
+dev = [
+  "black",
+  "ruff",
+]
+
+[project.scripts]
+ents = "ents.cli:entry"
+
+[project.gui-scripts]
+ents-gui = "ents.config.user_config:main"
+
+[project.urls]
+Homepage = "https://github.com/jlab-sensing/soil-power-sensor-firmware"
+Issues = "https://github.com/jlab-sensing/soil-power-sensor-firmware/issues"
+
+[tool.ruff]
+exclude = [
+  "src/ents/proto/soil_power_sensor_pb2.py",
+]
+
+[tool.black]
+exclude = ".*_pb2.py"

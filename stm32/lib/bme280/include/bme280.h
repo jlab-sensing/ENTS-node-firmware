@@ -41,6 +41,7 @@
  */
 
 /*!
+ * @ingroup stm32
  * @defgroup bme280 BME280
  * @brief <a href="https://www.bosch-sensortec.com/bst/products/all_products/bme280">Product Overview</a>
  * and  <a href="https://github.com/BoschSensortec/BME280_driver">Sensor API Source Code</a>

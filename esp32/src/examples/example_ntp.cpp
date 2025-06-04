@@ -1,5 +1,8 @@
 /**
- * @brief Example of using ESP32 as an NTP client
+ * @example example_ntp.cpp
+ *
+ * Example of using ESP32 as an NTP client. Connects to a WiFi network and
+ * print the current time over serial.
  *
  * @author Varun Sreedharan <vasreedh@ucsc.edu>
  * @date 2024-09-03

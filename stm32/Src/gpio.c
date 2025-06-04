@@ -65,6 +65,9 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(ESP32_EN_GPIO_Port, ESP32_EN_Pin, GPIO_PIN_RESET);
 
+  /* Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pins : PA12 PA11 PA10 PA0
                            PA6 PA1 PA7 PA4
                            PA5 */

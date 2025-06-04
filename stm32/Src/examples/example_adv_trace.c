@@ -1,4 +1,3 @@
-/* USER CODE BEGIN Header */
 /**
  ******************************************************************************
  * @file           : main.c
@@ -15,6 +14,14 @@
  *
  ******************************************************************************
  */
+
+/**
+ * @example example_adv_trace.c
+ *
+ * Example showing transmission and reception of data using the Advance Trace
+ * library.
+ */
+
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"
@@ -52,6 +59,7 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
+// NOLINTBEGIN
 void RxCallback(uint8_t *pData, uint16_t Size, uint8_t Error) {
   if (Error == 0 && Size == 1) {
     char receivedChar = *pData;
@@ -74,6 +82,7 @@ void RxCallback(uint8_t *pData, uint16_t Size, uint8_t Error) {
     UTIL_ADV_TRACE_StartRxProcess(RxCallback);
   }
 }
+// NOLINTEND
 
 void InitAdvanceTrace() {
   // Configure Advance Trace module

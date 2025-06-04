@@ -1,13 +1,10 @@
 /**
- * @file example-rawTeros21
- * @brief Calls low level SDI12 functions to interface with TEROs21 sensor
+ * @example example_rawTeros21.c
  *
  * Uses low level SDI12 functions to get raw measurement strings from the
  * Teros21 sensor and prints the result over UART.
- *
- * @see sdi12.c
- *
- * @author John Madden <jmadden173@pm.me>
+
+ * @author John Madden
  * @date 2023-11-17
  */
 

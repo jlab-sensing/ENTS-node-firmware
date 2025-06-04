@@ -34,11 +34,11 @@ void tearDown(void) { PageDeinit(); }
 
 void test_PageInit(void) {
   // check front
-  Page* front = PageFront();
+  Page *front = PageFront();
   TEST_ASSERT_EQUAL(NULL, back);
 
   // check back
-  Page* back = PageBack();
+  Page *back = PageBack();
   TEST_ASSERT_EQUAL(NULL, back);
 
   // check size
@@ -74,11 +74,11 @@ void test_PageSize(void) {
 
 void test_PagePushFront_single(void) {
   // push page to front
-  Page* page = PagePushFront();
+  Page *page = PagePushFront();
 
   // get front and  back
-  Page* front = PageFront();
-  Page* back = PageBack();
+  Page *front = PageFront();
+  Page *back = PageBack();
 
   // check for NULL
   TEST_ASSERT_NOT_NULL(page);
@@ -106,7 +106,7 @@ void test_PagePushFront_multiple(void) {
   TEST_ASSERT_EQUAL(3, size);
 
   // check first element
-  Page* page = PageFront();
+  Page *page = PageFront();
   TEST_ASSERT_NOT_NULL(page);
   TEST_ASSERT_NULL(page->prev);
   TEST_ASSERT_NOT_NULL(page->next);
@@ -114,7 +114,7 @@ void test_PagePushFront_multiple(void) {
   TEST_ASSERT_EQUAL(0, file_counter);
 
   // check second element
-  Page* page_next = page->next;
+  Page *page_next = page->next;
   TEST_ASSERT_EQUAL(page, page_next->prev)
   TEST_ASSERT_NOT_NULL(page_next->next);
   TEST_ASSERT_EQUAL(false, page_next->open);
@@ -131,11 +131,11 @@ void test_PagePushFront_multiple(void) {
 
 void test_PagePushBack_single(void) {
   // push page to back
-  Page* page = PagePushBack();
+  Page *page = PagePushBack();
 
   // get front and  back
-  Page* front = PageFront();
-  Page* back = PageBack();
+  Page *front = PageFront();
+  Page *back = PageBack();
 
   // check for NULL
   TEST_ASSERT_NOT_NULL(page);
@@ -163,7 +163,7 @@ void test_PagePushBack_multiple(void) {
   TEST_ASSERT_EQUAL(3, size);
 
   // check first element
-  Page* page = PageFront();
+  Page *page = PageFront();
   TEST_ASSERT_NOT_NULL(page);
   TEST_ASSERT_NULL(page->prev);
   TEST_ASSERT_NOT_NULL(page->next);
@@ -171,7 +171,7 @@ void test_PagePushBack_multiple(void) {
   TEST_ASSERT_EQUAL(0, file_counter);
 
   // check second element
-  Page* page_next = page->next;
+  Page *page_next = page->next;
   TEST_ASSERT_EQUAL(page, page_next->prev)
   TEST_ASSERT_NOT_NULL(page_next->next);
   TEST_ASSERT_EQUAL(false, page_next->open);
@@ -194,9 +194,9 @@ void test_PagePopFront_single(void) {
 
   PagePopFront();
 
-  Page* front = PageFront();
+  Page *front = PageFront();
   TEST_ASSERT_NULL(front);
-  Page* back = PageBack();
+  Page *back = PageBack();
   TEST_ASSERT_NULL(back);
   size = PageSize();
   TEST_ASSERT_EQUAL(0, size);
@@ -208,7 +208,7 @@ void test_PagePopFront_multiple(void) {
     PagePushFront();
   }
 
-  Page* front_pop = PageFront();
+  Page *front_pop = PageFront();
 
   PagePopFront();
 
@@ -217,7 +217,7 @@ void test_PagePopFront_multiple(void) {
   TEST_ASSERT_EQUAL(2, size);
 
   // check pointers for first element
-  Page* front = PageFront() TEST_ASSERT_NOT_EQUAL(front_pop, front);
+  Page *front = PageFront() TEST_ASSERT_NOT_EQUAL(front_pop, front);
   TEST_ASSERT_NULL(front->prev);
   TEST_ASSERT_NOT_NULL(front->next);
 }
@@ -230,9 +230,9 @@ void test_pagePopBack_single(void) {
 
   PagePopBack();
 
-  Page* front = PageFront();
+  Page *front = PageFront();
   TEST_ASSERT_NULL(front);
-  Page* back = PageBack();
+  Page *back = PageBack();
   TEST_ASSERT_NULL(back);
   size = PageSize();
   TEST_ASSERT_EQUAL(0, size);
@@ -244,7 +244,7 @@ void test_PagePopBack_multiple(void) {
     PagePushFront();
   }
 
-  Page* back_pop = PageBack();
+  Page *back_pop = PageBack();
 
   PagePopBack();
 
@@ -253,13 +253,13 @@ void test_PagePopBack_multiple(void) {
   TEST_ASSERT_EQUAL(2, size);
 
   // check pointers for last element
-  Page* back = PageBack() TEST_ASSERT_NOT_EQUAL(back_pop, back);
+  Page *back = PageBack() TEST_ASSERT_NOT_EQUAL(back_pop, back);
   TEST_ASSERT_NULL(back->next);
   TEST_ASSERT_NOT_NULL(back->prev);
 }
 
 void test_PageOpen(void) {
-  Page* page = PagePushFront();
+  Page *page = PagePushFront();
 
   TEST_ASSERT_EQUAL(false, page);
 
@@ -269,7 +269,7 @@ void test_PageOpen(void) {
 }
 
 void test_PageClose(void) {
-  Page* page = PagePushFront();
+  Page *page = PagePushFront();
 
   PageOpen(page);
 
@@ -385,7 +385,7 @@ void Error_Handler(void) {
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t* file, uint32_t line) {
+void assert_failed(uint8_t *file, uint32_t line) {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line
      number, ex: printf("Wrong parameters value: file %s on line %d\r\n", file,
