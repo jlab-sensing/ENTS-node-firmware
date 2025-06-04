@@ -34,7 +34,7 @@
    SysTime_t ts = SysTimeGet();
    SEN0257Data measurment = {};
  
-   // read voltage
+   /// read voltage
    measurment = PressureGetMeasurment();
    double adc_voltage_float = measurment.pressure;
  
