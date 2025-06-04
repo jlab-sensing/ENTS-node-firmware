@@ -1,13 +1,19 @@
 /**
- * @example example_phytos.c
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
  *
- * Connect the PHYTOS-31 sensor to the analog input of the ents-node*. An
- * infinite loop will read the sensor and print the measurement over serial.
+ * Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.
  *
- * @author Stephen Taylor
- * @date NA
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
  */
-
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
@@ -20,12 +26,13 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "usart.h"
+#include "userConfig.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 #include "ads.h"
-#include "phytos31.h"
+#include "capSoil.h"
 #include "rtc.h"
 #include "sdi12.h"
 #include "sys_app.h"
@@ -93,8 +100,11 @@ int main(void) {
   MX_USART1_UART_Init();
   MX_I2C2_Init();
 
-  SystemApp_Init();
-
+  /*Initialize timer and RTC*/
+  /*Have to be initilized in example files because LoRaWan cannot be initialized
+   * like in main*/
+  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+  UTIL_TIMER_Init();
   UserConfigLoad();
 
   // TIMER_IF_Init();
@@ -109,16 +119,14 @@ int main(void) {
   HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
-  Phytos31Init();
+  CapSoilInit();
   // TIMER_IF_Init();
   // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
   // UTIL_TIMER_Init();
 
-  char output[20];
-  char output2[20];
+  char output[25];
 
-  double voltage_reading;
-  phytos_measurments measurment;
+  capSoil_measurments measurment;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -130,9 +138,9 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
 
-    measurment = Phytos31GetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Phytos Raw: %f\r\n",
-                           measurment.phytos31_raw);
+    measurment = CapSoilGetMeasurment();
+    reading_len = snprintf(output, sizeof(output), "Cap Soil Raw: %f\r\n",
+                           measurment.capSoil_calibrated);
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
     // for (int i = 0; i < 10000; i++){
