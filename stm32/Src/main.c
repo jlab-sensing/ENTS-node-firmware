@@ -170,8 +170,8 @@ int main(void)
     EnabledSensor sensor = cfg->enabled_sensors[i];
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
       ADC_init();
-      //SensorsAdd(ADC_measure);
-      SensorsAdd(WatPress_measure);
+      SensorsAdd(ADC_measure);
+      //SensorsAdd(WatPress_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
