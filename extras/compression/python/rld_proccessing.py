@@ -1,13 +1,7 @@
 import sys
-import os
 import csv
 import matplotlib.pyplot as plt
 import pandas as pd
-
-# Add the rocketlogger module path
-sys.path.append(
-    os.path.abspath(r"C:\Users\Steph\Documents\GitRepos\RocketLogger\script\python")
-)
 
 from rocketlogger.data import RocketLoggerData
 

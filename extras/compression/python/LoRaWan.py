@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+
+"""Utility for calculating LoRaWAN airtime.
+
+Modify the main at the bottom of this file to test the function with different
+parameters.
+"""
+
 import math
 
 

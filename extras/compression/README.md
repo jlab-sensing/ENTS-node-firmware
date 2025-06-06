@@ -12,22 +12,35 @@ Here we are exploring how the following compression algorithims impact the perfo
 6. Asymmetric numerical systems
 7. Arithmetic Coding
 
-# Algos
+## Algos
 
 Algos contains rough implementations and test harnesses for each of the algorithims. 
 
-## LZ77
+### LZ77
 
 LZ77 is implemented using this {LZ77 library}[https://github.com/manassra/LZ77-Compressor]
 
-## LZ78
+### LZ78
 
 LZ78 was based of this {library}[https://github.com/DyakoVlad/python-LZ78/blob/master/LZ78.py]
 
-# Compression Comparison
+## Compression Comparison
 
 Compression comparison containts the harness for compressing and decompressing all the test messages stored in _messages_, and visualizing their compression ratio vs bytes.
 
-# Messages
+**Latency tests**
+
+```bash
+python latency_test.py
+```
+
+**Compression ratio tests**
+
+bash
+```
+python delta_adc.py
+```
+
+## Messages
 
 Contains the test messages as txt files
