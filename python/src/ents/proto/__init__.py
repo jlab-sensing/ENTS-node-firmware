@@ -5,6 +5,7 @@ from .encode import (
     encode_phytos31_measurement,
     encode_teros21_measurement,
     encode_user_configuration,
+    encode_power_measurement_delta,
 )
 
 from .decode import (
@@ -24,6 +25,7 @@ __all__ = [
     "encode_teros12_measurement",
     "encode_phytos31_measurement",
     "encode_teros21_measurement",
+    "encode_power_measurement_delta",
     "decode_response",
     "decode_measurement",
     "encode_user_configuration",
