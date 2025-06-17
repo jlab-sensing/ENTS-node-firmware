@@ -9,6 +9,8 @@ from ents.proto import (
 )  # Import the encoding function
 import matplotlib.pyplot as plt
 
+from python.LoRaWan import calculate_lorawan_airtime
+
 
 # Parameters
 adc_resolution = 32  # 32-bit ADC

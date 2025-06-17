@@ -1,0 +1,77 @@
+/**
+ * @brief Implements generic sensor data serialization
+ *
+ * @author John Madden <jmadden173@pm.me>
+ * @date 2025-06-13
+ */
+
+syntax = "proto3";
+
+enum SensorType {
+  /** Onboard power measurements */
+  POWER_VOLTAGE = 0;
+  POWER_CURRENT = 1;
+
+  /** Teros12 measurements */
+  TEROS12_VWC = 2;
+  TEROS12_TEMP = 3;
+  TEROS12_EC = 4;
+
+  /** Phytos31 measurements */
+  PHYTOS31_VOLTAGE = 5;
+  PHYTOS31_LEAF_WETNESS = 6;
+
+  /** Bme280 measurements */
+  BME280_PRESSURE = 7;
+  BME280_TEMP = 8;
+  BME280_HUMIDITY = 9;
+}
+
+message Metadata {
+  // id of the cell measured
+  uint32 cell_id = 1;
+  // id of the logging device
+  uint32 logger_id = 2;
+  // timestamp of the measurement
+  uint32 ts = 3;
+}
+
+message FullSensorMeasurement {
+  /** Measurement value */
+  oneof measurement {
+    uint64 unsigned_int = 1; 
+    sint64 signed_int = 2;
+    double floating_point = 3;
+    string text = 4;
+  }
+}
+
+message DeltaSensorMeasurement {
+  /** Stores the delta from the previous measurement */
+  oneof delta {
+    sint64 signed_int = 1;
+    double floating_point = 2;
+  }
+}
+
+message SensorMeasurement {
+  /** Metadata for the measurement */
+  Metadata meta = 1;
+
+  /** Type of sensor measurement */
+  SensorType type = 2;
+
+  /** Holds either full measurement or delta measurement */
+  oneof measurement {
+    FullSensorMeasurement full = 3;
+    DeltaSensorMeasurement delta = 4;
+  }
+}
+
+message RepeatedSensorMeasurements {
+  /** Metadata for all measurements */
+  Metadata meta = 1;
+
+  /** List of sensor measurements */
+  repeated SensorMeasurement measurements = 2;
+}

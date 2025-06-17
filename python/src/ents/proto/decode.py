@@ -2,7 +2,12 @@
 
 from google.protobuf.json_format import MessageToDict
 
-from .soil_power_sensor_pb2 import Measurement, Response, UserConfiguration
+from .soil_power_sensor_pb2 import (
+    Measurement,
+    RepeatedMeasurement,
+    Response,
+    UserConfiguration,
+)
 
 
 def decode_response(data: bytes):
@@ -27,6 +32,33 @@ def decode_response(data: bytes):
     return resp.resp
 
 
+def decode_repeated_measurement(data: bytes) -> list[dict]:
+    """Decodes repeated measurements
+
+    Args:
+        data: Byte array from RepeatedMeasurement
+
+    Returns:
+        List of decoded measurement dictionariess.
+    """
+
+    rep_meas = RepeatedMeasurement()
+    rep_meas.ParseFromString(data)
+
+    parsed_meas_list : list[dict] = []
+
+    for meas in rep_meas.measurements:
+        # set meta from repeated measurement if available
+        if not meas.HasField("meta"):
+            meas.meta = rep_meas.meta
+
+        parsed_meas = parse_measurement(meas)
+
+        parsed_meas_list.append(parsed_meas)
+
+    return parsed_meas_list
+
+
 def decode_measurement(data: bytes, raw: bool = True) -> dict:
     """Decodes a Measurement message
 
@@ -34,19 +66,52 @@ def decode_measurement(data: bytes, raw: bool = True) -> dict:
 
     Args:
         data: Byte array of Measurement message.
-        raw: Flag to return raw or adjusted measurements
+        raw: Flag to return raw or adjusted measurements (deprecated). Was used
+        to adjust individual measurements which is now left up to the user.
 
     Returns:
         Flat dictionary of values from the meta field, measurement field, and
         the key "type" to indicate the type of measurement.
-
-    Raises:
-        KeyError: When the serialized data is missing a required field.
     """
+
+    del raw
 
     # parse data
     meas = Measurement()
     meas.ParseFromString(data)
+
+    meas_dict = parse_measurement(meas)
+
+    return meas_dict
+
+
+def parse_measurement(meas : Measurement) -> dict:
+    """Parses a measurement object into a dictionary
+
+    {
+        "ts": 1345531
+        "logger_id": 200
+        "cell_id": 200
+        "type": "bme280"
+        "data":
+            "pressure": 124
+            "temperature": 21.99
+            "humidity": 40.0
+        "data_type":
+            "pressure": int
+            "temperature": float
+            "humidity": float
+    }
+
+    Args:
+        meas: Measurement object
+
+    Returns:
+        Dictionary representation of the measurement.
+
+    Raises:
+        KeyError: When the serialized data is missing a required field.
+    """
 
     # convert meta into dict
     if not meas.HasField("meta"):
@@ -65,19 +130,10 @@ def decode_measurement(data: bytes, raw: bool = True) -> dict:
     # store measurement data
     meta_dict["data"] = measurement_dict
 
-    # process raw
-    if not raw:
-        # convert measurements to hPa, C, and %
-        if meta_dict["type"] == "bme280":
-            meta_dict["data"]["pressure"] /= 10.0
-            meta_dict["data"]["temperature"] /= 100.0
-            meta_dict["data"]["humidity"] /= 1000.0
-
     # store measurement type
     meta_dict["data_type"] = {}
     for key, value in measurement_dict.items():
         meta_dict["data_type"][key] = type(value)
-    return meta_dict
 
 
 def decode_user_configuration(data: bytes) -> dict:
