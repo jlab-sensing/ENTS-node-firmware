@@ -6,4 +6,4 @@ scikit-learn
 rocketlogger
 pyyaml
 ents
-protobuf==4.25.5
+protobuf==4.25.8
