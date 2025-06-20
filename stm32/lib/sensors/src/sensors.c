@@ -110,6 +110,12 @@ void SensorsMeasure(void) {
   for (int i = 0; i < callback_arr_len; i++) {
     // call measurement function
     buffer_len = callback_arr[i](buffer);
+
+    if (buffer_len == ((size_t)-1)) {
+      APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");
+      return;
+    }
+
     APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
@@ -118,10 +124,6 @@ void SensorsMeasure(void) {
     }
     APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
 
-    if (buffer_len == -1){
-      APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");
-      return;
-    }
     // add to tx buffer
     FramStatus status = FramPut(buffer, buffer_len);
     if (status == FRAM_BUFFER_FULL) {

@@ -260,20 +260,20 @@ bool Connect(void) {
     if (status == CONTROLLER_WIFI_CONNECTED) {
       break;
     } else {
-      if (status == CONTROLLER_WIFI_DISCONNECTED) {
-        continue;
-      } else if (status == CONTROLLER_WIFI_NO_SSID_AVAIL) {
-        APP_LOG(TS_OFF, VLEVEL_M, "Error! No SSID available!\r\n");
-        return false;
-      } else if (status == CONTROLLER_WIFI_CONNECT_FAILED) {
-        APP_LOG(TS_OFF, VLEVEL_M, "Error! Connect failed!\r\n");
-        return false;
-      }
-
       if (retries >= max_retries) {
         APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n",
                 retries);
         return false;
+      } else {
+        if (status == CONTROLLER_WIFI_DISCONNECTED) {
+          continue;
+        } else if (status == CONTROLLER_WIFI_NO_SSID_AVAIL) {
+          APP_LOG(TS_OFF, VLEVEL_M, "Error! No SSID available!\r\n");
+          return false;
+        } else if (status == CONTROLLER_WIFI_CONNECT_FAILED) {
+          APP_LOG(TS_OFF, VLEVEL_M, "Error! Connect failed!\r\n");
+          return false;
+        }
       }
     }
   }
