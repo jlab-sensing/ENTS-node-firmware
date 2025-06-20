@@ -185,3 +185,32 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
   // Or maybe slightly smaller, but any greater causes the program to hang
   return ret;
 }
+
+SDI12Status SDI12GetAddress(char * addr, uint16_t timeoutMillis) {
+  SDI12Status ret = SDI12_OK;
+
+  // query the sensor
+  char addr_query_cmd[] = "?!";
+  ret = SDI12SendCommand(addr_query_cmd, 2);
+  if (ret != SDI12_OK) {
+    return ret;
+  }
+
+  // get response
+  char resp_buffer[4] = {};
+  ret = SDI12ReadData(resp_buffer, 4, timeoutMillis);
+  if (ret == SDI12_OK || ret == SDI12_TIMEOUT_ON_READ) {
+    ret = SDI12_OK;
+  } else {
+    return ret;
+  }
+
+  // parse the response, return error if parsing fails
+  int params = 0;
+  params = sscanf(resp_buffer, "%1c\r\n", addr);
+  if (params != 1) {
+    return SDI12_PARSING_ERROR;
+  }
+
+  return ret;
+}

@@ -109,6 +109,17 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
                                char *measurment_data, uint16_t timeoutMillis);
 
 /**
+ * @brief Get the address of the current SDI-12 sensor.
+ *
+ * Only a single sensor can be connected to the bus at a time.
+ *
+ * @param addr Pointer to a character array where the address will be stored.
+ *
+ * @return SDI12Status
+ */
+SDI12Status SDI12GetAddress(char * addr, uint16_t timeoutMillis);
+
+/**
  * @}
  */
 
