@@ -57,10 +57,26 @@ int main(void) {
   }
 
   APP_LOG(TS_OFF, VLEVEL_M, "Current address: %c\r\n", addr);
-
-  // TODO: change the address 
-
-  // infinite loop at program en 
+  
+  HAL_Delay(1000);
+  
+  // change the address 
+  APP_LOG(TS_OFF, VLEVEL_M, "Changing address to 0\r\n");
+  char new_addr[] = "xA0!";
+  new_addr[0] = addr;
+  status = SDI12SendCommand(new_addr, sizeof(new_addr));
+  
+  HAL_Delay(1000);
+  
+  status = SDI12_OK;
+  status = SDI12GetAddress(&addr, 5000);
+  if (status != SDI12_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Failed to get address of device: %d\r\n", status);
+    APP_LOG(TS_OFF, VLEVEL_M, "Make sure the device is connected and powered on.\r\n");
+    while (1);  // infinite loop at program end
+  }
+  APP_LOG(TS_OFF, VLEVEL_M, "Current address: %c\r\n", addr);
+  
   while (1);
 }
 
