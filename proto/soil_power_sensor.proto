@@ -68,6 +68,22 @@ message BME280Measurement {
   uint32 humidity = 3;
 }
 
+//Capactive Soil Moister Measurement
+message CapSoilMeasurment {
+  // voltage
+  double voltage = 1;
+  // moister
+  double moister = 2;
+}
+
+//Water Pressure Sensor
+message SEN0257Measurement {
+  // voltage
+  double voltage = 1;
+  // pressure
+  double pressure = 2;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -80,6 +96,8 @@ message Measurement {
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;
     Teros21Measurement teros21 = 6;
+    CapSoilMeasurment capSoil = 7;
+    SEN0257Measurement sen0257 = 8;
   }
 }
 
@@ -209,6 +227,7 @@ enum EnabledSensor {
   Teros12 = 2;
   Teros21 = 3;
   BME280 = 4;
+  SEN0257 = 5;
 }
 
 enum Uploadmethod {
