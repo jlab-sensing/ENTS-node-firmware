@@ -112,6 +112,7 @@ void SensorsMeasure(void) {
     APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
+    //APP_LOG(TS_ON, VLEVEL_M, "Measurement: %lf\r\n",):
     for (int j = 0; j < buffer_len; j++) {
       APP_LOG(TS_OFF, VLEVEL_M, "%x", buffer[j]);
     }

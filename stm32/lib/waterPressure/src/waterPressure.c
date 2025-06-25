@@ -36,13 +36,15 @@
  
    /// read voltage
    measurment = PressureGetMeasurment();
-   double adc_voltage_float = measurment.pressure;
+   double float_pressure = measurment.pressure;
+   double float_voltage = measurment.voltage;
+   printf("Presure: %lf kPa\n", float_pressure);
  
    const UserConfiguration* cfg = UserConfigGet();
  
    // encode measurement
    size_t data_len = EncodeWaterPressMeasurement(
-       ts.Seconds, cfg->logger_id, cfg->cell_id, adc_voltage_float, 0.0, data);
+       ts.Seconds, cfg->logger_id, cfg->cell_id, float_voltage, float_pressure, data);
  
    // return number of bytes in serialized measurement
    return data_len;
