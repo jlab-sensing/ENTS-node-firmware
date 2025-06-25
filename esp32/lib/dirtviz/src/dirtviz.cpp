@@ -164,7 +164,7 @@ HttpClient Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
     char c = client.read();
     resp += c;
   }
-
+  Log.warningln("%s",resp.c_str());
   // close connection
   client.flush();
   client.stop();

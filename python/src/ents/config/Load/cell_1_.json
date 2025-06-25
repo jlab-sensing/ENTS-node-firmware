@@ -19,6 +19,6 @@
     "Calibration I Offset": 3.45772336e-05,
     "WiFi SSID": "HARE_Lab",
     "WiFi Password": "",
-    "API Endpoint URL": "http://172.31.100.59:3000/api/sensor",
-    "API Port": 1
+    "API Endpoint URL": "http://172.31.100.59:3000/api/sensor/",
+    "API Port": 443
 }
