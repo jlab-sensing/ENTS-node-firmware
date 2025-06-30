@@ -328,9 +328,9 @@ void LoRaWAN_Init(void)
   // convert interval to ms
   TxPeriodicity = (cfg->Upload_interval * 1000);
   // divide by number of sensors
-  TxPeriodicity /= cfg->enabled_sensors_count;
+  //TxPeriodicity /= cfg->enabled_sensors_count;
   // divide by 2 to keep upload buffer empty for failed uploads
-  TxPeriodicity /= 2;
+  //TxPeriodicity /= 2;
   /* USER CODE END LoRaWAN_Init_1 */
 
   UTIL_TIMER_Create(&StopJoinTimer, JOIN_TIME, UTIL_TIMER_ONESHOT, OnStopJoinTimerEvent, NULL);
@@ -420,7 +420,6 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 static void SendTxData(void)
 {
   /* USER CODE BEGIN SendTxData_1 */
-
 
   // preconditions
 

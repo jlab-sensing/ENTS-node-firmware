@@ -24,6 +24,7 @@
 #include "sys_app.h"
 #include "stm32_seq.h"
 
+#include "LmHandler.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -83,6 +84,7 @@ void MX_LoRaWAN_Process(void)
 
   /* USER CODE END MX_LoRaWAN_Process_1 */
   UTIL_SEQ_Run(UTIL_SEQ_DEFAULT);
+  LmHandlerProcess();
   /* USER CODE BEGIN MX_LoRaWAN_Process_2 */
 
   /* USER CODE END MX_LoRaWAN_Process_2 */
