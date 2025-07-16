@@ -11,6 +11,7 @@
 
 #include "module_handler.hpp"
 #include "modules/wifi.hpp"
+#include "modules/wifi_userconfig.hpp"
 
 /** Target device address */
 static const uint8_t dev_addr = 0x20;
@@ -21,6 +22,11 @@ static const int scl_pin = 1;
 
 // create wifi module
 static ModuleHandler::ModuleHandler mh;
+
+// create wifi module
+static ModuleWiFi wifi;
+// create user config module
+static ModuleHandler::ModuleUserConfig user_config;
 
 /**
  * @brief Callback for onReceive
@@ -67,6 +73,7 @@ RESET!
   // create adn register the WiFi module
   static ModuleWiFi wifi;
   mh.RegisterModule(&wifi);
+  mh.RegisterModule(&user_config);
 
   // start i2c interface
   Wire.onReceive(onReceive);

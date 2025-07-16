@@ -24,10 +24,7 @@ import sys
 import serial
 import serial.tools.list_ports
 import re  # For validating URL input
-from ents.proto import (
-    encode_user_configuration,
-    decode_user_configuration,
-)
+from ..proto import encode_user_configuration, decode_user_configuration
 
 
 class Ui_MainWindow(object):
