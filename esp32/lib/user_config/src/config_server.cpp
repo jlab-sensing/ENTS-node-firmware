@@ -47,22 +47,67 @@ void handleRoot() {
     border-radius: 4px;
     background-color: #ffeeee;
     }
-
     .success {
-    color: green;
-    margin: 15px 0;
-    padding: 10px;
-    border: 1px solid green;
-    border-radius: 4px;
-    background-color: #eeffee;
-    }
-    #wifiSettings { display: none; }
-    .error { color: red; margin-top: 10px; }
-  </style>
+      color: green;
+      margin: 15px 0;
+      padding: 10px;
+      border: 1px solid green;
+      border-radius: 4px;
+      background-color: #eeffee;
+      }
+      #wifiSettings { display: none; }
+      .error { color: red; margin-top: 10px; }
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.4);
+      }
+      
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 5px;
+        text-align: center;
+      }
+      
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      
+      .close:hover {
+        color: black;
+      }
+      </style>
 </head>
 <body>
+  <div id="configModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Configuration Saved</h2>
+      <p id="modalMessage"></p>
+      <button id="modalButton">OK</button>
+    </div>
+  </div>
+  
   <h1>ENTS Configuration</h1>
-  <form action="/save" method="post" onsubmit="return validateForm()" novalidate>
+ <!-- Error display will appear here, above the form buttons -->
+  <div id="errorDisplay" class="error" style="display: none;"></div>
+  
+  <form id="configForm" novalidate>
     
     <div class="group">
       <h2>Upload Settings</h2>
@@ -141,58 +186,94 @@ void handleRoot() {
   </form>
   
   <script>
+    // DOM Elements
+    const modal = document.getElementById("configModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalMessage = document.getElementById("modalMessage");
+    const modalButton = document.getElementById("modalButton");
+    const closeBtn = document.getElementsByClassName("close")[0];
+    const errorDisplay = document.getElementById('errorDisplay');
+    const configForm = document.getElementById("configForm");
+
+    // Show modal with success message
+    function showSuccessModal(message) {
+      modalTitle.textContent = "Success!";
+      modalMessage.textContent = message;
+      modal.style.display = "block";
+    }
+
+    // Show error message above button
+    function showError(message) {
+      errorDisplay.textContent = message;
+      errorDisplay.style.display = "block";
+    }
+
+    // Hide error message
+    function hideError() {
+      errorDisplay.style.display = "none";
+    }
+
+    // Close modal
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    // Toggle WiFi settings based on upload method
     function toggleWifiSettings() {
       const method = document.getElementById('upload_method').value;
       const wifiSettings = document.getElementById('wifiSettings');
       wifiSettings.style.display = method === 'WiFi' ? 'block' : 'none';
       
-      // Toggle required attribute for WiFi fields
       const wifiFields = wifiSettings.querySelectorAll('input');
       wifiFields.forEach(field => {
         field.required = method === 'WiFi';
       });
     }
-    
-function validateForm() {
-  const form = document.querySelector('form');
-  const errorDisplay = document.getElementById('errorDisplay');
-  errorDisplay.textContent = '';
-  errorDisplay.className = 'error'; // Reset to error style
-  
-  event.preventDefault();
-  
-  const formData = new FormData(form);
-  
-  fetch('/save', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json'
-    },
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      return response.json().then(err => { 
-        throw new Error(err.error || 'Unknown error'); 
-      });
+
+    // Handle form submission
+    async function handleSubmit(event) {
+      event.preventDefault();
+      hideError();
+      
+      try {
+        const formData = new FormData(configForm);
+        
+        const response = await fetch('/save', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to save configuration');
+        }
+        
+        // Show success modal if save was successful
+        showSuccessModal(result.success || "Configuration saved successfully!");
+        
+      } catch (error) {
+        showError(error.message);
+        console.error('Error:', error);
+      }
     }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success) {
-      errorDisplay.textContent = data.success;
-      errorDisplay.className = 'success';
-    }
-  })
-  .catch(error => {
-    errorDisplay.textContent = error.message;
-    errorDisplay.className = 'error';
-    console.error('Error:', error); // Debug output
-  });
-}
+
+    // Event listeners
+    closeBtn.onclick = closeModal;
+    modalButton.onclick = closeModal;
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
     
+    document.getElementById('upload_method').addEventListener('change', toggleWifiSettings);
+    configForm.addEventListener('submit', handleSubmit);
+
     // Initialize on page load
-    window.onload = toggleWifiSettings;
+    window.onload = function() {
+      toggleWifiSettings();
+    };
   </script>
 </body>
 </html>
@@ -277,11 +358,11 @@ void handleSave() {
   
     uint8_t buffer[UserConfiguration_size];
     size_t message_length = EncodeUserConfiguration(&pb_config, buffer);
+    UserConfiguration decoded_config = UserConfiguration_init_zero;
     
     if (message_length > 0) {
       printEncodedData(buffer, message_length);
       
-      UserConfiguration decoded_config = UserConfiguration_init_zero;
       if (DecodeUserConfiguration(buffer, message_length, &decoded_config) == 0) {
         printDecodedConfig(&decoded_config);
       } else {
@@ -290,8 +371,13 @@ void handleSave() {
     } else {
       Serial.println("Failed to encode the configuration");
     }
-    String successResponse = "{\"success\":\"Configuration saved successfully!\"}";
-    server.send(200, "application/json", successResponse);
+    // Update the module's current configuration
+    user_config.updateConfig(&decoded_config);
+    // Prepare success message
+    String successMessage = "Configuration saved successfully!\\n";
+    successMessage += "Please RESET the STM32 to update the configurations";
+    String successJson = "{\"success\":\"" + successMessage + "\"}";
+    server.send(200, "application/json", successJson);
 }
 
 void setupServer() {

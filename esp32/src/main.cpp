@@ -8,10 +8,12 @@
 #include <Arduino.h>
 #include <ArduinoLog.h>
 #include <Wire.h>
+#include <WiFi.h>
 
 #include "module_handler.hpp"
 #include "modules/wifi.hpp"
 #include "modules/wifi_userconfig.hpp"
+#include "config_server.h"
 
 /** Target device address */
 static const uint8_t dev_addr = 0x20;
@@ -26,7 +28,7 @@ static ModuleHandler::ModuleHandler mh;
 // create wifi module
 static ModuleWiFi wifi;
 // create user config module
-static ModuleHandler::ModuleUserConfig user_config;
+ModuleHandler::ModuleUserConfig user_config;
 
 /**
  * @brief Callback for onReceive
@@ -68,24 +70,33 @@ RESET!
                __TIME__);
   Log.noticeln("Git SHA: %s", GIT_REV);
 
-  Log.noticeln("Starting i2c interface...");
+    // Start I2C interface
+    Wire.onReceive(onReceive);
+    Wire.onRequest(onRequest);
+    bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 100000);
+    if (!i2c_status) {
+        Log.errorln("I2C initialization failed!");
+        while(1);
+    }
 
-  // create adn register the WiFi module
-  static ModuleWiFi wifi;
-  mh.RegisterModule(&wifi);
-  mh.RegisterModule(&user_config);
+    // Register modules
+    mh.RegisterModule(&wifi);
+    mh.RegisterModule(&user_config);
 
-  // start i2c interface
-  Wire.onReceive(onReceive);
-  Wire.onRequest(onRequest);
-  bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 100000);
+    // Start web server
+    WiFi.mode(WIFI_AP);
+    WiFi.softAP(AP_SSID, AP_PASSWORD);
+    Log.noticeln("Access Point started");
+    Log.noticeln("IP Address: %s", WiFi.softAPIP().toString().c_str());
 
-  if (i2c_status) {
-    Log.noticeln("Success!");
-  } else {
-    Log.noticeln("Failed!");
-  }
+    setupServer();
+    Log.noticeln("HTTP server started");
 }
 
-/** Loop code */
-void loop() {}
+void loop() {
+    // Handle web server requests
+    handleClient();
+    
+    // Other main loop tasks can go here
+    delay(10);
+}

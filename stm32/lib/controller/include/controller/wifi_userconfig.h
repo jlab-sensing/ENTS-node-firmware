@@ -3,10 +3,14 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "userConfig.h"
+#include "communication.h"
+#include "usart.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern char uart_buf[512];
 
 /**
  * @brief Initialize WiFi settings on the esp32
@@ -36,7 +40,7 @@ uint32_t ControllerWiFiTime(void);
 
 /**
  * @brief Checks WiFi connection status by querying API status
-
+ *
  * @param url API endpoint url (limited to 256 characters)
  * @param port API endpoint port
  *
@@ -56,6 +60,35 @@ unsigned int ControllerWiFiCheck(const char *url, const uint32_t port);
  */
 int ControllerWiFiPost(const uint8_t *data, size_t data_len, uint8_t *resp,
                        uint8_t *resp_len);
+
+/**
+ * @brief Request user configuration from ESP32
+ *
+ * @return UserConfigStatus indicating success or failure
+ */
+UserConfigStatus ControllerUserConfigRequest(void);
+
+/**
+ * @brief Send user configuration to ESP32
+ *
+ * @return UserConfigStatus indicating success or failure
+ */
+UserConfigStatus ControllerUserConfigSend(void);
+
+/**
+ * @brief Check if configuration is empty/uninitialized
+ *
+ * @param config Pointer to UserConfiguration structure
+ * @return true if config is empty, false otherwise
+ */
+bool isConfigEmpty(const UserConfiguration *config);
+
+/**
+ * @brief Print user configuration details to log
+ *
+ * @param config Pointer to UserConfiguration structure
+ */
+void printUserConfig(const UserConfiguration *config);
 
 #ifdef __cplusplus
 }
