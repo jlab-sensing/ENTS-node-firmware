@@ -112,9 +112,9 @@ The following is a list of steps that should be complated on a newly assembled b
             - The device with STLINK in the description should be used for the upload port.
             - The device with CP2102 in the description should be used for the monitor port.
         - The monitor port can be closed with CTRL+C.
-    - Save the Wio-E5's DevEUI which is needed for LoRaWAN registration.
-        - NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI.
-        - Regex string: `00:80:E1:15.*`
+    - ~~Save the Wio-E5's DevEUI which is needed for LoRaWAN registration.~~ Skip for now, TTN registration will be integrated into the DirtViz logger registration.
+        - ~~NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI.~~
+        - ~~Regex string: `00:80:E1:15.*`~~
     - (Optional): Enter the ESP32's bootloader. Use the blue buttons nearest to the ESP32.
         - RST down
         - BOOT down
@@ -149,19 +149,19 @@ The following is a list of steps that should be complated on a newly assembled b
                 - NOTE: Do not include any trailing spaces after the URL!
             - API Port: 443
 
-7. Register device on The Things Network
-    - Follow instructions here: https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/docs/add-device-to-ttn.md
-        - If you followed step 5 to flash the latest release firmware, skip to step 2 on the document.
-        - If you do not have access to the soil power sensor group, ask John to add you.
-        - You can also register devices in bulk via a CSV upload. One of the tabs in the Board Inventory can help you do that.
-        - The following fields are always the same
-            - app_key `2B7E151628AED2A6ABF7158809CF4F3C`
-            - join_eui `0101010101010101`
-        - The id might not autogenerate. In that case, follow the convention based on the device EUI. Example: `eui-0080e1150609bcf0`
-            - No uppercase letters may be used.
-        - The name of the logger should naturally follow the [board inventory](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit). Example: `2.2.3-031`
+7. ~~Register device on The Things Network~~ Skip for now, TTN registration will be integrated into the DirtViz logger registration.
+    - ~~Follow instructions here: https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/docs/add-device-to-ttn.md~~
+        - ~~If you followed step 5 to flash the latest release firmware, skip to step 2 on the document.~~
+        - ~~If you do not have access to the soil power sensor group, ask John to add you.~~
+        - ~~You can also register devices in bulk via a CSV upload. One of the tabs in the Board Inventory can help you do that.~~
+        - ~~The following fields are always the same~~
+            - ~~app_key `2B7E151628AED2A6ABF7158809CF4F3C`~~
+            - ~~join_eui `0101010101010101`~~
+        - ~~The id might not autogenerate. In that case, follow the convention based on the device EUI. Example: `eui-0080e1150609bcf0`~~
+            - ~~No uppercase letters may be used.~~
+        - ~~The name of the logger should naturally follow the [board inventory](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit). Example: `2.2.3-031`~~
 
-8. Create a cell on DirtViz
+8. Create a cell on DirtViz. This step is typically left to the end-user to complete.
     - https://dirtviz.jlab.ucsc.edu/
     - Sign in in the top right
     - Click on your name in the top right and select the Profile dropdown option.
