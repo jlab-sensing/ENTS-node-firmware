@@ -6,17 +6,13 @@
 #include <stdio.h>
 #include <unity.h>
 
+#include "board.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
-#include "main_helper.h"
-#include "sdi12.h"
 #include "usart.h"
 
-/**
- * @brief Generated from CubeMX
- */
-void SystemClock_Config(void);
+#include "sdi12.h"
 
 void setUp(void) {}
 
@@ -73,9 +69,7 @@ int main(void) {
   /* USER CODE BEGIN 2 */
 
   // wait for UART
-  for (int i = 0; i < 1000000; i++) {
-    __NOP();
-  }
+  WaitForSerial();
 
   UNITY_BEGIN();
   RUN_TEST(test_SDI12_SendCommand_success);
@@ -83,3 +77,4 @@ int main(void) {
   UNITY_END();
   /* USER CODE END 3 */
 }
+

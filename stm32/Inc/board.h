@@ -30,7 +30,13 @@ void SystemClock_Config(void);
 */
 void Error_Handler(void);
 
-
+/**
+ * @brief Waits for desktop serial connection to be established.
+ *
+ * Interally its just a NOP loop that waits for the serial monitor to be ready
+ * on the desktop. Useful for getting continuous flow of unit tests.
+ */
+void WaitForSerial(void);
 
 #ifdef  USE_FULL_ASSERT
 /**

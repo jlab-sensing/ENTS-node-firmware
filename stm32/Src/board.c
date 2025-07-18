@@ -72,6 +72,15 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
+void WaitForSerial(void)
+{
+  // Wait for UART to be ready
+  for (int i = 0; i < 5000000; i++)
+  {
+    __NOP();
+  }
+}
+
 #ifdef  USE_FULL_ASSERT
 void assert_failed(uint8_t *file, uint32_t line)
 {
