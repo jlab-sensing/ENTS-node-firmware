@@ -21,7 +21,6 @@ void setup() {
                __TIME__);
   Log.noticeln("Git SHA: %s", GIT_REV);
 
-
   // Enter deep sleep state
   Log.noticeln("Entering deep sleep mode in 5 seconds");
 
