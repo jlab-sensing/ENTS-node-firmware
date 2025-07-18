@@ -81,7 +81,7 @@ static const uint16_t kFramBufferSize = FRAM_BUFFER_END - FRAM_BUFFER_START + 1;
  * @param    num_bytes The number of bytes to be written.
  * @return   See FramStatus
  */
-FramStatus FramPut(const uint8_t *data, uint16_t num_bytes);
+FramStatus FramPut(const uint8_t *data, size_t num_bytes);
 
 /**
  * @brief    Reads a measurement from the queue
@@ -91,7 +91,7 @@ FramStatus FramPut(const uint8_t *data, uint16_t num_bytes);
  * @param    len Length of data
  * @return   See FramStatus
  */
-FramStatus FramGet(uint8_t *data, size_t *len);
+FramStatus FramGet(uint8_t *data, uint8_t *len);
 
 /**
  * @brief Get the current number of measurements stored in the buffer

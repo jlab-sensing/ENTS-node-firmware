@@ -61,16 +61,16 @@ static uint16_t get_remaining_space(void) {
   return remaining_space;
 }
 
-FramStatus FramPut(const uint8_t *data, const uint16_t num_bytes) {
+FramStatus FramPut(const uint8_t *data, const size_t num_bytes) {
   // check remaining space
   if (num_bytes > get_remaining_space()) {
     return FRAM_BUFFER_FULL;
   }
 
-  FramStatus status;
+  FramStatus status = FRAM_OK;
 
   // write single byte length to buffer
-  status = FramWrite(write_addr, (uint8_t *)&num_bytes, 1);
+  status = FramWrite(write_addr, &num_bytes, 1);
   if (status != FRAM_OK) {
     return status;
   }
@@ -80,7 +80,7 @@ FramStatus FramPut(const uint8_t *data, const uint16_t num_bytes) {
   // if the data must wraparound, then make two writes
   if (write_addr + num_bytes > (FRAM_BUFFER_END + 1)) {
     // write up to the buffer end
-    uint8_t num_bytes_first_half = (FRAM_BUFFER_END + 1) - write_addr;
+    size_t num_bytes_first_half = (FRAM_BUFFER_END + 1) - write_addr;
     status = FramWrite(write_addr, data, num_bytes_first_half);
     if (status != FRAM_OK) {
       return status;
@@ -108,7 +108,7 @@ FramStatus FramPut(const uint8_t *data, const uint16_t num_bytes) {
   return FRAM_OK;
 }
 
-FramStatus FramGet(uint8_t *data, size_t *len) {
+FramStatus FramGet(uint8_t *data, uint8_t *len) {
   // Check if buffer is empty
   if (buffer_len == 0) {
     return FRAM_BUFFER_EMPTY;
@@ -126,7 +126,7 @@ FramStatus FramGet(uint8_t *data, size_t *len) {
   // if the data must wraparound, then make two reads
   if (read_addr + *len > (FRAM_BUFFER_END + 1)) {
     // read up to the buffer end
-    uint8_t len_first_half = (FRAM_BUFFER_END + 1) - read_addr;
+    size_t len_first_half = (FRAM_BUFFER_END + 1) - read_addr;
     status = FramRead(read_addr, len_first_half, data);
     if (status != FRAM_OK) {
       return status;
