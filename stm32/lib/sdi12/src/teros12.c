@@ -32,7 +32,6 @@ SDI12Status Teros12GetMeasurement(char addr, Teros12Data *data) {
   }
 
   // parse measurement into data structure
-  size_t buffer_len = 5;
   status = Teros12ParseMeasurement(buffer, data);
   if (status != SDI12_OK) {
     return status;

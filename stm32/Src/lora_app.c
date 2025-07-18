@@ -461,13 +461,22 @@ static void SendTxData(void)
   uint8_t battery_level = GetBatteryLevel();
   uint16_t temperature = SYS_GetTemperatureLevel();
 
-  FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
+  size_t size = 0;
+  FramStatus status = FramGet(AppData.Buffer, &size);
   if (status != FRAM_OK)
   {
     APP_LOG(TS_OFF, VLEVEL_M,
             "Error getting data from fram buffer. FramStatus = %d", status);
     return;
   }
+  if (size > LORAWAN_APP_DATA_BUFFER_MAX_SIZE)
+  {
+    APP_LOG(TS_OFF, VLEVEL_M, "Data size exceeds buffer size\r\n");
+    return;
+  } else {
+    AppData.BufferSize = (uint8_t) size;
+  }
+
 
   APP_LOG(TS_ON, VLEVEL_M, "Payload: ");
   for (int i = 0; i < AppData.BufferSize; i++)

@@ -108,7 +108,7 @@ FramStatus FramPut(const uint8_t *data, const uint16_t num_bytes) {
   return FRAM_OK;
 }
 
-FramStatus FramGet(uint8_t *data, uint8_t *len) {
+FramStatus FramGet(uint8_t *data, size_t *len) {
   // Check if buffer is empty
   if (buffer_len == 0) {
     return FRAM_BUFFER_EMPTY;
