@@ -7,12 +7,11 @@
 #include <unity.h>
 
 #include "board.h"
+#include "fram.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
 #include "usart.h"
-
-#include "fram.h"
 
 void setUp(void) {}
 

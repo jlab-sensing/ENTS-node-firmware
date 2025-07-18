@@ -15,11 +15,10 @@
 #include "board.h"
 #include "gpio.h"
 #include "main.h"
-#include "usart.h"
-
 #include "pb_decode.h"
 #include "pb_encode.h"
 #include "soil_power_sensor.pb.h"
+#include "usart.h"
 
 #ifndef UNIX_EPOCHS
 /** Unix epochs encoded in timestamp. Default corresponds to Mon Nov 27 2023

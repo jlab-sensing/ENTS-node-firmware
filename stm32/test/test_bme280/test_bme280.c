@@ -14,8 +14,8 @@
 #include <stdio.h>
 #include <unity.h>
 
-#include "board.h"
 #include "bme280_sensor.h"
+#include "board.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"

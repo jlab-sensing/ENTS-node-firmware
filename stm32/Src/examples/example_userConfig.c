@@ -4,9 +4,9 @@
  */
 
 // system includes
-#include "main.h"
 #include "board.h"
 #include "gpio.h"
+#include "main.h"
 #include "rtc.h"
 
 // user includes
@@ -153,4 +153,3 @@ int main(void) {
   }
   /* USER CODE END 3 */
 }
-

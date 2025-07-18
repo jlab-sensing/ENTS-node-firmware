@@ -24,6 +24,7 @@
 // system
 #include "adc.h"
 #include "app_lorawan.h"
+#include "board.h"
 #include "dma.h"
 #include "gpio.h"
 #include "i2c.h"
@@ -32,7 +33,6 @@
 #include "stm32_timer.h"
 #include "sys_app.h"
 #include "usart.h"
-#include "board.h"
 
 // user
 #include "ads.h"
@@ -153,4 +153,3 @@ int main(void) {
     /* USER CODE END 3 */
   }
 }
-

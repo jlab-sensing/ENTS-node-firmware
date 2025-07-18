@@ -8,12 +8,11 @@
 #include <unity.h>
 
 #include "board.h"
+#include "fifo.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
 #include "usart.h"
-
-#include "fifo.h"
 
 void setUp(void) { FramBufferClear(); }
 

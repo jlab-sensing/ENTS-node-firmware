@@ -15,9 +15,9 @@
 #include "dma.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "rtc.h"
 #include "sys_app.h"
 #include "usart.h"
-#include "rtc.h"
 
 // user includes
 #include "ads.h"
@@ -28,9 +28,7 @@
  * @retval int
  */
 int main(void) {
-
   HAL_Init();
-
 
   SystemClock_Config();
 
@@ -80,4 +78,3 @@ int main(void) {
   }
   /* USER CODE END 3 */
 }
-

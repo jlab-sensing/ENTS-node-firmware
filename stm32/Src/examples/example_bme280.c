@@ -74,4 +74,3 @@ int main(void) {
             data.temperature, data.humidity);
   }
 }
-

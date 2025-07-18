@@ -25,8 +25,8 @@
 #include <stdio.h>
 
 #include "adc.h"
-#include "board.h"
 #include "battery.h"
+#include "board.h"
 #include "dma.h"
 #include "fifo.h"
 #include "fram.h"
@@ -96,4 +96,3 @@ int main(void) {
     HAL_Delay(500);
   }
 }
-

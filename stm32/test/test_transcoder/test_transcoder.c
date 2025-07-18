@@ -27,9 +27,8 @@
 #include "board.h"
 #include "gpio.h"
 #include "main.h"
-#include "usart.h"
-
 #include "transcoder.h"
+#include "usart.h"
 
 /**
  * @brief Setup code that runs at the start of every test

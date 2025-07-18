@@ -10,9 +10,8 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
-#include "usart.h"
-
 #include "sdi12.h"
+#include "usart.h"
 
 void setUp(void) {}
 
@@ -77,4 +76,3 @@ int main(void) {
   UNITY_END();
   /* USER CODE END 3 */
 }
-

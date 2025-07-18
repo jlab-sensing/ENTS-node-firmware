@@ -90,4 +90,3 @@ int main(void) {
     // HAL_Delay(DELAY);
   }
 }
-

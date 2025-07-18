@@ -14,9 +14,8 @@
 #include "board.h"
 #include "gpio.h"
 #include "main.h"
-#include "usart.h"
-
 #include "page.h"
+#include "usart.h"
 
 /**
  * @brief Setup code that runs at the start of every test
@@ -307,4 +306,3 @@ int main(void) {
 
   UNITY_END();
 }
-

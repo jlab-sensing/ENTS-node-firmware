@@ -10,7 +10,6 @@
 #include <unity.h>
 
 #include "board.h"
-
 #include "gpio.h"
 #include "main.h"
 #include "usart.h"
