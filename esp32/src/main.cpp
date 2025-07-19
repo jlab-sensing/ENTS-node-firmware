@@ -11,6 +11,7 @@
 
 #include "module_handler.hpp"
 #include "modules/wifi.hpp"
+#include "modules/microsd.hpp"
 
 /** Target device address */
 static const uint8_t dev_addr = 0x20;
@@ -64,9 +65,13 @@ RESET!
 
   Log.noticeln("Starting i2c interface...");
 
-  // create adn register the WiFi module
+  // create and register the WiFi module
   static ModuleWiFi wifi;
   mh.RegisterModule(&wifi);
+
+  // create and register the microSD module
+  static ModuleMicroSD microSD;
+  mh.RegisterModule(&microSD);
 
   // start i2c interface
   Wire.onReceive(onReceive);

@@ -1,5 +1,5 @@
 /**
- * @file example_sdcard.cpp
+ * @file example_microsd.cpp
  * @author Jack Lin <jlin143@ucsc.edu>
  * @brief Example program for interfacing with an SD card.
  * @date 2025-05-22
@@ -35,7 +35,7 @@ void setup() {
   Serial.begin(115200);
 
   Serial.printf(
-      "ents-node esp32 example_sdcard firmware, compiled at %s %s\r\n",
+      "ents-node esp32 example_microsd firmware, compiled at %s %s\r\n",
       __DATE__, __TIME__);
   Serial.printf("Git SHA: %s\r\n\r\n\r\n", GIT_REV);
 
