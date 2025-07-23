@@ -79,6 +79,7 @@ void SensorsInit(void) {
 void SensorsStart(void) {
   // start the timer
   UTIL_TIMER_Start(&MeasureTimer);
+  SensorsRun();
 }
 
 void SensorsStop(void) {
@@ -109,6 +110,12 @@ void SensorsMeasure(void) {
   for (int i = 0; i < callback_arr_len; i++) {
     // call measurement function
     buffer_len = callback_arr[i](buffer);
+
+    if (buffer_len == ((size_t)-1)) {
+      APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");
+      return;
+    }
+
     APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
@@ -120,9 +127,9 @@ void SensorsMeasure(void) {
     // add to tx buffer
     FramStatus status = FramPut(buffer, buffer_len);
     if (status == FRAM_BUFFER_FULL) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Error: TX Buffer full!\r\n");
+      APP_LOG(TS_ON, VLEVEL_M, "Error: TX Buffer full!\r\n");
     } else if (status != FRAM_OK) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Error: General FRAM buffer!\r\n");
+      APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
     }
   }
 }
