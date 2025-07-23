@@ -1,5 +1,7 @@
 #include "page.h"
 
+#include <stdlib.h>
+
 /**
  * @brief Block size of the i2c communication
  *
@@ -186,9 +188,9 @@ void PageClose(Page *page) {
   page->open = false;
 }
 
-inline size_t PageSize(void) { return size; }
+size_t PageSize(void) { return size; }
 
-inline bool PageEmpty(void) {
+bool PageEmpty(void) {
   if ((front == NULL) && (back == NULL) && (size == 0)) {
     return true;
   } else {

@@ -12,9 +12,9 @@
 #include <stdio.h>
 #include <unity.h>
 
+#include "board.h"
 #include "gpio.h"
 #include "main.h"
-#include "main_helper.h"
 #include "pb_decode.h"
 #include "pb_encode.h"
 #include "soil_power_sensor.pb.h"
@@ -30,8 +30,6 @@
 /** Delta between comparison between floating point numbers */
 #define FLOAT_DELTA 1e-4
 #endif /* FLOAT_DELTA */
-
-void SystemClock_Config(void);
 
 /** Buffer for encoded data */
 uint8_t buffer[256];
@@ -296,9 +294,7 @@ int main(void) {
   MX_USART1_UART_Init();
 
   // wait for UART
-  for (int i = 0; i < 10000000; i++) {
-    __NOP();
-  }
+  WaitForSerial();
 
   // Unit testing
   UNITY_BEGIN();

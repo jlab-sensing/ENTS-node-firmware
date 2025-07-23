@@ -15,14 +15,12 @@
 #include <unity.h>
 
 #include "bme280_sensor.h"
+#include "board.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
-#include "main_helper.h"
 #include "sys_app.h"
 #include "usart.h"
-
-void SystemClock_Config(void);
 
 /**
  * @brief Setup code that runs at the start of every test
@@ -98,9 +96,7 @@ int main(void) {
   MX_I2C2_Init();
 
   // wait for UART
-  for (int i = 0; i < 1000000; i++) {
-    __NOP();
-  }
+  WaitForSerial();
 
   // Unit testing
   UNITY_BEGIN();

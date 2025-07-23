@@ -77,6 +77,26 @@ size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
                                 uint8_t *buffer);
 
 /**
+ * @brief Encodes a Teros21 measurement
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param matric_pot Matric potential
+ * @param temp Temperature in celsius
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
+                                uint32_t cell_id, double matric_pot,
+                                double temp, uint8_t *buffer);
+
+/**
  * @brief Encodes a Phytos31 measurement
  *
  * Currently only the voltage measurement is used. Leaf wetness will

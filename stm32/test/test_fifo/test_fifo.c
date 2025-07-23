@@ -7,11 +7,11 @@
 #include <stdio.h>
 #include <unity.h>
 
+#include "board.h"
 #include "fifo.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
-#include "main_helper.h"
 #include "usart.h"
 
 void setUp(void) { FramBufferClear(); }
@@ -341,9 +341,7 @@ int main(void) {
   /* USER CODE BEGIN 2 */
 
   // wait for UART
-  for (int i = 0; i < 1000000; i++) {
-    __NOP();
-  }
+  WaitForSerial();
 
   UNITY_BEGIN();
   // other tests depend on the following two

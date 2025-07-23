@@ -59,7 +59,7 @@ void SensorsMeasure(void);
  *
  * The task priority is set to 0 to trigger the measurement of sensors.
  */
-void SensorsRun(void);
+void SensorsRun(void *arg);
 
 void SensorsInit(void) {
   // set upload interval
@@ -79,7 +79,7 @@ void SensorsInit(void) {
 void SensorsStart(void) {
   // start the timer
   UTIL_TIMER_Start(&MeasureTimer);
-  SensorsRun();
+  SensorsRun(NULL);
 }
 
 void SensorsStop(void) {
@@ -143,7 +143,7 @@ size_t SensorsMeasureTest(uint8_t *data) {
   return sizeof(static_data);
 }
 
-void SensorsRun(void) {
+void SensorsRun(void *arg) {
   // trigger task to run
   UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_Measurement), CFG_SEQ_Prio_0);
 }

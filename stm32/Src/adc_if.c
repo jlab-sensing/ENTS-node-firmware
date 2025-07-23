@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "adc_if.h"
 #include "sys_app.h"
+#include "board.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -61,7 +62,7 @@ extern ADC_HandleTypeDef hadc;
 /* USER CODE BEGIN PV */
 
 /** Volatile DMA storage of ADC readings */
-volatile uint32_t adc_values_dma[ADC_CHANNELS];
+uint32_t adc_values_dma[ADC_CHANNELS];
 
 /** Static storage of ADC readings */
 uint32_t adc_values[ADC_CHANNELS];
@@ -88,7 +89,7 @@ static uint32_t ADC_ReadChannels(uint32_t channel);
 void SYS_InitMeasurement(void)
 {
   /* USER CODE BEGIN SYS_InitMeasurement_1 */
-  HAL_StatusTypeDef rc;
+  HAL_StatusTypeDef rc = HAL_OK;
   /* USER CODE END SYS_InitMeasurement_1 */
   hadc.Instance = ADC;
   /* USER CODE BEGIN SYS_InitMeasurement_2 */
@@ -110,7 +111,7 @@ void SYS_InitMeasurement(void)
 void SYS_DeInitMeasurement(void)
 {
   /* USER CODE BEGIN SYS_DeInitMeasurement_1 */
-  HAL_StatusTypeDef rc;
+  HAL_StatusTypeDef rc = HAL_OK;
   HAL_ADC_Stop_DMA(&hadc);
   if (rc != HAL_OK) Error_Handler();
 

@@ -291,7 +291,7 @@ void UserConfigPrint(void) {
   APP_PRINTF("Upload Interval: %u\r\n", config->Upload_interval);
 
   for (int i = 0; i < config->enabled_sensors_count; i++) {
-    const char *sensor_name;
+    const char *sensor_name = NULL;
     switch (config->enabled_sensors[i]) {
       case 0:
         sensor_name = "Voltage";
