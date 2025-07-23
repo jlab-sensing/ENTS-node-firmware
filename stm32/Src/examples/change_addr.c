@@ -21,8 +21,8 @@
 #include <stdlib.h>
 
 #include "adc.h"
-#include "board.h"
 #include "app_lorawan.h"
+#include "board.h"
 #include "dma.h"
 #include "gpio.h"
 #include "i2c.h"
@@ -93,4 +93,3 @@ int main(void) {
 
   while (1);
 }
-
