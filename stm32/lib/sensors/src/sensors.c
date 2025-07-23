@@ -79,7 +79,7 @@ void SensorsInit(void) {
 void SensorsStart(void) {
   // start the timer
   UTIL_TIMER_Start(&MeasureTimer);
-  SensorsRun();
+  SensorsRun(NULL);
 }
 
 void SensorsStop(void) {

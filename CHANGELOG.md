@@ -10,10 +10,22 @@ firmware versions for a hardware version.
 
 ## [Unreleased] - TBD
 
+### Added
+
+- Example to force esp32 in deep sleep [#207](i207)
+- Utility to change SDI-12 sensor address [#210](i210)
+
 ### Updated
 
 - Changed WiFi code to instantly upload [#249](pr249)
 
+### Fixed
+
+- Clock configuration consistance between main, examples, tests [#252](i252)
+
+[i207]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/207
+[i210]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/210
+[i252]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/252
 [pr249]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/249
 
 ## [2.3.3] - 2025-06-18

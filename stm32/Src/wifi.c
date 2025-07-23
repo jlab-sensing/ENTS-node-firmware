@@ -11,6 +11,35 @@
 #include "sys_app.h"
 #include "userConfig.h"
 
+#include "main.h"
+#include "adc.h"
+#include "dma.h"
+#include "i2c.h"
+#include "app_lorawan.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
+#include "board.h"
+
+#include <stdio.h>
+
+#include "sys_app.h"
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include "ads.h"
+#include "phytos31.h"
+#include "bme280_sensor.h"
+#include "rtc.h"
+#include "sensors.h"
+#include "wifi.h"
+#include "controller/controller.h"
+#include "controller/wifi.h"
+#include "userConfig.h"
+#include "teros12.h"
+#include "teros21.h"
+#include "status_led.h"
+
 /**
  * @brief Timer for uploads
  *
