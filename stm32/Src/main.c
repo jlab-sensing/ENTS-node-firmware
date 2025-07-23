@@ -45,8 +45,6 @@
 #include "teros21.h"
 #include "status_led.h"
 
-void SystemClock_Config(void);
-
 /**
   * @brief  The application entry point.
   * @retval int

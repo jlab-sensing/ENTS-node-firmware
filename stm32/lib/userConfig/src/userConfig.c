@@ -32,7 +32,7 @@ static bool checked;
 const static UserConfiguration testConfig = {
     .logger_id = 200,
     .cell_id = 200,
-    .Upload_method = Uploadmethod_WiFi,
+    .Upload_method = Uploadmethod_LoRa,
     .Upload_interval = 10,
     .enabled_sensors_count = 1,
     .enabled_sensors = {EnabledSensor_Voltage},
