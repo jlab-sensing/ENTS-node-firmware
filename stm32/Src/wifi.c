@@ -2,18 +2,18 @@
 
 #include <stm32_systime.h>
 
-#include "sys_app.h"
+#include "controller/wifi.h"
+#include "fifo.h"
 #include "sensors.h"
+#include "status_led.h"
 #include "stm32_seq.h"
 #include "stm32_timer.h"
-#include "fifo.h"
-#include "controller/wifi.h"
+#include "sys_app.h"
 #include "userConfig.h"
-#include "status_led.h"
 
 /**
  * @brief Timer for uploads
- * 
+ *
  */
 static UTIL_TIMER_Object_t UploadTimer = {};
 
@@ -27,17 +27,16 @@ const unsigned int max_retries = 5;
  */
 const unsigned int retry_delay = 1000;
 
-
 /**
  * @brief Function call for upload event
- * 
+ *
  * @param context Timer context.
  */
-void UploadEvent(void *context);
+void UploadEvent(void* context);
 
 /**
  * @brief Upload data to hub
- * 
+ *
  * Posts data to configured url.
  */
 void Upload(void);
@@ -60,7 +59,7 @@ bool Disconnect(void);
 
 /**
  * @brief Timesync with NTP server
- * 
+ *
  * @return error status, false if successful, true if error
  */
 bool TimeSync(void);
@@ -74,7 +73,7 @@ bool Check(void);
 
 /**
  * @brief Setup upload timer
- * 
+ *
  * Start sensor measurements and setup upload task/timer.
  */
 void StartUploads(void);
@@ -117,8 +116,10 @@ void WiFiInit(void) {
   StartUploads();
 }
 
-void UploadEvent(void *context) {
-  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_WiFiUpload), CFG_SEQ_Prio_0);
+void UploadEvent(void* context) {
+  UTIL_SEQ_SetTask(
+      (1 << CFG_SEQ_Task_WiFiUpload),
+      CFG_SEQ_Prio_1);  // lower priority (higher value) than measure task
 }
 
 void Upload(void) {
@@ -133,26 +134,26 @@ void Upload(void) {
       APP_LOG(TS_OFF, VLEVEL_M, "Buffer empty!\r\n")
     } else {
       APP_LOG(TS_OFF, VLEVEL_M,
-          "Error getting data from fram buffer. FramStatus = %d\r\n", status);
+              "Error getting data from fram buffer. FramStatus = %d\r\n",
+              status);
     }
     return;
   }
 
   // print buffer
   APP_LOG(TS_ON, VLEVEL_M, "Payload[%d]: ", buffer_len);
-  for (int i = 0; i < buffer_len; i++)
-  {
+  for (int i = 0; i < buffer_len; i++) {
     APP_LOG(TS_OFF, VLEVEL_M, "%x ", buffer[i]);
   }
   APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
- 
+
   // posts data to website
   APP_LOG(TS_ON, VLEVEL_M, "Uploading data.");
   if (!ControllerWiFiPost(buffer, buffer_len)) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error! Could not communicate with esp32!\r\n");
   }
-    
-  for (unsigned int retries = 0;; retries++) { 
+
+  for (unsigned int retries = 0;; retries++) {
     HAL_Delay(retry_delay);
     APP_LOG(TS_OFF, VLEVEL_M, ".");
 
@@ -164,9 +165,13 @@ void Upload(void) {
     } else {
       // check category of error
       if (resp.http_code == 0) {
-        APP_LOG(TS_OFF, VLEVEL_M, "Error when posting data! Likely error with WiFi or response timeout.\r\n");
+        APP_LOG(TS_OFF, VLEVEL_M,
+                "Error when posting data! Likely error with WiFi or response "
+                "timeout.\r\n");
       } else {
-        APP_LOG(TS_OFF, VLEVEL_M, "Error with HTTP code! Likely error with measurement format or backend.\r\n");
+        APP_LOG(TS_OFF, VLEVEL_M,
+                "Error with HTTP code! Likely error with measurement format or "
+                "backend.\r\n");
       }
 
       // give up after max retries and tirgger error handler
@@ -176,9 +181,8 @@ void Upload(void) {
         return;
       }
     }
-
   }
-  
+
   if (FramBufferLen() > 0) {
     APP_LOG(TS_ON, VLEVEL_M, "Buffer not empty, starting another upload\r\n");
     UploadEvent(NULL);
@@ -195,12 +199,14 @@ void StartUploads(void) {
 
   // get upload period from user config
   const UserConfiguration* cfg = UserConfigGet();
-  UTIL_TIMER_Time_t UploadPeriod = cfg->Upload_interval * 1000; 
+  UTIL_TIMER_Time_t UploadPeriod = cfg->Upload_interval * 1000;
 
   // setup upload task
   APP_LOG(TS_ON, VLEVEL_M, "Starting upload task...\t")
   UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_WiFiUpload), UTIL_SEQ_RFU, Upload);
-  UTIL_TIMER_Create(&UploadTimer, UploadPeriod, UTIL_TIMER_PERIODIC, UploadEvent, NULL);
+  UploadEvent(NULL);
+  UTIL_TIMER_Create(&UploadTimer, UploadPeriod, UTIL_TIMER_PERIODIC,
+                    UploadEvent, NULL);
   UTIL_TIMER_Start(&UploadTimer);
   APP_LOG(TS_OFF, VLEVEL_M, "Started!\r\n");
 }
@@ -239,35 +245,39 @@ bool Connect(void) {
 
   const char* ssid = cfg->WiFi_SSID;
   const char* passwd = cfg->WiFi_Password;
- 
+
   APP_LOG(TS_ON, VLEVEL_M, "Connecting to %s.", ssid);
   if (!ControllerWiFiConnect(ssid, passwd)) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error! Could not communicate with esp32!\r\n");
     return false;
   }
 
-  for (unsigned int retries=0; ; retries++) {
+  for (unsigned int retries = 0;; retries++) {
     HAL_Delay(retry_delay);
     APP_LOG(TS_OFF, VLEVEL_M, ".")
 
     ControllerWiFiStatus status = ControllerWiFiCheckWiFi();
     if (status == CONTROLLER_WIFI_CONNECTED) {
       break;
-    } else if (status == CONTROLLER_WIFI_DISCONNECTED) {
-      continue;
     } else {
       if (retries >= max_retries) {
-        if (status == CONTROLLER_WIFI_NO_SSID_AVAIL) {
+        APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n",
+                retries);
+        return false;
+      } else {
+        if (status == CONTROLLER_WIFI_DISCONNECTED) {
+          continue;
+        } else if (status == CONTROLLER_WIFI_NO_SSID_AVAIL) {
           APP_LOG(TS_OFF, VLEVEL_M, "Error! No SSID available!\r\n");
+          return false;
         } else if (status == CONTROLLER_WIFI_CONNECT_FAILED) {
           APP_LOG(TS_OFF, VLEVEL_M, "Error! Connect failed!\r\n");
-        } else {
-          APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n", retries);
+          return false;
         }
-        return false;
       }
     }
   }
+
   APP_LOG(TS_OFF, VLEVEL_M, "Connected!\r\n");
 
   return true;
@@ -280,7 +290,7 @@ bool Disconnect(void) {
     return false;
   }
 
-  for (unsigned int retries=0; ; retries++) {
+  for (unsigned int retries = 0;; retries++) {
     HAL_Delay(retry_delay);
     APP_LOG(TS_OFF, VLEVEL_M, ".")
 
@@ -291,7 +301,8 @@ bool Disconnect(void) {
       break;
     } else {
       if (retries >= max_retries) {
-        APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n", retries);
+        APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n",
+                retries);
         return false;
       }
     }
@@ -310,24 +321,24 @@ bool TimeSync(void) {
     return false;
   }
 
-  for (unsigned int retries = 0; ; retries++) {
+  for (unsigned int retries = 0;; retries++) {
     HAL_Delay(retry_delay);
     APP_LOG(TS_OFF, VLEVEL_M, ".");
 
     ts.Seconds = ControllerWiFiTime();
-  
+
     // check for errors
     if (ts.Seconds != 0) {
       break;
     } else {
       if (retries >= max_retries) {
-        APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n", retries);
+        APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n",
+                retries);
         return false;
       }
     }
+  }
 
-  } 
-  
   SysTimeSet(ts);
 
   APP_LOG(TS_OFF, VLEVEL_M, "Done!\r\n");
@@ -338,10 +349,10 @@ bool TimeSync(void) {
 
 bool Check(void) {
   const UserConfiguration* cfg = UserConfigGet();
-  
-  //const char url[] = "dirtviz.jlab.ucsc.edu";
-  //const uint32_t port = 80;
-  
+
+  // const char url[] = "dirtviz.jlab.ucsc.edu";
+  // const uint32_t port = 80;
+
   const char* url = cfg->API_Endpoint_URL;
 
   APP_LOG(TS_OFF, VLEVEL_M, "Checking API health.");
@@ -349,8 +360,8 @@ bool Check(void) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error! Could not communicate with esp32!\r\n");
     return false;
   }
-  
-  for (unsigned int retries = 0;; retries++) { 
+
+  for (unsigned int retries = 0;; retries++) {
     APP_LOG(TS_OFF, VLEVEL_M, ".");
 
     ControllerWiFiResponse resp = ControllerWiFiCheckRequest();
@@ -361,9 +372,13 @@ bool Check(void) {
     } else {
       // check category of error
       if (resp.http_code == 0) {
-        APP_LOG(TS_OFF, VLEVEL_M, "Error when posting data! Likely error with WiFi or response timeout.\r\n");
+        APP_LOG(TS_OFF, VLEVEL_M,
+                "Error when posting data! Likely error with WiFi or response "
+                "timeout.\r\n");
       } else {
-        APP_LOG(TS_OFF, VLEVEL_M, "Error with HTTP code! Likely error with measurement format or backend.\r\n");
+        APP_LOG(TS_OFF, VLEVEL_M,
+                "Error with HTTP code! Likely error with measurement format or "
+                "backend.\r\n");
       }
 
       // give up after max retries and tirgger error handler

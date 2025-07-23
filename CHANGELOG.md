@@ -8,6 +8,14 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
+## [Unreleased] - TBD
+
+### Updated
+
+- Changed WiFi code to instantly upload [#249](pr249)
+
+[pr249]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/249
+
 ## [2.3.3] - 2025-06-18
 
 - Fixed missing fields when decoding messages [#243](i243)
