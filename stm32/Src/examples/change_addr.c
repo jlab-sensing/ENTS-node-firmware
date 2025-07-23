@@ -42,41 +42,46 @@ int main(void) {
   SystemApp_Init();
 
   // Print the compilation time at startup
-  APP_LOG(TS_OFF, VLEVEL_M, "Utility to change address of SDI-12 based sensor, compiled on %s %s\r\n", __DATE__,
-          __TIME__);
-
+  APP_LOG(
+      TS_OFF, VLEVEL_M,
+      "Utility to change address of SDI-12 based sensor, compiled on %s %s\r\n",
+      __DATE__, __TIME__);
 
   char addr = 0;
 
   SDI12Status status = SDI12_OK;
   status = SDI12GetAddress(&addr, 5000);
   if (status != SDI12_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Failed to get address of device: %d\r\n", status);
-    APP_LOG(TS_OFF, VLEVEL_M, "Make sure the device is connected and powered on.\r\n");
+    APP_LOG(TS_OFF, VLEVEL_M, "Failed to get address of device: %d\r\n",
+            status);
+    APP_LOG(TS_OFF, VLEVEL_M,
+            "Make sure the device is connected and powered on.\r\n");
     while (1);  // infinite loop at program end
   }
 
   APP_LOG(TS_OFF, VLEVEL_M, "Current address: %c\r\n", addr);
-  
+
   HAL_Delay(1000);
-  
-  // change the address 
+
+  // change the address
   APP_LOG(TS_OFF, VLEVEL_M, "Changing address to 0\r\n");
   char new_addr[] = "xA0!";
   new_addr[0] = addr;
   status = SDI12SendCommand(new_addr, sizeof(new_addr));
-  
+
   HAL_Delay(1000);
-  
+
   status = SDI12_OK;
   status = SDI12GetAddress(&addr, 5000);
   if (status != SDI12_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Failed to get address of device: %d\r\n", status);
-    APP_LOG(TS_OFF, VLEVEL_M, "Make sure the device is connected and powered on.\r\n");
+    APP_LOG(TS_OFF, VLEVEL_M, "Failed to get address of device: %d\r\n",
+            status);
+    APP_LOG(TS_OFF, VLEVEL_M,
+            "Make sure the device is connected and powered on.\r\n");
     while (1);  // infinite loop at program end
   }
   APP_LOG(TS_OFF, VLEVEL_M, "Current address: %c\r\n", addr);
-  
+
   while (1);
 }
 

@@ -186,7 +186,7 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
   return ret;
 }
 
-SDI12Status SDI12GetAddress(char * addr, uint16_t timeoutMillis) {
+SDI12Status SDI12GetAddress(char *addr, uint16_t timeoutMillis) {
   SDI12Status ret = SDI12_OK;
 
   // query the sensor

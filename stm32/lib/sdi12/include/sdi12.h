@@ -117,7 +117,7 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
  *
  * @return SDI12Status
  */
-SDI12Status SDI12GetAddress(char * addr, uint16_t timeoutMillis);
+SDI12Status SDI12GetAddress(char *addr, uint16_t timeoutMillis);
 
 /**
  * @}
