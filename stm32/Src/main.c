@@ -17,41 +17,40 @@
  */
 
 #include "main.h"
-#include "adc.h"
-#include "dma.h"
-#include "i2c.h"
-#include "app_lorawan.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
-#include "board.h"
 
-#include <stdio.h>
-
-#include "sys_app.h"
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
+#include "adc.h"
 #include "ads.h"
-#include "phytos31.h"
+#include "app_lorawan.h"
 #include "bme280_sensor.h"
-#include "rtc.h"
-#include "sensors.h"
-#include "wifi.h"
+#include "board.h"
 #include "controller/controller.h"
 #include "controller/wifi.h"
-#include "userConfig.h"
+#include "dma.h"
+#include "gpio.h"
+#include "i2c.h"
+#include "phytos31.h"
+#include "rtc.h"
+#include "sensors.h"
+#include "status_led.h"
+#include "sys_app.h"
 #include "teros12.h"
 #include "teros21.h"
-#include "status_led.h"
+#include "tim.h"
+#include "usart.h"
+#include "userConfig.h"
+#include "wifi.h"
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+ * @brief  The application entry point.
+ * @retval int
+ */
+int main(void) {
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick.
+   */
   HAL_Init();
 
   /* Configure the system clock */
@@ -62,7 +61,7 @@ int main(void)
   MX_DMA_Init();
   MX_ADC_Init();
   MX_USART1_UART_Init();
-  MX_I2C2_Init(); 
+  MX_I2C2_Init();
   SystemApp_Init();
 
   // Start status LEDs
@@ -77,7 +76,7 @@ int main(void)
     // TODO implement status code with LED
 
     // Wait for new configuration
-    //UserConfig_ProcessDataPolling();
+    // UserConfig_ProcessDataPolling();
     UserConfig_InitAdvanceTrace();
     while (1);
   }
@@ -91,33 +90,35 @@ int main(void)
 
   // initialize the user config interrupt
   UserConfig_InitAdvanceTrace();
-  
+
   // placeholder for UserConfig polling
   HAL_Delay(10000);
 
   // alternative blocking polling method
-  //UserConfig_ProcessDataPolling();
+  // UserConfig_ProcessDataPolling();
 
   // currently not functional
-  //FIFO_Init();
+  // FIFO_Init();
 
   // Debug message, gets printed after init code
-  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
+  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__,
+             __TIME__);
   APP_PRINTF("Git SHA: %s\n", GIT_REV);
 
-  // initialize esp32 controller module  
+  // initialize esp32 controller module
   ControllerInit();
 
   // get the current user config
   const UserConfiguration* cfg = UserConfigGet();
-  
+
   // init senors interface
   SensorsInit();
 
   // configure enabled sensors
-  for (int i=0; i < cfg->enabled_sensors_count; i++) {
+  for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
-    if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
+    if ((sensor == EnabledSensor_Voltage) ||
+        (sensor == EnabledSensor_Current)) {
       ADC_init();
       SensorsAdd(ADC_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
@@ -137,7 +138,7 @@ int main(void)
     }
     // TODO add support for dummy sensor
   }
- 
+
   StatusLedFlashFast();
 
   // init either WiFi or LoRaWAN
@@ -148,11 +149,9 @@ int main(void)
   } else {
     APP_LOG(TS_ON, VLEVEL_M, "Invalid upload method!\n");
     Error_Handler();
-  } 
-  
-  while (1)
-  {
+  }
+
+  while (1) {
     MX_LoRaWAN_Process();
   }
 }
-
