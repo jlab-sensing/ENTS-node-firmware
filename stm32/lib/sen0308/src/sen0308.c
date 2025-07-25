@@ -36,7 +36,7 @@ SEN0308_measurments SEN0308GetMeasurment() {
    return measurments;
  }
  
- size_t CapSoil_measure(uint8_t* data) {
+ size_t SEN0308_measure(uint8_t* data) {
    // get timestamp
    SysTime_t ts = SysTimeGet();
    SEN0308_measurments measurment;

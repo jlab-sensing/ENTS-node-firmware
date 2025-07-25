@@ -180,9 +180,9 @@ int main(void)
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
       ADC_init();
       //SensorsAdd(ADC_measure);
-      SensorsAdd(CapSoil_measure());
+      SensorsAdd(SEN0308_measure);
       //APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
-      APP_LOG(TS_OFF, VLEVEL_M, "Capacitive Soil Moisture Enabled!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
       APP_LOG(TS_OFF, VLEVEL_M, "Teros12 Enabled!\n");
