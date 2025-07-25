@@ -117,12 +117,12 @@ typedef struct _BME280Measurement {
 } BME280Measurement;
 
 /* Capactive Soil Moister Measurement */
-typedef struct _CapSoilMeasurment {
+typedef struct _SEN0308Measurment {
     /* voltage */
     double voltage;
-    /* moister */
-    double moister;
-} CapSoilMeasurment;
+    /* humidity */
+    double humidity;
+} SEN0308Measurment;
 
 /* Water Pressure Sensor */
 typedef struct _SEN0257Measurement {
@@ -144,7 +144,7 @@ typedef struct _Measurement {
         Phytos31Measurement phytos31;
         BME280Measurement bme280;
         Teros21Measurement teros21;
-        CapSoilMeasurment capSoil;
+        SEN0308Measurment sen0308;
         SEN0257Measurement sen0257;
     } measurement;
 } Measurement;
@@ -281,7 +281,7 @@ extern "C" {
 #define Teros21Measurement_init_default          {0, 0}
 #define Phytos31Measurement_init_default         {0, 0}
 #define BME280Measurement_init_default           {0, 0, 0}
-#define CapSoilMeasurment_init_default           {0, 0}
+#define SEN0308Measurment_init_default           {0, 0}
 #define SEN0257Measurement_init_default          {0, 0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
@@ -296,7 +296,7 @@ extern "C" {
 #define Teros21Measurement_init_zero             {0, 0}
 #define Phytos31Measurement_init_zero            {0, 0}
 #define BME280Measurement_init_zero              {0, 0, 0}
-#define CapSoilMeasurment_init_zero              {0, 0}
+#define SEN0308Measurment_init_zero              {0, 0}
 #define SEN0257Measurement_init_zero             {0, 0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
@@ -323,8 +323,8 @@ extern "C" {
 #define BME280Measurement_pressure_tag           1
 #define BME280Measurement_temperature_tag        2
 #define BME280Measurement_humidity_tag           3
-#define CapSoilMeasurment_voltage_tag            1
-#define CapSoilMeasurment_moister_tag            2
+#define SEN0308Measurment_voltage_tag            1
+#define SEN0308Measurment_humidity_tag           2
 #define SEN0257Measurement_voltage_tag           1
 #define SEN0257Measurement_pressure_tag          2
 #define Measurement_meta_tag                     1
@@ -333,7 +333,7 @@ extern "C" {
 #define Measurement_phytos31_tag                 4
 #define Measurement_bme280_tag                   5
 #define Measurement_teros21_tag                  6
-#define Measurement_capSoil_tag                  7
+#define Measurement_sen0308_tag                  7
 #define Measurement_sen0257_tag                  8
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
@@ -408,11 +408,11 @@ X(a, STATIC,   SINGULAR, UINT32,   humidity,          3)
 #define BME280Measurement_CALLBACK NULL
 #define BME280Measurement_DEFAULT NULL
 
-#define CapSoilMeasurment_FIELDLIST(X, a) \
+#define SEN0308Measurment_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
-X(a, STATIC,   SINGULAR, DOUBLE,   moister,           2)
-#define CapSoilMeasurment_CALLBACK NULL
-#define CapSoilMeasurment_DEFAULT NULL
+X(a, STATIC,   SINGULAR, DOUBLE,   humidity,          2)
+#define SEN0308Measurment_CALLBACK NULL
+#define SEN0308Measurment_DEFAULT NULL
 
 #define SEN0257Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
@@ -427,7 +427,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros12,measurement.teros12),   
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,phytos31,measurement.phytos31),   4) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,bme280,measurement.bme280),   5) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,capSoil,measurement.capSoil),   7) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0308,measurement.sen0308),   7) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
@@ -437,7 +437,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   
 #define Measurement_measurement_phytos31_MSGTYPE Phytos31Measurement
 #define Measurement_measurement_bme280_MSGTYPE BME280Measurement
 #define Measurement_measurement_teros21_MSGTYPE Teros21Measurement
-#define Measurement_measurement_capSoil_MSGTYPE CapSoilMeasurment
+#define Measurement_measurement_sen0308_MSGTYPE SEN0308Measurment
 #define Measurement_measurement_sen0257_MSGTYPE SEN0257Measurement
 
 #define Response_FIELDLIST(X, a) \
@@ -504,7 +504,7 @@ extern const pb_msgdesc_t Teros12Measurement_msg;
 extern const pb_msgdesc_t Teros21Measurement_msg;
 extern const pb_msgdesc_t Phytos31Measurement_msg;
 extern const pb_msgdesc_t BME280Measurement_msg;
-extern const pb_msgdesc_t CapSoilMeasurment_msg;
+extern const pb_msgdesc_t SEN0308Measurment_msg;
 extern const pb_msgdesc_t SEN0257Measurement_msg;
 extern const pb_msgdesc_t Measurement_msg;
 extern const pb_msgdesc_t Response_msg;
@@ -521,7 +521,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define Teros21Measurement_fields &Teros21Measurement_msg
 #define Phytos31Measurement_fields &Phytos31Measurement_msg
 #define BME280Measurement_fields &BME280Measurement_msg
-#define CapSoilMeasurment_fields &CapSoilMeasurment_msg
+#define SEN0308Measurment_fields &SEN0308Measurment_msg
 #define SEN0257Measurement_fields &SEN0257Measurement_msg
 #define Measurement_fields &Measurement_msg
 #define Response_fields &Response_msg
@@ -533,7 +533,6 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define BME280Measurement_size                   23
-#define CapSoilMeasurment_size                   18
 #define Esp32Command_size                        607
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
@@ -542,6 +541,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define PowerMeasurement_size                    18
 #define Response_size                            2
 #define SEN0257Measurement_size                  18
+#define SEN0308Measurment_size                   18
 #define SOIL_POWER_SENSOR_PB_H_MAX_SIZE          Esp32Command_size
 #define Teros12Measurement_size                  33
 #define Teros21Measurement_size                  18

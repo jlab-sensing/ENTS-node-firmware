@@ -24,7 +24,7 @@ PB_BIND(Phytos31Measurement, Phytos31Measurement, AUTO)
 PB_BIND(BME280Measurement, BME280Measurement, AUTO)
 
 
-PB_BIND(CapSoilMeasurment, CapSoilMeasurment, AUTO)
+PB_BIND(SEN0308Measurment, SEN0308Measurment, AUTO)
 
 
 PB_BIND(SEN0257Measurement, SEN0257Measurement, AUTO)

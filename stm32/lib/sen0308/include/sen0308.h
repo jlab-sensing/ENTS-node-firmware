@@ -26,7 +26,7 @@
  typedef struct {
    double capSoil_raw;
    double capSoil_calibrated;
- } capSoil_measurments;
+ } SEN0308_measurments;
  
  /**
  ******************************************************************************
@@ -47,7 +47,7 @@
  * @return   phytos_measurments
  ******************************************************************************
  */
-capSoil_measurments CapSoilGetMeasurment(void);
+SEN0308_measurments SEN0308GetMeasurment(void);
  
  /**
   * @brief Read CapSoil sensor and serialize measurement
@@ -62,7 +62,7 @@ capSoil_measurments CapSoilGetMeasurment(void);
   *
   * @see SensorsPrototypeMeasure
   */
- size_t CapSoil_measure(uint8_t *data);
+ size_t SEN0308_measure(uint8_t *data);
  
  #ifdef __cplusplus
  }

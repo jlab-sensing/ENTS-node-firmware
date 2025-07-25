@@ -179,9 +179,9 @@ size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
  * @param buffer Buffer to store serialized measurement
  * @return Number of bytes in @p buffer
  */
-size_t EncodeCapSoilMeasurement(uint32_t ts, uint32_t logger_id,
+size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
     uint32_t cell_id, double voltage,
-    double soil_moister, uint8_t *buffer);
+    double humidity, uint8_t *buffer);
 
 /**
  * @brief Decodes a response message

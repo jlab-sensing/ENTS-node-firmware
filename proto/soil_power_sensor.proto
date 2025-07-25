@@ -69,11 +69,11 @@ message BME280Measurement {
 }
 
 //Capactive Soil Moister Measurement
-message CapSoilMeasurment {
+message SEN0308Measurment {
   // voltage
   double voltage = 1;
-  // moister
-  double moister = 2;
+  // humidity
+  double humidity = 2;
 }
 
 //Water Pressure Sensor
@@ -96,7 +96,7 @@ message Measurement {
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;
     Teros21Measurement teros21 = 6;
-    CapSoilMeasurment capSoil = 7;
+    SEN0308Measurment sen0308 = 7;
     SEN0257Measurement sen0257 = 8;
   }
 }

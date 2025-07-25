@@ -10,37 +10,47 @@
  ******************************************************************************
  */
 
- #include "capSoil.h"
+ #include "sen0308.h"
 
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
  
  #include "transcoder.h"
+
+ //calibration values
+ const double air_value = 2.372;
+ const double wet_value = 0.036;
+ const double intervals = (air_value - wet_value)/3;
  
  HAL_StatusTypeDef CapSoilInit() { return ADC_init(); }
+
  
- capSoil_measurments CapSoilGetMeasurment() {
-   capSoil_measurments measurments;
+SEN0308_measurments SEN0308GetMeasurment() {
+  SEN0308_measurments measurments;
+   
    measurments.capSoil_raw = ADC_readVoltage();
-   measurments.capSoil_calibrated = ((measurments.capSoil_raw)*3.3);
+
+   //get humidity of the soil
+   measurments.capSoil_calibrated = (measurments.capSoil_raw/air_value) * 100;
    return measurments;
  }
  
  size_t CapSoil_measure(uint8_t* data) {
    // get timestamp
    SysTime_t ts = SysTimeGet();
-   capSoil_measurments measurment;
+   SEN0308_measurments measurment;
  
    // read voltage
-   measurment = CapSoilGetMeasurment();
-   double adc_voltage_float = measurment.capSoil_calibrated;
+   measurment = SEN0308GetMeasurment();
+   double humditiy_float = measurment.capSoil_calibrated;
+   double voltage_float = measurment.capSoil_raw;
  
    const UserConfiguration* cfg = UserConfigGet();
  
    // encode measurement
-   size_t data_len = EncodeCapSoilMeasurement( //check measure!!
-       ts.Seconds, cfg->logger_id, cfg->cell_id, adc_voltage_float, 0.0, data);
+   size_t data_len = EncodeSEN0308Measurement( //check measure!!
+       ts.Seconds, cfg->logger_id, cfg->cell_id, voltage_float, humditiy_float, data);
  
    // return number of bytes in serialized measurement
    return data_len;

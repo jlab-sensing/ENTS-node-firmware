@@ -32,7 +32,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "ads.h"
-#include "capSoil.h"
+#include "sen0308.h"
 #include "rtc.h"
 #include "sdi12.h"
 #include "sys_app.h"
@@ -126,7 +126,7 @@ int main(void) {
 
   char output[25];
 
-  capSoil_measurments measurment;
+  SEN0308_measurments measurment;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -138,8 +138,8 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
 
-    measurment = CapSoilGetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Cap Soil Raw: %f\r\n",
+    measurment = SEN0308GetMeasurment();
+    reading_len = snprintf(output, sizeof(output), "Soil Humidity: %.3f \r\n",
                            measurment.capSoil_calibrated);
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
