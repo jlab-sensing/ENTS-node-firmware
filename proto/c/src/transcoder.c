@@ -134,9 +134,9 @@ size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
-size_t EncodeCapSoilMeasurement(uint32_t ts, uint32_t logger_id,
+size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
   uint32_t cell_id, double voltage,
-  double soil_moister, uint8_t *buffer) {
+  double humidity, uint8_t *buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -145,9 +145,9 @@ size_t EncodeCapSoilMeasurement(uint32_t ts, uint32_t logger_id,
   meas.meta.logger_id = logger_id;
   meas.meta.cell_id = cell_id;
 
-  meas.which_measurement = Measurement_capSoil_tag;
-  meas.measurement.capSoil.voltage = voltage;
-  meas.measurement.capSoil.moister = soil_moister;
+  meas.which_measurement = Measurement_sen0308_tag;
+  meas.measurement.sen0308.voltage = voltage;
+  meas.measurement.sen0308.humidity = humidity;
 
   return EncodeMeasurement(&meas, buffer);
 }
