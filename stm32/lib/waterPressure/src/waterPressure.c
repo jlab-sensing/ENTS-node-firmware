@@ -18,14 +18,15 @@
  
  #include "transcoder.h"
  
- const float  OffSet = 0.518389;
+ const double  OffSet = 0.483;
 
  HAL_StatusTypeDef PressureInit() { return ADC_init(); }
  
  SEN0257Data PressureGetMeasurment() {
   SEN0257Data measurment;
   measurment.voltage = ADC_readVoltage();
-  measurment.pressure = ((measurment.voltage - OffSet)) * 250 + 0.94;
+  //((*measurment.voltage - OffSet)) * 250 + 0.94;
+  measurment.pressure = (measurment.voltage - OffSet) * 250;
   return measurment;
  }
  
@@ -38,8 +39,6 @@
    measurment = PressureGetMeasurment();
    double float_pressure = measurment.pressure;
    double float_voltage = measurment.voltage;
-   printf("Presure: %lf kPa\n", float_pressure);
- 
    const UserConfiguration* cfg = UserConfigGet();
  
    // encode measurement

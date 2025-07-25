@@ -125,7 +125,7 @@ int main(void) {
 
   char output[30];
 
-  measurments measurment;
+  SEN0257Data measurment;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -138,8 +138,9 @@ int main(void) {
     /* USER CODE BEGIN 3 */
 
     measurment = PressureGetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Pressure: %f KPa\r\n",
-                           measurment.pressure);
+    reading_len = snprintf(output, sizeof(output), "Pressure: %f KPa\n Voltage: %f V\n",
+                           measurment.pressure, measurment.voltage);
+
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
     // for (int i = 0; i < 10000; i++){
