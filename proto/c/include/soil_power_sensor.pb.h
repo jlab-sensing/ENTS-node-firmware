@@ -57,9 +57,12 @@ typedef enum _WiFiCommand_Type {
     WiFiCommand_Type_CHECK = 2,
     /* Timesync request */
     WiFiCommand_Type_TIME = 3,
-    /* Save data to the micro SD card */
-    WiFiCommand_Type_SAVE_MICROSD_CARD = 4
 } WiFiCommand_Type;
+
+typedef enum _MicroSDCommand_Type {
+    /* Decode and save data to a CSV file on the microSD card */
+    MicroSDCommand_Type_SAVE = 0,
+} MicroSDCommand_Type;
 
 /* Struct definitions */
 /* Data shared between all measurement messages */
@@ -176,12 +179,25 @@ typedef struct _WiFiCommand {
     uint32_t port;
 } WiFiCommand;
 
+typedef PB_BYTES_ARRAY_T(222) MicroSDCommand_resp_t;
+typedef struct _MicroSDCommand {
+    /* Command type */
+    MicroSDCommand_Type type;
+    /* Filename */
+    char filename[255];
+    /* Timestamp n unix epochs */
+    uint32_t ts;
+    /* binary data response */
+    MicroSDCommand_resp_t resp;
+} MicroSDCommand;
+
 typedef struct _Esp32Command {
     pb_size_t which_command;
     union {
         PageCommand page_command;
         TestCommand test_command;
         WiFiCommand wifi_command;
+        MicroSDCommand microsd_command;
     } command;
 } Esp32Command;
 
@@ -235,6 +251,9 @@ extern "C" {
 #define _WiFiCommand_Type_MAX WiFiCommand_Type_TIME
 #define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_TIME+1))
 
+#define _MicroSDCommand_Type_MIN WiFiCommand_Type_SAVE
+#define _MicroSDCommand_Type_MAX WiFiCommand_Type_SAVE
+#define _MicroSDCommand_Type_ARRAYSIZE ((MicroSDCommand_Type)(_MicroSDCommand_Type_MAX+1))
 
 
 
@@ -281,6 +300,7 @@ extern "C" {
 #define PageCommand_init_zero                    {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_zero                    {_TestCommand_ChangeState_MIN, 0}
 #define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
+#define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", 0, {0, {0}}}
 #define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -324,6 +344,7 @@ extern "C" {
 #define Esp32Command_page_command_tag            1
 #define Esp32Command_test_command_tag            2
 #define Esp32Command_wifi_command_tag            3
+#define Esp32Command_microsd_command_tag         4
 #define UserConfiguration_logger_id_tag          1
 #define UserConfiguration_cell_id_tag            2
 #define UserConfiguration_Upload_method_tag      3

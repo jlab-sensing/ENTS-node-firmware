@@ -12,7 +12,7 @@ static bool microsd_detect_card(void);
 
 ModuleMicroSD::ModuleMicroSD(void) {
   // set module type
-  type = Esp32Command_wifi_command_tag;
+  type = Esp32Command_microsd_command_tag;
 }
 
 ModuleMicroSD::~ModuleMicroSD(void) {}
@@ -20,22 +20,22 @@ ModuleMicroSD::~ModuleMicroSD(void) {}
 void ModuleMicroSD::OnReceive(const Esp32Command &cmd) {
   Log.traceln("ModuleMicroSD::OnReceive");
 
-  // check if WiFi command
-  if (cmd.which_command != Esp32Command_wifi_command_tag) {
+  // check if microSD command
+  if (cmd.which_command != Esp32Command_microsd_command_tag) {
     return;
   }
 
-  Log.traceln("WiFiCommand type: %d", cmd.command.wifi_command.type);
+  Log.traceln("MicroSDCommand type: %d", cmd.command.microsd_command.type);
 
   // switch for command types
-  switch (cmd.command.wifi_command.type) {
-    case WiFiCommand_Type_SAVE_MICROSD_CARD:
-      Log.traceln("Calling SAVE_MICROSD_CARD");
+  switch (cmd.command.microsd_command.type) {
+    case MicroSDCommand_Type_SAVE:
+      Log.traceln("Calling SAVE");
       Save(cmd);
       break;
 
     default:
-      Log.warningln("wifi command type not found!");
+      Log.warningln("MicroSD command type not found!");
       break;
   }
 }
@@ -47,11 +47,11 @@ size_t ModuleMicroSD::OnRequest(uint8_t *buffer) {
 }
 
 void ModuleMicroSD::Save(const Esp32Command &cmd) {
-  // init return WiFi command
-  WiFiCommand wifi_cmd = WiFiCommand_init_zero;
-  wifi_cmd.type = WiFiCommand_Type_SAVE_MICROSD_CARD;
+  // init return microSD command
+  MicroSDCommand microsd_cmd = MicroSDCommand_init_zero;
+  microsd_cmd.type = MicroSDCommand_Type_SAVE;
 
-  Log.traceln("ModuleWiFI::Save");
+  Log.traceln("ModuleMicroSD::Save");
 
   File dataFile;
 
@@ -82,9 +82,9 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
 
   static char filename[50] = "";
   if (filename[0] == '/0') {
-    sprintf(filename, "%u.csv", cmd.command.wifi_command.ts);
+    sprintf(filename, "%u.csv", cmd.command.microsd_command.ts);
     Log.notice(
-        "First execution of ModuleWiFI::Save, generating filename based on "
+        "First execution of ModuleMicroSD::Save, generating filename based on "
         "initial timestamp: %s\r\n",
         filename);
   }
@@ -102,8 +102,8 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
 
       Measurement meas;
       pb_istream_t istream =
-          pb_istream_from_buffer(cmd.command.wifi_command.resp.bytes,
-                                 cmd.command.wifi_command.resp.size);
+          pb_istream_from_buffer(cmd.command.microsd_command.resp.bytes,
+                                 cmd.command.microsd_command.resp.size);
       if (!pb_decode(&istream, Measurement_fields, &meas)) {
         Log.error("Failed to decode. Aborting save to micro SD card.\r\n");
         return;
@@ -167,8 +167,8 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
 
     Measurement meas;
     pb_istream_t istream =
-        pb_istream_from_buffer(cmd.command.wifi_command.resp.bytes,
-                               cmd.command.wifi_command.resp.size);
+        pb_istream_from_buffer(cmd.command.microsd_command.resp.bytes,
+                               cmd.command.microsd_command.resp.size);
     if (!pb_decode(&istream, Measurement_fields, &meas)) {
       Log.error("Failed to decode. Aborting save to micro SD card.\r\n");
       return;
@@ -178,7 +178,7 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
     switch (meas.which_measurement) {
       case Measurement_power_tag:
         snprintf(dataString, sizeof(dataString), "%u,%u,%u\r\n",
-                 cmd.command.wifi_command.ts, meas.measurement.power.voltage,
+                 cmd.command.microsd_command.ts, meas.measurement.power.voltage,
                  meas.measurement.power.current);
         break;
       case Measurement_teros12_tag:

@@ -20,12 +20,10 @@
 
 /**
  * @ingroup moduleHandler
- * @brief WiFi module for the esp32
+ * @brief MicroSD module for the esp32
 
- * The WiFi module support CONNECT and POST commands through OnReceive. The
- * CONNECT command connects to a WiFi network and returns the timestamp from the
- * server for time syncronization purposes. The POST requires sends a HTTP POST
- * to the configured hub URL and returns the data from the HTTP response.
+ * The microSD module supports Save commands through OnReceive. The
+ * Save command decodes protobuf-serialized data and stores it into a CSV file on the microSD card.
  *
  * @{
  */
