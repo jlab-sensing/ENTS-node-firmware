@@ -33,6 +33,10 @@
 
 #include "userConfig.h"
 
+#ifdef SAVE_TO_MICROSD
+#include "controller/microsd.h"
+#endif
+
 /** Array for holding function callbacks */
 static SensorsPrototypeMeasure callback_arr[MAX_SENSORS];
 
@@ -116,6 +120,10 @@ void SensorsMeasure(void) {
       APP_LOG(TS_OFF, VLEVEL_M, "%x", buffer[j]);
     }
     APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
+
+#ifdef SAVE_TO_MICROSD
+    ControllerMicroSDSave(SAVE_TO_MICROSD_FILENAME, buffer, buffer_len);
+#endif
 
     // add to tx buffer
     FramStatus status = FramPut(buffer, buffer_len);

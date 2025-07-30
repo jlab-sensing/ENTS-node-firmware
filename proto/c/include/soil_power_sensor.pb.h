@@ -62,6 +62,10 @@ typedef enum _WiFiCommand_Type {
 typedef enum _MicroSDCommand_Type {
     /* Decode and save data to a CSV file on the microSD card */
     MicroSDCommand_Type_SAVE = 0,
+    /* Find the last modified time of a file */
+    MicroSDCommand_Type_TIME = 1,
+    /* Find the last modified time of a file */
+    MicroSDCommand_Type_SIZE = 2,
 } MicroSDCommand_Type;
 
 /* Struct definitions */
@@ -171,7 +175,7 @@ typedef struct _WiFiCommand {
     char url[257];
     /* Return code */
     uint32_t rc;
-    /* Timestamp n unix epochs */
+    /* Timestamp in unix epochs */
     uint32_t ts;
     /* binary data response */
     WiFiCommand_resp_t resp;
@@ -185,8 +189,10 @@ typedef struct _MicroSDCommand {
     MicroSDCommand_Type type;
     /* Filename */
     char filename[255];
-    /* Timestamp n unix epochs */
+    /* Timestamp in unix epochs */
     uint32_t ts;
+    /* filesize in bytes */
+    uint32_t filesize;
     /* binary data response */
     MicroSDCommand_resp_t resp;
 } MicroSDCommand;
@@ -251,8 +257,8 @@ extern "C" {
 #define _WiFiCommand_Type_MAX WiFiCommand_Type_TIME
 #define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_TIME+1))
 
-#define _MicroSDCommand_Type_MIN WiFiCommand_Type_SAVE
-#define _MicroSDCommand_Type_MAX WiFiCommand_Type_SAVE
+#define _MicroSDCommand_Type_MIN MicroSDCommand_Type_SAVE
+#define _MicroSDCommand_Type_MAX MicroSDCommand_Type_SIZE
 #define _MicroSDCommand_Type_ARRAYSIZE ((MicroSDCommand_Type)(_MicroSDCommand_Type_MAX+1))
 
 
@@ -287,6 +293,7 @@ extern "C" {
 #define PageCommand_init_default                 {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_default                 {_TestCommand_ChangeState_MIN, 0}
 #define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
+#define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", 0, {0, {0}}}
 #define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
 #define PowerMeasurement_init_zero               {0, 0}
@@ -508,6 +515,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define Esp32Command_size                        607
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
+#define MicroSDCommand_size                      604
 #define PageCommand_size                         20
 #define Phytos31Measurement_size                 18
 #define PowerMeasurement_size                    18

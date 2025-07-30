@@ -3,8 +3,8 @@
 #include "communication.h"
 #include "transcoder.h"
 
-/** Timeout for i2c communication with esp32 */
-unsigned int g_controller_i2c_timeout = 10000;
+/** Timeout for i2c communication with esp32, in communication.h */
+extern unsigned int g_controller_i2c_timeout;
 
 uint8_t ControllerWiFiInit(const char *ssid, const char *passwd) {
   // get reference to tx and rx buffers
