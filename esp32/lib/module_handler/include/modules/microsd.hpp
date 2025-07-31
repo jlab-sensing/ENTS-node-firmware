@@ -47,6 +47,8 @@ class ModuleMicroSD : public ModuleHandler::Module {
  private:
 
   void Save(const Esp32Command &cmd);
+  void Time(const Esp32Command &cmd);
+  void Size(const Esp32Command &cmd);
 
   /** Buffer for i2c requests */
   uint8_t request_buffer[Esp32Command_size] = {};

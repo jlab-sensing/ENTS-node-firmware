@@ -33,6 +33,14 @@ void ModuleMicroSD::OnReceive(const Esp32Command &cmd) {
       Log.traceln("Calling SAVE");
       Save(cmd);
       break;
+    case MicroSDCommand_Type_TIME:
+      Log.traceln("Calling TIME");
+      Time(cmd);
+      break;
+    case MicroSDCommand_Type_SIZE:
+      Log.traceln("Calling SIZE");
+      Size(cmd);
+      break;
 
     default:
       Log.warningln("MicroSD command type not found!");
@@ -80,14 +88,28 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
 
   printCardInfo();
 
-  static char filename[50] = "";
-  if (filename[0] == '/0') {
-    sprintf(filename, "%u.csv", cmd.command.microsd_command.ts);
-    Log.notice(
-        "First execution of ModuleMicroSD::Save, generating filename based on "
-        "initial timestamp: %s\r\n",
-        filename);
+  static char filename[255];
+  strncpy(filename, cmd.command.microsd_command.filename, 255);
+
+  Measurement meas;
+  if (!DecodeMeasurement(&meas,
+                         (uint8_t *)cmd.command.microsd_command.resp.bytes,
+                         cmd.command.microsd_command.resp.size)) {
+    Log.error("Failed to decode measurement. Aborting.\r\n");
+    return;
   }
+
+  return;
+  //
+  // TODO: selectively insert column headers per received and decoded measurement types.
+  //
+
+  // if (filename[0] == '/0') {
+  //   sprintf(filename, "%u.csv", cmd.command.microsd_command.ts);
+  //   Log.notice(
+  //       "First execution of ModuleMicroSD::Save, generating filename based on
+  //       " "initial timestamp: %s\r\n", filename);
+  // }
 
   Log.trace("Checking file existence of '%s'\r\n", filename);
   if (!SD.exists(filename)) {
