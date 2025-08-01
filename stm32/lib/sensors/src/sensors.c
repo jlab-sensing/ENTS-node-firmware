@@ -125,7 +125,13 @@ void SensorsMeasure(void) {
     APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
 
 #ifdef SAVE_TO_MICROSD
-    ControllerMicroSDSave(SAVE_TO_MICROSD_FILENAME, buffer, buffer_len);
+    uint32_t rc =
+        ControllerMicroSDSave(SAVE_TO_MICROSD_FILENAME, buffer, buffer_len);
+    if (rc == -1) {
+      APP_LOG(TS_OFF, VLEVEL_M, "Error: Failed to save to microSD card!\r\n");
+    } else if (rc == 0) {
+      APP_LOG(TS_OFF, VLEVEL_M, "Error: Saved empty file to microSD card!\r\n");
+    }
 #endif
 
     // add to tx buffer

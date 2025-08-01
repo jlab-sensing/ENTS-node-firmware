@@ -69,9 +69,6 @@ uint32_t ControllerMicroSDCheck(const char *filename) {
 
 uint32_t ControllerMicroSDSave(const char *filename, const uint8_t *data,
                                const uint16_t num_bytes) {
-  // return code
-  int rc = 0;
-
   // get reference to tx and rx buffers
   Buffer *tx = ControllerTx();
   Buffer *rx = ControllerRx();
@@ -101,6 +98,42 @@ uint32_t ControllerMicroSDSave(const char *filename, const uint8_t *data,
   Esp32Command cmd = Esp32Command_init_default;
   cmd = DecodeEsp32Command(rx->data, rx->len);
 
-  // return http code
+  // return filesize
+  return cmd.command.microsd_command.filesize;
+}
+
+uint32_t ControllerMicroSDUserConfig(UserConfiguration *uc,
+                                     const char *filename) {
+  // get reference to tx and rx buffers
+  Buffer *tx = ControllerTx();
+  Buffer *rx = ControllerRx();
+
+  // UserConfiguration uc = UserConfiguration_init_zero;
+
+  MicroSDCommand microsd_cmd = MicroSDCommand_init_zero;
+  microsd_cmd.type = MicroSDCommand_Type_USERCONFIG;
+  strncpy(microsd_cmd.filename, filename, sizeof(microsd_cmd.filename));
+  microsd_cmd.resp.size = EncodeUserConfiguration(uc, microsd_cmd.resp.bytes);
+
+  // encode command
+  tx->len = EncodeMicroSDCommand(&microsd_cmd, tx->data, tx->size);
+
+  // return if communication fails
+  ControllerStatus status = CONTROLLER_SUCCESS;
+  status = ControllerTransaction(g_controller_i2c_timeout);
+  if (status != CONTROLLER_SUCCESS) {
+    return 0;
+  }
+
+  // check for errors
+  if (rx->len == 0) {
+    return 0;
+  }
+
+  // decode command
+  Esp32Command cmd = Esp32Command_init_default;
+  cmd = DecodeEsp32Command(rx->data, rx->len);
+
+  // return filesize
   return cmd.command.microsd_command.filesize;
 }
