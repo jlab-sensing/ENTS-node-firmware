@@ -64,8 +64,10 @@ typedef enum _MicroSDCommand_Type {
     MicroSDCommand_Type_SAVE = 0,
     /* Find the last modified time of a file */
     MicroSDCommand_Type_TIME = 1,
-    /* Find the last modified time of a file */
-    MicroSDCommand_Type_SIZE = 2
+    /* Find the size of a file */
+    MicroSDCommand_Type_SIZE = 2,
+    /* Send UserConfig for CSV header creation */
+    MicroSDCommand_Type_USERCONFIG = 3
 } MicroSDCommand_Type;
 
 /* Struct definitions */
@@ -183,7 +185,7 @@ typedef struct _WiFiCommand {
     uint32_t port;
 } WiFiCommand;
 
-typedef PB_BYTES_ARRAY_T(222) MicroSDCommand_resp_t;
+typedef PB_BYTES_ARRAY_T(238) MicroSDCommand_resp_t;
 typedef struct _MicroSDCommand {
     /* Command type */
     MicroSDCommand_Type type;
@@ -258,8 +260,8 @@ extern "C" {
 #define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_TIME+1))
 
 #define _MicroSDCommand_Type_MIN MicroSDCommand_Type_SAVE
-#define _MicroSDCommand_Type_MAX MicroSDCommand_Type_SIZE
-#define _MicroSDCommand_Type_ARRAYSIZE ((MicroSDCommand_Type)(MicroSDCommand_Type_SIZE+1))
+#define _MicroSDCommand_Type_MAX MicroSDCommand_Type_USERCONFIG
+#define _MicroSDCommand_Type_ARRAYSIZE ((MicroSDCommand_Type)(MicroSDCommand_Type_USERCONFIG+1))
 
 
 
@@ -536,7 +538,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define Esp32Command_size                        607
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
-#define MicroSDCommand_size                      497
+#define MicroSDCommand_size                      513
 #define PageCommand_size                         20
 #define Phytos31Measurement_size                 18
 #define PowerMeasurement_size                    18

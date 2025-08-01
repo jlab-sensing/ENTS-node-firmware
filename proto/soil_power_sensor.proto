@@ -181,8 +181,10 @@ message MicroSDCommand {
     SAVE = 0;
     /* Find the last modified time of a file */
     TIME = 1;
-    /* Find the last modified time of a file */
+    /* Find the size of a file */
     SIZE = 2;
+    /* Send UserConfig for CSV header creation */
+    USERCONFIG = 3;
   }
 
   /* Command type */
