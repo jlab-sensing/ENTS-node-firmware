@@ -109,10 +109,13 @@ void SensorsMeasure(void) {
   uint8_t buffer[kBufferSize];
   size_t buffer_len;
 
+  // get timestamp
+  SysTime_t ts = SysTimeGet();
+
   // loop over callbacks
   for (int i = 0; i < callback_arr_len; i++) {
     // call measurement function
-    buffer_len = callback_arr[i](buffer);
+    buffer_len = callback_arr[i](buffer, ts);
     APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");

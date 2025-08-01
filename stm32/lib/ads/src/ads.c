@@ -216,10 +216,7 @@ HAL_StatusTypeDef probeADS12(void) {
   return ret;
 }
 
-size_t ADC_measure(uint8_t *data) {
-  // get timestamp
-  SysTime_t ts = SysTimeGet();
-
+size_t ADC_measure(uint8_t *data, SysTime_t ts) {
   // read power
   double adc_voltage = ADC_readVoltage();
   double adc_current = ADC_readCurrent();

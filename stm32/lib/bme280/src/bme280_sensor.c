@@ -127,10 +127,7 @@ BME280Status BME280MeasureAll(BME280Data *data) {
   return rslt;
 }
 
-size_t BME280Measure(uint8_t *data) {
-  // get timestamp
-  SysTime_t ts = SysTimeGet();
-
+size_t BME280Measure(uint8_t *data, SysTime_t ts) {
   // read sensor
   BME280Data sens_data;
   BME280Status status = BME280MeasureAll(&sens_data);
