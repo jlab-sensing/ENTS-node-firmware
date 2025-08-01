@@ -2,6 +2,7 @@
 
 #include "communication.h"
 #include "transcoder.h"
+#include "userConfig.h"
 
 /** Timeout for i2c communication with esp32, in communication.h */
 extern unsigned int g_controller_i2c_timeout;
@@ -114,6 +115,8 @@ uint32_t ControllerMicroSDUserConfig(UserConfiguration *uc,
   microsd_cmd.type = MicroSDCommand_Type_USERCONFIG;
   strncpy(microsd_cmd.filename, filename, sizeof(microsd_cmd.filename));
   microsd_cmd.resp.size = EncodeUserConfiguration(uc, microsd_cmd.resp.bytes);
+  SysTime_t ts = SysTimeGet();
+  microsd_cmd.ts = ts.Seconds;
 
   // encode command
   tx->len = EncodeMicroSDCommand(&microsd_cmd, tx->data, tx->size);
