@@ -27,6 +27,7 @@
 #include "i2c.h"
 #include "rtc.h"
 #include "sdi12.h"
+#include "stm32_systime.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
 #include "usart.h"
@@ -151,8 +152,9 @@ int main(void) {
 
     // check command input
     if (controller_input[0] == '0') {
+      SysTime_t ts = SysTimeGet();
       size_t measurement_size = ADC_measure(
-          encoded_measurment);  // Read the measurment, and store it's size in
+          encoded_measurment, ts);  // Read the measurment, and store it's size in
                                 // measurement_size (size int 64)
       if (measurement_size == -1) {
         continue;
