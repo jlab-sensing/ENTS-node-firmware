@@ -11,6 +11,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "userConfig.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -5,6 +5,10 @@
 
 #include "pb_decode.h"
 
+static const uint8_t chipSelect_pin = 7;
+static UserConfiguration uc = UserConfiguration_init_zero;
+static char dataFileFilename[256];
+
 static void printCardInfo(void);
 static void printFileInfo(File f);
 static void printFileContents(File f);
@@ -68,7 +72,6 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
   // IO5: SDO / DO / MISO
   // IO6: SDI / DI / MOSI
   // IO7: CS / SS
-  const uint8_t chipSelect_pin = 7;
   // IO10: CD "card detect" (for insertion detection).
   // Note: Pin is floating when no card is inserted, grounded when a card is
   // inserted.
@@ -101,7 +104,8 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
 
   return;
   //
-  // TODO: selectively insert column headers per received and decoded measurement types.
+  // TODO: selectively insert column headers per received and decoded
+  // measurement types.
   //
 
   // if (filename[0] == '/0') {
@@ -246,6 +250,114 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
   // encode wifi command in buffer
   // this->request_buffer_len =
   //     EncodeWiFiCommand(&wifi_cmd, request_buffer, sizeof(request_buffer));
+}
+
+void ModuleMicroSD::Time(const Esp32Command &cmd) {}
+
+void ModuleMicroSD::Size(const Esp32Command &cmd) {}
+
+void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
+  // init return microSD command
+  MicroSDCommand microsd_cmd = MicroSDCommand_init_zero;
+  microsd_cmd.type = MicroSDCommand_Type_USERCONFIG;
+
+  if (DecodeUserConfiguration(cmd.command.microsd_command.resp.bytes,
+                              cmd.command.microsd_command.resp.size,
+                              &uc) == -1) {
+    Log.error("Error decoding UserConfig\r\n");
+  }
+
+  // Check for SD card
+  if (!microsd_detect_card()) {
+    Log.error("Aborting save to micro SD card.\r\n");
+  }
+
+  // Note: SD.begin(chipSelect) assumes the default SCLK, MISO, MOSI pins.
+  // For non-default pin assignments, call SPI.begin(SCLK, MISO, MOSI, CS)
+  // prior to SD.begin(CS).
+  if (!SD.begin(chipSelect_pin)) {
+    Log.error(
+        "Failed to begin, make sure that a FAT32 formatted SD card is "
+        "inserted. Aborting save to micro SD card.\r\n");
+    return;
+  }
+
+  // (Over)Write a file for the userConfig
+  char userConfigFileFilename[] = "userConfig.txt";
+  File userConfigFile = SD.open(userConfigFileFilename, FILE_WRITE);
+  if (!userConfigFile) {
+    Log.error("Failed to write '%s' with '%s'\r\n", userConfigFileFilename,
+              FILE_WRITE);
+  }
+
+  // Write the userconfig to the file
+  userConfigFile.printf("logger_id=%d\r\n", uc.logger_id);
+  userConfigFile.printf("cell_id=%d\r\n", uc.cell_id);
+  char upload_method_s[][18] = {"Uploadmethod_LoRa", "Uploadmethod_WiFi",
+                                "UNKNOWN"};
+  userConfigFile.printf("Upload_method=%d (%s)\r\n", uc.Upload_method,
+                        upload_method_s[uc.Upload_method]);
+
+  userConfigFile.printf("Upload_interval=%d\r\n", uc.Upload_interval);
+  userConfigFile.printf("enabled_sensors_count=%d\r\n",
+                        uc.enabled_sensors_count);
+
+  char enabled_sensors_s[][8] = {"Voltage", "Current", "Teros12", "Teros21",
+                                 "BME280"};
+  for (int i = 0; i < uc.enabled_sensors_count; i++) {
+    userConfigFile.printf("enabled_sensors[%d]=%d (%s)\r\n", i,
+                          uc.enabled_sensors[i], enabled_sensors_s[i]);
+  }
+
+  userConfigFile.printf("Voltage_Slope=%lf\r\n", uc.Voltage_Slope);
+  userConfigFile.printf("Voltage_Offset=%lf\r\n", uc.Voltage_Offset);
+  userConfigFile.printf("Current_Slope=%lf\r\n", uc.Current_Slope);
+  userConfigFile.printf("Current_Offset=%lf\r\n", uc.Current_Offset);
+  userConfigFile.printf("WiFi_SSID=%s\r\n", uc.WiFi_SSID);
+  userConfigFile.printf("WiFi_Password=%s\r\n", uc.WiFi_Password);
+  userConfigFile.printf("API_Endpoint_URL=%s\r\n", uc.API_Endpoint_URL);
+  userConfigFile.printf("API_Endpoint_Port=%d\r\n", uc.API_Endpoint_Port);
+
+  userConfigFile.close();
+
+  // Create a new file for the CSV
+  strncpy(dataFileFilename, cmd.command.microsd_command.filename,
+          sizeof(dataFileFilename));
+  // dataFileFilename[strlen(dataFileFilename)] = '_';
+  // char ts_s[30];
+  // itoa(cmd.command.microsd_command.ts, ts_s, 10);
+  // strncat(dataFileFilename, ts_s, sizeof(dataFileFilename));
+
+  File dataFile = SD.open(dataFileFilename, FILE_WRITE);
+  if (!dataFile) {
+    Log.error("Failed to write '%s' with '%s'\r\n", dataFileFilename,
+              FILE_WRITE);
+  }
+
+  // Add the headers
+  dataFile.printf("timestamp");
+  for (int i = 0; i < uc.enabled_sensors_count; i++) {
+    switch (uc.enabled_sensors[i]) {
+      case EnabledSensor_Voltage:
+      case EnabledSensor_Current:
+        dataFile.printf(",voltage,current");
+        break;
+      case EnabledSensor_Teros12:
+        dataFile.printf(",vwc_teros12,ec_teros12,temp_teros12");
+        break;
+      case EnabledSensor_Teros21:
+        dataFile.printf(",matricpotential_teros21,temp_teros21");
+        break;
+      case EnabledSensor_BME280:
+        dataFile.printf(",pressure_bme280,temperature_bme280,humidity_bme280");
+        break;
+      default:
+        dataFile.printf(",ERROR Unknown sensor type");
+        break;
+    }
+  }
+
+  printf("\r\n");
 }
 
 static void printCardInfo(void) {

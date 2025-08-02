@@ -2,7 +2,6 @@
 
 #include "communication.h"
 #include "transcoder.h"
-#include "userConfig.h"
 
 /** Timeout for i2c communication with esp32, in communication.h */
 extern unsigned int g_controller_i2c_timeout;
