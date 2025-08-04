@@ -200,7 +200,7 @@ int main(void) {
   StatusLedFlashFast();
 
 #ifdef SAVE_TO_MICROSD
-uint32_t rc =  ControllerMicroSDUserConfig();
+uint32_t rc =  ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
 if (rc == -1){
   APP_LOG(TS_OFF, VLEVEL_M, "Error: Failed to send UserConfig to ESP32!\r\n");
 }else if (rc == 0){

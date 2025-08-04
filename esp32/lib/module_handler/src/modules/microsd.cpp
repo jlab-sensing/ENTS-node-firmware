@@ -45,7 +45,10 @@ void ModuleMicroSD::OnReceive(const Esp32Command &cmd) {
       Log.traceln("Calling SIZE");
       Size(cmd);
       break;
-
+    case MicroSDCommand_Type_USERCONFIG:
+      Log.traceln("Calling USERCONFIG");
+      UserConfig(cmd);
+      break;
     default:
       Log.warningln("MicroSD command type not found!");
       break;
@@ -283,7 +286,7 @@ void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
   }
 
   // (Over)Write a file for the userConfig
-  char userConfigFileFilename[] = "userConfig.txt";
+  char userConfigFileFilename[] = "/userConfig.txt";
   File userConfigFile = SD.open(userConfigFileFilename, FILE_WRITE);
   if (!userConfigFile) {
     Log.error("Failed to write '%s' with '%s'\r\n", userConfigFileFilename,
@@ -358,6 +361,7 @@ void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
   }
 
   printf("\r\n");
+  dataFile.close();
 }
 
 static void printCardInfo(void) {
