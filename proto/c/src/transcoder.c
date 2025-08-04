@@ -174,7 +174,11 @@ size_t EncodeMeasurement(Measurement *meas, uint8_t *buffer)
 int DecodeMeasurement(Measurement *meas, const uint8_t *buffer, const size_t len)
 {
   pb_istream_t istream = pb_istream_from_buffer(buffer, len);
-  pb_decode(&istream, Measurement_fields, meas);
+  bool status = pb_decode(&istream, Measurement_fields, meas);
+  if (!status)
+  {
+    return -1;
+  }
 
   return 0;
 }

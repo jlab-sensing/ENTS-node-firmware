@@ -199,15 +199,6 @@ int main(void) {
 
   StatusLedFlashFast();
 
-#ifdef SAVE_TO_MICROSD
-uint32_t rc =  ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
-if (rc == -1){
-  APP_LOG(TS_OFF, VLEVEL_M, "Error: Failed to send UserConfig to ESP32!\r\n");
-}else if (rc == 0){
-  APP_LOG(TS_OFF, VLEVEL_M, "Error: Sent UserConfig to ESP32, but wrote empty file!\r\n");
-}
-#endif
-
   // init either WiFi or LoRaWAN
   if (cfg->Upload_method == Uploadmethod_LoRa) {
     MX_LoRaWAN_Init();
@@ -217,6 +208,16 @@ if (rc == -1){
     APP_LOG(TS_ON, VLEVEL_M, "Invalid upload method!\n");
     Error_Handler();
   }
+
+#ifdef SAVE_TO_MICROSD
+  uint32_t rc = ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
+  if (rc == -1) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error: Failed to send UserConfig to ESP32!\r\n");
+  } else if (rc == 0) {
+    APP_LOG(TS_OFF, VLEVEL_M,
+            "Error: Sent UserConfig to ESP32, but wrote empty file!\r\n");
+  }
+#endif
 
   /* USER CODE END 2 */
 
