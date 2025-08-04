@@ -1,14 +1,8 @@
 #include "modules/wifi.hpp"
 
 #include <ArduinoLog.h>
-#include <SD.h>
 
 #include "http.hpp"
-#include "pb_decode.h"
-
-static void printCardInfo(void);
-static void printFileInfo(File f);
-static void printFileContents(File f);
 
 ModuleWiFi::ModuleWiFi(void) {
   // set module type

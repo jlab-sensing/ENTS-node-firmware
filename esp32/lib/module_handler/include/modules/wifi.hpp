@@ -72,8 +72,6 @@ class ModuleWiFi : public ModuleHandler::Module {
 
   void Time(const Esp32Command &cmd);
 
-  void Save(const Esp32Command &cmd);
-
   WiFiUDP ntpUDP;
 
   NTPClient *timeClient;
