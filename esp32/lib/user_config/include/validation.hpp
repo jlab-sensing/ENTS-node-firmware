@@ -2,7 +2,7 @@
 #define VALIDATION_H
 
 #include <WebServer.h>
-#include "configuration.h"
+#include "configuration.hpp"
 
 extern WebServer server;
 

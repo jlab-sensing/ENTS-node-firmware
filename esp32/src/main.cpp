@@ -10,7 +10,7 @@
 #include <WiFi.h>
 #include <Wire.h>
 
-#include "config_server.h"
+#include "config_server.hpp"
 #include "module_handler.hpp"
 #include "modules/wifi.hpp"
 #include "modules/wifi_userconfig.hpp"
