@@ -3,9 +3,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "userConfig.h"
+
 #include "communication.h"
 #include "usart.h"
+#include "userConfig.h"
 
 #ifdef __cplusplus
 extern "C" {

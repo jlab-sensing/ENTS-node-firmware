@@ -1,10 +1,11 @@
 #include <Arduino.h>
-#include <Wire.h>
 #include <ArduinoLog.h>
+#include <Wire.h>
+
 #include "modules/wifi.hpp"
-#include "transcoder.h"
-#include "pb_encode.h"
 #include "pb_decode.h"
+#include "pb_encode.h"
+#include "transcoder.h"
 
 // I2C setup
 const uint8_t stm32_addr = 0x20;
@@ -16,7 +17,8 @@ uint8_t encoded_user_config[256];
 size_t encoded_len = 0;
 
 // Callback to extract config_data bytes
-bool config_data_callback(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+bool config_data_callback(pb_istream_t *stream, const pb_field_t *field,
+                          void **arg) {
   uint8_t *buffer = (uint8_t *)(*arg);
   size_t size = stream->bytes_left;
 
@@ -30,7 +32,8 @@ bool config_data_callback(pb_istream_t *stream, const pb_field_t *field, void **
 void sendUserConfigRequest() {
   Esp32Command cmd = Esp32Command_init_zero;
   cmd.which_command = Esp32Command_user_config_command_tag;
-  cmd.command.user_config_command.type = UserConfigCommand_RequestType_REQUEST_CONFIG;
+  cmd.command.user_config_command.type =
+      UserConfigCommand_RequestType_REQUEST_CONFIG;
 
   pb_ostream_t ostream = pb_ostream_from_buffer(tx_buf, sizeof(tx_buf));
   if (!pb_encode(&ostream, Esp32Command_fields, &cmd)) {
@@ -59,7 +62,8 @@ bool readResponse() {
   Esp32Command cmd = Esp32Command_init_zero;
 
   // Setup decode callback for config_data
-  cmd.command.user_config_command.config_data.funcs.decode = config_data_callback;
+  cmd.command.user_config_command.config_data.funcs.decode =
+      config_data_callback;
   cmd.command.user_config_command.config_data.arg = encoded_user_config;
 
   pb_istream_t istream = pb_istream_from_buffer(rx_buf, len);
@@ -69,13 +73,15 @@ bool readResponse() {
   }
 
   if (cmd.which_command != Esp32Command_user_config_command_tag ||
-      cmd.command.user_config_command.type != UserConfigCommand_RequestType_RESPONSE_CONFIG) {
+      cmd.command.user_config_command.type !=
+          UserConfigCommand_RequestType_RESPONSE_CONFIG) {
     Log.errorln("Unexpected command received");
     return false;
   }
 
   UserConfiguration config = UserConfiguration_init_zero;
-  pb_istream_t uc_stream = pb_istream_from_buffer(encoded_user_config, encoded_len);
+  pb_istream_t uc_stream =
+      pb_istream_from_buffer(encoded_user_config, encoded_len);
   if (!pb_decode(&uc_stream, UserConfiguration_fields, &config)) {
     Log.errorln("Failed to decode user config");
     return false;
@@ -84,7 +90,8 @@ bool readResponse() {
   // Print config
   Log.noticeln("Logger ID: %u", config.logger_id);
   Log.noticeln("Cell ID: %u", config.cell_id);
-  Log.noticeln("Upload method: %s", config.Upload_method == Uploadmethod_LoRa ? "LoRa" : "WiFi");
+  Log.noticeln("Upload method: %s",
+               config.Upload_method == Uploadmethod_LoRa ? "LoRa" : "WiFi");
   Log.noticeln("Upload interval: %u", config.Upload_interval);
   Log.noticeln("WiFi SSID: %s", config.WiFi_SSID);
   Log.noticeln("API URL: %s", config.API_Endpoint_URL);
@@ -103,7 +110,7 @@ void setup() {
 
   sendUserConfigRequest();
   delay(100);
-  readResponse();  
+  readResponse();
 }
 
 void loop() {}

@@ -1,9 +1,10 @@
 #include "config_server.h"
+
 #include "configuration.h"
-#include "validation.h"
 #include "protobuf_utils.h"
 #include "soil_power_sensor.pb.h"
 #include "transcoder.h"
+#include "validation.h"
 
 WebServer server(80);
 const char* ap_ssid = "ESP32-C3-Config";
@@ -283,101 +284,110 @@ void handleRoot() {
 }
 
 void handleSave() {
-    String error = validateInputs();
-    if (error != "") {
-      error.replace("\"", "\\\"");
-      String errorJson = "{\"error\":\"" + error + "\"}";
-      server.send(400, "application/json", errorJson);
-      return;
-    }
-  
-    // Parsing the webpage data into our config structure
-    config.logger_id = server.arg("logger_id").toInt();
-    config.cell_id = server.arg("cell_id").toInt();
-    config.upload_method = server.arg("upload_method");
-    config.upload_interval = server.arg("upload_interval").toInt();
-    
-    config.voltage_enabled = server.hasArg("voltage_enabled");
-    config.current_enabled = server.hasArg("current_enabled");
-    config.teros12_enabled = server.hasArg("teros12_enabled");
-    config.teros21_enabled = server.hasArg("teros21_enabled");
-    config.bme280_enabled = server.hasArg("bme280_enabled");
-    
-    config.calibration_v_slope = server.arg("calibration_v_slope").toDouble();
-    config.calibration_v_offset = server.arg("calibration_v_offset").toDouble();
-    config.calibration_i_slope = server.arg("calibration_i_slope").toDouble();
-    config.calibration_i_offset = server.arg("calibration_i_offset").toDouble();
-    
-    if (config.upload_method == "WiFi") {
-      config.wifi_ssid = server.arg("wifi_ssid");
-      config.wifi_password = server.arg("wifi_password");
-      config.api_endpoint_url = server.arg("api_endpoint_url");
-      config.api_endpoint_port = 2;
+  String error = validateInputs();
+  if (error != "") {
+    error.replace("\"", "\\\"");
+    String errorJson = "{\"error\":\"" + error + "\"}";
+    server.send(400, "application/json", errorJson);
+    return;
+  }
+
+  // Parsing the webpage data into our config structure
+  config.logger_id = server.arg("logger_id").toInt();
+  config.cell_id = server.arg("cell_id").toInt();
+  config.upload_method = server.arg("upload_method");
+  config.upload_interval = server.arg("upload_interval").toInt();
+
+  config.voltage_enabled = server.hasArg("voltage_enabled");
+  config.current_enabled = server.hasArg("current_enabled");
+  config.teros12_enabled = server.hasArg("teros12_enabled");
+  config.teros21_enabled = server.hasArg("teros21_enabled");
+  config.bme280_enabled = server.hasArg("bme280_enabled");
+
+  config.calibration_v_slope = server.arg("calibration_v_slope").toDouble();
+  config.calibration_v_offset = server.arg("calibration_v_offset").toDouble();
+  config.calibration_i_slope = server.arg("calibration_i_slope").toDouble();
+  config.calibration_i_offset = server.arg("calibration_i_offset").toDouble();
+
+  if (config.upload_method == "WiFi") {
+    config.wifi_ssid = server.arg("wifi_ssid");
+    config.wifi_password = server.arg("wifi_password");
+    config.api_endpoint_url = server.arg("api_endpoint_url");
+    config.api_endpoint_port = 2;
+  } else {
+    config.wifi_ssid = "";
+    config.wifi_password = "";
+    config.api_endpoint_url = "";
+    config.api_endpoint_port = 0;
+  }
+
+  printConfiguration();
+
+  UserConfiguration pb_config = UserConfiguration_init_zero;
+  pb_config.logger_id = config.logger_id;
+  pb_config.cell_id = config.cell_id;
+  pb_config.Upload_interval = config.upload_interval;
+  pb_config.Upload_method =
+      (config.upload_method == "WiFi") ? Uploadmethod_WiFi : Uploadmethod_LoRa;
+
+  if (config.voltage_enabled) {
+    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+        EnabledSensor_Voltage;
+  }
+  if (config.current_enabled) {
+    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+        EnabledSensor_Current;
+  }
+  if (config.teros12_enabled) {
+    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+        EnabledSensor_Teros12;
+  }
+  if (config.teros21_enabled) {
+    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+        EnabledSensor_Teros21;
+  }
+  if (config.bme280_enabled) {
+    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+        EnabledSensor_BME280;
+  }
+
+  pb_config.Voltage_Slope = config.calibration_v_slope;
+  pb_config.Voltage_Offset = config.calibration_v_offset;
+  pb_config.Current_Slope = config.calibration_i_slope;
+  pb_config.Current_Offset = config.calibration_i_offset;
+
+  if (config.upload_method == "WiFi") {
+    strncpy(pb_config.WiFi_SSID, config.wifi_ssid.c_str(),
+            sizeof(pb_config.WiFi_SSID));
+    strncpy(pb_config.WiFi_Password, config.wifi_password.c_str(),
+            sizeof(pb_config.WiFi_Password));
+    strncpy(pb_config.API_Endpoint_URL, config.api_endpoint_url.c_str(),
+            sizeof(pb_config.API_Endpoint_URL));
+    pb_config.API_Endpoint_Port = config.api_endpoint_port;
+  }
+
+  uint8_t buffer[UserConfiguration_size];
+  size_t message_length = EncodeUserConfiguration(&pb_config, buffer);
+  UserConfiguration decoded_config = UserConfiguration_init_zero;
+
+  if (message_length > 0) {
+    printEncodedData(buffer, message_length);
+
+    if (DecodeUserConfiguration(buffer, message_length, &decoded_config) == 0) {
+      printDecodedConfig(&decoded_config);
     } else {
-      config.wifi_ssid = "";
-      config.wifi_password = "";
-      config.api_endpoint_url = "";
-      config.api_endpoint_port = 0;
+      Serial.println("Failed to decode the configuration");
     }
-  
-    printConfiguration();
-  
-    UserConfiguration pb_config = UserConfiguration_init_zero;
-    pb_config.logger_id = config.logger_id;
-    pb_config.cell_id = config.cell_id;
-    pb_config.Upload_interval = config.upload_interval;
-    pb_config.Upload_method = (config.upload_method == "WiFi") ? Uploadmethod_WiFi : Uploadmethod_LoRa;
-    
-    if (config.voltage_enabled) {
-      pb_config.enabled_sensors[pb_config.enabled_sensors_count++] = EnabledSensor_Voltage;
-    }
-    if (config.current_enabled) {
-      pb_config.enabled_sensors[pb_config.enabled_sensors_count++] = EnabledSensor_Current;
-    }
-    if (config.teros12_enabled) {
-      pb_config.enabled_sensors[pb_config.enabled_sensors_count++] = EnabledSensor_Teros12;
-    }
-    if (config.teros21_enabled) {
-      pb_config.enabled_sensors[pb_config.enabled_sensors_count++] = EnabledSensor_Teros21;
-    }
-    if (config.bme280_enabled) {
-      pb_config.enabled_sensors[pb_config.enabled_sensors_count++] = EnabledSensor_BME280;
-    }
-    
-    pb_config.Voltage_Slope = config.calibration_v_slope;
-    pb_config.Voltage_Offset = config.calibration_v_offset;
-    pb_config.Current_Slope = config.calibration_i_slope;
-    pb_config.Current_Offset = config.calibration_i_offset;
-    
-    if (config.upload_method == "WiFi") {
-      strncpy(pb_config.WiFi_SSID, config.wifi_ssid.c_str(), sizeof(pb_config.WiFi_SSID));
-      strncpy(pb_config.WiFi_Password, config.wifi_password.c_str(), sizeof(pb_config.WiFi_Password));
-      strncpy(pb_config.API_Endpoint_URL, config.api_endpoint_url.c_str(), sizeof(pb_config.API_Endpoint_URL));
-      pb_config.API_Endpoint_Port = config.api_endpoint_port;
-    }
-  
-    uint8_t buffer[UserConfiguration_size];
-    size_t message_length = EncodeUserConfiguration(&pb_config, buffer);
-    UserConfiguration decoded_config = UserConfiguration_init_zero;
-    
-    if (message_length > 0) {
-      printEncodedData(buffer, message_length);
-      
-      if (DecodeUserConfiguration(buffer, message_length, &decoded_config) == 0) {
-        printDecodedConfig(&decoded_config);
-      } else {
-        Serial.println("Failed to decode the configuration");
-      }
-    } else {
-      Serial.println("Failed to encode the configuration");
-    }
-    // Update the module's current configuration
-    user_config.updateConfig(&decoded_config);
-    // Prepare success message
-    String successMessage = "Configuration saved successfully!\\n";
-    successMessage += "Please RESET the STM32 to update the configurations";
-    String successJson = "{\"success\":\"" + successMessage + "\"}";
-    server.send(200, "application/json", successJson);
+  } else {
+    Serial.println("Failed to encode the configuration");
+  }
+  // Update the module's current configuration
+  user_config.updateConfig(&decoded_config);
+  // Prepare success message
+  String successMessage = "Configuration saved successfully!\\n";
+  successMessage += "Please RESET the STM32 to update the configurations";
+  String successJson = "{\"success\":\"" + successMessage + "\"}";
+  server.send(200, "application/json", successJson);
 }
 
 void setupServer() {
@@ -386,6 +396,4 @@ void setupServer() {
   server.begin();
 }
 
-void handleClient() {
-  server.handleClient();
-}
+void handleClient() { server.handleClient(); }

@@ -1,6 +1,7 @@
 #include <WiFi.h>
-#include "configuration.h"
+
 #include "config_server.h"
+#include "configuration.h"
 
 void setup() {
   Serial.begin(115200);
@@ -16,6 +17,4 @@ void setup() {
   Serial.println("HTTP server started");
 }
 
-void loop() {
-  handleClient();
-}
+void loop() { handleClient(); }

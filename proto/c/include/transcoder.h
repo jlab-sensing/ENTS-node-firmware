@@ -225,12 +225,12 @@ size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
  * @param config_data Pointer to UserConfiguration data
  * @param buffer Output buffer for encoded data
  * @param size Size of output buffer
- * 
+ *
  * @return Number of bytes in @p buffer
  */
-size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type, 
-    const UserConfiguration *config_data,
-    uint8_t *buffer, size_t size);
+size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
+                               const UserConfiguration *config_data,
+                               uint8_t *buffer, size_t size);
 
 /**
  * @brief Encodes user configuration data.

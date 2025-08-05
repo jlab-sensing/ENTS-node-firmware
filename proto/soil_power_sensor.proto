@@ -102,7 +102,7 @@ message Esp32Command {
     PageCommand page_command = 1;
     TestCommand test_command = 2;
     WiFiCommand wifi_command = 3;
-    UserConfigCommand user_config_command = 4; 
+    UserConfigCommand user_config_command = 4;
   }
 }
 

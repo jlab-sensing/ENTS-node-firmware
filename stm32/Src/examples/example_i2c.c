@@ -17,18 +17,16 @@
  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "adc.h"
+#include "controller/controller.h"
+#include "controller/wifi.h"
 #include "gpio.h"
+#include "i2c.h"
 #include "rtc.h"
 #include "stm32_adv_trace.h"
 #include "stm32_systime.h"
 #include "usart.h"
-#include "adc.h"
-#include "i2c.h"
-
-#include "controller/controller.h"
-#include "controller/wifi.h"
 #include "userConfig.h"
-
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -68,24 +66,24 @@ void SystemClock_Config(void);
 
 //     tx->data = "A";
 //     tx->len = sizeof("A");
-  
+
 //     // send transaction
 //     ControllerStatus status = CONTROLLER_SUCCESS;
 //     status = ControllerTransaction(g_controller_i2c_timeout);
 //     if (status != CONTROLLER_SUCCESS) {
 //       return -1;
 //     }
-  
+
 //     // check for errors
 //     if (rx->len == 0) {
 //       return -1;
 //     }
-  
+
 // if(rx->data == "A"){
 
 // }
 //   }
-  
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -123,7 +121,7 @@ int main(void) {
   MX_DMA_Init();
   MX_ADC_Init();
   MX_USART1_UART_Init();
-  MX_I2C2_Init(); 
+  MX_I2C2_Init();
   SystemApp_Init();
 
   ControllerInit();
@@ -131,7 +129,7 @@ int main(void) {
   /* USER CODE BEGIN 2 */
   const char* ssid = "ABC";
   const char* passwd = "123";
- 
+
   APP_LOG(TS_OFF, VLEVEL_M, "Connecting to %s. Status: ", ssid);
   uint8_t wifi_status = ControllerWiFiInit(ssid, passwd);
   APP_LOG(TS_OFF, VLEVEL_M, "%d\r\n", wifi_status);
@@ -205,7 +203,7 @@ void Error_Handler(void) {
   char error[30];
   int error_len =
       snprintf(error, sizeof(error), "Error!  HAL Status: %d\n", rc);
-  HAL_UART_Transmit(&huart1, (const uint8_t *)error, error_len, 1000);
+  HAL_UART_Transmit(&huart1, (const uint8_t*)error, error_len, 1000);
 
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
@@ -222,7 +220,7 @@ void Error_Handler(void) {
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t *file, uint32_t line) {
+void assert_failed(uint8_t* file, uint32_t line) {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line
      number, ex: printf("Wrong parameters value: file %s on line %d\r\n", file,
