@@ -17,12 +17,12 @@ jobs:
       run: sudo apt-get install -y doxygen graphviz
 
     - name: Generate Doxygen Documentation
-      run: doxygen Doxyfile  # Adjust this to match your Doxyfile location and name
+      run: doxygen doxygen/Doxyfile
     
     - name: Upload pages artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: docs/html
+        path: doxygen/build/html
 
   deploy:
     needs: build

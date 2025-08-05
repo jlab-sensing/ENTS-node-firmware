@@ -3,6 +3,7 @@
 # NO CHECKED-IN PROTOBUF GENCODE
 # source: soil_power_sensor.proto
 # Protobuf Python Version: 5.27.2
+# Protobuf Python Version: 6.31.1
 """Generated protocol buffer code."""
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import descriptor_pool as _descriptor_pool

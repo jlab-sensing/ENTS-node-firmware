@@ -3,18 +3,8 @@
  * @file    userConfig.c
  * @author  Ahmed Hassan Falah
  * @brief   Soil Power Sensor userConfig library
- *          This file provides functions for managing user configuration data
- *          via UART communication and storage in FRAM. It includes functions
- *          for handling UART interrupts for receiving data, writing and
- *          reading data from FRAM, and sending acknowledgment messages.
  *
  * @details
- *          - The library initializes UART for interrupt-based receiving and
- *            handles incoming data in an interrupt service routine.
- *          - It supports both interrupt-driven and polling methods for
- *receiving data.
- *          - The received data length is stored alongside the encoded data in
- *            FRAM to facilitate data retrieval upon startup.
  *
  * @date    10/13/2024
  ******************************************************************************
@@ -40,6 +30,31 @@ extern "C" {
 #include "transcoder.h"
 #include "usart.h"
 #include "usart_if.h"
+
+/**
+ * @ingroup stm32
+ * @defgroup userConfig User Configuration
+ * @brief   Soil Power Sensor userConfig library
+ *
+ * This file provides functions for managing user configuration data
+ * via UART communication and storage in FRAM. It includes functions
+ * for handling UART interrupts for receiving data, writing and
+ * reading data from FRAM, and sending acknowledgment messages.
+ *
+ * The library initializes UART for interrupt-based receiving and handles
+ * incoming data in an interrupt service routine.
+ *
+ * It supports both interrupt-driven and polling methods for receiving data.
+ *
+ * The received data length is stored alongside the encoded data in FRAM to
+ * facilitate data retrieval upon startup.
+ *
+ * Examples:
+ * - @ref example_gui.c
+ * - @ref example_userConfig.c
+ *
+ * @{
+ */
 
 // Maximum size of the received data buffer (from protobuf definition).
 #define RX_BUFFER_SIZE UserConfiguration_size
@@ -201,6 +216,10 @@ const UserConfiguration *UserConfigGet(void);
  * SystemApp_Init() to be called before this function can be used.
  */
 void UserConfigPrint(void);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

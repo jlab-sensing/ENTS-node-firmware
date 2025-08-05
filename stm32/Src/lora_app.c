@@ -328,9 +328,9 @@ void LoRaWAN_Init(void)
   // convert interval to ms
   TxPeriodicity = (cfg->Upload_interval * 1000);
   // divide by number of sensors
-  TxPeriodicity /= cfg->enabled_sensors_count;
+  //TxPeriodicity /= cfg->enabled_sensors_count;
   // divide by 2 to keep upload buffer empty for failed uploads
-  TxPeriodicity /= 2;
+  //TxPeriodicity /= 2;
   /* USER CODE END LoRaWAN_Init_1 */
 
   UTIL_TIMER_Create(&StopJoinTimer, JOIN_TIME, UTIL_TIMER_ONESHOT, OnStopJoinTimerEvent, NULL);
@@ -421,7 +421,6 @@ static void SendTxData(void)
 {
   /* USER CODE BEGIN SendTxData_1 */
 
-
   // preconditions
 
   // local flag for if clock has been synced
@@ -461,13 +460,22 @@ static void SendTxData(void)
   uint8_t battery_level = GetBatteryLevel();
   uint16_t temperature = SYS_GetTemperatureLevel();
 
-  FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
+  size_t size = 0;
+  FramStatus status = FramGet(AppData.Buffer, &size);
   if (status != FRAM_OK)
   {
     APP_LOG(TS_OFF, VLEVEL_M,
             "Error getting data from fram buffer. FramStatus = %d", status);
     return;
   }
+  if (size > LORAWAN_APP_DATA_BUFFER_MAX_SIZE)
+  {
+    APP_LOG(TS_OFF, VLEVEL_M, "Data size exceeds buffer size\r\n");
+    return;
+  } else {
+    AppData.BufferSize = (uint8_t) size;
+  }
+
 
   APP_LOG(TS_ON, VLEVEL_M, "Payload: ");
   for (int i = 0; i < AppData.BufferSize; i++)

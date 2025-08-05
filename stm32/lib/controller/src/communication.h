@@ -1,3 +1,13 @@
+/**
+ * @file communication.h
+ * @brief Communication interface for the controller
+ * @author John Madden <jmadden173@pm.me>
+ * @date 2024-10-13
+ *
+ * This file implements the i2c communication interface for the controller
+ * module.
+ */
+
 #ifndef LIB_CONTROLLER_SRC_COMMUNICATION_H_
 #define LIB_CONTROLLER_SRC_COMMUNICATION_H_
 
@@ -8,6 +18,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * \ingroup controllerInterface
+ * @{
+ */
 
 typedef enum {
   /** Success */
@@ -67,6 +82,10 @@ Buffer *ControllerTx(void);
  * @return Pointer to receive buffer
  */
 Buffer *ControllerRx(void);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

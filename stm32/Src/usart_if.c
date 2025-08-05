@@ -20,6 +20,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usart_if.h"
+
+#include "board.h"
 #include "userConfig.h"
 /* USER CODE BEGIN Includes */
 

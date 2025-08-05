@@ -53,10 +53,18 @@ typedef enum _WiFiCommand_Type {
     WiFiCommand_Type_CONNECT = 0,
     /* Post data to endpoint */
     WiFiCommand_Type_POST = 1,
-    /* Check API status */
+    /* Check HTTP code and response from POST */
     WiFiCommand_Type_CHECK = 2,
     /* Timesync request */
-    WiFiCommand_Type_TIME = 3
+    WiFiCommand_Type_TIME = 3,
+    /* Disconnect from WiFi network */
+    WiFiCommand_Type_DISCONNECT = 4,
+    /* Get WiFi status */
+    WiFiCommand_Type_CHECK_WIFI = 5,
+    /* Check connectivity to API */
+    WiFiCommand_Type_CHECK_API = 6,
+    /* Force NTP sync */
+    WiFiCommand_Type_NTP_SYNC = 7
 } WiFiCommand_Type;
 
 typedef enum _UserConfigCommand_RequestType {
@@ -242,8 +250,8 @@ extern "C" {
 #define _TestCommand_ChangeState_ARRAYSIZE ((TestCommand_ChangeState)(TestCommand_ChangeState_REQUEST+1))
 
 #define _WiFiCommand_Type_MIN WiFiCommand_Type_CONNECT
-#define _WiFiCommand_Type_MAX WiFiCommand_Type_TIME
-#define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_TIME+1))
+#define _WiFiCommand_Type_MAX WiFiCommand_Type_NTP_SYNC
+#define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_NTP_SYNC+1))
 
 #define _UserConfigCommand_RequestType_MIN UserConfigCommand_RequestType_REQUEST_CONFIG
 #define _UserConfigCommand_RequestType_MAX UserConfigCommand_RequestType_RESPONSE_CONFIG

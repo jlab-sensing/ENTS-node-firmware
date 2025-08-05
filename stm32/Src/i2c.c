@@ -20,6 +20,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "i2c.h"
 
+#include "board.h"
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */

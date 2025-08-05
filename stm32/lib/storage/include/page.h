@@ -5,24 +5,7 @@
  * @version 0.1
  * @date 2024-08-02
  *
- * Implements a linked list for storing pages on external memory.
- *
- * Front (Head)                   Back (Tail)
- *     |                              |
- *     v                              v
- * +--------+    +--------+       +--------+
- * | Page 1 | -> | Page 2 | -> ...| Page N |
- * +--------+    +--------+       +--------+
- *     ^                              ^
- *     |                              |
- *    NULL                           NULL
- *
- * Each page in the linked list contains a 'next' pointer pointing towards the
- * tail (Back) and a 'prev' pointer pointing towards the head (Front).
- *
- *
  * @copyright Copyright (c) 2024
- *
  */
 
 #ifndef LIB_STORAGE_INCLUDE_PAGE_H_
@@ -35,6 +18,31 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+/**
+ * @ingroup storage
+ * @defgroup page Page (WIP)
+ * @brief Paging system for fram with external sd card (WIP)
+ *
+ * @verbatim
+ * Implements a linked list for storing pages on external memory.
+ *
+ * Front (Head)                   Back (Tail)
+ *     |                              |
+ *     v                              v
+ * +--------+    +--------+       +--------+
+ * | Page 1 | -> | Page 2 | -> ...| Page N |
+ * +--------+    +--------+       +--------+
+ *     ^                              ^
+ *     |                              |
+ *    NULL                           NULL
+ * @endverbatim
+ *
+ * Each page in the linked list contains a 'next' pointer pointing towards the
+ * tail (Back) and a 'prev' pointer pointing towards the head (Front).
+ *
+ * @{
+ */
 
 typedef struct Page_s Page;
 
@@ -156,6 +164,10 @@ void PageStateSave(void);
  *
  */
 void PageStateLoad(void);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

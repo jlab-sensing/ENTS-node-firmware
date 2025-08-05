@@ -1,11 +1,10 @@
 /**
- * @file example_http.cpp
+ * @example example_http.cpp
  * @author John Madden <jmadden173@pm.me>
- * @brief Testing file for HttpClient
  * @date 2024-11-06
  *
- * @copyright Copyright (c) 2024
- *
+ * Testing file for the isspace function. This was using to debug a error with
+ * the function. PEBKAC.
  */
 
 #include <Arduino.h>

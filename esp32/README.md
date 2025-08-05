@@ -6,7 +6,7 @@ The ESP32 firmware acts as a WiFi interface the STM32 module. It gets binary dat
 
 > Before running the following ensure you have updated the ports in `platformio.ini` described in the root [README.md](../README.md).
 
-The esp32 is programmed through a bootloader through UART. A USB to TTL convert is required to program the microcontroller with your computer and can be found cheaply online. Ensure it supports 3.3V logic levels.
+The esp32 is programmed through a bootloader through UART. A USB to TTL convert is required to program the microcontroller with your computer and can be found cheaply online. Ensure it supports 3.3V logic levels. Connect `TX` to `RX` and `RX` to `TX`, `RTS`, `CTS`, and `GND`. We recommend not connecting `Vcc` as it is already powered through the USB connection. More recent versions of the board have the header removed.
 
 ### VSCode
 
@@ -23,8 +23,10 @@ Goto *PlatformIO Tab -> Project Tasks -> Upload and Monitor*
 The following can be used to flash the firmware on the esp32
 
 ```bash
-pio run -e esp32 -t upload -t monitor
+pio run -e release -t upload -t monitor
 ```
+
+> Note: If you do not have `RTS` and `CTS` connected, you will need to load into the bootloader mode. This can be done by holding the `BOOT` button while pressing the `RESET` button for the esp32. The buttons are located right above the esp32 module.
 
 ## Testing
 

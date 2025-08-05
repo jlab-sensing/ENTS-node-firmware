@@ -6,11 +6,11 @@
 #include <stdio.h>
 #include <unity.h>
 
+#include "board.h"
 #include "fram.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
-#include "main_helper.h"
 #include "usart.h"
 
 void setUp(void) {}
@@ -52,9 +52,7 @@ int main(void) {
   SystemApp_Init();
 
   // wait for UART
-  for (int i = 0; i < 1000000; i++) {
-    __NOP();
-  }
+  WaitForSerial();
 
   UNITY_BEGIN();
   RUN_TEST(test_GetTick);

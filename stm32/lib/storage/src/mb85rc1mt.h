@@ -5,10 +5,6 @@
  * @version 0.1
  * @date 2024-10-03
  *
- * Fram driver for mb85rc1mt with support across multiple devices.
- *
- * Datasheet:
- * https://www.fujitsu.com/uk/Images/MB85RC1MT.pdf
  *
  * TODO:
  * - Add sleep functionality
@@ -28,6 +24,18 @@ extern "C" {
 #include <stdio.h>
 
 #include "fram.h"
+
+/**
+ * @ingroup fram
+ * @defgroup mb85rc1mt MB85RC1MT
+ * @brief Library for interfacing with the MB85RC1MT FRAM chip
+ *
+ * Fram driver for mb85rc1mt with support across multiple devices.
+ *
+ * Datasheet: https://www.fujitsu.com/uk/Images/MB85RC1MT.pdf
+ *
+ * @{
+ */
 
 /** Size of chip in bytes */
 static const int mb85rc1mt_size = 1 << 17;
@@ -51,6 +59,10 @@ FramStatus Mb85rc1mtWrite(FramAddr addr, const uint8_t *data, size_t len);
  * @return See FramStatus
  */
 FramStatus Mb85rc1mtRead(FramAddr addr, size_t len, uint8_t *data);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

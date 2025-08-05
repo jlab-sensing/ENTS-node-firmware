@@ -22,7 +22,7 @@ static UTIL_TIMER_Object_t StatusLedTimer;
 /**
  * @brief Toggles the status LED state
  */
-void StatusLedFlashToggle(void);
+void StatusLedFlashToggle(void *arg);
 
 void StatusLedInit(void) {
   // set default state to off
@@ -42,7 +42,7 @@ void StatusLedInit(void) {
                     StatusLedFlashToggle, NULL);
 }
 
-void StatusLedFlashToggle(void) {
+void StatusLedFlashToggle(void *arg) {
   // toggle LED
   HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
 }

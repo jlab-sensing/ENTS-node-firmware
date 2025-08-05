@@ -1,10 +1,14 @@
 /**
  * @brief Library used to interface with the Dirtviz API
  *
- * Assumes that WiFi interface is connected to the network.
- *
  * @author John Madden <jmadden173@pm.me>
  * @date 2023-11-29
+ */
+
+/**
+ * @ingroup esp32
+ * @defgroup dirtviz Dirtviz
+ * @brief Library used to interface with the Dirtviz API
  */
 
 #ifndef LIB_DIRTVIZ_INCLUDE_DIRTVIZ_HPP_
@@ -19,6 +23,19 @@
 #include <cstring>
 
 #include "http.hpp"
+
+/**
+ * @ingroup dirtviz
+ * @brief Logic for interfacing with the Dirtviz API
+ *
+ * Assumes that WiFi interface is connected to the network. Uses @ref http to
+ * read http requests. Requests are formatted ad-hoc.
+ *
+ * Examples:
+ * - @ref example_dirtviz.cpp
+ *
+ * @{
+ */
 
 /**
  * @brief HTTP interface for Dirtviz API
@@ -55,7 +72,9 @@ class Dirtviz {
   /**
    * @brief Health check for API endpoint
    *
-   * @return HTTP code from health check
+   * @note The path of the server health check is hardcoded to "/api/".
+   *
+   * @return Number of bytes sent to the server
    */
   unsigned int Check();
 
@@ -65,9 +84,16 @@ class Dirtviz {
    * @param meas Pointer to serialized measurement data
    * @param meas_len Number of bytes in @p meas
    *
-   * @return Response from http server
+   * @return Number of bytes sent to the server
    */
-  HttpClient SendMeasurement(const uint8_t *meas, size_t meas_len);
+  unsigned int SendMeasurement(const uint8_t *meas, size_t meas_len);
+
+  /**
+   * @brief Get the response from the server
+   *
+   * @return HTTP response
+   */
+  HttpClient GetResponse();
 
  private:
   /** URL of API */
@@ -79,6 +105,12 @@ class Dirtviz {
    * @return Returns true if the connection succeeds, false if not
    */
   bool ClientConnect();
+
+  WiFiClient client;
 };
+
+/**
+ * @}
+ */
 
 #endif  // LIB_DIRTVIZ_INCLUDE_DIRTVIZ_HPP_

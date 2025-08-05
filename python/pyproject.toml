@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ents"
-version = "2.3.1"
+version = "2.3.3"
 authors = [
   { name="John Madden", email="jmadden173@pm.me" },
 ]
@@ -17,17 +17,20 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  'protobuf>5.0.0',
+  'protobuf==6.31.1',
   'matplotlib',
   'pandas',
   'pyserial',
   'scikit-learn',
   'tqdm',
-  'PyQt5',
   'requests',
 ]
 
 [project.optional-dependencies]
+gui = [
+  'PyQt5',
+]
+
 dev = [
   "black",
   "ruff",
@@ -37,7 +40,7 @@ dev = [
 ents = "ents.cli:entry"
 
 [project.gui-scripts]
-gui = "ents.config.user_config:main"
+ents-gui = "ents.config.user_config:main"
 
 [project.urls]
 Homepage = "https://github.com/jlab-sensing/soil-power-sensor-firmware"

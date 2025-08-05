@@ -71,6 +71,35 @@ jobs:
         pip install --user . &&
         python -m unittest discover tests
 
+  publish-to-aws:
+    needs:
+      - build
+      - test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Login to AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Upload python package to S3
+      run: aws s3 sync dist/ s3://ents-python-package/${{ github.sha }}/
+
+    - name: Show path to uploaded package
+      run: |
+        for file in dist/*; do
+          echo "https://ents-python-package.s3.amazonaws.com/${{ github.sha }}/$(basename $file)" >> $GITHUB_STEP_SUMMARY
+        done
+
   publish-to-pypi:
     name: >-
       Publish Python distribution to PyPI
@@ -113,7 +142,7 @@ jobs:
         name: python-package-distributions
         path: dist/
     - name: Sign the dists with Sigstore
-      uses: sigstore/gh-action-sigstore-python@v3.0.0
+      uses: sigstore/gh-action-sigstore-python@v3.0.1
       with:
         inputs: >-
           ./dist/*.tar.gz

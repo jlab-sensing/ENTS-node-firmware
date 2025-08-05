@@ -5,11 +5,6 @@
  * @version 0.1
  * @date 2024-08-23
  *
- * The WiFi module support CONNECT and POST commands through OnReceive. The
- * CONNECT command connects to a WiFi network and returns the timestamp from the
- * server for time syncronization purposes. The POST requires sends a HTTP POST
- * to the configured hub URL and returns the data from the HTTP response.
- *
  * @copyright Copyright (c) 2024
  *
  */
@@ -26,6 +21,18 @@
 #include "soil_power_sensor.pb.h"
 #include "template_module.hpp"
 #include "transcoder.h"
+
+/**
+ * @ingroup moduleHandler
+ * @brief WiFi module for the esp32
+
+ * The WiFi module support CONNECT and POST commands through OnReceive. The
+ * CONNECT command connects to a WiFi network and returns the timestamp from the
+ * server for time syncronization purposes. The POST requires sends a HTTP POST
+ * to the configured hub URL and returns the data from the HTTP response.
+ *
+ * @{
+ */
 
 class ModuleWiFi : public ModuleHandler::Module {
  public:
@@ -61,9 +68,17 @@ class ModuleWiFi : public ModuleHandler::Module {
 
   void Connect(const Esp32Command &cmd);
 
-  void Check(const Esp32Command &cmd);
+  void CheckRequest(const Esp32Command &cmd);
 
   void Time(const Esp32Command &cmd);
+
+  void Disconnect(const Esp32Command &cmd);
+
+  void CheckWiFi(const Esp32Command &cmd);
+
+  void CheckApi(const Esp32Command &cmd);
+
+  void NtpSync(const Esp32Command &cmd);
 
   WiFiUDP ntpUDP;
 
@@ -73,5 +88,9 @@ class ModuleWiFi : public ModuleHandler::Module {
   uint8_t request_buffer[WiFiCommand_size] = {};
   size_t request_buffer_len = 0;
 };
+
+/**
+ * @}
+ */
 
 #endif  // LIB_MODULE_HANDLER_INCLUDE_MODULES_WIFI_HPP_

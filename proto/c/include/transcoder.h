@@ -27,6 +27,14 @@ extern "C" {
 #include "soil_power_sensor.pb.h"
 
 /**
+ * @ingroup proto
+ * @defgroup protoTranscoder Transcoder
+ * @brief Library for encoding/decoding protobuf messages
+ *
+ * @{
+ */
+
+/**
  * @brief Encodes a power measurement
  *
  * The timestamp is not able to encode timezones and is references from UTC+0.
@@ -67,6 +75,26 @@ size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double vwc_raw,
                                 double vwc_adj, double temp, uint32_t ec,
                                 uint8_t *buffer);
+
+/**
+ * @brief Encodes a Teros21 measurement
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param matric_pot Matric potential
+ * @param temp Temperature in celsius
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
+                                uint32_t cell_id, double matric_pot,
+                                double temp, uint8_t *buffer);
 
 /**
  * @brief Encodes a Phytos31 measurement
@@ -232,6 +260,10 @@ size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer);
  */
 int DecodeUserConfiguration(const uint8_t *data, const size_t len,
                             UserConfiguration *config);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

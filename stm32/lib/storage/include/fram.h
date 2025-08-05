@@ -5,16 +5,18 @@
  * @version 0.1
  * @date 2024-10-02
  *
- * Function calls for read/write ensures data does not exceed size of the
- * buffers.
- *
  * TODO:
  * - Add function for checking the device ID as a test. Export expected output
  * in each library
  * - Fix multiple pages test to be universal across boards
  *
  * @copyright Copyright (c) 2024
- *
+ */
+
+/**
+ * @ingroup stm32
+ * @defgroup storage Storage
+ * @brief Library for storing data on non-volatile memory
  */
 
 #ifndef LIB_STORAGE_INCLUDE_FRAM_H_
@@ -28,6 +30,20 @@ extern "C" {
 
 #include "stm32wlxx_hal.h"
 #include "sys_app.h"
+
+/**
+ * @ingroup storage
+ * @defgroup fram FRAM
+ * @brief Library for interfacing with the FRAM chip
+ *
+ * Function calls for read/write ensures data does not exceed size of the
+ * buffers.
+ *
+ * Examples:
+ * - @ref example_retrieve_data.c
+ *
+ * @{
+ */
 
 #define USER_DATA_PAGE_ADDRESS 0x07
 #define CELL_ID_MEMORY_ADDRESS 0x00
@@ -111,6 +127,10 @@ FramAddr FramSize(void);
 FramStatus FramDump(uint16_t linesize, uint8_t displayformat, uint8_t omitjunk,
                     uint8_t printdelay_ms, uint16_t startaddress,
                     uint16_t endaddress);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

@@ -1,21 +1,21 @@
-# Soil Power Sensor Python Protobuf Bindings {#protobuf-python}
+# Soil Power Sensor Python Protobuf Bindings
 
 The soil power sensor protobuf protocol is implemented as a Python package that allows for `Measurement` messages to be decoded into a dictionary and `Response` messages to be encoded. The generated files from protobuf are also accessible for more complex use cases.
 
 
 ## Installation
 
-Use the following to install the `soil-power-sensor-protobuf` package with `pip`:
+Use the following to install the `ents` package with gui via `pip`:
 
 ```bash
-pip install soil-power-sensor-protobuf
+pip install ents[gui]
 ```
 
 You can also install the package from source with the following:
 
 ```bash
 # install package
-pip install .
+pip install .[gui]
 ```
 
 If you are planning to develop the package we recommend you install the package
@@ -25,7 +25,7 @@ reinstall it.
 
 ```bash
 # install development dependencies
-pip install -e .[dev]
+pip install -e .[gui,dev]
 ```
 
 ## Usage
@@ -143,7 +143,7 @@ The examples below can be tested standalone (without ents-backend), by running t
 #### Upload a days worth of power measurements on a 60 second interval
 
 ```shell
-ents sim --url http://localhost:8080/sensor/api --mode batch --sensor power --cell 200 --logger 200 --start 2025-05-01 --end 2025-05-02 --freq 60
+ents sim --url http://localhost:3000/api/sensor/ --mode batch --sensor power --cell 200 --logger 200 --start 2025-05-01 --end 2025-05-02 --freq 60
 ```
 
 ```
@@ -159,7 +159,7 @@ Done!
 #### Upload measurements every 10 seconds
 
 ```shell
-ents sim --url http://localhost:8080/ --mode stream --sensor power --cell 200 --logger 200 --freq 10
+ents sim --url http://localhost:3000/api/sensor/ --mode stream --sensor power --cell 200 --logger 200 --freq 10
 ```
 
 ```
@@ -172,11 +172,9 @@ total: 4, failed: 4, avg (ms): 8.97235, last (ms): 3.5027000000000004
 
 ## Testing
 
-To run the package tests, create a virtual environment, install as an editable package, and run `unittest`.
+To run the package tests, create a virtual environment, install as an editable package (if you haven't done so already), and run `unittest`.
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
+cd python/
 python -m unittest
 ```

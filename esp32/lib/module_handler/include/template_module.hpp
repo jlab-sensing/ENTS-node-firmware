@@ -17,6 +17,15 @@
 #include "soil_power_sensor.pb.h"
 
 namespace ModuleHandler {
+
+/**
+ * @ingroup moduleHandler
+ * @brief Class prototype for modules
+ *
+ * Provides a base class for modules to inherit from.
+ *
+ * @{
+ */
 class Module {
  public:
   /**
@@ -79,5 +88,9 @@ class Module {
   int type = 0;
 };
 }  // namespace ModuleHandler
+
+/**
+ * @}
+ */
 
 #endif  // LIB_MODULE_HANDLER_INCLUDE_TEMPLATE_MODULE_HPP_
