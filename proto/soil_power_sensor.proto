@@ -102,6 +102,7 @@ message Esp32Command {
     PageCommand page_command = 1;
     TestCommand test_command = 2;
     WiFiCommand wifi_command = 3;
+    UserConfigCommand user_config_command = 4; 
   }
 }
 
@@ -180,6 +181,15 @@ message WiFiCommand {
   uint32 ts = 6;
   // binary data response
   bytes resp = 7;
+}
+
+message UserConfigCommand {
+  enum RequestType {
+    REQUEST_CONFIG = 0;
+    RESPONSE_CONFIG = 1;
+  }
+  RequestType type = 1;
+  UserConfiguration config_data = 2;
 }
 
 message UserConfiguration {
