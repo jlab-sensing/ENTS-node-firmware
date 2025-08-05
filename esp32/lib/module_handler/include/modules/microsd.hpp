@@ -23,7 +23,8 @@
  * @brief MicroSD module for the esp32
 
  * The microSD module supports Save commands through OnReceive. The
- * Save command decodes protobuf-serialized data and stores it into a CSV file on the microSD card.
+ * Save command decodes protobuf-serialized data and stores it into a CSV file
+ on the microSD card.
  *
  * @{
  */
@@ -45,14 +46,13 @@ class ModuleMicroSD : public ModuleHandler::Module {
   size_t OnRequest(uint8_t *buffer);
 
  private:
-
   void Save(const Esp32Command &cmd);
   void Time(const Esp32Command &cmd);
   void Size(const Esp32Command &cmd);
   void UserConfig(const Esp32Command &cmd);
 
   /** Buffer for i2c requests */
-  uint8_t request_buffer[Esp32Command_size] = {};
+  uint8_t request_buffer[MicroSDCommand_size] = {};
   size_t request_buffer_len = 0;
 };
 

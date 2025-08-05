@@ -186,17 +186,27 @@ message MicroSDCommand {
     /* Send UserConfig for CSV header creation */
     USERCONFIG = 3;
   }
+  enum ReturnCode {
+    SUCCESS = 0;
+    ERROR_GENERAL = 1;
+    ERROR_MICROSD_NOT_INSERTED = 2;
+    ERROR_FILE_SYSTEM_NOT_MOUNTABLE = 3;
+    ERROR_PAYLOAD_NOT_DECODED = 4;
+    ERROR_FILE_NOT_OPENED = 5;
+  }
 
   /* Command type */
   Type type = 1;
   /* Filename */
   string filename = 2;
+  /* Return code */
+  ReturnCode rc = 3;
   /* Timestamp in unix epochs */
-  uint32 ts = 3;
+  uint32 ts = 4;
   /* filesize in bytes */
-  uint32 filesize = 4;
+  uint32 filesize = 5;
   /* binary data response */
-  bytes resp = 5;
+  bytes resp = 6;
 }
 
 message UserConfiguration {

@@ -70,6 +70,15 @@ typedef enum _MicroSDCommand_Type {
     MicroSDCommand_Type_USERCONFIG = 3
 } MicroSDCommand_Type;
 
+typedef enum _MicroSDCommand_ReturnCode {
+    MicroSDCommand_ReturnCode_SUCCESS = 0,
+    MicroSDCommand_ReturnCode_ERROR_GENERAL = 1,
+    MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED = 2,
+    MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE = 3,
+    MicroSDCommand_ReturnCode_ERROR_PAYLOAD_NOT_DECODED = 4,
+    MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED = 5
+} MicroSDCommand_ReturnCode;
+
 /* Struct definitions */
 /* Data shared between all measurement messages */
 typedef struct _MeasurementMetadata {
@@ -191,6 +200,8 @@ typedef struct _MicroSDCommand {
     MicroSDCommand_Type type;
     /* Filename */
     char filename[256];
+    /* Return code */
+    MicroSDCommand_ReturnCode rc;
     /* Timestamp in unix epochs */
     uint32_t ts;
     /* filesize in bytes */
@@ -263,6 +274,10 @@ extern "C" {
 #define _MicroSDCommand_Type_MAX MicroSDCommand_Type_USERCONFIG
 #define _MicroSDCommand_Type_ARRAYSIZE ((MicroSDCommand_Type)(MicroSDCommand_Type_USERCONFIG+1))
 
+#define _MicroSDCommand_ReturnCode_MIN MicroSDCommand_ReturnCode_SUCCESS
+#define _MicroSDCommand_ReturnCode_MAX MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED
+#define _MicroSDCommand_ReturnCode_ARRAYSIZE ((MicroSDCommand_ReturnCode)(MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED+1))
+
 
 
 
@@ -280,6 +295,7 @@ extern "C" {
 #define WiFiCommand_type_ENUMTYPE WiFiCommand_Type
 
 #define MicroSDCommand_type_ENUMTYPE MicroSDCommand_Type
+#define MicroSDCommand_rc_ENUMTYPE MicroSDCommand_ReturnCode
 
 #define UserConfiguration_Upload_method_ENUMTYPE Uploadmethod
 #define UserConfiguration_enabled_sensors_ENUMTYPE EnabledSensor
@@ -298,7 +314,7 @@ extern "C" {
 #define PageCommand_init_default                 {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_default                 {_TestCommand_ChangeState_MIN, 0}
 #define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
-#define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", 0, 0, {0, {0}}}
+#define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, 0, {0, {0}}}
 #define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
 #define PowerMeasurement_init_zero               {0, 0}
@@ -312,7 +328,7 @@ extern "C" {
 #define PageCommand_init_zero                    {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_zero                    {_TestCommand_ChangeState_MIN, 0}
 #define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
-#define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", 0, 0, {0, {0}}}
+#define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, 0, {0, {0}}}
 #define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -355,9 +371,10 @@ extern "C" {
 #define WiFiCommand_port_tag                     8
 #define MicroSDCommand_type_tag                  1
 #define MicroSDCommand_filename_tag              2
-#define MicroSDCommand_ts_tag                    3
-#define MicroSDCommand_filesize_tag              4
-#define MicroSDCommand_resp_tag                  5
+#define MicroSDCommand_rc_tag                    3
+#define MicroSDCommand_ts_tag                    4
+#define MicroSDCommand_filesize_tag              5
+#define MicroSDCommand_resp_tag                  6
 #define Esp32Command_page_command_tag            1
 #define Esp32Command_test_command_tag            2
 #define Esp32Command_wifi_command_tag            3
@@ -479,9 +496,10 @@ X(a, STATIC,   SINGULAR, UINT32,   port,              8)
 #define MicroSDCommand_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
 X(a, STATIC,   SINGULAR, STRING,   filename,          2) \
-X(a, STATIC,   SINGULAR, UINT32,   ts,                3) \
-X(a, STATIC,   SINGULAR, UINT32,   filesize,          4) \
-X(a, STATIC,   SINGULAR, BYTES,    resp,              5)
+X(a, STATIC,   SINGULAR, UENUM,    rc,                3) \
+X(a, STATIC,   SINGULAR, UINT32,   ts,                4) \
+X(a, STATIC,   SINGULAR, UINT32,   filesize,          5) \
+X(a, STATIC,   SINGULAR, BYTES,    resp,              6)
 #define MicroSDCommand_CALLBACK NULL
 #define MicroSDCommand_DEFAULT NULL
 
@@ -538,7 +556,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define Esp32Command_size                        607
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
-#define MicroSDCommand_size                      513
+#define MicroSDCommand_size                      515
 #define PageCommand_size                         20
 #define Phytos31Measurement_size                 18
 #define PowerMeasurement_size                    18

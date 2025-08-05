@@ -210,12 +210,37 @@ int main(void) {
   }
 
 #ifdef SAVE_TO_MICROSD
-  uint32_t rc = ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
-  if (rc == -1) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Error: Failed to send UserConfig to ESP32!\r\n");
-  } else if (rc == 0) {
-    APP_LOG(TS_OFF, VLEVEL_M,
-            "Error: Sent UserConfig to ESP32, but wrote empty file!\r\n");
+  MicroSDCommand_ReturnCode rc =
+      ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
+  switch (rc) {
+    case MicroSDCommand_ReturnCode_SUCCESS:
+      APP_LOG(TS_OFF, VLEVEL_L,
+              "Success.\r\n");
+      break;
+    case MicroSDCommand_ReturnCode_ERROR_GENERAL:
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "Error: General error.\r\n");
+      break;
+    case MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED:
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "Error: MicroSD card not inserted.\r\n");
+      break;
+    case MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE:
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "Error: File system on microSD card not mountable.\r\n");
+      break;
+    case MicroSDCommand_ReturnCode_ERROR_PAYLOAD_NOT_DECODED:
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "Error: Payload in sent message not decodable.\r\n");
+      break;
+    case MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED:
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "Error: File(s) on microSD card not openable.\r\n");
+      break;
+    default:
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "Error: Unknown MicroSDCommand_ReturnCode.\r\n");
+      break;
   }
 #endif
 

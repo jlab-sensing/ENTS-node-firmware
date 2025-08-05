@@ -98,8 +98,7 @@ uint32_t ControllerMicroSDSave(const char *filename, const uint8_t *data,
   Esp32Command cmd = Esp32Command_init_default;
   cmd = DecodeEsp32Command(rx->data, rx->len);
 
-  // return filesize
-  return cmd.command.microsd_command.filesize;
+  return cmd.command.microsd_command.rc;
 }
 
 uint32_t ControllerMicroSDUserConfig(UserConfiguration *uc,
@@ -136,6 +135,5 @@ uint32_t ControllerMicroSDUserConfig(UserConfiguration *uc,
   Esp32Command cmd = Esp32Command_init_default;
   cmd = DecodeEsp32Command(rx->data, rx->len);
 
-  // return filesize
-  return cmd.command.microsd_command.filesize;
+  return cmd.command.microsd_command.rc;
 }
