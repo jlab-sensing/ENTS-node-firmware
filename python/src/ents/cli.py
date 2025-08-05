@@ -464,9 +464,9 @@ def calibrate(args):
     V_STOP = 2.0
     V_STEP = 0.5
 
-    I_START = -0.009
-    I_STOP = 0.009
-    I_STEP = 0.0045
+    I_START = -0.0009
+    I_STOP = 0.0009
+    I_STEP = 0.00045
 
     def record_calibrate(start, stop, step, name: str):
         """Record and calibrate

@@ -63,7 +63,7 @@ void SensorsMeasure(void);
  *
  * The task priority is set to 0 to trigger the measurement of sensors.
  */
-void SensorsRun(void);
+void SensorsRun(void *arg);
 
 void SensorsInit(void) {
   // set upload interval
@@ -83,6 +83,7 @@ void SensorsInit(void) {
 void SensorsStart(void) {
   // start the timer
   UTIL_TIMER_Start(&MeasureTimer);
+  SensorsRun(NULL);
 }
 
 void SensorsStop(void) {
@@ -116,6 +117,12 @@ void SensorsMeasure(void) {
   for (int i = 0; i < callback_arr_len; i++) {
     // call measurement function
     buffer_len = callback_arr[i](buffer, ts);
+
+    if (buffer_len == ((size_t)-1)) {
+      APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");
+      return;
+    }
+
     APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
@@ -137,9 +144,9 @@ void SensorsMeasure(void) {
     // add to tx buffer
     FramStatus status = FramPut(buffer, buffer_len);
     if (status == FRAM_BUFFER_FULL) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Error: TX Buffer full!\r\n");
+      APP_LOG(TS_ON, VLEVEL_M, "Error: TX Buffer full!\r\n");
     } else if (status != FRAM_OK) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Error: General FRAM buffer!\r\n");
+      APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
     }
   }
 }
@@ -153,7 +160,7 @@ size_t SensorsMeasureTest(uint8_t *data) {
   return sizeof(static_data);
 }
 
-void SensorsRun(void) {
+void SensorsRun(void *arg) {
   // trigger task to run
   UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_Measurement), CFG_SEQ_Prio_0);
 }

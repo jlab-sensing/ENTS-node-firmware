@@ -64,7 +64,7 @@ typedef enum
 {
   CFG_SEQ_Prio_0,
   /* USER CODE BEGIN CFG_SEQ_Prio_Id_t */
-
+  CFG_SEQ_Prio_1,
   /* USER CODE END CFG_SEQ_Prio_Id_t */
   CFG_SEQ_Prio_NBR,
 } CFG_SEQ_Prio_Id_t;

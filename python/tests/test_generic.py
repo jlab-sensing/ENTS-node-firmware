@@ -120,8 +120,8 @@ class TestDecode(unittest.TestCase):
         self.assertEqual(123, meas_dict["data"]["ec"])
         self.assertEqual(int, meas_dict["data_type"]["ec"])
 
-    def test_phytos31(self):
-        """Test decoding of Phytos31 measurement"""
+    def test_bme280(self):
+        """Test decoding of bme280 measurement"""
 
         meas = Measurement()
         meas.meta.CopyFrom(self.meta)
@@ -207,6 +207,27 @@ class TestDecode(unittest.TestCase):
         # decode
         with self.assertRaises(KeyError):
             decode_measurement(data=meas_str)
+
+    def test_missing_default_values(self):
+        """Test to ensure that default valued fields are included in the
+        decoded dictionary
+        """
+
+        meas = Measurement()
+        meas.meta.CopyFrom(self.meta)
+
+        meas.teros12.vwc_raw = 2141.52
+        meas.teros12.vwc_adj = 0.45
+        meas.teros12.temp = 25.0
+
+        # set integer to default value of 0
+        meas.teros12.ec = 0
+
+        meas_str = meas.SerializeToString()
+
+        meas_dict = decode_measurement(data=meas_str)
+
+        self.assertIn("ec", meas_dict["data"])
 
 
 class TestEsp32(unittest.TestCase):
