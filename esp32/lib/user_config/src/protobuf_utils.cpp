@@ -1,4 +1,4 @@
-#include "protobuf_utils.h"
+#include "protobuf_utils.hpp"
 
 #include <Arduino.h>
 

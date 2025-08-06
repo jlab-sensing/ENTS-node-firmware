@@ -1,8 +1,4 @@
-#include "validation.h"
-
-#include "configuration.h"
-
-extern WebServer server;
+#include "validation.hpp"
 
 String validateUInt(const String& value, const String& name) {
   if (value.length() == 0) {
@@ -44,39 +40,3 @@ String validateURL(const String& value) {
   return "";
 }
 
-String validateInputs() {
-  String error;
-
-  // Validate Upload Settings
-  if ((error = validateUInt(server.arg("logger_id"), "Logger ID")) != "")
-    return error;
-  if ((error = validateUInt(server.arg("cell_id"), "Cell ID")) != "")
-    return error;
-  if ((error = validateUInt(server.arg("upload_interval"),
-                            "Upload Interval")) != "")
-    return error;
-
-  // Validate Measurement Settings
-  if ((error = validateFloat(server.arg("calibration_v_slope"),
-                             "Calibration V Slope")) != "")
-    return error;
-  if ((error = validateFloat(server.arg("calibration_v_offset"),
-                             "Calibration V Offset")) != "")
-    return error;
-  if ((error = validateFloat(server.arg("calibration_i_slope"),
-                             "Calibration I Slope")) != "")
-    return error;
-  if ((error = validateFloat(server.arg("calibration_i_offset"),
-                             "Calibration I Offset")) != "")
-    return error;
-
-  // Validate WiFi Settings if WiFi is selected
-  if (server.arg("upload_method") == "WiFi") {
-    if (server.arg("wifi_ssid").length() == 0)
-      return "WiFi SSID cannot be empty";
-    if ((error = validateURL(server.arg("api_endpoint_url"))) != "")
-      return error;
-  }
-
-  return "";  // Empty string when no error
-}

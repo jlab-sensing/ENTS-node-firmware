@@ -1,14 +1,40 @@
-#include "config_server.h"
+#include "config_server.hpp"
 
-#include "configuration.h"
-#include "protobuf_utils.h"
+#include <WebServer.h>
+#include <ArduinoLog.h>
+
+#include "configuration.hpp"
+#include "protobuf_utils.hpp"
 #include "soil_power_sensor.pb.h"
 #include "transcoder.h"
-#include "validation.h"
+#include "validation.hpp"
 
+
+/** Webserver instance on port 80 */
 WebServer server(80);
-const char* ap_ssid = "ESP32-C3-Config";
-const char* ap_password = "configureme";
+
+/** @brief Handle the root path of the web server.
+ * 
+ * This function serves the root path of the web server, displaying the configuration
+ * form for the user to fill out.
+ */
+void handleRoot();
+
+/**
+ * @brief Handle save action.
+ */
+void handleSave();
+
+/**
+ * @brief Validate user inputs from the web form.
+ *
+ * This function checks the inputs provided by the user in the web form
+ * and returns a string containing any validation errors.
+ *
+ * @return A string with validation errors. Emptyry string for no errors.
+ */
+String validateInputs();
+
 
 void handleRoot() {
   String html = R"=====(
@@ -284,6 +310,7 @@ void handleRoot() {
 }
 
 void handleSave() {
+  // validate inputs and return error if any
   String error = validateInputs();
   if (error != "") {
     error.replace("\"", "\\\"");
@@ -292,97 +319,84 @@ void handleSave() {
     return;
   }
 
+  UserConfiguration config = UserConfiguration_init_default;
+
   // Parsing the webpage data into our config structure
   config.logger_id = server.arg("logger_id").toInt();
   config.cell_id = server.arg("cell_id").toInt();
-  config.upload_method = server.arg("upload_method");
-  config.upload_interval = server.arg("upload_interval").toInt();
 
-  config.voltage_enabled = server.hasArg("voltage_enabled");
-  config.current_enabled = server.hasArg("current_enabled");
-  config.teros12_enabled = server.hasArg("teros12_enabled");
-  config.teros21_enabled = server.hasArg("teros21_enabled");
-  config.bme280_enabled = server.hasArg("bme280_enabled");
+  // set upload method
+  String upload_method = server.arg("upload_method");
+  if (upload_method == "LoRa") {
+    config.Upload_method = Uploadmethod_LoRa;
+  } else if (upload_method == "WiFi") {
+    config.Upload_method = Uploadmethod_WiFi;
 
-  config.calibration_v_slope = server.arg("calibration_v_slope").toDouble();
-  config.calibration_v_offset = server.arg("calibration_v_offset").toDouble();
-  config.calibration_i_slope = server.arg("calibration_i_slope").toDouble();
-  config.calibration_i_offset = server.arg("calibration_i_offset").toDouble();
-
-  if (config.upload_method == "WiFi") {
-    config.wifi_ssid = server.arg("wifi_ssid");
-    config.wifi_password = server.arg("wifi_password");
-    config.api_endpoint_url = server.arg("api_endpoint_url");
-    config.api_endpoint_port = 2;
+    // copy ssid
+    String wifi_ssid = server.arg("wifi_ssid");
+    wifi_ssid.trim();
+    strncpy(config.WiFi_SSID, wifi_ssid.c_str(),
+            sizeof(config.WiFi_SSID));
+   
+    // copy password
+    String wifi_password = server.arg("wifi_password");
+    wifi_password.trim();
+    strncpy(config.WiFi_Password, wifi_password.c_str(),
+            sizeof(config.WiFi_Password));
+   
+    // copy url
+    String api_endpoint_url = server.arg("api_endpoint_url");
+    api_endpoint_url.trim();
+    strncpy(config.API_Endpoint_URL, api_endpoint_url.c_str(),
+            sizeof(config.API_Endpoint_URL));
   } else {
-    config.wifi_ssid = "";
-    config.wifi_password = "";
-    config.api_endpoint_url = "";
-    config.api_endpoint_port = 0;
+    Log.errorln("Invalid upload method: %s.", upload_method.c_str());
+    Log.errorln("Defaulting to LoRa.");
   }
-
-  printConfiguration();
-
-  UserConfiguration pb_config = UserConfiguration_init_zero;
-  pb_config.logger_id = config.logger_id;
-  pb_config.cell_id = config.cell_id;
-  pb_config.Upload_interval = config.upload_interval;
-  pb_config.Upload_method =
-      (config.upload_method == "WiFi") ? Uploadmethod_WiFi : Uploadmethod_LoRa;
-
-  if (config.voltage_enabled) {
-    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+    
+  config.Upload_interval = server.arg("upload_interval").toInt();
+ 
+  bool voltage_enabled = server.hasArg("voltage_enabled");
+  if (voltage_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
         EnabledSensor_Voltage;
   }
-  if (config.current_enabled) {
-    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+
+  bool current_enabled = server.hasArg("current_enabled");
+  if (current_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
         EnabledSensor_Current;
   }
-  if (config.teros12_enabled) {
-    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+  
+  bool teros12_enabled = server.hasArg("teros12_enabled");
+  if (teros12_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
         EnabledSensor_Teros12;
   }
-  if (config.teros21_enabled) {
-    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+
+  bool teros21_enabled = server.hasArg("teros21_enabled");
+  if (teros21_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
         EnabledSensor_Teros21;
   }
-  if (config.bme280_enabled) {
-    pb_config.enabled_sensors[pb_config.enabled_sensors_count++] =
+
+  bool bme280_enabled = server.hasArg("bme280_enabled");
+  if (bme280_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
         EnabledSensor_BME280;
   }
 
-  pb_config.Voltage_Slope = config.calibration_v_slope;
-  pb_config.Voltage_Offset = config.calibration_v_offset;
-  pb_config.Current_Slope = config.calibration_i_slope;
-  pb_config.Current_Offset = config.calibration_i_offset;
+  config.Voltage_Slope = server.arg("calibration_v_slope").toDouble();
+  config.Voltage_Offset = server.arg("calibration_v_offset").toDouble();
+  config.Current_Slope = server.arg("calibration_i_slope").toDouble();
+  config.Current_Offset = server.arg("calibration_i_offset").toDouble();
 
-  if (config.upload_method == "WiFi") {
-    strncpy(pb_config.WiFi_SSID, config.wifi_ssid.c_str(),
-            sizeof(pb_config.WiFi_SSID));
-    strncpy(pb_config.WiFi_Password, config.wifi_password.c_str(),
-            sizeof(pb_config.WiFi_Password));
-    strncpy(pb_config.API_Endpoint_URL, config.api_endpoint_url.c_str(),
-            sizeof(pb_config.API_Endpoint_URL));
-    pb_config.API_Endpoint_Port = config.api_endpoint_port;
-  }
+  setConfig(config);
 
-  uint8_t buffer[UserConfiguration_size];
-  size_t message_length = EncodeUserConfiguration(&pb_config, buffer);
-  UserConfiguration decoded_config = UserConfiguration_init_zero;
-
-  if (message_length > 0) {
-    printEncodedData(buffer, message_length);
-
-    if (DecodeUserConfiguration(buffer, message_length, &decoded_config) == 0) {
-      printDecodedConfig(&decoded_config);
-    } else {
-      Serial.println("Failed to decode the configuration");
-    }
-  } else {
-    Serial.println("Failed to encode the configuration");
-  }
+  // NOTE: Direclty setting
   // Update the module's current configuration
-  user_config.updateConfig(&decoded_config);
+  //user_config.updateConfig(&decoded_config);
+
   // Prepare success message
   String successMessage = "Configuration saved successfully!\\n";
   successMessage += "Please RESET the STM32 to update the configurations";
@@ -397,3 +411,40 @@ void setupServer() {
 }
 
 void handleClient() { server.handleClient(); }
+
+String validateInputs() {
+  String error;
+
+  // Validate Upload Settings
+  if ((error = validateUInt(server.arg("logger_id"), "Logger ID")) != "")
+    return error;
+  if ((error = validateUInt(server.arg("cell_id"), "Cell ID")) != "")
+    return error;
+  if ((error = validateUInt(server.arg("upload_interval"),
+                            "Upload Interval")) != "")
+    return error;
+
+  // Validate Measurement Settings
+  if ((error = validateFloat(server.arg("calibration_v_slope"),
+                             "Calibration V Slope")) != "")
+    return error;
+  if ((error = validateFloat(server.arg("calibration_v_offset"),
+                             "Calibration V Offset")) != "")
+    return error;
+  if ((error = validateFloat(server.arg("calibration_i_slope"),
+                             "Calibration I Slope")) != "")
+    return error;
+  if ((error = validateFloat(server.arg("calibration_i_offset"),
+                             "Calibration I Offset")) != "")
+    return error;
+
+  // Validate WiFi Settings if WiFi is selected
+  if (server.arg("upload_method") == "WiFi") {
+    if (server.arg("wifi_ssid").length() == 0)
+      return "WiFi SSID cannot be empty";
+    if ((error = validateURL(server.arg("api_endpoint_url"))) != "")
+      return error;
+  }
+
+  return "";  // Empty string when no error
+}

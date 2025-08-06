@@ -1,16 +1,17 @@
-#ifndef CONFIG_SERVER_H
-#define CONFIG_SERVER_H
+#ifndef LIB_USER_CONFIG_INCLUDE_CONFIG_SERVER_H
+#define LIB_USER_CONFIG_INCLUDE_CONFIG_SERVER_H
 
-#include <WebServer.h>
-#include "configuration.hpp"
-#include "modules/wifi_userconfig.hpp"
-
-extern WebServer server;
-extern ModuleHandler::ModuleUserConfig user_config;
-
-void handleRoot();
-void handleSave();
+/**
+ * @brief Setup webserver
+ */
 void setupServer();
+
+/**
+ * @brief Call to handle requests to the web server.
+ *
+ * This function should be called in the main loop to process incoming HTTP
+ * requests.
+ */
 void handleClient();
 
-#endif
+#endif  // LIB_USER_CONFIG_INCLUDE_CONFIG_SERVER_H

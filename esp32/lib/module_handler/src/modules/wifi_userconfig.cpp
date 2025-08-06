@@ -4,7 +4,8 @@
 #include <pb_encode.h>
 #include <string.h>
 
-#include "config_server.h"
+#include "config_server.hpp"
+#include "configuration.hpp"
 
 namespace ModuleHandler {
 
@@ -16,6 +17,7 @@ ModuleUserConfig::ModuleUserConfig() : Module() {
 }
 
 void ModuleUserConfig::OnReceive(const Esp32Command &cmd) {
+  // Check which command
   if (cmd.which_command != Esp32Command_user_config_command_tag) {
     Log.errorln(" Wrong command type received");
     return;
@@ -35,7 +37,8 @@ void ModuleUserConfig::OnReceive(const Esp32Command &cmd) {
            sizeof(UserConfiguration));
     has_config_ = true;
 
-    updateWebConfig(&current_config_);
+    setConfig(current_config_);
+    //updateWebConfig(&current_config_);
     printReceivedConfig();
   }
 }
@@ -75,111 +78,4 @@ size_t ModuleUserConfig::OnRequest(uint8_t *buffer) {
   }
   return 0;
 }
-
-void ModuleUserConfig::printReceivedConfig() {
-  Log.noticeln(" ============ Configuration Details ============");
-  Log.noticeln(" Logger ID: %u", current_config_.logger_id);
-  Log.noticeln(" Cell ID: %u", current_config_.cell_id);
-  Log.noticeln(
-      " Upload Method: %s",
-      current_config_.Upload_method == Uploadmethod_LoRa ? "LoRa" : "WiFi");
-  Log.noticeln(" Upload Interval: %u sec", current_config_.Upload_interval);
-
-  Log.noticeln(" Enabled Sensors (%d):", current_config_.enabled_sensors_count);
-  for (int i = 0; i < current_config_.enabled_sensors_count; i++) {
-    const char *sensor_name = "Unknown";
-    switch (current_config_.enabled_sensors[i]) {
-      case EnabledSensor_Voltage:
-        sensor_name = "Voltage";
-        break;
-      case EnabledSensor_Current:
-        sensor_name = "Current";
-        break;
-      case EnabledSensor_Teros12:
-        sensor_name = "Teros12";
-        break;
-      case EnabledSensor_Teros21:
-        sensor_name = "Teros21";
-        break;
-      case EnabledSensor_BME280:
-        sensor_name = "BME280";
-        break;
-    }
-    Log.noticeln("   - %s", sensor_name);
-  }
-
-  Log.noticeln(" Calibration Data:");
-  char floatBuf[32];
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", current_config_.Voltage_Slope);
-  Log.noticeln("   Voltage Slope: %s", floatBuf);
-
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", current_config_.Voltage_Offset);
-  Log.noticeln("   Voltage Offset: %s", floatBuf);
-
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", current_config_.Current_Slope);
-  Log.noticeln("   Current Slope: %s", floatBuf);
-
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", current_config_.Current_Offset);
-  Log.noticeln("   Current Offset: %s", floatBuf);
-
-  if (current_config_.Upload_method == Uploadmethod_WiFi) {
-    Log.noticeln(" WiFi Settings:");
-    Log.noticeln("   SSID: %s", current_config_.WiFi_SSID);
-    Log.noticeln("   Password: %s", current_config_.WiFi_Password);
-    Log.noticeln("   API Endpoint: %s:%u", current_config_.API_Endpoint_URL,
-                 current_config_.API_Endpoint_Port);
-  }
-  Log.noticeln(" =============================");
-}
-void ModuleUserConfig::updateWebConfig(const UserConfiguration *pb_config) {
-  // Convert protobuf config to web server format
-  config.logger_id = pb_config->logger_id;
-  config.cell_id = pb_config->cell_id;
-  config.upload_interval = pb_config->Upload_interval;
-
-  config.upload_method =
-      (pb_config->Upload_method == Uploadmethod_LoRa) ? "LoRa" : "WiFi";
-
-  // Update enabled sensors
-  config.voltage_enabled = false;
-  config.current_enabled = false;
-  config.teros12_enabled = false;
-  config.teros21_enabled = false;
-  config.bme280_enabled = false;
-
-  for (int i = 0; i < pb_config->enabled_sensors_count; i++) {
-    switch (pb_config->enabled_sensors[i]) {
-      case EnabledSensor_Voltage:
-        config.voltage_enabled = true;
-        break;
-      case EnabledSensor_Current:
-        config.current_enabled = true;
-        break;
-      case EnabledSensor_Teros12:
-        config.teros12_enabled = true;
-        break;
-      case EnabledSensor_Teros21:
-        config.teros21_enabled = true;
-        break;
-      case EnabledSensor_BME280:
-        config.bme280_enabled = true;
-        break;
-    }
-  }
-
-  // Update calibration data
-  config.calibration_v_slope = pb_config->Voltage_Slope;
-  config.calibration_v_offset = pb_config->Voltage_Offset;
-  config.calibration_i_slope = pb_config->Current_Slope;
-  config.calibration_i_offset = pb_config->Current_Offset;
-
-  // Update WiFi settings
-  config.wifi_ssid = String(pb_config->WiFi_SSID);
-  config.wifi_password = String(pb_config->WiFi_Password);
-  config.api_endpoint_url = String(pb_config->API_Endpoint_URL);
-  config.api_endpoint_port = pb_config->API_Endpoint_Port;
-
-  Log.noticeln("Web server configuration updated");
-}
-
 }  // namespace ModuleHandler

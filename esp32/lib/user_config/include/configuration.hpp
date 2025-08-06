@@ -1,43 +1,33 @@
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
+#ifndef LIB_USER_CONFIG_INCLUDE_CONFIGURATION_H
+#define LIB_USER_CONFIG_INCLUDE_CONFIGURATION_H
 
-#include <Arduino.h>
-#include <WiFi.h>
-#include <WebServer.h>
+#include <stdint.h>
 
-// AP Configuration
-constexpr const char* AP_SSID = "ESP32-C3-Config";
-constexpr const char* AP_PASSWORD = "configureme";
+#include "transcoder.h"
 
-// Configuration structure
-typedef struct {
-  // Upload Settings
-  uint32_t logger_id;
-  uint32_t cell_id;
-  String upload_method;
-  uint32_t upload_interval;
-  
-  // Measurement Settings
-  bool voltage_enabled;
-  bool current_enabled;
-  bool teros12_enabled;
-  bool teros21_enabled;
-  bool bme280_enabled;
-  double calibration_v_slope;
-  double calibration_v_offset;
-  double calibration_i_slope;
-  double calibration_i_offset;
-  
-  // WiFi Settings
-  String wifi_ssid;
-  String wifi_password;
-  String api_endpoint_url;
-  uint32_t api_endpoint_port;
-  
-} Configuration;
+/**
+ * @brief Set the user configuration.
+ *
+ * Performs a deep copy of the configuration.
+ */
+void setConfig(const UserConfiguration &new_config);
 
-extern Configuration config;
+/**
+ * @brief Get a copy of the current user configuration.
+ *
+ * This function returns a SHALLOW coyy of the user config. No modification
+ * should be made.
+ *
+ * Checks are also performed to ensure the configuration can be
+ * encoded/decoded.
+ *
+ * @return A copy of the current user configuration.
+ */
+const UserConfiguration& getConfig();
 
-void printConfiguration();
+/**
+ * @brief Print the current user configuration to the log.
+ */
+void printReceivedConfig();
 
-#endif
+#endif  // LIB_USER_CONFIG_INCLUDE_CONFIGURATION_H

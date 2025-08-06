@@ -185,10 +185,15 @@ message WiFiCommand {
 
 message UserConfigCommand {
   enum RequestType {
+    /* controller requests config from target */
     REQUEST_CONFIG = 0;
     RESPONSE_CONFIG = 1;
   }
+
+  /* type of command */
   RequestType type = 1;
+
+  /* configuration data */
   UserConfiguration config_data = 2;
 }
 
@@ -210,6 +215,10 @@ message UserConfiguration {
   string WiFi_SSID = 10;
   string WiFi_Password = 11;
   string API_Endpoint_URL = 12;
+
+
+  // Deprecated
+  // Embedded into the endpoint URL
   uint32 API_Endpoint_Port = 13;
 }
 
