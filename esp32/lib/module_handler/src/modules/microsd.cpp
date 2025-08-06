@@ -99,6 +99,7 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
     // Note: SD.begin(chipSelect) assumes the default SCLK, MISO, MOSI pins.
     // For non-default pin assignments, call SPI.begin(SCLK, MISO, MOSI, CS)
     // prior to SD.begin(CS).
+    SD.end();
     if (!SD.begin(chipSelect_pin)) {
       Log.error(
           "Failed to begin, make sure that a FAT32 formatted SD card is "
@@ -236,6 +237,7 @@ void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
       // Note: SD.begin(chipSelect) assumes the default SCLK, MISO, MOSI pins.
       // For non-default pin assignments, call SPI.begin(SCLK, MISO, MOSI, CS)
       // prior to SD.begin(CS).
+      SD.end();
       if (!SD.begin(chipSelect_pin)) {
         Log.error(
             "Failed to begin, make sure that a FAT32 formatted SD card is "
