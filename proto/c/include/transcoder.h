@@ -184,6 +184,27 @@ size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
     double humidity, uint8_t *buffer);
 
 /**
+ * @brief Encodes a Water Flow measurement
+ *
+ * Currently only the voltage measurement is used. Sensor will
+ * be implemented once more is known about the sensor.
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param water_flow Water Flow
+ * @param buffer Buffer to store serialized measurement
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
+    uint32_t cell_id, double water_flow, uint8_t *buffer);
+
+/**
  * @brief Decodes a response message
  *
  * Take bytes in @p data withy length @p len and decodes into a response type.

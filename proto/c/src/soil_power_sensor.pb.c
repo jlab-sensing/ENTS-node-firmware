@@ -30,6 +30,9 @@ PB_BIND(SEN0308Measurment, SEN0308Measurment, AUTO)
 PB_BIND(SEN0257Measurement, SEN0257Measurement, AUTO)
 
 
+PB_BIND(YFS210CMeasurement, YFS210CMeasurement, AUTO)
+
+
 PB_BIND(Measurement, Measurement, AUTO)
 
 

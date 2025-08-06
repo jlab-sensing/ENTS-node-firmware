@@ -68,7 +68,7 @@ message BME280Measurement {
   uint32 humidity = 3;
 }
 
-//Capactive Soil Moister Measurement
+/* Capactive Soil Moisture Sensor */
 message SEN0308Measurment {
   // voltage
   double voltage = 1;
@@ -76,12 +76,18 @@ message SEN0308Measurment {
   double humidity = 2;
 }
 
-//Water Pressure Sensor
+/* Water Pressure Sensor */
 message SEN0257Measurement {
   // voltage
   double voltage = 1;
   // pressure
   double pressure = 2;
+}
+
+/* Water Flow Sensor */
+message YFS210CMeasurement {
+  // flow
+  double flow = 1;
 }
 
 /* Top level measurement message */
@@ -98,6 +104,7 @@ message Measurement {
     Teros21Measurement teros21 = 6;
     SEN0308Measurment sen0308 = 7;
     SEN0257Measurement sen0257 = 8;
+    YFS210CMeasurement yfs210c = 9;
   }
 }
 

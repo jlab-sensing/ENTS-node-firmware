@@ -116,7 +116,7 @@ typedef struct _BME280Measurement {
     uint32_t humidity;
 } BME280Measurement;
 
-/* Capactive Soil Moister Measurement */
+/* Capactive Soil Moisture Sensor */
 typedef struct _SEN0308Measurment {
     /* voltage */
     double voltage;
@@ -132,6 +132,12 @@ typedef struct _SEN0257Measurement {
     double pressure;
 } SEN0257Measurement;
 
+/* Water Flow Sensor */
+typedef struct _YFS210CMeasurement {
+    /* flow */
+    double flow;
+} YFS210CMeasurement;
+
 /* Top level measurement message */
 typedef struct _Measurement {
     /* Metadata */
@@ -146,6 +152,7 @@ typedef struct _Measurement {
         Teros21Measurement teros21;
         SEN0308Measurment sen0308;
         SEN0257Measurement sen0257;
+        YFS210CMeasurement yfs210c;
     } measurement;
 } Measurement;
 
@@ -261,6 +268,7 @@ extern "C" {
 
 
 
+
 #define Response_resp_ENUMTYPE Response_ResponseType
 
 
@@ -283,6 +291,7 @@ extern "C" {
 #define BME280Measurement_init_default           {0, 0, 0}
 #define SEN0308Measurment_init_default           {0, 0}
 #define SEN0257Measurement_init_default          {0, 0}
+#define YFS210CMeasurement_init_default          {0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
@@ -298,6 +307,7 @@ extern "C" {
 #define BME280Measurement_init_zero              {0, 0, 0}
 #define SEN0308Measurment_init_zero              {0, 0}
 #define SEN0257Measurement_init_zero             {0, 0}
+#define YFS210CMeasurement_init_zero             {0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
@@ -327,6 +337,7 @@ extern "C" {
 #define SEN0308Measurment_humidity_tag           2
 #define SEN0257Measurement_voltage_tag           1
 #define SEN0257Measurement_pressure_tag          2
+#define YFS210CMeasurement_flow_tag              1
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -335,6 +346,7 @@ extern "C" {
 #define Measurement_teros21_tag                  6
 #define Measurement_sen0308_tag                  7
 #define Measurement_sen0257_tag                  8
+#define Measurement_yfs210c_tag                  9
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -420,6 +432,11 @@ X(a, STATIC,   SINGULAR, DOUBLE,   pressure,          2)
 #define SEN0257Measurement_CALLBACK NULL
 #define SEN0257Measurement_DEFAULT NULL
 
+#define YFS210CMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   flow,              1)
+#define YFS210CMeasurement_CALLBACK NULL
+#define YFS210CMeasurement_DEFAULT NULL
+
 #define Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power,measurement.power),   2) \
@@ -428,7 +445,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,phytos31,measurement.phytos31), 
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,bme280,measurement.bme280),   5) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0308,measurement.sen0308),   7) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   9)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -439,6 +457,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   
 #define Measurement_measurement_teros21_MSGTYPE Teros21Measurement
 #define Measurement_measurement_sen0308_MSGTYPE SEN0308Measurment
 #define Measurement_measurement_sen0257_MSGTYPE SEN0257Measurement
+#define Measurement_measurement_yfs210c_MSGTYPE YFS210CMeasurement
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
@@ -506,6 +525,7 @@ extern const pb_msgdesc_t Phytos31Measurement_msg;
 extern const pb_msgdesc_t BME280Measurement_msg;
 extern const pb_msgdesc_t SEN0308Measurment_msg;
 extern const pb_msgdesc_t SEN0257Measurement_msg;
+extern const pb_msgdesc_t YFS210CMeasurement_msg;
 extern const pb_msgdesc_t Measurement_msg;
 extern const pb_msgdesc_t Response_msg;
 extern const pb_msgdesc_t Esp32Command_msg;
@@ -523,6 +543,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define BME280Measurement_fields &BME280Measurement_msg
 #define SEN0308Measurment_fields &SEN0308Measurment_msg
 #define SEN0257Measurement_fields &SEN0257Measurement_msg
+#define YFS210CMeasurement_fields &YFS210CMeasurement_msg
 #define Measurement_fields &Measurement_msg
 #define Response_fields &Response_msg
 #define Esp32Command_fields &Esp32Command_msg
@@ -548,6 +569,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define TestCommand_size                         13
 #define UserConfiguration_size                   238
 #define WiFiCommand_size                         604
+#define YFS210CMeasurement_size                  9
 
 #ifdef __cplusplus
 } /* extern "C" */
