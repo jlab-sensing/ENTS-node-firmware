@@ -304,3 +304,17 @@ void SUBGHZ_Radio_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
+
+void EXTI3_IRQHandler() 
+{
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+}
+
+void EXTI9_5_IRQHandler(void) 
+{
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+}
+
+void EXTI15_10_IRQHandler(void) {
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+}

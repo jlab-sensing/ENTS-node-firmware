@@ -35,6 +35,7 @@
 #include "rtc.h"
 #include "sdi12.h"
 #include "sys_app.h"
+#include "waterFlow.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -97,6 +98,7 @@ int main(void) {
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
   MX_I2C2_Init();
 
   /*Initialize timer and RTC*/
@@ -118,14 +120,15 @@ int main(void) {
   HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
-  PressureInit();
+  //PressureInit();
+  FlowInit();
   // TIMER_IF_Init();
   // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
   // UTIL_TIMER_Init();
 
   char output[30];
 
-  SEN0257Data measurment;
+  waterFlow measurment;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -137,21 +140,16 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
 
-    measurment = PressureGetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Pressure: %f KPa\n Voltage: %f V\n",
-                           measurment.pressure, measurment.voltage);
+    measurment = FlowGetMeasurment();
+    reading_len = snprintf(output, sizeof(output), "Flow: %.3f \r\n",
+                           measurment.flow);
 
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
-    // for (int i = 0; i < 10000; i++){
-    //   asm("nop");
-    // }
-
-    HAL_Delay(
-        1000);  // I guess HAL_Delay is broken somehow, don't understand why
-    // for (int i = 0; i < 1000000; i++){
-    //   asm("nop");
-    // }
+    
+    for (int i = 0; i < 1000000; i++){
+       asm("nop");
+    }
   }
   /* USER CODE END 3 */
 }

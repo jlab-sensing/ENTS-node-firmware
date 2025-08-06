@@ -48,6 +48,7 @@
 #include "status_led.h"
 #include "waterPressure.h"
 #include "sen0308.h"
+#include "waterFlow.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -179,10 +180,13 @@ int main(void)
     EnabledSensor sensor = cfg->enabled_sensors[i];
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
       ADC_init();
-      //SensorsAdd(ADC_measure);
-      SensorsAdd(SEN0308_measure);
+      //change correct pins for water flow measurement
+      FlowInit(); 
+      //SensorsAdd(ADC_measure); //power measurement
+      //SensorsAdd(SEN0308_measure); //capacitive soil measurement
+      SensorsAdd(WatFlow_measure); //water flow meter measurement
       //APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
-      APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Enabled!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "Flow Meter Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
       APP_LOG(TS_OFF, VLEVEL_M, "Teros12 Enabled!\n");
