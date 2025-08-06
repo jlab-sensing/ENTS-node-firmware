@@ -166,7 +166,8 @@ size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
  * @param len Number of bytes in @p buffer
  * @return 0 on success, -1 on error
  */
-int DecodeMeasurement(Measurement *meas, const uint8_t *buffer, const size_t len);
+int DecodeMeasurement(Measurement *meas, const uint8_t *buffer,
+                      const size_t len);
 
 /**
  * @brief Decodes a response message
@@ -229,7 +230,8 @@ size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
  *
  * @return Number of bytes in @p buffer
  */
-size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer, size_t size);
+size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
+                            size_t size);
 
 /**
  * @brief Encodes a WiFiCommand

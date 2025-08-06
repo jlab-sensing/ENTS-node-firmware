@@ -10,8 +10,8 @@
 #include <Wire.h>
 
 #include "module_handler.hpp"
-#include "modules/wifi.hpp"
 #include "modules/microsd.hpp"
+#include "modules/wifi.hpp"
 
 /** Target device address */
 static const uint8_t dev_addr = 0x20;

@@ -129,8 +129,8 @@ int main(void) {
     if (controller_input[0] == '0') {
       SysTime_t ts = SysTimeGet();
       size_t measurement_size = ADC_measure(
-          encoded_measurment, ts);  // Read the measurment, and store it's size in
-                                // measurement_size (size int 64)
+          encoded_measurment, ts);  // Read the measurment, and store it's size
+                                    // in measurement_size (size int 64)
       if (measurement_size == -1) {
         continue;
       }
