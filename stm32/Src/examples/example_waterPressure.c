@@ -141,7 +141,7 @@ int main(void) {
     /* USER CODE BEGIN 3 */
 
     measurment = FlowGetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Flow: %.3f \r\n",
+    reading_len = snprintf(output, sizeof(output), "Flow: %.2f lpm\r\n",
                            measurment.flow);
 
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,

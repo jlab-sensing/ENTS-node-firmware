@@ -20,24 +20,26 @@
 #include "stm32wlxx_hal_def.h"
 #include "usart.h"
 
+#define FLOW_AVG_COUNT 5
+
+//Variables
 volatile float last_flow_lpm = 0;
 volatile unsigned long pulse_count = 0;
 const float calibration_factor = 7.5;
 SysTime_t currentTime;
 SysTime_t lastTime;
+float flow_history[FLOW_AVG_COUNT] = {0};
+uint8_t flow_index = 0;
 
 HAL_StatusTypeDef FlowInit() { 
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
    
-    // Configure PA3 as rising edge EXTI input (water flow sensor output)
+    // Configure PA10 as rising edge EXTI input (water flow sensor output)
     __HAL_RCC_GPIOA_CLK_ENABLE();     // Enable  clock for port A
-    //__HAL_RCC_GPIOC_CLK_ENABLE();     // Enable GPIOC clock for port C
-   // __HAL_RCC_USART2_CLK_ENABLE();    // Enable USART2 clock
 
     //reset pins
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
-    //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
 
     //Configure PIN 10 on Port A (GPIO input)
     GPIO_InitStruct.Pin = GPIO_PIN_10;
@@ -45,16 +47,8 @@ HAL_StatusTypeDef FlowInit() {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    //Confirgure PIN 1 on Port C (UART input)
-    //GPIO_InitStruct.Pin = GPIO_PIN_1;
-    //GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;             // Alternate function push-pull
-    //GPIO_InitStruct.Pull = GPIO_NOPULL;                 // or GPIO_PULLUP if needed
-    //GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    //GPIO_InitStruct.Alternate = 0x04;                   // AF4 = USART2 on PC1
-    //HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
     /* EXTI interrupt init*/
-    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);   //chat says EXTI3_IRQn  but not function for that
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);  
     HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
     currentTime = SysTimeGet();
@@ -71,19 +65,34 @@ waterFlow FlowGetMeasurment() {
     //variable for measurement 
     waterFlow measurment;
 
-    if ((currentTime.Seconds != lastTime.Seconds)) {
+    SysTime_t diff = SysTimeSub(currentTime,lastTime);
+
+    //Sampling time of 0.1s
+    if ( diff.SubSeconds >= 100) {
+        //__disable_irq();
         uint32_t pulses = pulse_count;
         pulse_count = 0;
+       // __enable_irq();
 
-        //get liters per minute
-        last_flow_lpm = (((float)pulses * 60.0f)/calibration_factor);
+        //Calculate liters per minute
+        last_flow_lpm = (((float)pulses * 10.0f)/calibration_factor);
+
+        //Update history
+        flow_history[flow_index] = last_flow_lpm;
+        flow_index = (flow_index + 1) % FLOW_AVG_COUNT;
 
         //reset last time
-        lastTime.Seconds = currentTime.Seconds;
-        return measurment;
+        lastTime.SubSeconds = currentTime.SubSeconds;
     }
 
-    measurment.flow = last_flow_lpm;
+    // Calculate average
+    float sum = 0.0f;
+    for (int i = 0; i < FLOW_AVG_COUNT; i++) {
+        sum += flow_history[i];
+    }
+    measurment.flow = sum / FLOW_AVG_COUNT;
+
+    //measurment.flow = last_flow_lpm;
 
     return measurment;
 }
