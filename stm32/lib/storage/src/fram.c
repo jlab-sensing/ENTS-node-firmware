@@ -50,7 +50,7 @@ HAL_StatusTypeDef ConfigureSettings(configuration c) {
 }
 
 configuration ReadSettings(void) {
-  configuration c;
+  configuration c = {};
 
   // TODO(GSOC student) implement user config read
 

@@ -30,6 +30,8 @@ extern "C" {
 #include "stm32_timer.h"
 #include "stm32_systime.h"
 
+#include "board.h"
+
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */

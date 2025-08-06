@@ -50,7 +50,6 @@ extern "C" {
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -78,9 +77,6 @@ void Error_Handler(void);
 #define USER_LED_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
-/** Global variable for HAL return codes */
-HAL_StatusTypeDef rc;
 
 /* USER CODE END Private defines */
 

@@ -1,9 +1,13 @@
 #include "bme280_sensor.h"
 
+// system includes
 #include "sys_app.h"
 #include "stm32_systime.h"
+
+// user includes
 #include "bme280_common.h"
 #include "transcoder.h"
+#include "userConfig.h"
 
 /**
  * @brief Required time between measurements

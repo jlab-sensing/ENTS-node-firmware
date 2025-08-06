@@ -8,6 +8,7 @@
 #ifndef LIB_CONTROLLER_INCLUDE_CONTROLLER_WIFI_H_
 #define LIB_CONTROLLER_INCLUDE_CONTROLLER_WIFI_H_
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -44,6 +45,44 @@ extern "C" {
  */
 
 /**
+ * @brief WiFi status
+ *
+ * The enum is copied from the Arduino WiFi library. See the following for the
+ * definitions:
+ * https://github.com/arduino-libraries/WiFi/blob/e0e655793d73bfe5c8616bf753c3662dcdf98ad9/src/utility/wl_definitions.h#L59
+ *
+ * The meaning of these can be ambiguous. See the following forum for the
+ * sequence of status during connect and disconnect events:
+ * https://forum.arduino.cc/t/serial-println-wifi-status-codes-meaning/486265/5
+ */
+typedef enum {
+  CONTROLLER_WIFI_NO_SHIELD = 255,
+  CONTROLLER_WIFI_IDLE_STATUS = 0,
+  CONTROLLER_WIFI_NO_SSID_AVAIL,
+  CONTROLLER_WIFI_SCAN_COMPLETED,
+  CONTROLLER_WIFI_CONNECTED,
+  CONTROLLER_WIFI_CONNECT_FAILED,
+  CONTROLLER_WIFI_CONNECTION_LOST,
+  CONTROLLER_WIFI_DISCONNECTED
+} ControllerWiFiStatus;
+
+/**
+ * @brief WiFi response
+ *
+ * The size of bytes is set to a reasonable value of 256 bytes as reponses need
+ * to be under 222 bytes for LoRaWAN. Set independently from the protobuf
+ * implementation as the API check may require a larger reponse in the future.
+ */
+typedef struct {
+  /** HTTP Code */
+  unsigned int http_code;
+  /** Response bytes */
+  uint8_t bytes[256];
+  /** Size of bytes */
+  size_t size;
+} ControllerWiFiResponse;
+
+/**
  * @brief Initialize WiFi settings on the esp32
  *
  * Connect to a WiFi network with the given SSID and password. This function
@@ -51,46 +90,88 @@ extern "C" {
  * has connected to the WiFi network. The first call initializes the connection
  * and subsequent calls check the connection status.
  *
- * The return code is from Arduino WiFi.begin() with available at the following
- * link:
- * https://github.com/arduino-libraries/WiFi/blob/e0e655793d73bfe5c8616bf753c3662dcdf98ad9/src/utility/wl_definitions.h#L59
- *
  * @param ssid WiFi SSID
  * @param passwd WiFi Password
  *
+ * @return If the command succeeded
+ */
+bool ControllerWiFiConnect(const char *ssid, const char *passwd);
+
+/**
+ * @brief Disconnects from the WiFi network
+ *
+ * Returns immediately after signal is sent to the esp32 to disconnect from the
+ * current WiFi network. @see ControllerWiFiCheckWiFi to check when the action
+ * has completed.
+ *
+ * @return If the command succeeded
+ */
+bool ControllerWiFiDisconnect(void);
+
+/**
+ * @brief Checks the current status of WiFi
+ *
  * @return WiFi status code
  */
-uint8_t ControllerWiFiInit(const char *ssid, const char *passwd);
+ControllerWiFiStatus ControllerWiFiCheckWiFi(void);
+
+/**
+ * @brief Triggers a NTP sync with the server
+ *
+ * @see ControllerWiFiTime to get the current time.
+ *
+ * @return If the command succeeded
+ */
+bool ControllerWiFiNtpSync(void);
 
 /**
  * @brief Get the current time from the NTP server
+ *
+ * Errors are indicated by a 0 return value.
  *
  * @return Timestamp indicated by the NTP server
  */
 uint32_t ControllerWiFiTime(void);
 
 /**
- * @brief Checks WiFi connection status by querying API status
-
+ * @brief Queries the API endpoint to check if it is reachable
+ *
+ * Get the http code and response with @see ControllerWiFiCheckRequest.
+ *
  * @param url API endpoint url (limited to 256 characters)
  * @param port API endpoint port
  *
- * @return HTTP response code
+ * @return If the command succeeded
  */
-unsigned int ControllerWiFiCheck(const char *url, const uint32_t port);
+bool ControllerWiFiCheckApi(const char *url);
 
 /**
  * @brief Post data to the configured endpoint
+ *
+ * Get the http code and response with @see ControllerWiFiCheckRequest.
  *
  * @param data Binary data
  * @param data_len Length of @p data
  * @param resp Buffer to store response
  * @param resp_len Pointer to store length of @p resp
  *
- * @return HTTP response code
+ * @return If the command succeeded
  */
-int ControllerWiFiPost(const uint8_t *data, size_t data_len, uint8_t *resp,
-                       uint8_t *resp_len);
+bool ControllerWiFiPost(const uint8_t *data, size_t data_len);
+
+/**
+ * @brief Checks the status of the most recent HTTP request
+ *
+ * A http_code of 0 indicates that the request was not sent and possibly an
+ * error with the WiFi connection.
+ *
+ * This function MUST be called immediately after a HTTP request command.
+ * Currently unverified how arduino code handles http requests but could cause
+ * issues with the server timing out before the esp32 reads the bytes.
+ *
+ * @return HTTP response code and response data
+ */
+ControllerWiFiResponse ControllerWiFiCheckRequest(void);
 
 /**
  * @}

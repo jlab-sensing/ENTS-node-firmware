@@ -10,9 +10,9 @@
 #include <unity.h>
 
 #include "battery.h"
+#include "board.h"
 #include "gpio.h"
 #include "main.h"
-#include "main_helper.h"
 #include "usart.h"
 
 void SystemClock_Config(void);
@@ -93,9 +93,7 @@ int main(void) {
   MX_USART1_UART_Init();
 
   // wait for UART
-  for (int i = 0; i < 1000000; i++) {
-    __NOP();
-  }
+  WaitForSerial();
 
   // Unit testing
   UNITY_BEGIN();
