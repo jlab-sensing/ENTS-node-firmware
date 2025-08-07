@@ -140,6 +140,7 @@ int main(void) {
     /* USER CODE BEGIN 3 */
 
     SolenoidOpen();
+    
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_RESET) {
         reading_len = snprintf(output, sizeof(output), "Solenoid Open\r\n");
         HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len, HAL_MAX_DELAY);
@@ -163,9 +164,7 @@ int main(void) {
         HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len, HAL_MAX_DELAY);
     }
     
-    for (int i = 0; i < 1000000; i++){
-       asm("nop");
-    }
+    HAL_Delay(5000);  // 5000 ms = 5 seconds
   }
   /* USER CODE END 3 */
 }
