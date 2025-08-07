@@ -15,8 +15,7 @@
  *
  ******************************************************************************
  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
@@ -25,9 +24,8 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "board.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 #include <stdio.h>
 
 #include "sys_app.h"
@@ -46,6 +44,7 @@
 #include "teros12.h"
 #include "teros21.h"
 #include "status_led.h"
+<<<<<<< HEAD
 #include "waterPressure.h"
 #include "sen0308.h"
 #include "waterFlow.h"
@@ -84,6 +83,8 @@
 /* USER CODE END 0 */
 
 void SystemClock_Config(void);
+=======
+>>>>>>> main
 
 /**
   * @brief  The application entry point.
@@ -91,25 +92,11 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -119,10 +106,11 @@ int main(void)
   MX_I2C2_Init(); 
   SystemApp_Init();
 
+  // Start status LEDs
   StatusLedInit();
   StatusLedFlashSlow();
 
-
+  // Try loading user config
   if (UserConfigLoad() != USERCONFIG_OK) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error loading user configuration!\n");
     APP_LOG(TS_OFF, VLEVEL_M, "Waiting for new configuration...\n");
@@ -135,6 +123,7 @@ int main(void)
     while (1);
   }
 
+  // Print user config
   UserConfigPrint();
 
   // required for SDI-12
@@ -157,16 +146,7 @@ int main(void)
   APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
   APP_PRINTF("Git SHA: %s\n", GIT_REV);
 
-  // configure sensors
-  //SensorsAdd(SensorsMeasureTest);
-  //SensorsAdd(ADC_measure);
-  //SensorsAdd(SDI12_Teros12Measure);
-  //SensorsAdd(Phytos31_measure);
-  
-  //BME280Init();
-  //SensorsAdd(BME280Measure); 
-
-  // initialize WiFi
+  // initialize esp32 controller module  
   ControllerInit();
 
   // get the current user config
@@ -218,16 +198,14 @@ int main(void)
     Error_Handler();
   } 
   
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
     MX_LoRaWAN_Process();
-
-    /* USER CODE BEGIN 3 */
   }
+<<<<<<< HEAD
   /* USER CODE END 3 */
 }
+=======
+}
+
+>>>>>>> main

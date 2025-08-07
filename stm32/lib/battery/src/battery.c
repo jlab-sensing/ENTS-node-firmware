@@ -8,7 +8,7 @@
 #include "battery.h"
 
 #include "adc.h"
-#include "main.h"
+#include "board.h"
 
 /** Voltage reference in mV */
 #define VOLTAGE_REF 3300
@@ -25,6 +25,8 @@
 volatile uint32_t adc_reading = 0;
 
 HAL_StatusTypeDef battery_init(void) {
+  HAL_StatusTypeDef rc = HAL_OK;
+
   // Calibrate and start conversion process
   rc = HAL_ADCEx_Calibration_Start(&hadc);
   if (rc != HAL_OK) Error_Handler();

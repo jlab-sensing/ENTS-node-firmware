@@ -28,6 +28,26 @@ static uint8_t RQFlag = 0x05;
 // Flag indicating if the request flag byte has been received.
 static bool checked;
 
+#ifdef TEST_USER_CONFIG
+const static UserConfiguration testConfig = {
+    .logger_id = 200,
+    .cell_id = 200,
+    .Upload_method = Uploadmethod_LoRa,
+    .Upload_interval = 10,
+    .enabled_sensors_count = 1,
+    .enabled_sensors = {EnabledSensor_Voltage},
+    // calibration values are taken from 2.2.3-033
+    .Voltage_Slope = -0.00039326,
+    .Voltage_Offset = 4.92916378e-05,
+    .Current_Slope = -1.18693164e-10,
+    .Current_Offset = 4.14518594e-05,
+    .WiFi_SSID = "HARE_Lab",
+    .WiFi_Password = "",
+    .API_Endpoint_URL = "http://dirtviz.jlab.ucsc.edu/api/sensor/",
+    // port is not used
+    .API_Endpoint_Port = 80};
+#endif  // TEST_USER_CONFIG
+
 // Initialize Advance Trace for interrupt-based receiving
 void UserConfig_InitAdvanceTrace() {
   // Set up the callback function
@@ -247,7 +267,13 @@ UserConfigStatus UserConfigLoad(void) {
 }
 
 // Get a reference to the loaded user configuration data in RAM.
-const UserConfiguration *UserConfigGet(void) { return &loadedConfig; }
+const UserConfiguration *UserConfigGet(void) {
+#ifdef TEST_USER_CONFIG
+  return &testConfig;
+#else
+  return &loadedConfig;
+#endif  // TEST_USER_CONFIG
+}
 
 void UserConfigPrint(void) {
   const UserConfiguration *config = UserConfigGet();
@@ -265,7 +291,7 @@ void UserConfigPrint(void) {
   APP_PRINTF("Upload Interval: %u\r\n", config->Upload_interval);
 
   for (int i = 0; i < config->enabled_sensors_count; i++) {
-    const char *sensor_name;
+    const char *sensor_name = NULL;
     switch (config->enabled_sensors[i]) {
       case 0:
         sensor_name = "Voltage";

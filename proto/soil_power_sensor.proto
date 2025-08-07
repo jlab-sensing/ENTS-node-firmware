@@ -171,10 +171,18 @@ message WiFiCommand {
     CONNECT = 0;
     /* Post data to endpoint */
     POST = 1;
-    /* Check API status */
+    /* Check HTTP code and response from POST */
     CHECK = 2;
     /* Timesync request */
     TIME = 3;
+    /* Disconnect from WiFi network */
+    DISCONNECT = 4;
+    /* Get WiFi status */
+    CHECK_WIFI = 5;
+    /* Check connectivity to API */
+    CHECK_API = 6;
+    /* Force NTP sync */
+    NTP_SYNC = 7;
   }
 
   /* Command type */

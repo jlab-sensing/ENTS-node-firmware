@@ -1,9 +1,0 @@
-matplotlib
-pandas
-pyserial
-tqdm
-scikit-learn
-rocketlogger
-pyyaml
-ents
-protobuf==4.25.5

@@ -68,9 +68,17 @@ class ModuleWiFi : public ModuleHandler::Module {
 
   void Connect(const Esp32Command &cmd);
 
-  void Check(const Esp32Command &cmd);
+  void CheckRequest(const Esp32Command &cmd);
 
   void Time(const Esp32Command &cmd);
+
+  void Disconnect(const Esp32Command &cmd);
+
+  void CheckWiFi(const Esp32Command &cmd);
+
+  void CheckApi(const Esp32Command &cmd);
+
+  void NtpSync(const Esp32Command &cmd);
 
   WiFiUDP ntpUDP;
 

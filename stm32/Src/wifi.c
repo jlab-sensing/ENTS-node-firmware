@@ -2,32 +2,70 @@
 
 #include <stm32_systime.h>
 
-#include "sys_app.h"
+#include "controller/wifi.h"
+#include "fifo.h"
 #include "sensors.h"
+#include "status_led.h"
 #include "stm32_seq.h"
 #include "stm32_timer.h"
-#include "fifo.h"
+#include "sys_app.h"
+#include "userConfig.h"
+
+#include "main.h"
+#include "adc.h"
+#include "dma.h"
+#include "i2c.h"
+#include "app_lorawan.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
+#include "board.h"
+
+#include <stdio.h>
+
+#include "sys_app.h"
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include "ads.h"
+#include "phytos31.h"
+#include "bme280_sensor.h"
+#include "rtc.h"
+#include "sensors.h"
+#include "wifi.h"
+#include "controller/controller.h"
 #include "controller/wifi.h"
 #include "userConfig.h"
+#include "teros12.h"
+#include "teros21.h"
 #include "status_led.h"
 
 /**
  * @brief Timer for uploads
- * 
+ *
  */
 static UTIL_TIMER_Object_t UploadTimer = {};
 
+/**
+ * @brief Maximum number of retries for any event
+ */
+const unsigned int max_retries = 5;
+
+/**
+ * @brief Delay in milliseconds between retries
+ */
+const unsigned int retry_delay = 1000;
 
 /**
  * @brief Function call for upload event
- * 
+ *
  * @param context Timer context.
  */
-void UploadEvent(void *context);
+void UploadEvent(void* context);
 
 /**
  * @brief Upload data to hub
- * 
+ *
  * Posts data to configured url.
  */
 void Upload(void);
@@ -35,16 +73,22 @@ void Upload(void);
 /**
  * @brief Connect to WiFi
  *
- * Connects to WiFi network and sets the system time. Code will block and
- * reattempt connection until successful.
+ * Connects to WiFi network and sets the system time.
  *
  * @return error status, false if successful, true if error
  */
 bool Connect(void);
 
 /**
+ * @brief Disconnect from WiFi
+ *
+ * @return error status, false if successful, true if error
+ */
+bool Disconnect(void);
+
+/**
  * @brief Timesync with NTP server
- * 
+ *
  * @return error status, false if successful, true if error
  */
 bool TimeSync(void);
@@ -58,30 +102,53 @@ bool Check(void);
 
 /**
  * @brief Setup upload timer
- * 
+ *
  * Start sensor measurements and setup upload task/timer.
  */
 void StartUploads(void);
 
 /**
+ * @brief Stop upload timer
+ */
+void StopUploads(void);
+
+/**
+ * @brief Resumes upload timer
+ */
+void ResumeUploads(void);
+
+/**
+ * @brief Error handler
+ *
+ * Turns on LEDs, waits for a reconnection, and resumes uploads.
+ */
+void ErrorHandler(void);
+
+/**
  * @brief Call initialization functions for ESP32
  *
  * Connects to a WiFi network, checks API health, and syncs time.
+ *
+ * @returns true if successful, false if error
  */
-void Esp32Init(void);
+bool Esp32Init(void);
 
 void WiFiInit(void) {
   APP_LOG(TS_OFF, VLEVEL_M, "WiFi app starting\r\n");
 
-  // init esp32 WiFi code
-  Esp32Init();
+  // loop until sucessful connection
+  while (!Esp32Init()) {
+    Disconnect();
+  }
 
   // start timers for uploading
   StartUploads();
 }
 
-void UploadEvent(void *context) {
-  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_WiFiUpload), CFG_SEQ_Prio_0);
+void UploadEvent(void* context) {
+  UTIL_SEQ_SetTask(
+      (1 << CFG_SEQ_Task_WiFiUpload),
+      CFG_SEQ_Prio_1);  // lower priority (higher value) than measure task
 }
 
 void Upload(void) {
@@ -96,39 +163,59 @@ void Upload(void) {
       APP_LOG(TS_OFF, VLEVEL_M, "Buffer empty!\r\n")
     } else {
       APP_LOG(TS_OFF, VLEVEL_M,
-          "Error getting data from fram buffer. FramStatus = %d\r\n", status);
+              "Error getting data from fram buffer. FramStatus = %d\r\n",
+              status);
     }
     return;
   }
 
   // print buffer
   APP_LOG(TS_ON, VLEVEL_M, "Payload[%d]: ", buffer_len);
-  for (int i = 0; i < buffer_len; i++)
-  {
+  for (int i = 0; i < buffer_len; i++) {
     APP_LOG(TS_OFF, VLEVEL_M, "%x ", buffer[i]);
   }
   APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
 
   // posts data to website
-  APP_LOG(TS_ON, VLEVEL_M, "Uploading data...\t");
-  uint8_t resp[256];
-  size_t resp_len = 0;
-  int http_code = ControllerWiFiPost(buffer, buffer_len, resp, &resp_len);
-  APP_LOG(TS_OFF, VLEVEL_M, "%d\r\n", http_code);
-  
-  // reconnect and retry if general error
-  if (http_code != 200) {
-    APP_LOG(TS_ON, VLEVEL_M, "Error with WiFi connection!\r\n");
-    APP_LOG(TS_ON, VLEVEL_M, "Attempting Reconnect before next upload\r\n");
-    
-    Connect();
+  APP_LOG(TS_ON, VLEVEL_M, "Uploading data.");
+  if (!ControllerWiFiPost(buffer, buffer_len)) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error! Could not communicate with esp32!\r\n");
+  }
+
+  for (unsigned int retries = 0;; retries++) {
+    HAL_Delay(retry_delay);
+    APP_LOG(TS_OFF, VLEVEL_M, ".");
+
+    ControllerWiFiResponse resp = ControllerWiFiCheckRequest();
+    APP_LOG(TS_OFF, VLEVEL_M, "(%d) \r\n", resp.http_code);
+
+    if (resp.http_code == 200) {
+      break;
+    } else {
+      // check category of error
+      if (resp.http_code == 0) {
+        APP_LOG(TS_OFF, VLEVEL_M,
+                "Error when posting data! Likely error with WiFi or response "
+                "timeout.\r\n");
+      } else {
+        APP_LOG(TS_OFF, VLEVEL_M,
+                "Error with HTTP code! Likely error with measurement format or "
+                "backend.\r\n");
+      }
+
+      // give up after max retries and tirgger error handler
+      if (retries >= max_retries) {
+        APP_LOG(TS_ON, VLEVEL_M, "Max retries reached! Stopping upload.\r\n");
+        ErrorHandler();
+        return;
+      }
+    }
   }
 
   if (FramBufferLen() > 0) {
     APP_LOG(TS_ON, VLEVEL_M, "Buffer not empty, starting another upload\r\n");
     UploadEvent(NULL);
   }
-
 
   StatusLedOff();
 }
@@ -141,14 +228,44 @@ void StartUploads(void) {
 
   // get upload period from user config
   const UserConfiguration* cfg = UserConfigGet();
-  UTIL_TIMER_Time_t UploadPeriod = cfg->Upload_interval * 1000; 
+  UTIL_TIMER_Time_t UploadPeriod = cfg->Upload_interval * 1000;
 
   // setup upload task
   APP_LOG(TS_ON, VLEVEL_M, "Starting upload task...\t")
   UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_WiFiUpload), UTIL_SEQ_RFU, Upload);
-  UTIL_TIMER_Create(&UploadTimer, UploadPeriod, UTIL_TIMER_PERIODIC, UploadEvent, NULL);
+  UploadEvent(NULL);
+  UTIL_TIMER_Create(&UploadTimer, UploadPeriod, UTIL_TIMER_PERIODIC,
+                    UploadEvent, NULL);
   UTIL_TIMER_Start(&UploadTimer);
   APP_LOG(TS_OFF, VLEVEL_M, "Started!\r\n");
+}
+
+void StopUploads(void) {
+  // stop upload timer
+  APP_LOG(TS_ON, VLEVEL_M, "Stopping upload task...\t");
+  UTIL_TIMER_Stop(&UploadTimer);
+  APP_LOG(TS_OFF, VLEVEL_M, "Stopped!\r\n");
+}
+
+void ResumeUploads(void) {
+  // stop upload timer
+  APP_LOG(TS_ON, VLEVEL_M, "Starting upload task...\t")
+  UTIL_TIMER_Start(&UploadTimer);
+  APP_LOG(TS_OFF, VLEVEL_M, "Started!\r\n");
+}
+
+void ErrorHandler(void) {
+  // turn on status LED
+  StatusLedOn();
+
+  StopUploads();
+
+  // first disconnect, then retry until connected to wifi
+  do {
+    Disconnect();
+  } while (!Esp32Init());
+
+  ResumeUploads();
 }
 
 bool Connect(void) {
@@ -157,86 +274,170 @@ bool Connect(void) {
 
   const char* ssid = cfg->WiFi_SSID;
   const char* passwd = cfg->WiFi_Password;
- 
-  APP_LOG(TS_OFF, VLEVEL_M, "Connecting to %s. Status: ", ssid);
-  uint8_t wifi_status = ControllerWiFiInit(ssid, passwd);
-  APP_LOG(TS_OFF, VLEVEL_M, "%d\r\n", wifi_status);
 
-  // check for errors with the following order
-  // WL_NO_SSID_AVAIL
-  // WL_CONNECT_FAILED
-  // WL_CONNECT_LOST
-  // WL_NO_SHIELD
-  if (wifi_status == 1 || wifi_status == 4 || wifi_status == 5 || wifi_status == 255) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Error connecting to WiFi!\r\n");
-    return true;
+  APP_LOG(TS_ON, VLEVEL_M, "Connecting to %s.", ssid);
+  if (!ControllerWiFiConnect(ssid, passwd)) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error! Could not communicate with esp32!\r\n");
+    return false;
   }
 
-  return false;
+  for (unsigned int retries = 0;; retries++) {
+    HAL_Delay(retry_delay);
+    APP_LOG(TS_OFF, VLEVEL_M, ".")
+
+    ControllerWiFiStatus status = ControllerWiFiCheckWiFi();
+    if (status == CONTROLLER_WIFI_CONNECTED) {
+      break;
+    } else {
+      if (retries >= max_retries) {
+        APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n",
+                retries);
+        return false;
+      } else {
+        if (status == CONTROLLER_WIFI_DISCONNECTED) {
+          continue;
+        } else if (status == CONTROLLER_WIFI_NO_SSID_AVAIL) {
+          APP_LOG(TS_OFF, VLEVEL_M, "Error! No SSID available!\r\n");
+          return false;
+        } else if (status == CONTROLLER_WIFI_CONNECT_FAILED) {
+          APP_LOG(TS_OFF, VLEVEL_M, "Error! Connect failed!\r\n");
+          return false;
+        }
+      }
+    }
+  }
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Connected!\r\n");
+
+  return true;
+}
+
+bool Disconnect(void) {
+  APP_LOG(TS_ON, VLEVEL_M, "Disconnecting from WiFi.");
+  if (!ControllerWiFiDisconnect()) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error! Could not communicate with esp32!\r\n");
+    return false;
+  }
+
+  for (unsigned int retries = 0;; retries++) {
+    HAL_Delay(retry_delay);
+    APP_LOG(TS_OFF, VLEVEL_M, ".")
+
+    ControllerWiFiStatus status = ControllerWiFiCheckWiFi();
+    if (status == CONTROLLER_WIFI_IDLE_STATUS) {
+      break;
+    } else if (status == CONTROLLER_WIFI_DISCONNECTED) {
+      break;
+    } else {
+      if (retries >= max_retries) {
+        APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n",
+                retries);
+        return false;
+      }
+    }
+  }
+  APP_LOG(TS_OFF, VLEVEL_M, "Done!\r\n");
+
+  return true;
 }
 
 bool TimeSync(void) {
   SysTime_t ts = {.Seconds = -1, .SubSeconds = 0};
 
-  APP_LOG(TS_OFF, VLEVEL_M, "Syncing time...\t");
-  ts.Seconds = ControllerWiFiTime();
- 
-  // check for errors
-  if (ts.Seconds == 0) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Error syncing time!\r\n");
-    return true;
+  APP_LOG(TS_OFF, VLEVEL_M, "Syncing time.");
+  if (!ControllerWiFiNtpSync()) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error! Could not communicate with esp32!\r\n");
+    return false;
   }
-  
+
+  for (unsigned int retries = 0;; retries++) {
+    HAL_Delay(retry_delay);
+    APP_LOG(TS_OFF, VLEVEL_M, ".");
+
+    ts.Seconds = ControllerWiFiTime();
+
+    // check for errors
+    if (ts.Seconds != 0) {
+      break;
+    } else {
+      if (retries >= max_retries) {
+        APP_LOG(TS_OFF, VLEVEL_M, "Error! Timeout after %d retries!\r\n",
+                retries);
+        return false;
+      }
+    }
+  }
+
   SysTimeSet(ts);
 
   APP_LOG(TS_OFF, VLEVEL_M, "Done!\r\n");
   APP_LOG(TS_OFF, VLEVEL_M, "Current timestamp is %d\r\n", ts.Seconds);
 
-  return false;
+  return true;
 }
 
 bool Check(void) {
   const UserConfiguration* cfg = UserConfigGet();
-  
-  //const char url[] = "dirtviz.jlab.ucsc.edu";
-  //const uint32_t port = 80;
-  
+
+  // const char url[] = "dirtviz.jlab.ucsc.edu";
+  // const uint32_t port = 80;
+
   const char* url = cfg->API_Endpoint_URL;
-  const uint32_t port = cfg->API_Endpoint_Port; 
 
-  // retry pinging API
-  // http code is misleading as it holds http code and the WiFi status
-  unsigned int http_code = 0;
-  while (http_code != 200) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Checking API health...\t");
-    http_code = ControllerWiFiCheck(url, port);
-    APP_LOG(TS_OFF, VLEVEL_M, "%d\r\n", http_code);
+  APP_LOG(TS_OFF, VLEVEL_M, "Checking API health.");
+  if (!ControllerWiFiCheckApi(url)) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error! Could not communicate with esp32!\r\n");
+    return false;
+  }
 
-    // check for WiFi issues
-    if (http_code == 1 || http_code == 4 || http_code == 5) {
-      return true;
+  for (unsigned int retries = 0;; retries++) {
+    APP_LOG(TS_OFF, VLEVEL_M, ".");
+
+    ControllerWiFiResponse resp = ControllerWiFiCheckRequest();
+    APP_LOG(TS_OFF, VLEVEL_M, "(%d) \r\n", resp.http_code);
+
+    if (resp.http_code == 200) {
+      break;
+    } else {
+      // check category of error
+      if (resp.http_code == 0) {
+        APP_LOG(TS_OFF, VLEVEL_M,
+                "Error when posting data! Likely error with WiFi or response "
+                "timeout.\r\n");
+      } else {
+        APP_LOG(TS_OFF, VLEVEL_M,
+                "Error with HTTP code! Likely error with measurement format or "
+                "backend.\r\n");
+      }
+
+      // give up after max retries and tirgger error handler
+      if (retries >= max_retries) {
+        APP_LOG(TS_ON, VLEVEL_M, "Max retries reached! Stopping upload.\r\n");
+        return false;
+      }
     }
 
-    HAL_Delay(5000);
+    HAL_Delay(retry_delay);
   }
 
-  return false;
+  return true;
 }
 
-void Esp32Init(void) {
-  bool error = true;
-
-  while (error) {
-    // Start WiFi connection
-    error = Connect();
-    if (error) continue;
-
-    // Check WiFi connection and API health
-    error = Check();
-    if (error) continue;
-
-    // sync with NTP server
-    error = TimeSync();
-    if (error) continue;
+bool Esp32Init(void) {
+  // Start WiFi connection
+  if (!Connect()) {
+    return false;
   }
+
+  // Check WiFi connection and API health
+  if (!Check()) {
+    return false;
+  }
+
+  // sync with NTP server
+  if (!TimeSync()) {
+    return false;
+  }
+
+  return true;
 }
