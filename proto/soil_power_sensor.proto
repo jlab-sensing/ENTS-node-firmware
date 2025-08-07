@@ -84,7 +84,7 @@ message SEN0257Measurement {
   double pressure = 2;
 }
 
-/* Water Flow Sensor */
+/* Water Flow Sensor  */
 message YFS210CMeasurement {
   // flow
   double flow = 1;
