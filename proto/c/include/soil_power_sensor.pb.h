@@ -70,12 +70,8 @@ typedef enum _WiFiCommand_Type {
 typedef enum _MicroSDCommand_Type {
     /* Decode and save data to a CSV file on the microSD card */
     MicroSDCommand_Type_SAVE = 0,
-    /* Find the last modified time of a file */
-    MicroSDCommand_Type_TIME = 1,
-    /* Find the size of a file */
-    MicroSDCommand_Type_SIZE = 2,
     /* Send UserConfig for CSV header creation */
-    MicroSDCommand_Type_USERCONFIG = 3
+    MicroSDCommand_Type_USERCONFIG = 1
 } MicroSDCommand_Type;
 
 typedef enum _MicroSDCommand_ReturnCode {
@@ -202,32 +198,6 @@ typedef struct _WiFiCommand {
     uint32_t port;
 } WiFiCommand;
 
-typedef PB_BYTES_ARRAY_T(238) MicroSDCommand_resp_t;
-typedef struct _MicroSDCommand {
-    /* Command type */
-    MicroSDCommand_Type type;
-    /* Filename */
-    char filename[256];
-    /* Return code */
-    MicroSDCommand_ReturnCode rc;
-    /* Timestamp in unix epochs */
-    uint32_t ts;
-    /* filesize in bytes */
-    uint32_t filesize;
-    /* binary data response */
-    MicroSDCommand_resp_t resp;
-} MicroSDCommand;
-
-typedef struct _Esp32Command {
-    pb_size_t which_command;
-    union {
-        PageCommand page_command;
-        TestCommand test_command;
-        WiFiCommand wifi_command;
-        MicroSDCommand microsd_command;
-    } command;
-} Esp32Command;
-
 typedef struct _UserConfiguration {
     /* ********* Upload Settings ********* */
     uint32_t logger_id; /* id of the logging device */
@@ -247,6 +217,32 @@ typedef struct _UserConfiguration {
     char API_Endpoint_URL[65];
     uint32_t API_Endpoint_Port;
 } UserConfiguration;
+
+typedef struct _MicroSDCommand {
+    /* Command type */
+    MicroSDCommand_Type type;
+    /* Filename */
+    char filename[256];
+    /* Return code */
+    MicroSDCommand_ReturnCode rc;
+    pb_size_t which_data;
+    union {
+        /* measurement to be saved */
+        Measurement meas;
+        /* userConfig to be saved */
+        UserConfiguration uc;
+    } data;
+} MicroSDCommand;
+
+typedef struct _Esp32Command {
+    pb_size_t which_command;
+    union {
+        PageCommand page_command;
+        TestCommand test_command;
+        WiFiCommand wifi_command;
+        MicroSDCommand microsd_command;
+    } command;
+} Esp32Command;
 
 
 #ifdef __cplusplus
@@ -322,7 +318,7 @@ extern "C" {
 #define PageCommand_init_default                 {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_default                 {_TestCommand_ChangeState_MIN, 0}
 #define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
-#define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, 0, {0, {0}}}
+#define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_default}}
 #define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
 #define PowerMeasurement_init_zero               {0, 0}
@@ -336,7 +332,7 @@ extern "C" {
 #define PageCommand_init_zero                    {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_zero                    {_TestCommand_ChangeState_MIN, 0}
 #define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
-#define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, 0, {0, {0}}}
+#define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_zero}}
 #define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -377,16 +373,6 @@ extern "C" {
 #define WiFiCommand_ts_tag                       6
 #define WiFiCommand_resp_tag                     7
 #define WiFiCommand_port_tag                     8
-#define MicroSDCommand_type_tag                  1
-#define MicroSDCommand_filename_tag              2
-#define MicroSDCommand_rc_tag                    3
-#define MicroSDCommand_ts_tag                    4
-#define MicroSDCommand_filesize_tag              5
-#define MicroSDCommand_resp_tag                  6
-#define Esp32Command_page_command_tag            1
-#define Esp32Command_test_command_tag            2
-#define Esp32Command_wifi_command_tag            3
-#define Esp32Command_microsd_command_tag         4
 #define UserConfiguration_logger_id_tag          1
 #define UserConfiguration_cell_id_tag            2
 #define UserConfiguration_Upload_method_tag      3
@@ -400,6 +386,15 @@ extern "C" {
 #define UserConfiguration_WiFi_Password_tag      11
 #define UserConfiguration_API_Endpoint_URL_tag   12
 #define UserConfiguration_API_Endpoint_Port_tag  13
+#define MicroSDCommand_type_tag                  1
+#define MicroSDCommand_filename_tag              2
+#define MicroSDCommand_rc_tag                    3
+#define MicroSDCommand_meas_tag                  4
+#define MicroSDCommand_uc_tag                    5
+#define Esp32Command_page_command_tag            1
+#define Esp32Command_test_command_tag            2
+#define Esp32Command_wifi_command_tag            3
+#define Esp32Command_microsd_command_tag         4
 
 /* Struct field encoding specification for nanopb */
 #define MeasurementMetadata_FIELDLIST(X, a) \
@@ -505,11 +500,12 @@ X(a, STATIC,   SINGULAR, UINT32,   port,              8)
 X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
 X(a, STATIC,   SINGULAR, STRING,   filename,          2) \
 X(a, STATIC,   SINGULAR, UENUM,    rc,                3) \
-X(a, STATIC,   SINGULAR, UINT32,   ts,                4) \
-X(a, STATIC,   SINGULAR, UINT32,   filesize,          5) \
-X(a, STATIC,   SINGULAR, BYTES,    resp,              6)
+X(a, STATIC,   ONEOF,    MESSAGE,  (data,meas,data.meas),   4) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (data,uc,data.uc),   5)
 #define MicroSDCommand_CALLBACK NULL
 #define MicroSDCommand_DEFAULT NULL
+#define MicroSDCommand_data_meas_MSGTYPE Measurement
+#define MicroSDCommand_data_uc_MSGTYPE UserConfiguration
 
 #define UserConfiguration_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   logger_id,         1) \
@@ -564,7 +560,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define Esp32Command_size                        607
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
-#define MicroSDCommand_size                      515
+#define MicroSDCommand_size                      503
 #define PageCommand_size                         20
 #define Phytos31Measurement_size                 18
 #define PowerMeasurement_size                    18

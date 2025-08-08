@@ -18,23 +18,20 @@
 
 #include "main.h"
 
-#include "adc.h"
-#include "app_lorawan.h"
-#include "dma.h"
-#include "gpio.h"
-#include "i2c.h"
-#include "tim.h"
-#include "usart.h"
-#include "board.h"
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "adc.h"
 #include "ads.h"
+#include "app_lorawan.h"
 #include "bme280_sensor.h"
+#include "board.h"
 #include "controller/controller.h"
 #include "controller/wifi.h"
+#include "dma.h"
+#include "gpio.h"
+#include "i2c.h"
 #include "phytos31.h"
 #include "rtc.h"
 #include "sensors.h"
@@ -42,16 +39,18 @@
 #include "sys_app.h"
 #include "teros12.h"
 #include "teros21.h"
+#include "tim.h"
+#include "usart.h"
 #include "userConfig.h"
 #include "wifi.h"
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+ * @brief  The application entry point.
+ * @retval int
+ */
+int main(void) {
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick.
+   */
 
   HAL_Init();
 
@@ -69,7 +68,6 @@ int main(void)
   // Start status LEDs
   StatusLedInit();
   StatusLedFlashSlow();
-
 
   // Try loading user config
   if (UserConfigLoad() != USERCONFIG_OK) {
@@ -108,7 +106,7 @@ int main(void)
              __TIME__);
   APP_PRINTF("Git SHA: %s\n", GIT_REV);
 
-  // initialize esp32 controller module  
+  // initialize esp32 controller module
   ControllerInit();
 
   // get the current user config
@@ -155,43 +153,10 @@ int main(void)
   }
 
 #ifdef SAVE_TO_MICROSD
-  MicroSDCommand_ReturnCode rc =
-      ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
-  switch (rc) {
-    case MicroSDCommand_ReturnCode_SUCCESS:
-      APP_LOG(TS_OFF, VLEVEL_L,
-              "Success.\r\n");
-      break;
-    case MicroSDCommand_ReturnCode_ERROR_GENERAL:
-      APP_LOG(TS_OFF, VLEVEL_M,
-              "Error: General error.\r\n");
-      break;
-    case MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED:
-      APP_LOG(TS_OFF, VLEVEL_M,
-              "Error: MicroSD card not inserted.\r\n");
-      break;
-    case MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE:
-      APP_LOG(TS_OFF, VLEVEL_M,
-              "Error: File system on microSD card not mountable.\r\n");
-      break;
-    case MicroSDCommand_ReturnCode_ERROR_PAYLOAD_NOT_DECODED:
-      APP_LOG(TS_OFF, VLEVEL_M,
-              "Error: Payload in sent message not decodable.\r\n");
-      break;
-    case MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED:
-      APP_LOG(TS_OFF, VLEVEL_M,
-              "Error: File(s) on microSD card not openable.\r\n");
-      break;
-    default:
-      APP_LOG(TS_OFF, VLEVEL_M,
-              "Error: Unknown MicroSDCommand_ReturnCode.\r\n");
-      break;
-  }
+  ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
 #endif
 
-  while (1)
-  {
+  while (1) {
     MX_LoRaWAN_Process();
   }
 }
-

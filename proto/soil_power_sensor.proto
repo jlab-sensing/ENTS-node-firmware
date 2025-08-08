@@ -187,12 +187,8 @@ message MicroSDCommand {
   enum Type {
     /* Decode and save data to a CSV file on the microSD card */
     SAVE = 0;
-    /* Find the last modified time of a file */
-    TIME = 1;
-    /* Find the size of a file */
-    SIZE = 2;
     /* Send UserConfig for CSV header creation */
-    USERCONFIG = 3;
+    USERCONFIG = 1;
   }
   enum ReturnCode {
     SUCCESS = 0;
@@ -209,12 +205,13 @@ message MicroSDCommand {
   string filename = 2;
   /* Return code */
   ReturnCode rc = 3;
-  /* Timestamp in unix epochs */
-  uint32 ts = 4;
-  /* filesize in bytes */
-  uint32 filesize = 5;
-  /* binary data response */
-  bytes resp = 6;
+
+  oneof data {
+    /* measurement to be saved */
+    Measurement meas = 4;
+    /* userConfig to be saved */
+    UserConfiguration uc = 5;
+  }
 }
 
 message UserConfiguration {

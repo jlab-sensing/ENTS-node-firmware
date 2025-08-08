@@ -4,7 +4,6 @@ WiFiCommand.url max_length:256
 WiFiCommand.resp max_size:222
 
 MicroSDCommand.filename max_length:255
-MicroSDCommand.resp max_size:238
 
 UserConfiguration.WiFi_SSID max_length: 32
 UserConfiguration.WiFi_Password max_length: 64
