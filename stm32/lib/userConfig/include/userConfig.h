@@ -210,10 +210,17 @@ UserConfigStatus UserConfigLoad(void);
 const UserConfiguration *UserConfigGet(void);
 
 /**
- * @brief Prints the current user configuration over serial
+ * @brief Prints arbitrary user config over serial.
  *
  * The printing/formatting is done with APP_LOG functions requiring
  * SystemApp_Init() to be called before this function can be used.
+ */
+void UserConfigPrintAny(const UserConfiguration *config);
+
+/**
+ * @brief Prints the current user configuration over serial.
+ *
+ * @see UserConfigPrintAny
  */
 void UserConfigPrint(void);
 

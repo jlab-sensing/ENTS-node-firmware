@@ -23,10 +23,8 @@
 #include "stm32_adv_trace.h"
 #include "stm32_systime.h"
 #include "usart.h"
-#include "userconfig.h"
+#include "userConfig.h"
 #include "wifi.h"
-
-char uart_buf[512];
 
 // /** Timeout for i2c communication with esp32 */
 // static unsigned int g_controller_i2c_timeout = 10000;

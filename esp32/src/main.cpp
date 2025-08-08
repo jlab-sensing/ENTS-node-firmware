@@ -28,7 +28,7 @@ static ModuleHandler::ModuleHandler mh;
 // create wifi module
 static ModuleWiFi wifi;
 // create user config module
-ModuleHandler::ModuleUserConfig user_config;
+static ModuleHandler::ModuleUserConfig user_config;
 
 /**
  * @brief Callback for onReceive
@@ -83,9 +83,12 @@ RESET!
   mh.RegisterModule(&wifi);
   mh.RegisterModule(&user_config);
 
+  const std::string AP_SSID = "ents";
+  const std::string AP_PASSWORD = "changeme";
+
   // Start web server
   WiFi.mode(WIFI_AP);
-  WiFi.softAP(AP_SSID, AP_PASSWORD);
+  WiFi.softAP(AP_SSID.c_str(), AP_PASSWORD.c_str());
   Log.noticeln("Access Point started");
   Log.noticeln("IP Address: %s", WiFi.softAPIP().toString().c_str());
 

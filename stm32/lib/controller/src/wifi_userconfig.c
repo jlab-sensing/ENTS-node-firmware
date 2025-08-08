@@ -49,25 +49,24 @@ UserConfigStatus ControllerUserConfigRequest(void) {
     return USERCONFIG_INVALID_RESPONSE;
   }
 
-  if (cmd.command.user_config_command.type ==
-          UserConfigCommand_RequestType_RESPONSE_CONFIG &&
-      cmd.command.user_config_command.has_config_data) {
-    const UserConfiguration *config =
-        &cmd.command.user_config_command.config_data;
+  if (cmd.command.user_config_command.type == UserConfigCommand_RequestType_RESPONSE_CONFIG) {
+    if (cmd.command.user_config_command.has_config_data) {
+      const UserConfiguration *config = &cmd.command.user_config_command.config_data;
 
-    // Check if config is all zeros (uninitialized)
-    if (isConfigEmpty(config)) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Received empty config from ESP32\r\n");
-      return USERCONFIG_EMPTY_CONFIG;
+      // Check if config is all zeros (uninitialized)
+      if (isConfigEmpty(config)) {
+        APP_LOG(TS_OFF, VLEVEL_M, "Received empty config from ESP32\r\n");
+        return USERCONFIG_EMPTY_CONFIG;
+      }
+
+      // Print received config
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "-----------------Received configuration from "
+              "ESP32-----------------:\r\n");
+      UserConfigPrintAny(config);
+
+      return USERCONFIG_OK;
     }
-
-    // Print received config
-    APP_LOG(TS_OFF, VLEVEL_M,
-            "-----------------Received configuration from "
-            "ESP32-----------------:\r\n");
-    printUserConfig(config);
-
-    return USERCONFIG_OK;
   }
 
   APP_LOG(TS_OFF, VLEVEL_M, "Invalid config response format\r\n");
@@ -93,7 +92,7 @@ UserConfigStatus ControllerUserConfigSend(void) {
   APP_LOG(
       TS_OFF, VLEVEL_M,
       "-----------------Sending configuration to ESP32-----------------:\r\n");
-  printUserConfig(config);
+  UserConfigPrintAny(config);
 
   Buffer *tx = ControllerTx();
   Buffer *rx = ControllerRx();
@@ -131,106 +130,4 @@ UserConfigStatus ControllerUserConfigSend(void) {
 bool isConfigEmpty(const UserConfiguration *config) {
   // Check if logger_id & cell_id fields are zero/default
   return (config->logger_id == 0 && config->cell_id == 0);
-}
-
-void printUserConfig(const UserConfiguration *config) {
-  HAL_Delay(10);
-  // Print each member of the UserConfiguration
-  sprintf(uart_buf, "Logger ID: %lu\r\n", config->logger_id);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(10);
-
-  sprintf(uart_buf, "Cell ID: %lu\r\n", config->cell_id);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(10);
-
-  if (config->Upload_method == 0) {
-    sprintf(uart_buf, "Upload Method: %u \"LoRa\"\r\n", config->Upload_method);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                      HAL_MAX_DELAY);
-  } else {
-    sprintf(uart_buf, "Upload Method: %u \"WiFi\"\r\n", config->Upload_method);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                      HAL_MAX_DELAY);
-  }
-
-  HAL_Delay(10);
-
-  sprintf(uart_buf, "Upload Interval: %lu\r\n", config->Upload_interval);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  for (int i = 0; i < config->enabled_sensors_count; i++) {
-    const char *sensor_name;
-    switch (config->enabled_sensors[i]) {
-      case 0:
-        sensor_name = "Voltage";
-        break;
-      case 1:
-        sensor_name = "Current";
-        break;
-      case 2:
-        sensor_name = "Teros12";
-        break;
-      case 3:
-        sensor_name = "Teros21";
-        break;
-      case 4:
-        sensor_name = "BME280";
-        break;
-    }
-    sprintf(uart_buf, "Enabled Sensor %d: %s\r\n", i + 1, sensor_name);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                      HAL_MAX_DELAY);
-  }
-
-  HAL_Delay(10);
-
-  sprintf(uart_buf, "Calibration V Slope: %f\r\n", config->Voltage_Slope);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(10);
-
-  sprintf(uart_buf, "Calibration V Offset: %f\r\n", config->Voltage_Offset);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(10);
-
-  sprintf(uart_buf, "Calibration I Slope: %f\r\n", config->Current_Slope);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(10);
-
-  sprintf(uart_buf, "Calibration I Offset: %f\r\n", config->Current_Offset);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(10);
-
-  sprintf(uart_buf, "WiFi SSID: %s\r\n", config->WiFi_SSID);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(10);
-
-  sprintf(uart_buf, "WiFi Password: %s\r\n", config->WiFi_Password);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(20);
-
-  sprintf(uart_buf, "API Endpoint URL: %s\r\n", config->API_Endpoint_URL);
-  HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
-                    HAL_MAX_DELAY);
-
-  HAL_Delay(20);
-  APP_LOG(TS_OFF, VLEVEL_M, "--------------------------------------------\r\n");
-  HAL_Delay(10);
 }

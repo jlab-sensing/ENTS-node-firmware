@@ -275,9 +275,7 @@ const UserConfiguration *UserConfigGet(void) {
 #endif  // TEST_USER_CONFIG
 }
 
-void UserConfigPrint(void) {
-  const UserConfiguration *config = UserConfigGet();
-
+void UserConfigPrintAny(const UserConfiguration *config) {
   // Print each member of the UserConfiguration
   APP_PRINTF("Logger ID: %u\r\n", config->logger_id);
   APP_PRINTF("Cell ID: %u\r\n", config->cell_id);
@@ -333,4 +331,10 @@ void UserConfigPrint(void) {
   APP_PRINTF("API Endpoint URL: %s\r\n", config->API_Endpoint_URL);
 
   APP_PRINTF("API Port: %u\r\n", config->API_Endpoint_Port);
+}
+
+void UserConfigPrint(void) {
+  const UserConfiguration *config = UserConfigGet();
+
+  UserConfigPrintAny(config);
 }
