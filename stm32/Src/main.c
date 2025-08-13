@@ -44,7 +44,6 @@
 #include "teros12.h"
 #include "teros21.h"
 #include "status_led.h"
-<<<<<<< HEAD
 #include "waterPressure.h"
 #include "sen0308.h"
 #include "waterFlow.h"
@@ -83,8 +82,6 @@
 /* USER CODE END 0 */
 
 void SystemClock_Config(void);
-=======
->>>>>>> main
 
 /**
   * @brief  The application entry point.
@@ -161,13 +158,15 @@ int main(void)
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
       //ADC_init();
       //change correct pins for water flow measurement
-      //FlowInit(); 
-      PressureInit();
-      SensorsAdd(WatPress_measure); //water pressure measurement
+      FlowInit(); 
+      //CapSoilInit();
+      //PressureInit();
+      //SensorsAdd(SEN0308_measure); //cap soil measurement
       //SensorsAdd(ADC_measure); //power measurement
-      //SensorsAdd(SEN0308_measure); //capacitive soil measurement
-      //SensorsAdd(WatFlow_measure); //water flow meter measurement
+      //SensorsAdd(WatPress_measure); //capacitive soil measurement
+      SensorsAdd(WatFlow_measure); //water flow meter measurement
       //APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
+      //APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Enabled!\n");
       APP_LOG(TS_OFF, VLEVEL_M, "Flow Meter Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
@@ -202,10 +201,4 @@ int main(void)
   {
     MX_LoRaWAN_Process();
   }
-<<<<<<< HEAD
-  /* USER CODE END 3 */
 }
-=======
-}
-
->>>>>>> main

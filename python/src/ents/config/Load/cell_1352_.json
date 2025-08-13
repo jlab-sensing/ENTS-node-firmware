@@ -1,6 +1,6 @@
 {
     "Logger ID": 200,
-    "Cell ID": 1,
+    "Cell ID": 1352,
     "Upload Method": "WiFi",
     "Days": 0,
     "Hours": 0,
@@ -19,6 +19,6 @@
     "Calibration I Offset": 3.72052241e-05,
     "WiFi SSID": "HARE_Lab",
     "WiFi Password": "",
-    "API Endpoint URL": "https://172.31.100.61:3000/api/sensor/",
+    "API Endpoint URL": "https://dirtviz.jlab.ucsc.edu/api/sensor/",
     "API Port": 443
 }

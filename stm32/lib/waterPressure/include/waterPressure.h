@@ -26,7 +26,7 @@
  typedef struct {
    double voltage;
    double pressure;
- } SEN0257Data;
+ } SEN0257Meas;
  
  /**
  ******************************************************************************
@@ -47,7 +47,7 @@
  * @return   measurments
  ******************************************************************************
  */
-SEN0257Data PressureGetMeasurment(void);
+  SEN0257Meas PressureGetMeasurment(void);
  
  /**
   * @brief Read water pressure sensor and serialize measurement

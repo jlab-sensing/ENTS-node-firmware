@@ -22,8 +22,8 @@
 
  HAL_StatusTypeDef PressureInit() { return ADC_init(); }
  
- SEN0257Data PressureGetMeasurment() {
-  SEN0257Data measurment;
+  SEN0257Meas PressureGetMeasurment() {
+  SEN0257Meas measurment;
   measurment.voltage = ADC_readVoltage();
   //((*measurment.voltage - OffSet)) * 250 + 0.94;
   measurment.pressure = (measurment.voltage - OffSet) * 250;
@@ -33,7 +33,7 @@
  size_t WatPress_measure(uint8_t* data) {
    // get timestamp
    SysTime_t ts = SysTimeGet();
-   SEN0257Data measurment = {};
+   SEN0257Meas measurment = {};
  
    /// read voltage
    measurment = PressureGetMeasurment();
