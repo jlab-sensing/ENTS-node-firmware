@@ -214,6 +214,17 @@ size_t EncodeMeasurement(Measurement *meas, uint8_t *buffer) {
   return ostream.bytes_written;
 }
 
+int DecodeMeasurement(Measurement *meas, const uint8_t *buffer,
+                      const size_t len) {
+  pb_istream_t istream = pb_istream_from_buffer(buffer, len);
+  bool status = pb_decode(&istream, Measurement_fields, meas);
+  if (!status) {
+    return -1;
+  }
+
+  return 0;
+}
+
 Esp32Command DecodeEsp32Command(const uint8_t *data, const size_t len) {
   Esp32Command cmd;
 
@@ -242,6 +253,18 @@ size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
   cmd.which_command = Esp32Command_test_command_tag;
   cmd.command.test_command.state = state;
   cmd.command.test_command.data = data;
+
+  return EncodeEsp32Command(&cmd, buffer, size);
+}
+
+size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
+                            size_t size) {
+  Esp32Command cmd = Esp32Command_init_default;
+
+  cmd.which_command = Esp32Command_microsd_command_tag;
+
+  // copy data from microsd_cmd to cmd
+  memcpy(&cmd.command.microsd_command, microsd_cmd, sizeof(MicroSDCommand));
 
   return EncodeEsp32Command(&cmd, buffer, size);
 }

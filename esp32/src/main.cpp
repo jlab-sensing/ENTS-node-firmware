@@ -10,6 +10,7 @@
 #include <Wire.h>
 
 #include "module_handler.hpp"
+#include "modules/microsd.hpp"
 #include "modules/wifi.hpp"
 
 /** Target device address */
@@ -64,9 +65,13 @@ RESET!
 
   Log.noticeln("Starting i2c interface...");
 
-  // create adn register the WiFi module
+  // create and register the WiFi module
   static ModuleWiFi wifi;
   mh.RegisterModule(&wifi);
+
+  // create and register the microSD module
+  static ModuleMicroSD microSD;
+  mh.RegisterModule(&microSD);
 
   // start i2c interface
   Wire.onReceive(onReceive);

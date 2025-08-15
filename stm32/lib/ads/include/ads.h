@@ -104,7 +104,7 @@ HAL_StatusTypeDef ADC_probe(void);
 * @return   size_t
 *******************************************f***********************************
 */
-size_t ADC_measure(uint8_t *data);
+size_t ADC_measure(uint8_t *data, SysTime_t ts);
 
 /**
  * @}
