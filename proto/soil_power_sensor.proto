@@ -102,6 +102,7 @@ message Esp32Command {
     PageCommand page_command = 1;
     TestCommand test_command = 2;
     WiFiCommand wifi_command = 3;
+    MicroSDCommand microsd_command = 4;
   }
 }
 
@@ -180,6 +181,37 @@ message WiFiCommand {
   uint32 ts = 6;
   // binary data response
   bytes resp = 7;
+}
+
+message MicroSDCommand {
+  enum Type {
+    /* Decode and save data to a CSV file on the microSD card */
+    SAVE = 0;
+    /* Send UserConfig for CSV header creation */
+    USERCONFIG = 1;
+  }
+  enum ReturnCode {
+    SUCCESS = 0;
+    ERROR_GENERAL = 1;
+    ERROR_MICROSD_NOT_INSERTED = 2;
+    ERROR_FILE_SYSTEM_NOT_MOUNTABLE = 3;
+    ERROR_PAYLOAD_NOT_DECODED = 4;
+    ERROR_FILE_NOT_OPENED = 5;
+  }
+
+  /* Command type */
+  Type type = 1;
+  /* Filename */
+  string filename = 2;
+  /* Return code */
+  ReturnCode rc = 3;
+
+  oneof data {
+    /* measurement to be saved */
+    Measurement meas = 4;
+    /* userConfig to be saved */
+    UserConfiguration uc = 5;
+  }
 }
 
 message UserConfiguration {

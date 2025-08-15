@@ -157,6 +157,19 @@ size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
                                uint8_t *buffer);
 
 /**
+ * @brief Decodes a measurement
+ *
+ * Use meas.which_measurement to determine the type of sensor data.
+ *
+ * @param meas Destination Measurement struct
+ * @param buffer Source buffer containing the serialized measurement to decode
+ * @param len Number of bytes in @p buffer
+ * @return 0 on success, -1 on error
+ */
+int DecodeMeasurement(Measurement *meas, const uint8_t *buffer,
+                      const size_t len);
+
+/**
  * @brief Decodes a response message
  *
  * Take bytes in @p data withy length @p len and decodes into a response type.
@@ -207,6 +220,18 @@ size_t EncodePageCommand(PageCommand_RequestType req, int fd, size_t bs,
  */
 size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
                          uint8_t *buffer, size_t size);
+
+/**
+ * @brief Encodes a MicroSDCommand
+ *
+ * @param microsd_cmd Command containing the data
+ * @param buffer Buffer to store serialized command
+ * @param size Size of buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
+                            size_t size);
 
 /**
  * @brief Encodes a WiFiCommand
