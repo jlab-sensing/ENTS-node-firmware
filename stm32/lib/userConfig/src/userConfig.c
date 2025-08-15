@@ -308,6 +308,8 @@ void UserConfigPrint(void) {
       case 4:
         sensor_name = "BME280";
         break;
+      
+      //Currently Inactive
       case 5:
         sensor_name = "SEN0257";
         break;

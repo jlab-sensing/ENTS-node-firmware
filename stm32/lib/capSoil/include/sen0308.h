@@ -1,18 +1,18 @@
 /**
  ******************************************************************************
- * @file     capSoil.h
+ * @file     sen0308.h
  * @author   Caden Jacobs
  * @brief    This file contains all the function prototypes for
- *           the capSoiil.c file.
+ *           the capSoil.c file.
  *
  *           This library is designed to read measurements from a Capacitve Soil Moisture Sensor
- *           [link]
+ *           https://wiki.dfrobot.com/Waterproof_Capacitive_Soil_Moisture_Sensor_SKU_SEN0308
  * @date     4/8/2025
  ******************************************************************************
  */
 
- #ifndef LIB_CAPSOIL_INCLUDE_CAPSOIL_H_
- #define LIB_CAPSOIL_INCLUDE_CAPSOIL_H_
+ #ifndef LIB_CAPSOIL_INCLUDE_SEN0308_H_
+ #define LIB_CAPSOIL_INCLUDE_SEN0308_H_
  
  #ifdef __cplusplus
  extern "C" {
@@ -22,11 +22,7 @@
  #include <stdlib.h>
  
  #include "ads.h"
- 
- typedef struct {
-   double capSoil_raw;
-   double capSoil_calibrated;
- } SEN0308_measurments;
+
  
  /**
  ******************************************************************************
@@ -47,7 +43,7 @@
  * @return   phytos_measurments
  ******************************************************************************
  */
-SEN0308_measurments SEN0308GetMeasurment(void);
+SEN0308Measurement SEN0308GetMeasurment(void);
  
  /**
   * @brief Read CapSoil sensor and serialize measurement
@@ -68,4 +64,4 @@ SEN0308_measurments SEN0308GetMeasurment(void);
  }
  #endif
  
- #endif  // LIB_CAPSOIL_INCLUDE_CAPSOIL_H_
+ #endif  // LIB_CAPSOIL_INCLUDE_SEN0308_H_

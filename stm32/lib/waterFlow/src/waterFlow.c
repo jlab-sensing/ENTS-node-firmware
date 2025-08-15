@@ -3,9 +3,9 @@
 * @file    waterFlow.c
 * @author  Caden Jacobs
 *
-* @brief   This library is designed to read measurements from a water Flow
-*          sensor from DFRobot.
-*          https://wiki.dfrobot.com/Gravity__Water_Flow_Sensor_SKU__SEN0257
+* @brief   This library is designed to read measurements from a Water Flow Sensor
+*          https://www.danomsk.ru/upload/iblock/43d/193917_3b664efb7b37f7ae8ea1eea40978a265.pdf
+*          
 * @date    7/31/2025
 ******************************************************************************
 */
@@ -23,13 +23,16 @@
 #define FLOW_AVG_COUNT 5
 
 //Variables
-volatile float last_flow_lpm = 0;
-volatile unsigned long pulse_count = 0;
-const float calibration_factor = 7.5;
+static volatile float last_flow_lpm = 0;
+static volatile unsigned long pulse_count = 0;
 SysTime_t currentTime;
 SysTime_t lastTime;
 float flow_history[FLOW_AVG_COUNT] = {0};
 uint8_t flow_index = 0;
+
+//For every one liter of water that passes through the sensor in one minute, there are 450 pulses. 
+//Therefore the calibration factor becomes [450/60 = 7.5]
+const float calibration_factor = 7.5;
 
 HAL_StatusTypeDef FlowInit() { 
 
@@ -51,28 +54,26 @@ HAL_StatusTypeDef FlowInit() {
     HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);  
     HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
+    //Get INIT Times
     currentTime = SysTimeGet();
     lastTime = currentTime;
-
-    return ADC_init();
 }
 
-waterFlow FlowGetMeasurment() {
+YFS210CMeasurement FlowGetMeasurment() {
 
     //get time
     currentTime = SysTimeGet();
 
     //variable for measurement 
-    waterFlow measurment;
+    YFS210CMeasurement flowMeas;
 
     SysTime_t diff = SysTimeSub(currentTime,lastTime);
 
     //Sampling time of 0.1s
     if ( diff.SubSeconds >= 100) {
-        //__disable_irq();
+
         uint32_t pulses = pulse_count;
         pulse_count = 0;
-       // __enable_irq();
 
         //Calculate liters per minute
         last_flow_lpm = (((float)pulses * 10.0f)/calibration_factor);
@@ -90,11 +91,9 @@ waterFlow FlowGetMeasurment() {
     for (int i = 0; i < FLOW_AVG_COUNT; i++) {
         sum += flow_history[i];
     }
-    measurment.flow = sum / FLOW_AVG_COUNT;
+    flowMeas.flow = sum / FLOW_AVG_COUNT;
 
-    //measurment.flow = last_flow_lpm;
-
-    return measurment;
+    return flowMeas;
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
@@ -106,16 +105,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 size_t WatFlow_measure(uint8_t* data) {
     // get timestamp
     SysTime_t ts = SysTimeGet();
-    waterFlow measurment = {};
+    YFS210CMeasurement flowMeas = {};
 
     /// read measurement
-    measurment = FlowGetMeasurment();
-    double float_flow = measurment.flow;
+    flowMeas = FlowGetMeasurment();
     const UserConfiguration* cfg = UserConfigGet();
 
     // encode measurement
     size_t data_len = EncodeWaterFlowMeasurement(
-        ts.Seconds, cfg->logger_id, cfg->cell_id, float_flow, data);
+        ts.Seconds, cfg->logger_id, cfg->cell_id, flowMeas.flow, data);
 
     // return number of bytes in serialized measurement
     return data_len;
