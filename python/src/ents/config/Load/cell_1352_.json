@@ -17,8 +17,8 @@
     "Calibration V Offset": 0.00103623,
     "Calibration I Slope": -1.18450259e-10,
     "Calibration I Offset": 3.72052241e-05,
-    "WiFi SSID": "HARE_Lab",
-    "WiFi Password": "",
-    "API Endpoint URL": "https://dirtviz.jlab.ucsc.edu/api/sensor/",
+    "WiFi SSID": "UCSC-Devices",
+    "WiFi Password": "LUdTAC4RkEY9waBEhp",
+    "API Endpoint URL": "http://169.233.154.231:3000/api/sensor/",
     "API Port": 443
 }

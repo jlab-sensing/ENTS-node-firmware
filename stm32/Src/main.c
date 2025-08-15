@@ -158,16 +158,16 @@ int main(void)
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
       //ADC_init();
       //change correct pins for water flow measurement
-      FlowInit(); 
-      //CapSoilInit();
+      //FlowInit(); 
+      CapSoilInit();
       //PressureInit();
-      //SensorsAdd(SEN0308_measure); //cap soil measurement
+      SensorsAdd(SEN0308_measure); //cap soil measurement
       //SensorsAdd(ADC_measure); //power measurement
       //SensorsAdd(WatPress_measure); //capacitive soil measurement
-      SensorsAdd(WatFlow_measure); //water flow meter measurement
+      //SensorsAdd(WatFlow_measure); //water flow meter measurement
       //APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
-      //APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Enabled!\n");
-      APP_LOG(TS_OFF, VLEVEL_M, "Flow Meter Enabled!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Enabled!\n");
+      //APP_LOG(TS_OFF, VLEVEL_M, "Flow Meter Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
       APP_LOG(TS_OFF, VLEVEL_M, "Teros12 Enabled!\n");

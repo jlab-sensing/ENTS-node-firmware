@@ -18,16 +18,15 @@
  
  #include "transcoder.h"
  
- const double  OffSet = 0.483;
+ const double  OffSet = 0.5104;
 
  HAL_StatusTypeDef PressureInit() { return ADC_init(); }
  
   SEN0257Meas PressureGetMeasurment() {
-  SEN0257Meas measurment;
-  measurment.voltage = ADC_readVoltage();
-  //((*measurment.voltage - OffSet)) * 250 + 0.94;
-  measurment.pressure = (measurment.voltage - OffSet) * 250;
-  return measurment;
+    SEN0257Meas measurment;
+    measurment.voltage = ADC_readVoltage();
+    measurment.pressure = (measurment.voltage - OffSet) * 250;
+    return measurment;
  }
  
  size_t WatPress_measure(uint8_t* data) {

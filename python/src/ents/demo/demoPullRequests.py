@@ -64,7 +64,7 @@ def format_data_display(df, cell_id):
     print("\n" + "="*60)
     print(f"📊 CELL {cell_id} POWER DATA SUMMARY".center(60))
     for key, value in stats.items():
-        print(f"• {key:<20}: {value}")
+        print(f"• {key:<20}: {value}") #Display the summary information
     print("="*60 + "\n")
     
     # Display sample data with timestamp first
@@ -74,9 +74,9 @@ def format_data_display(df, cell_id):
             df,
             headers='keys',
             tablefmt='grid',  # Changed to grid for better column alignment
-            stralign='right',  # Right-align numbers
+            stralign='center',  # Right-align numbers
             showindex=False,
-            numalign="right"
+            numalign="center"
         ))
     else:
         print("⚠️ No data available to display")
