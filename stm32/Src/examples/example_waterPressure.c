@@ -31,11 +31,11 @@
 /* USER CODE BEGIN Includes */
 
 #include "ads.h"
-#include "waterPressure.h"
 #include "rtc.h"
 #include "sdi12.h"
 #include "sys_app.h"
 #include "waterFlow.h"
+#include "waterPressure.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,14 +98,14 @@ int main(void) {
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART1_UART_Init();
-  //MX_USART2_UART_Init();
+  // MX_USART2_UART_Init();
   MX_I2C2_Init();
 
   /*Initialize timer and RTC*/
   /*Have to be initilized in example files because LoRaWan cannot be initialized
    * like in main*/
   __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-  //UTIL_TIMER_Init();
+  // UTIL_TIMER_Init();
   SystemApp_Init();
   UserConfigLoad();
 
@@ -122,10 +122,10 @@ int main(void) {
 
   /* USER CODE BEGIN 2 */
   PressureInit();
-  //FlowInit();
-  // TIMER_IF_Init();
-  // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-  // UTIL_TIMER_Init();
+  // FlowInit();
+  //  TIMER_IF_Init();
+  //  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+  //  UTIL_TIMER_Init();
 
   char output[30];
 
@@ -146,9 +146,9 @@ int main(void) {
 
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
-    
-    for (int i = 0; i < 1000000; i++){
-       asm("nop");
+
+    for (int i = 0; i < 1000000; i++) {
+      asm("nop");
     }
   }
   /* USER CODE END 3 */

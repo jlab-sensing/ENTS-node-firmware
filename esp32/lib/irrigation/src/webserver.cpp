@@ -1,9 +1,8 @@
 #include "webserver.hpp"
 
 #include <Arduino.h>
-#include <WebServer.h>
 #include <ArduinoLog.h>
-
+#include <WebServer.h>
 
 WebServer server(80);
 
@@ -36,9 +35,7 @@ void HandleTimed();
  */
 void HandleState();
 
-void HandleClient() {
-    server.handleClient();
-}
+void HandleClient() { server.handleClient(); }
 
 void SetupServer() {
   server.on("/open", HTTP_POST, HandleOpen);
@@ -62,12 +59,12 @@ void HandleTimed() {
   int time = 0;
 
   if (server.hasArg("time")) {
-      String time_str = server.arg("time");
-      time = time_str.toInt();
+    String time_str = server.arg("time");
+    time = time_str.toInt();
   } else {
-      Log.errorln("Timed opening valve: no time specified");
-      server.send(400, "text/plain", "No time specified");
-      return;
+    Log.errorln("Timed opening valve: no time specified");
+    server.send(400, "text/plain", "No time specified");
+    return;
   }
 
   Log.noticeln("Opening valve for %d seconds", time);
@@ -78,4 +75,3 @@ void HandleState() {
   Log.noticeln("Getting current state");
   server.send(200, "text/plain", "open");
 }
-

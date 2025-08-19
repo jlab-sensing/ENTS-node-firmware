@@ -128,6 +128,7 @@ message Esp32Command {
     TestCommand test_command = 2;
     WiFiCommand wifi_command = 3;
     MicroSDCommand microsd_command = 4;
+    IrrigationCommand irrigation_command = 5;
   }
 }
 
@@ -237,6 +238,22 @@ message MicroSDCommand {
     /* userConfig to be saved */
     UserConfiguration uc = 5;
   }
+}
+
+message IrrigationCommand {
+  enum Type {
+    CHECK = 0;
+  }
+
+  enum State {
+    // needs to be opened to prevent open defined twice
+    OPEN = 0;
+    CLOSE = 1;
+  }
+
+  Type type = 1;
+
+  State state = 2;
 }
 
 message UserConfiguration {

@@ -134,7 +134,7 @@ size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
-size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id, 
+size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double voltage,
                                 double humidity, uint8_t *buffer) {
   Measurement meas = Measurement_init_zero;
@@ -153,8 +153,8 @@ size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
 }
 
 size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
-  uint32_t cell_id, double voltage,
-  double water_pressure, uint8_t *buffer) {
+                                   uint32_t cell_id, double voltage,
+                                   double water_pressure, uint8_t *buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -171,7 +171,8 @@ size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
 }
 
 size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
-  uint32_t cell_id, double water_flow, uint8_t *buffer) {
+                                  uint32_t cell_id, double water_flow,
+                                  uint8_t *buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -277,6 +278,19 @@ size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
 
   // copy data from wifi_cmd to cmd
   memcpy(&cmd.command.wifi_command, wifi_cmd, sizeof(WiFiCommand));
+
+  return EncodeEsp32Command(&cmd, buffer, size);
+}
+
+size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
+                               uint8_t *buffer, size_t size) {
+  Esp32Command cmd = Esp32Command_init_default;
+
+  cmd.which_command = Esp32Command_irrigation_command_tag;
+
+  // copy data from irrigation_cmd to cmd
+  memcpy(&cmd.command.irrigation_command, irrigation_cmd,
+         sizeof(IrrigationCommand));
 
   return EncodeEsp32Command(&cmd, buffer, size);
 }

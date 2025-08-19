@@ -156,7 +156,6 @@ size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
                                int32_t temperature, uint32_t humidity,
                                uint8_t *buffer);
 
-                               
 /**
  * @brief Encodes a Water Pressure measurement
  *
@@ -177,8 +176,8 @@ size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
  * @return Number of bytes in @p buffer
  */
 size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
-    uint32_t cell_id, double voltage,
-    double water_pressure, uint8_t *buffer);
+                                   uint32_t cell_id, double voltage,
+                                   double water_pressure, uint8_t *buffer);
 
 /**
  * @brief Encodes a Capacitive Soil Moisture measurement
@@ -200,8 +199,8 @@ size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
  * @return Number of bytes in @p buffer
  */
 size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
-    uint32_t cell_id, double voltage,
-    double humidity, uint8_t *buffer);
+                                uint32_t cell_id, double voltage,
+                                double humidity, uint8_t *buffer);
 
 /**
  * @brief Encodes a Water Flow measurement
@@ -222,7 +221,8 @@ size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
  * @return Number of bytes in @p buffer
  */
 size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
-    uint32_t cell_id, double water_flow, uint8_t *buffer);
+                                  uint32_t cell_id, double water_flow,
+                                  uint8_t *buffer);
 
 /**
  * @brief Decodes a measurement
@@ -311,6 +311,18 @@ size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
  * @return Number of bytes in @p buffer
  */
 size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
+                         size_t size);
+
+/**
+ * @brief Encodes an IrrigationCommand
+ *
+ * @param irrigation_cmd Command containing the data
+ * @param buffer Buffer to store serialized measurement
+ * @param size Size of buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd, uint8_t *buffer, 
                          size_t size);
 
 /**

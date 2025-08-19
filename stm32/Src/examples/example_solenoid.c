@@ -23,20 +23,20 @@
 #include "adc.h"
 #include "app_lorawan.h"
 #include "dma.h"
+#include "esp_link.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "usart.h"
-#include "esp_link.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 #include "ads.h"
-#include "waterPressure.h"
 #include "rtc.h"
 #include "sdi12.h"
-#include "sys_app.h"
 #include "solenoid.h"
+#include "sys_app.h"
+#include "waterPressure.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -120,7 +120,7 @@ int main(void) {
   HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
-  //PressureInit();
+  // PressureInit();
   SolenoidInit();
   // TIMER_IF_Init();
   // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
@@ -140,30 +140,34 @@ int main(void) {
     /* USER CODE BEGIN 3 */
 
     SolenoidOpen();
-    
+
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_RESET) {
-        reading_len = snprintf(output, sizeof(output), "Solenoid Open\r\n");
-        HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len, HAL_MAX_DELAY);
+      reading_len = snprintf(output, sizeof(output), "Solenoid Open\r\n");
+      HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
+                        HAL_MAX_DELAY);
+    } else {
+      reading_len =
+          snprintf(output, sizeof(output), "Solenoid is NOT Open\r\n");
+      HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
+                        HAL_MAX_DELAY);
     }
-    else {
-        reading_len = snprintf(output, sizeof(output), "Solenoid is NOT Open\r\n");
-        HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len, HAL_MAX_DELAY);
-    }
-    
+
     HAL_Delay(5000);  // 5000 ms = 5 seconds
 
     // Close solenoid
     SolenoidClose();
 
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_SET) {
-        reading_len = snprintf(output, sizeof(output), "Solenoid Closed\r\n");
-        HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len, HAL_MAX_DELAY);
+      reading_len = snprintf(output, sizeof(output), "Solenoid Closed\r\n");
+      HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
+                        HAL_MAX_DELAY);
+    } else {
+      reading_len =
+          snprintf(output, sizeof(output), "Solenoid is NOT Closed\r\n");
+      HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
+                        HAL_MAX_DELAY);
     }
-    else {
-        reading_len = snprintf(output, sizeof(output), "Solenoid is NOT Closed\r\n");
-        HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len, HAL_MAX_DELAY);
-    }
-    
+
     HAL_Delay(5000);  // 5000 ms = 5 seconds
   }
   /* USER CODE END 3 */
@@ -219,7 +223,6 @@ void SystemClock_Config(void) {
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
 
 #ifdef USE_FULL_ASSERT
 /**

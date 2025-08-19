@@ -19,17 +19,17 @@
 #include <stdio.h>
 
 // system includes
+#include "ads.h"
 #include "app_lorawan.h"
 #include "board.h"
 #include "gpio.h"
 #include "lptim.h"
 #include "main.h"
 #include "rtc.h"
+#include "sen0308.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
 #include "usart.h"
-#include "ads.h"
-#include "sen0308.h"
 
 /** Delay between print statements */
 #ifndef DELAY
@@ -77,10 +77,9 @@ int main(void) {
   uint8_t addr = '0';
 
   CapSoilInit();
-  //ADC_init();
+  // ADC_init();
   char output[35];
-  
-  
+
   SEN0308Measurement measurement;
   size_t reading_len;
 
@@ -94,18 +93,18 @@ int main(void) {
     /* USER CODE BEGIN 3 */
 
     measurement = SEN0308GetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Soil Humidity: %.3f%%\r\n", measurement.humidity);
+    reading_len = snprintf(output, sizeof(output), "Soil Humidity: %.3f%%\r\n",
+                           measurement.humidity);
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
     // for (int i = 0; i < 10000; i++){
     //   asm("nop");
     // }
 
-    //HAL_Delay(
-    //    1000);  // I guess HAL_Delay is broken somehow, don't understand why
-    for (int i = 0; i < 1000000; i++){
-     asm("nop");
+    // HAL_Delay(
+    //     1000);  // I guess HAL_Delay is broken somehow, don't understand why
+    for (int i = 0; i < 1000000; i++) {
+      asm("nop");
     }
   }
 }
-

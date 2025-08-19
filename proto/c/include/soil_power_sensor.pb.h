@@ -83,6 +83,16 @@ typedef enum _MicroSDCommand_ReturnCode {
     MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED = 5
 } MicroSDCommand_ReturnCode;
 
+typedef enum _IrrigationCommand_Type {
+    IrrigationCommand_Type_CHECK = 0
+} IrrigationCommand_Type;
+
+typedef enum _IrrigationCommand_State {
+    /* needs to be opened to prevent open defined twice */
+    IrrigationCommand_State_OPEN = 0,
+    IrrigationCommand_State_CLOSE = 1
+} IrrigationCommand_State;
+
 /* Struct definitions */
 /* Data shared between all measurement messages */
 typedef struct _MeasurementMetadata {
@@ -223,6 +233,11 @@ typedef struct _WiFiCommand {
     uint32_t port;
 } WiFiCommand;
 
+typedef struct _IrrigationCommand {
+    IrrigationCommand_Type type;
+    IrrigationCommand_State state;
+} IrrigationCommand;
+
 typedef struct _UserConfiguration {
     /* ********* Upload Settings ********* */
     uint32_t logger_id; /* id of the logging device */
@@ -266,6 +281,7 @@ typedef struct _Esp32Command {
         TestCommand test_command;
         WiFiCommand wifi_command;
         MicroSDCommand microsd_command;
+        IrrigationCommand irrigation_command;
     } command;
 } Esp32Command;
 
@@ -307,6 +323,14 @@ extern "C" {
 #define _MicroSDCommand_ReturnCode_MAX MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED
 #define _MicroSDCommand_ReturnCode_ARRAYSIZE ((MicroSDCommand_ReturnCode)(MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED+1))
 
+#define _IrrigationCommand_Type_MIN IrrigationCommand_Type_CHECK
+#define _IrrigationCommand_Type_MAX IrrigationCommand_Type_CHECK
+#define _IrrigationCommand_Type_ARRAYSIZE ((IrrigationCommand_Type)(IrrigationCommand_Type_CHECK+1))
+
+#define _IrrigationCommand_State_MIN IrrigationCommand_State_OPEN
+#define _IrrigationCommand_State_MAX IrrigationCommand_State_CLOSE
+#define _IrrigationCommand_State_ARRAYSIZE ((IrrigationCommand_State)(IrrigationCommand_State_CLOSE+1))
+
 
 
 
@@ -329,6 +353,9 @@ extern "C" {
 #define MicroSDCommand_type_ENUMTYPE MicroSDCommand_Type
 #define MicroSDCommand_rc_ENUMTYPE MicroSDCommand_ReturnCode
 
+#define IrrigationCommand_type_ENUMTYPE IrrigationCommand_Type
+#define IrrigationCommand_state_ENUMTYPE IrrigationCommand_State
+
 #define UserConfiguration_Upload_method_ENUMTYPE Uploadmethod
 #define UserConfiguration_enabled_sensors_ENUMTYPE EnabledSensor
 
@@ -350,6 +377,7 @@ extern "C" {
 #define TestCommand_init_default                 {_TestCommand_ChangeState_MIN, 0}
 #define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
 #define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_default}}
+#define IrrigationCommand_init_default           {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
 #define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
 #define PowerMeasurement_init_zero               {0, 0}
@@ -367,6 +395,7 @@ extern "C" {
 #define TestCommand_init_zero                    {_TestCommand_ChangeState_MIN, 0}
 #define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
 #define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_zero}}
+#define IrrigationCommand_init_zero              {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
 #define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -415,6 +444,8 @@ extern "C" {
 #define WiFiCommand_ts_tag                       6
 #define WiFiCommand_resp_tag                     7
 #define WiFiCommand_port_tag                     8
+#define IrrigationCommand_type_tag               1
+#define IrrigationCommand_state_tag              2
 #define UserConfiguration_logger_id_tag          1
 #define UserConfiguration_cell_id_tag            2
 #define UserConfiguration_Upload_method_tag      3
@@ -437,6 +468,7 @@ extern "C" {
 #define Esp32Command_test_command_tag            2
 #define Esp32Command_wifi_command_tag            3
 #define Esp32Command_microsd_command_tag         4
+#define Esp32Command_irrigation_command_tag      5
 
 /* Struct field encoding specification for nanopb */
 #define MeasurementMetadata_FIELDLIST(X, a) \
@@ -527,13 +559,15 @@ X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
 X(a, STATIC,   ONEOF,    MESSAGE,  (command,page_command,command.page_command),   1) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (command,test_command,command.test_command),   2) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (command,wifi_command,command.wifi_command),   3) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (command,microsd_command,command.microsd_command),   4)
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,microsd_command,command.microsd_command),   4) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,irrigation_command,command.irrigation_command),   5)
 #define Esp32Command_CALLBACK NULL
 #define Esp32Command_DEFAULT NULL
 #define Esp32Command_command_page_command_MSGTYPE PageCommand
 #define Esp32Command_command_test_command_MSGTYPE TestCommand
 #define Esp32Command_command_wifi_command_MSGTYPE WiFiCommand
 #define Esp32Command_command_microsd_command_MSGTYPE MicroSDCommand
+#define Esp32Command_command_irrigation_command_MSGTYPE IrrigationCommand
 
 #define PageCommand_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    file_request,      1) \
@@ -572,6 +606,12 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (data,uc,data.uc),   5)
 #define MicroSDCommand_data_meas_MSGTYPE Measurement
 #define MicroSDCommand_data_uc_MSGTYPE UserConfiguration
 
+#define IrrigationCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
+X(a, STATIC,   SINGULAR, UENUM,    state,             2)
+#define IrrigationCommand_CALLBACK NULL
+#define IrrigationCommand_DEFAULT NULL
+
 #define UserConfiguration_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   logger_id,         1) \
 X(a, STATIC,   SINGULAR, UINT32,   cell_id,           2) \
@@ -605,6 +645,7 @@ extern const pb_msgdesc_t PageCommand_msg;
 extern const pb_msgdesc_t TestCommand_msg;
 extern const pb_msgdesc_t WiFiCommand_msg;
 extern const pb_msgdesc_t MicroSDCommand_msg;
+extern const pb_msgdesc_t IrrigationCommand_msg;
 extern const pb_msgdesc_t UserConfiguration_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
@@ -624,11 +665,13 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define TestCommand_fields &TestCommand_msg
 #define WiFiCommand_fields &WiFiCommand_msg
 #define MicroSDCommand_fields &MicroSDCommand_msg
+#define IrrigationCommand_fields &IrrigationCommand_msg
 #define UserConfiguration_fields &UserConfiguration_msg
 
 /* Maximum encoded size of messages (where known) */
 #define BME280Measurement_size                   23
 #define Esp32Command_size                        607
+#define IrrigationCommand_size                   4
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
 #define MicroSDCommand_size                      503

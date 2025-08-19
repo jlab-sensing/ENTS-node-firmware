@@ -54,7 +54,14 @@ PB_BIND(WiFiCommand, WiFiCommand, 2)
 PB_BIND(MicroSDCommand, MicroSDCommand, 2)
 
 
+PB_BIND(IrrigationCommand, IrrigationCommand, AUTO)
+
+
 PB_BIND(UserConfiguration, UserConfiguration, AUTO)
+
+
+
+
 
 
 
