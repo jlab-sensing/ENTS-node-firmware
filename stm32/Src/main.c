@@ -118,6 +118,7 @@ int main(void) {
   // init senors interface
   SensorsInit();
 
+
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];

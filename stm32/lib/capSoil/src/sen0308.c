@@ -26,7 +26,7 @@ const double air_value = 2.372;
 const double wet_value = 0.036;
 const double intervals = (air_value - wet_value)/3;
  
-HAL_StatusTypeDef CapSoilInit() { return ADC_init(); }
+void CapSoilInit() { return ADC_init(); }
 
  
 SEN0308Measurement SEN0308GetMeasurment() {
@@ -40,9 +40,8 @@ SEN0308Measurement SEN0308GetMeasurment() {
    return capSoil;
  }
  
- size_t SEN0308_measure(uint8_t* data) {
+ size_t SEN0308_measure(uint8_t* data, SysTime_t ts) {
    // get timestamp
-   SysTime_t ts = SysTimeGet();
    SEN0308Measurement capSoil;
  
    // read voltage

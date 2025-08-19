@@ -62,14 +62,14 @@ def format_data_display(df, cell_id):
     
     # Display header
     print("\n" + "="*60)
-    print(f"📊 CELL {cell_id} POWER DATA SUMMARY".center(60))
+    print(f"CELL {cell_id} POWER DATA SUMMARY".center(60))
     for key, value in stats.items():
         print(f"• {key:<20}: {value}") #Display the summary information
     print("="*60 + "\n")
     
     # Display sample data with timestamp first
     if len(df) > 0:
-        print("🔍 DATA BY TIMESTAMPS:")
+        print("DATA BY TIMESTAMPS:")
         print(tabulate(
             df,
             headers='keys',
@@ -79,7 +79,7 @@ def format_data_display(df, cell_id):
             numalign="center"
         ))
     else:
-        print("⚠️ No data available to display")
+        print("No data available to display")
     
     print("\n" + "="*80)
 
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         start = datetime(2025, 8, 12, tzinfo=timezone.utc)
         end = datetime.now(timezone.utc)
         
-        print(f"\n🔌 Fetching power data for cell {cell_id}...")
+        print(f"\nFetching power data for cell {cell_id}...")
         data = client.get_power_data(cell_id, start, end)
         
         if data:
@@ -100,12 +100,12 @@ if __name__ == "__main__":
             
             # Save to CSV with timestamp first
             # df.to_csv(f"cell_{cell_id}_power_data.csv", index=False)
-            #print(f"💾 Data saved to cell_{cell_id}_power_data.csv")
+            #print(f"Data saved to cell_{cell_id}_power_data.csv")
         else:
-            print("⚠️ No data received for the specified time range.")
+            print("No data received for the specified time range.")
             
     except requests.exceptions.HTTPError as e:
-        print(f"\n❌ HTTP Error: {e}")
-        print(f"💡 Response: {e.response.text[:500]}...")
+        print(f"\nHTTP Error: {e}")
+        print(f"Response: {e.response.text[:500]}...")
     except Exception as e:
         print(f"\n⚠️ Unexpected error: {str(e)}")

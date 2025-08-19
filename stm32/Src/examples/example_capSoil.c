@@ -81,7 +81,7 @@ int main(void) {
   char output[35];
   
   
-  SEN0308_measurments measurment;
+  SEN0308Measurement measurement;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -93,8 +93,8 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
 
-    measurment = SEN0308GetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Soil Humidity: %.3f%%\r\n", measurment.capSoil_calibrated);
+    measurement = SEN0308GetMeasurment();
+    reading_len = snprintf(output, sizeof(output), "Soil Humidity: %.3f%%\r\n", measurement.humidity);
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
     // for (int i = 0; i < 10000; i++){

@@ -23,16 +23,20 @@
  
  #include "ads.h"
 
+ typedef struct {
+    double voltage;
+    double humidity;
+  } Sen0380Data;
  
  /**
  ******************************************************************************
  * @brief    Wrapper function for the ADC initilization.
  *
  * @param    void
- * @return   HAL_StatusTypeDef
+ * @return   void
  ******************************************************************************
  */
- HAL_StatusTypeDef CapSoilInit(void);
+ void CapSoilInit(void);
  
  /**
  ******************************************************************************
@@ -58,7 +62,7 @@ SEN0308Measurement SEN0308GetMeasurment(void);
   *
   * @see SensorsPrototypeMeasure
   */
- size_t SEN0308_measure(uint8_t *data);
+ size_t SEN0308_measure(uint8_t *data, SysTime_t ts);
  
  #ifdef __cplusplus
  }

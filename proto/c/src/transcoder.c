@@ -134,9 +134,9 @@ size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
-size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
-  uint32_t cell_id, double voltage,
-  double humidity, uint8_t *buffer) {
+size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id, 
+                                uint32_t cell_id, double voltage,
+                                double humidity, uint8_t *buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;

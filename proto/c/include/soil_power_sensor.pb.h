@@ -15,8 +15,7 @@ typedef enum _EnabledSensor {
     EnabledSensor_Current = 1,
     EnabledSensor_Teros12 = 2,
     EnabledSensor_Teros21 = 3,
-    EnabledSensor_BME280 = 4,
-    EnabledSensor_SEN0257 = 5
+    EnabledSensor_BME280 = 4
 } EnabledSensor;
 
 typedef enum _Uploadmethod {
@@ -277,8 +276,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _EnabledSensor_MIN EnabledSensor_Voltage
-#define _EnabledSensor_MAX EnabledSensor_SEN0257
-#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_SEN0257+1))
+#define _EnabledSensor_MAX EnabledSensor_BME280
+#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_BME280+1))
 
 #define _Uploadmethod_MIN Uploadmethod_LoRa
 #define _Uploadmethod_MAX Uploadmethod_WiFi

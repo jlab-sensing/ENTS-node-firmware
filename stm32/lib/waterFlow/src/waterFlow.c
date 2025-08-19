@@ -34,7 +34,7 @@ uint8_t flow_index = 0;
 //Therefore the calibration factor becomes [450/60 = 7.5]
 const float calibration_factor = 7.5;
 
-HAL_StatusTypeDef FlowInit() { 
+void FlowInit() { 
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
    
