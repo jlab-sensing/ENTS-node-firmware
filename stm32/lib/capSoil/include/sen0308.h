@@ -1,16 +1,19 @@
-// Copyright 2024 Jlab sensing
-
 /**
- * @file     phytos31.h
- * @author   Stephen Taylor
+ ******************************************************************************
+ * @file     sen0308.h
+ * @author   Caden Jacobs
  * @brief    This file contains all the function prototypes for
- *           the phytos31.c file.
+ *           the capSoil.c file.
  *
- * @date     4/18/2024
+ *           This library is designed to read measurements from a Capacitve Soil
+ *Moisture Sensor
+ *           https://wiki.dfrobot.com/Waterproof_Capacitive_Soil_Moisture_Sensor_SKU_SEN0308
+ * @date     4/8/2025
+ ******************************************************************************
  */
 
-#ifndef LIB_PHYTOS31_INCLUDE_PHYTOS31_H_
-#define LIB_PHYTOS31_INCLUDE_PHYTOS31_H_
+#ifndef LIB_CAPSOIL_INCLUDE_SEN0308_H_
+#define LIB_CAPSOIL_INCLUDE_SEN0308_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,52 +24,36 @@ extern "C" {
 
 #include "ads.h"
 
-/**
- * @ingroup stm32
- * @defgroup phytos31 Phytos31
- * @brief Library for interfacing with the PHYTOS-31 sensor
- *
- * This library is designed to read measurements from a PHYTOS-31 sensor from
- * METER.
- *
- * https://metergroup.com/products/phytos-31/
-
- * Examples:
- * - @ref example_phytos.c
- *
- * @{
- */
-
 typedef struct {
-  double phytos31_raw;
-  double phytos31_calibrated;
-} phytos_measurments;
+  double voltage;
+  double humidity;
+} Sen0380Data;
 
 /**
 ******************************************************************************
 * @brief    Wrapper function for the ADC initilization.
 *
 * @param    void
-* @return   HAL_StatusTypeDef
+* @return   void
 ******************************************************************************
 */
-HAL_StatusTypeDef Phytos31Init(void);
+void CapSoilInit(void);
 
 /**
 ******************************************************************************
 * @brief    Returns both the raw voltage value and a calibrated measurment
-*           from a PHYTOS31 sensor.
+*           from a CapSoil sensor.
 *
 * @param    void
 * @return   phytos_measurments
 ******************************************************************************
 */
-phytos_measurments Phytos31GetMeasurment(void);
+SEN0308Measurement SEN0308GetMeasurment(void);
 
 /**
- * @brief Read PHYTOS31 sensor and serialize measurement
+ * @brief Read CapSoil sensor and serialize measurement
  *
- * The voltage output of the PHYTOS31 is measured. A calibration is applied
+ * The voltage output of the CapSoil is measured. A calibration is applied
  * to convert voltage into a leaf wetness measurement.
  *
  * Current voltage and leaf wetness are the same value, until a calibration
@@ -76,14 +63,10 @@ phytos_measurments Phytos31GetMeasurment(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t Phytos31_measure(uint8_t *data);
-
-/**
- * @}
- */
+size_t SEN0308_measure(uint8_t *data, SysTime_t ts);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // LIB_PHYTOS31_INCLUDE_PHYTOS31_H_
+#endif  // LIB_CAPSOIL_INCLUDE_SEN0308_H_

@@ -43,6 +43,9 @@
 #include "usart.h"
 #include "userConfig.h"
 #include "wifi.h"
+#include "waterPressure.h"
+#include "sen0308.h"
+#include "waterFlow.h"
 
 /**
  * @brief  The application entry point.
@@ -115,11 +118,11 @@ int main(void) {
   // init senors interface
   SensorsInit();
 
+
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
-    if ((sensor == EnabledSensor_Voltage) ||
-        (sensor == EnabledSensor_Current)) {
+    if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
       ADC_init();
       SensorsAdd(ADC_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
@@ -160,3 +163,4 @@ int main(void) {
     MX_LoRaWAN_Process();
   }
 }
+

@@ -10,6 +10,7 @@
 #include <Wire.h>
 
 #include "module_handler.hpp"
+#include "modules/irrigation.hpp"
 #include "modules/microsd.hpp"
 #include "modules/wifi.hpp"
 
@@ -49,7 +50,7 @@ void setup() {
   Serial.begin(115200);
 
   // Create logging interfface
-  Log.begin(LOG_LEVEL_NOTICE, &Serial);
+  Log.begin(LOG_LEVEL_TRACE, &Serial);
 
   Log.verbose(R"(
 -------------------------------------------------------------------------------
@@ -66,12 +67,15 @@ RESET!
   Log.noticeln("Starting i2c interface...");
 
   // create and register the WiFi module
-  static ModuleWiFi wifi;
-  mh.RegisterModule(&wifi);
+  // static ModuleWiFi wifi;
+  // mh.RegisterModule(&wifi);
 
   // create and register the microSD module
-  static ModuleMicroSD microSD;
-  mh.RegisterModule(&microSD);
+  // static ModuleMicroSD microSD;
+  // mh.RegisterModule(&microSD);
+
+  static ModuleIrrigation irrigation;
+  mh.RegisterModule(&irrigation);
 
   // start i2c interface
   Wire.onReceive(onReceive);
