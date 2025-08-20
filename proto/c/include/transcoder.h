@@ -322,8 +322,8 @@ size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
  *
  * @return Number of bytes in @p buffer
  */
-size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd, uint8_t *buffer, 
-                         size_t size);
+size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
+                               uint8_t *buffer, size_t size);
 
 /**
  * @brief Encodes user configuration data.

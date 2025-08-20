@@ -12,8 +12,8 @@
 
 #include <Arduino.h>
 
-#include "transcoder.h"
 #include "template_module.hpp"
+#include "transcoder.h"
 
 /**
  * @ingroup moduleHandler
