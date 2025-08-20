@@ -3,19 +3,18 @@
 #include <stdlib.h>
 
 #include "adc.h"
-#include "board.h"
+#include "ads.h"
 #include "app_lorawan.h"
+#include "board.h"
 #include "dma.h"
 #include "esp_link.h"
 #include "gpio.h"
 #include "i2c.h"
-#include "usart.h"
-
-#include "ads.h"
 #include "rtc.h"
 #include "sdi12.h"
 #include "solenoid.h"
 #include "sys_app.h"
+#include "usart.h"
 #include "waterPressure.h"
 
 int main(void) {
@@ -47,7 +46,6 @@ int main(void) {
   size_t reading_len;
 
   while (1) {
-
     SolenoidOpen();
 
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_RESET) {
@@ -81,4 +79,3 @@ int main(void) {
   }
   /* USER CODE END 3 */
 }
-
