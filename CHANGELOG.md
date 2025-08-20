@@ -14,6 +14,11 @@ firmware versions for a hardware version.
 
 - Example to force esp32 in deep sleep [#207](i207)
 - Utility to change SDI-12 sensor address [#210](i210)
+- Added new sensors
+    - SEN0308
+    - SEN0257
+    - YFS210C
+- Added controlling of solenoid from esp32 api
 
 ### Updated
 
