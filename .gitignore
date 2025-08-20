@@ -3,6 +3,7 @@
 **/.vscode/settings.json
 .mypy_cache
 tags*
+.DS_Store
 
 # configuration files
 proto/python/src/soil_power_sensor_protobuf/config/Load/*.json
