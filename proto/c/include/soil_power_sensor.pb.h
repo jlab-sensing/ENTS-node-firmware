@@ -183,7 +183,7 @@ typedef struct _Measurement {
         Phytos31Measurement phytos31;
         BME280Measurement bme280;
         Teros21Measurement teros21;
-        SEN0308Measurement sen0308;
+        SEN0308Measurement sen03808;
         SEN0257Measurement sen0257;
         YFS210CMeasurement yfs210c;
     } measurement;
@@ -426,7 +426,7 @@ extern "C" {
 #define Measurement_phytos31_tag                 4
 #define Measurement_bme280_tag                   5
 #define Measurement_teros21_tag                  6
-#define Measurement_sen0308_tag                  7
+#define Measurement_sen03808_tag                 7
 #define Measurement_sen0257_tag                  8
 #define Measurement_yfs210c_tag                  9
 #define Response_resp_tag                        1
@@ -535,7 +535,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros12,measurement.teros12),   
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,phytos31,measurement.phytos31),   4) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,bme280,measurement.bme280),   5) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0308,measurement.sen0308),   7) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen03808,measurement.sen03808),   7) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   9)
 #define Measurement_CALLBACK NULL
@@ -546,7 +546,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   
 #define Measurement_measurement_phytos31_MSGTYPE Phytos31Measurement
 #define Measurement_measurement_bme280_MSGTYPE BME280Measurement
 #define Measurement_measurement_teros21_MSGTYPE Teros21Measurement
-#define Measurement_measurement_sen0308_MSGTYPE SEN0308Measurement
+#define Measurement_measurement_sen03808_MSGTYPE SEN0308Measurement
 #define Measurement_measurement_sen0257_MSGTYPE SEN0257Measurement
 #define Measurement_measurement_yfs210c_MSGTYPE YFS210CMeasurement
 

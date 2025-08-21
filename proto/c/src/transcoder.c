@@ -145,9 +145,9 @@ size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
   meas.meta.logger_id = logger_id;
   meas.meta.cell_id = cell_id;
 
-  meas.which_measurement = Measurement_sen0308_tag;
-  meas.measurement.sen0308.voltage = voltage;
-  meas.measurement.sen0308.humidity = humidity;
+  meas.which_measurement = Measurement_sen03808_tag;
+  meas.measurement.sen03808.voltage = voltage;
+  meas.measurement.sen03808.humidity = humidity;
 
   return EncodeMeasurement(&meas, buffer);
 }
