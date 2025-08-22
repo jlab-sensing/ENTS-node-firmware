@@ -80,7 +80,7 @@ RESET!
   }
 
   // Register modules
-  mh.RegisterModule(&wifi);
+  //mh.RegisterModule(&wifi);
   mh.RegisterModule(&user_config);
 
   const std::string AP_SSID = "ents";

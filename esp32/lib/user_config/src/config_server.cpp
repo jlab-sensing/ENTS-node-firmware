@@ -26,6 +26,13 @@ void handleRoot();
 void handleSave();
 
 /**
+ * @brief Prints debug information for http queries.
+ *
+ * Must be called within the web server request handler to log the query.
+ */
+void printQuery();
+
+/**
  * @brief Validate user inputs from the web form.
  *
  * This function checks the inputs provided by the user in the web form
@@ -37,6 +44,8 @@ String validateInputs();
 
 
 void handleRoot() {
+  printQuery();
+
   String html = R"=====(
 <!DOCTYPE html>
 <html>
@@ -310,6 +319,8 @@ void handleRoot() {
 }
 
 void handleSave() {
+  printQuery();
+
   // validate inputs and return error if any
   String error = validateInputs();
   if (error != "") {
@@ -392,6 +403,7 @@ void handleSave() {
   config.Current_Offset = server.arg("calibration_i_offset").toDouble();
 
   setConfig(config);
+  printReceivedConfig();
 
   // NOTE: Direclty setting
   // Update the module's current configuration
@@ -447,4 +459,30 @@ String validateInputs() {
   }
 
   return "";  // Empty string when no error
+}
+
+
+void printQuery() {
+  IPAddress ip = server.client().remoteIP();
+  String path = server.uri();
+
+  std::string method = "";
+  switch (server.method()) {
+    case HTTP_GET:
+      method = "GET";
+      break;
+    case HTTP_POST:
+      method = "POST";
+      break;
+    case HTTP_PUT:
+      method = "PUT";
+      break;
+    case HTTP_DELETE:
+      method = "DELETE";
+      break;
+    default:
+      method = "UNKNOWN";
+  }
+
+  Log.noticeln("%s - %s %s", ip.toString().c_str(), method.c_str(),  path.c_str());
 }

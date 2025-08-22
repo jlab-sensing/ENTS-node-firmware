@@ -12,70 +12,76 @@ namespace ModuleHandler {
 ModuleUserConfig::ModuleUserConfig() : Module() {
   this->type = Esp32Command_user_config_command_tag;
   this->state = 0;
-  memset(&current_command_, 0, sizeof(current_command_));
-  memset(&current_config_, 0, sizeof(current_config_));
 }
 
 void ModuleUserConfig::OnReceive(const Esp32Command &cmd) {
+  Log.traceln("ModuleUserConfig::OnReceive");
+
   // Check which command
   if (cmd.which_command != Esp32Command_user_config_command_tag) {
     Log.errorln(" Wrong command type received");
     return;
   }
 
-  memcpy(&current_command_, &cmd.command.user_config_command,
-         sizeof(UserConfigCommand));
+  switch (cmd.command.user_config_command.type) {
+    case UserConfigCommand_RequestType_REQUEST_CONFIG:
+      Log.traceln("Received config request");
+      requestConfig(cmd.command.user_config_command);
+      break;
 
-  if (current_command_.type == UserConfigCommand_RequestType_REQUEST_CONFIG) {
-    Log.noticeln(" ============ Received Config Request ============");
-    Log.noticeln(" STM32 is requesting current configuration");
-  } else if (current_command_.type ==
-                 UserConfigCommand_RequestType_RESPONSE_CONFIG &&
-             current_command_.has_config_data) {
-    Log.noticeln(" ============ Received New Configuration ============");
-    memcpy(&current_config_, &current_command_.config_data,
-           sizeof(UserConfiguration));
-    has_config_ = true;
+    case UserConfigCommand_RequestType_RESPONSE_CONFIG:
+      Log.traceln("Received config response");
+      responseConfig(cmd.command.user_config_command);
+      break;
 
-    setConfig(current_config_);
-    //updateWebConfig(&current_config_);
-    printReceivedConfig();
+    default:
+      Log.errorln("Unknown user config command type: %d",
+                  cmd.command.user_config_command.type);
+      return;
   }
 }
 
 size_t ModuleUserConfig::OnRequest(uint8_t *buffer) {
-  if (current_command_.type == UserConfigCommand_RequestType_REQUEST_CONFIG) {
-    Log.noticeln("============ Sending Configuration ============");
-    Log.noticeln(" Preparing to send current config to STM32");
+  Log.traceln("ModuleUserConfig::OnRequest");
+  memcpy(buffer, this->buffer, buffer_len);
+  return buffer_len;
+}
 
-    if (has_config_) {
-      Log.noticeln(" Current configuration exists, sending it");
-      printReceivedConfig();  // Print what we're about to send
-    } else {
-      Log.warningln(" No configuration available to send");
-    }
+
+  void ModuleUserConfig::requestConfig(const UserConfigCommand &cmd) {
+    Log.noticeln(" ============ Received Config Request ============");
+    Log.noticeln(" STM32 is requesting current configuration");
+    //Log.noticeln("============ Sending Configuration ============");
+    //Log.noticeln(" Preparing to send current config to STM32");
 
     Esp32Command response = {0};
     response.which_command = Esp32Command_user_config_command_tag;
     response.command.user_config_command.type =
         UserConfigCommand_RequestType_RESPONSE_CONFIG;
-    response.command.user_config_command.has_config_data = has_config_;
+    response.command.user_config_command.has_config_data = true;
 
-    if (has_config_) {
-      memcpy(&response.command.user_config_command.config_data,
-             &current_config_, sizeof(UserConfiguration));
-    }
+    const UserConfiguration config = getConfig();
 
-    pb_ostream_t stream = pb_ostream_from_buffer(buffer, Esp32Command_size);
-    if (!pb_encode(&stream, Esp32Command_fields, &response)) {
+    memcpy(&response.command.user_config_command.config_data,
+           &config, sizeof(UserConfiguration));
+
+    pb_ostream_t ostream = pb_ostream_from_buffer(buffer, Esp32Command_size);
+    if (!pb_encode(&ostream, Esp32Command_fields, &response)) {
       Log.errorln("Failed to encode response");
-      return 0;
+      buffer_len = 0;;
     }
+
+    buffer_len = ostream.bytes_written;
 
     Log.noticeln(" Successfully encoded configuration (%d bytes)",
-                 stream.bytes_written);
-    return stream.bytes_written;
+                 buffer_len);
   }
-  return 0;
-}
+
+  void ModuleUserConfig::responseConfig(const UserConfigCommand &cmd) {
+    Log.noticeln(" ============ Received New Configuration ============");
+
+    setConfig(cmd.config_data);
+    //updateWebConfig(&current_config_);
+    printReceivedConfig();
+  }
 }  // namespace ModuleHandler
