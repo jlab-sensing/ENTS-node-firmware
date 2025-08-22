@@ -5,12 +5,16 @@
 #include <string.h>
 
 #include "configuration.hpp"
+#include "config_server.hpp"
 
 namespace ModuleHandler {
 
 ModuleUserConfig::ModuleUserConfig() : Module() {
   this->type = Esp32Command_user_config_command_tag;
   this->state = 0;
+
+  setupServer();
+  Log.noticeln("HTTP server started");
 }
 
 void ModuleUserConfig::OnReceive(const Esp32Command &cmd) {

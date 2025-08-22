@@ -98,9 +98,6 @@ RESET!
   WiFi.softAP(AP_SSID.c_str(), AP_PASSWORD.c_str());
   Log.noticeln("Access Point started");
   Log.noticeln("IP Address: %s", WiFi.softAPIP().toString().c_str());
-
-  setupServer();
-  Log.noticeln("HTTP server started");
 }
 
 void loop() {
