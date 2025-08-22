@@ -11,20 +11,12 @@
 #include <string.h>
 
 #include "board.h"
-#include "communication.h"
 #include "controller/controller.h"
-#include "controller/wifi.h"
+#include "controller/wifi_userconfig.h"
 #include "gpio.h"
 #include "i2c.h"
-#include "main.h"
-#include "pb_decode.h"
-#include "pb_encode.h"
-#include "rtc.h"
-#include "stm32_adv_trace.h"
-#include "stm32_systime.h"
 #include "usart.h"
 #include "userConfig.h"
-#include "wifi.h"
 
 // /** Timeout for i2c communication with esp32 */
 // static unsigned int g_controller_i2c_timeout = 10000;
@@ -137,7 +129,6 @@ int main(void) {
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_ADC_Init();
   MX_USART1_UART_Init();
   MX_I2C2_Init();
   SystemApp_Init();

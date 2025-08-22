@@ -74,14 +74,6 @@ UserConfigStatus ControllerUserConfigRequest(void) {
 }
 
 UserConfigStatus ControllerUserConfigSend(void) {
-  // Load config from FRAM
-  UserConfigStatus fram_status = UserConfigLoad();
-  if (fram_status != USERCONFIG_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Failed to load config from FRAM: %d\r\n",
-            fram_status);
-    return fram_status;
-  }
-
   const UserConfiguration *config = UserConfigGet();
   if (config == NULL) {
     APP_LOG(TS_OFF, VLEVEL_M, "Null config received from FRAM\r\n");
