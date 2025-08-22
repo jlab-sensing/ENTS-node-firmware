@@ -3,84 +3,61 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ENTS Configuration</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .group { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-    h2 { margin-top: 0; color: #444; }
-    label { display: block; margin: 10px 0 5px; }
-    input, select { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
-    button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background-color: #45a049; }
-    .checkbox-group { margin: 10px 0; }
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .checkbox-row input[type="checkbox"] {
-      width: auto;
-      margin-right: 8px;
-      margin-bottom: 0;
-    }
-    .checkbox-row label {
-      display: inline;
-      margin: 0;
-    }
-    .error {
-    color: red;
-    margin: 15px 0;
-    padding: 10px;
-    border: 1px solid red;
-    border-radius: 4px;
-    background-color: #ffeeee;
-    }
-    .success {
-      color: green;
-      margin: 15px 0;
-      padding: 10px;
-      border: 1px solid green;
-      border-radius: 4px;
-      background-color: #eeffee;
-      }
-      #wifiSettings { display: none; }
-      .error { color: red; margin-top: 10px; }
-      /* Modal styles */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.4);
-      }
-      
-      .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-        max-width: 500px;
-        border-radius: 5px;
-        text-align: center;
-      }
-      
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      
-      .close:hover {
-        color: black;
-      }
-      </style>
+<style>
+  /* Base body styling */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    display: flex;
+    justify-content: center; /* center container on large screens */
+  }
+
+  /* Responsive container */
+  #pageContainer {
+    width: 100%;
+    max-width: 600px; /* limit width on large screens */
+    box-sizing: border-box;
+  }
+
+  /* Form styling inside container */
+  form {
+    width: 100%;
+  }
+
+  /* Existing styles for groups, inputs, etc. */
+  .group { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+  h2 { margin-top: 0; color: #444; }
+  label { display: block; margin: 10px 0 5px; }
+  input, select { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+  button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+  button:hover { background-color: #45a049; }
+
+  /* Checkbox layout */
+  .checkbox-group { margin: 10px 0; }
+  .checkbox-row { display: flex; align-items: center; margin-bottom: 8px; }
+  .checkbox-row input[type="checkbox"] { width: auto; margin-right: 8px; margin-bottom: 0; }
+  .checkbox-row label { display: inline; margin: 0; }
+
+  /* Error/success messages */
+  .error { color: red; margin: 15px 0; padding: 10px; border: 1px solid red; border-radius: 4px; background-color: #ffeeee; }
+  .success { color: green; margin: 15px 0; padding: 10px; border: 1px solid green; border-radius: 4px; background-color: #eeffee; }
+
+  /* Modal styles (unchanged) */
+  .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+  .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px; text-align: center; }
+  .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+  .close:hover { color: black; }
+
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    body { margin: 10px; } /* reduce margin on small screens */
+    #pageContainer { width: 100%; margin: 0; } /* full width */
+    .modal-content { width: 95%; margin-top: 30%; } /* fit smaller screens */
+  }
+</style>
 </head>
 <body>
+  <div id="pageContainer">
   <div id="configModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -105,7 +82,7 @@
       <input type="text" id="cell_id" name="cell_id" min="0" placeholder="Enter Cell ID (positive integer)">
       
       <label for="upload_method">Upload Method:</label>
-      <select id="upload_method" name="upload_method" onchange="toggleWifiSettings()">
+      <select id="upload_method" name="upload_method">
         <option value="WiFi">WiFi</option>
         <option value="LoRa">LoRa</option>
       </select>
@@ -205,18 +182,6 @@
       modal.style.display = "none";
     }
 
-    // Toggle WiFi settings based on upload method
-    function toggleWifiSettings() {
-      const method = document.getElementById('upload_method').value;
-      const wifiSettings = document.getElementById('wifiSettings');
-      wifiSettings.style.display = method === 'WiFi' ? 'block' : 'none';
-      
-      const wifiFields = wifiSettings.querySelectorAll('input');
-      wifiFields.forEach(field => {
-        field.required = method === 'WiFi';
-      });
-    }
-
     // Handle form submission
     async function handleSubmit(event) {
       event.preventDefault();
@@ -254,13 +219,7 @@
       }
     };
     
-    document.getElementById('upload_method').addEventListener('change', toggleWifiSettings);
     configForm.addEventListener('submit', handleSubmit);
-
-    // Initialize on page load
-    window.onload = function() {
-      toggleWifiSettings();
-    };
 
     // Populate fields from /config
     async function loadConfig() {
@@ -317,7 +276,6 @@
           });
         }
 
-        toggleWifiSettings(); // update WiFi visibility if upload_method set
       } catch (err) {
         console.error("Error loading config:", err);
         showError("Could not load configuration from device.");
@@ -326,9 +284,9 @@
 
     // Modify onload to also fetch config
     window.onload = function() {
-      toggleWifiSettings();
       loadConfig();
     };
   </script>
+  </div>
 </body>
 </html>
