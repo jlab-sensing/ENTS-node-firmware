@@ -34,4 +34,4 @@ IrrigationCommand_State ControllerIrrigationCheck(void);
 }
 #endif
 
-#endif  // LIB_CONTROLLER_INCLUDE_CONTROLLER_WIFI_H_
+#endif  // LIB_CONTROLLER_INCLUDE_CONTROLLER_IRRIGATION_H_

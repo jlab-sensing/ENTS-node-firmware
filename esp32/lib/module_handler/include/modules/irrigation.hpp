@@ -14,6 +14,7 @@
 
 #include "transcoder.h"
 #include "template_module.hpp"
+#include "webserver.hpp"
 
 /**
  * @ingroup moduleHandler

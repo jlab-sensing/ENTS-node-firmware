@@ -1,6 +1,7 @@
 #include "modules/irrigation.hpp"
 
 #include <ArduinoLog.h>
+#include "webserver.hpp"
 
 ModuleIrrigation::ModuleIrrigation(void) {
   // set module type
@@ -25,7 +26,7 @@ void ModuleIrrigation::OnReceive(const Esp32Command &cmd) {
       break;
 
     default:
-      Log.warningln("wifi command type not found!");
+      Log.warningln("Irrigation command type not found!");
       break;
   }
 }
@@ -41,10 +42,8 @@ size_t ModuleIrrigation::OnRequest(uint8_t *buffer) {
 void ModuleIrrigation::Check(const Esp32Command &cmd) {
   IrrigationCommand resp = IrrigationCommand_init_zero;
 
-  // TODO: Get state from webserver
-  // CHAMGE
-  //
-  resp.state = IrrigationCommand_State_OPEN;
+  //Get state from webserver
+  resp.state = GetSolenoidState();
 
   Log.noticeln("Responding with state %d", resp.state);
 
