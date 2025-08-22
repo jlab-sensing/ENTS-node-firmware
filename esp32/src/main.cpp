@@ -71,6 +71,8 @@ RESET!
                __TIME__);
   Log.noticeln("Git SHA: %s", GIT_REV);
 
+  Log.noticeln("MAC Address: %s", WiFi.macAddress().c_str());
+
   // Start I2C interface
   Wire.onReceive(onReceive);
   Wire.onRequest(onRequest);
