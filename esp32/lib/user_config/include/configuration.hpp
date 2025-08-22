@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 
-#include "transcoder.h"
+#include <Arduino.h>
+
+#include "soil_power_sensor.pb.h"
 
 /**
  * @brief Set the user configuration.
@@ -24,6 +26,16 @@ void setConfig(const UserConfiguration &new_config);
  * @return A copy of the current user configuration.
  */
 const UserConfiguration& getConfig();
+
+/**
+ * @brief Get the current configuration as a JSON string.
+ *
+ * This function converts the current user configuration to a JSON string
+ * representation.
+ *
+ * @return A JSON string representing the current user configuration.
+ */
+String getConfigJson();
 
 /**
  * @brief Print the current user configuration to the log.

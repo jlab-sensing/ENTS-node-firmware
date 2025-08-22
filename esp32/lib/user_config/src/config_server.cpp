@@ -26,6 +26,13 @@ void handleRoot();
 void handleSave();
 
 /**
+ * @brief Get the current configuration
+ *
+ * Returns the user config as a json object
+ */
+void handleConfig();
+
+/**
  * @brief Prints debug information for http queries.
  *
  * Must be called within the web server request handler to log the query.
@@ -416,9 +423,18 @@ void handleSave() {
   server.send(200, "application/json", successJson);
 }
 
+void handleConfig() {
+  printQuery();
+
+  String json = getConfigJson();
+
+  server.send(200, "application/json", json);
+}
+
 void setupServer() {
   server.on("/", HTTP_GET, handleRoot);
   server.on("/save", HTTP_POST, handleSave);
+  server.on("/config", HTTP_GET, handleConfig);
   server.begin();
 }
 

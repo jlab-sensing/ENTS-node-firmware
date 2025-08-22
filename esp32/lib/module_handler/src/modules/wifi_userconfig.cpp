@@ -4,7 +4,6 @@
 #include <pb_encode.h>
 #include <string.h>
 
-#include "config_server.hpp"
 #include "configuration.hpp"
 
 namespace ModuleHandler {
