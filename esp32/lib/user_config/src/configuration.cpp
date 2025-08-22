@@ -3,6 +3,8 @@
 #include <ArduinoLog.h>
 #include <string.h>
 
+#include "transcoder.h"
+
 
 /** Instance of user config served by the webserver */
 static UserConfiguration config = UserConfiguration_init_default;

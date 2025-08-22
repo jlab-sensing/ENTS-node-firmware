@@ -9,6 +9,7 @@
 #include <ArduinoLog.h>
 #include <WiFi.h>
 #include <Wire.h>
+#include <LittleFS.h>
 
 #include "config_server.hpp"
 #include "module_handler.hpp"
@@ -76,6 +77,12 @@ RESET!
   bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 100000);
   if (!i2c_status) {
     Log.errorln("I2C initialization failed!");
+    while (1);
+  }
+
+  // initialize filesystem
+  if (!LittleFS.begin()) {
+    Log.errorln("LittleFS mount failed!");
     while (1);
   }
 

@@ -14,6 +14,8 @@ Check the correct environment is selected. Should be `env:esp32 (esp32)`
 
 ![VSCode env](../images/vscode_env_esp32.jpeg)
 
+> NOTE: If the filesystem needs to updated you will need to run `Upload File System image` before `Upload and Monitor`. THe filesystem store html webpages for the configuration portal.
+
 Goto *PlatformIO Tab -> Project Tasks -> Upload and Monitor*
 
 ![VSCode Upload and Monitor](../images/vscode_upload_monitor.jpeg)
@@ -22,7 +24,10 @@ Goto *PlatformIO Tab -> Project Tasks -> Upload and Monitor*
 
 The following can be used to flash the firmware on the esp32
 
+> NOTE: These must be separate commands or else the firmmware will not be updated.
+
 ```bash
+pio run -e release -t uploadfs
 pio run -e release -t upload -t monitor
 ```
 
