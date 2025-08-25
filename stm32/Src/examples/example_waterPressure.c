@@ -127,9 +127,9 @@ int main(void) {
   //  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
   //  UTIL_TIMER_Init();
 
-  char output[30];
+  char output[50];
 
-  SEN0257Meas measurment;
+  SEN0257Measurement measurment;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -141,8 +141,8 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
     measurment = PressureGetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Pressure: %.4f kPa\r\n",
-                           measurment.pressure);
+    reading_len = snprintf(output, sizeof(output), "Voltage: %.4f V\nPressure: %.4f kPa\r\n",
+                           measurment.voltage, measurment.pressure);
 
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
