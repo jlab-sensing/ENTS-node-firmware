@@ -56,6 +56,11 @@ class ModuleUserConfig : public Module {
    * @param cmd The command data.
    */
   void responseConfig(const UserConfigCommand &cmd);
+
+  /**
+   * @brief Start the user config webserver
+   */
+  void start();
 };
 
 }  // namespace ModuleHandler

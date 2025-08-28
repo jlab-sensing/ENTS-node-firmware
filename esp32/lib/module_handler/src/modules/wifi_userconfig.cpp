@@ -13,8 +13,6 @@ ModuleUserConfig::ModuleUserConfig() : Module() {
   this->type = Esp32Command_user_config_command_tag;
   this->state = 0;
 
-  setupServer();
-  Log.noticeln("HTTP server started");
 }
 
 void ModuleUserConfig::OnReceive(const Esp32Command &cmd) {
@@ -87,4 +85,24 @@ size_t ModuleUserConfig::OnRequest(uint8_t *buffer) {
     //updateWebConfig(&current_config_);
     printReceivedConfig();
   }
+
+void ModuleUserConfig::start() {
+  Log.noticeln("Starting WiFi User Config module");
+
+  setupServer();
+  Log.noticeln("HTTP server started");
+
+  Esp32Command response = Esp32Command_init_zero;
+  response.which_command = Esp32Command_user_config_command_tag;
+  response.command.user_config_command.type =
+    UserConfigCommand_RequestType_START;
+
+  pb_ostream_t ostream = pb_ostream_from_buffer(buffer, Esp32Command_size);
+  if (!pb_encode(&ostream, Esp32Command_fields, &response)) {
+    Log.errorln("Failed to encode response");
+    buffer_len = 0;;
+  }
+
+  buffer_len = ostream.bytes_written;
+}
 }  // namespace ModuleHandler

@@ -63,27 +63,61 @@ int main(void)
   MX_ADC_Init();
   MX_USART1_UART_Init();
   MX_I2C2_Init(); 
-  SystemApp_Init();
+  SystemApp_Init(); 
 
   // Start status LEDs
   StatusLedInit();
   StatusLedFlashSlow();
+  
+  // initialize esp32 controller module  
+  ControllerInit();
+
+  // Get Config from esp32
+  APP_LOG(TS_OFF, VLEVEL_M, "Requesting configuration from ESP32...\r\n");
+  UserConfigStatus status = ControllerUserConfigRequest();
+
+  if (status == USERCONFIG_EMPTY_CONFIG || status != USERCONFIG_OK) {
+    // 2. If ESP32 has empty config or request failed, send our config
+    APP_LOG(TS_OFF, VLEVEL_M, "Sending FRAM configuration to ESP32...\r\n");
+    status = ControllerUserConfigSend();
+
+    if (status != USERCONFIG_OK) {
+      APP_LOG(TS_OFF, VLEVEL_M, "Failed to send config to ESP32: %d\r\n",
+              status);
+    }
+  }
+
+  char ssid[255] = {};
+  char ip[16] = {};
+  char mac[18] = {};
+
+  // get mac address for ssid
+  ControllerWiFIHostInfo(ssid, ip, mac);
+
+  // start user config interface
+  snprintf(ssid, sizeof(ssid), "ESP32-%s", mac);
+  const char pass[] = "ents";
+  ControllerWiFiHost(ssid, pass);
+
+  ControllerWiFIHostInfo(ssid, ip, mac);
+  APP_LOG(TS_OFF, VLEVEL_M, "ssid \"%s\"\n", ssid);
+  APP_LOG(TS_OFF, VLEVEL_M, "pass \"%s\"\n", pass);
+  APP_LOG(TS_OFF, VLEVEL_M, "User Config http://%s/\n", ip);
+  APP_LOG(TS_OFF, VLEVEL_M, "WiFi MAC \"%s\"\n", mac);
 
   // Try loading user config
   if (UserConfigLoad() != USERCONFIG_OK) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error loading user configuration!\n");
     APP_LOG(TS_OFF, VLEVEL_M, "Waiting for new configuration...\n");
 
-    // TODO implement status code with LED
-
-    // Wait for new configuration
-    //UserConfig_ProcessDataPolling();
-    UserConfig_InitAdvanceTrace();
     while (1);
   }
 
   // Print user config
   UserConfigPrint();
+
+  // send user config to esp32
+  ControllerUserConfigSend();
 
   // required for SDI-12
   MX_USART2_UART_Init();
@@ -92,12 +126,6 @@ int main(void)
   // initialize the user config interrupt
   UserConfig_InitAdvanceTrace();
   
-  // placeholder for UserConfig polling
-  HAL_Delay(10000);
-
-  // alternative blocking polling method
-  //UserConfig_ProcessDataPolling();
-
   // currently not functional
   //FIFO_Init();
 
@@ -105,8 +133,6 @@ int main(void)
   APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
   APP_PRINTF("Git SHA: %s\n", GIT_REV);
 
-  // initialize esp32 controller module  
-  ControllerInit();
 
   // get the current user config
   const UserConfiguration* cfg = UserConfigGet();

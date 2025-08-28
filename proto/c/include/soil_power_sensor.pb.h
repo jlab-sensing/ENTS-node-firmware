@@ -64,12 +64,22 @@ typedef enum _WiFiCommand_Type {
     /* Check connectivity to API */
     WiFiCommand_Type_CHECK_API = 6,
     /* Force NTP sync */
-    WiFiCommand_Type_NTP_SYNC = 7
+    WiFiCommand_Type_NTP_SYNC = 7,
+    /* Host a WiFi network */
+    WiFiCommand_Type_HOST = 8,
+    /* Stop hosting a WiFi network */
+    WiFiCommand_Type_STOP_HOST = 9,
+    /* Get host info */
+    WiFiCommand_Type_HOST_INFO = 10
 } WiFiCommand_Type;
 
 typedef enum _UserConfigCommand_RequestType {
+    /* controller requests config from target */
     UserConfigCommand_RequestType_REQUEST_CONFIG = 0,
-    UserConfigCommand_RequestType_RESPONSE_CONFIG = 1
+    /* controller sends config to target */
+    UserConfigCommand_RequestType_RESPONSE_CONFIG = 1,
+    /* starts the user config webserver */
+    UserConfigCommand_RequestType_START = 2
 } UserConfigCommand_RequestType;
 
 /* Struct definitions */
@@ -185,6 +195,8 @@ typedef struct _WiFiCommand {
     WiFiCommand_resp_t resp;
     /* Port */
     uint32_t port;
+    /* MAC address */
+    char mac[17];
 } WiFiCommand;
 
 typedef struct _UserConfiguration {
@@ -204,11 +216,15 @@ typedef struct _UserConfiguration {
     char WiFi_SSID[33];
     char WiFi_Password[65];
     char API_Endpoint_URL[65];
+    /* Deprecated
+ Embedded into the endpoint URL */
     uint32_t API_Endpoint_Port;
 } UserConfiguration;
 
 typedef struct _UserConfigCommand {
+    /* type of command */
     UserConfigCommand_RequestType type;
+    /* configuration data */
     bool has_config_data;
     UserConfiguration config_data;
 } UserConfigCommand;
@@ -250,12 +266,12 @@ extern "C" {
 #define _TestCommand_ChangeState_ARRAYSIZE ((TestCommand_ChangeState)(TestCommand_ChangeState_REQUEST+1))
 
 #define _WiFiCommand_Type_MIN WiFiCommand_Type_CONNECT
-#define _WiFiCommand_Type_MAX WiFiCommand_Type_NTP_SYNC
-#define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_NTP_SYNC+1))
+#define _WiFiCommand_Type_MAX WiFiCommand_Type_HOST_INFO
+#define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_HOST_INFO+1))
 
 #define _UserConfigCommand_RequestType_MIN UserConfigCommand_RequestType_REQUEST_CONFIG
-#define _UserConfigCommand_RequestType_MAX UserConfigCommand_RequestType_RESPONSE_CONFIG
-#define _UserConfigCommand_RequestType_ARRAYSIZE ((UserConfigCommand_RequestType)(UserConfigCommand_RequestType_RESPONSE_CONFIG+1))
+#define _UserConfigCommand_RequestType_MAX UserConfigCommand_RequestType_START
+#define _UserConfigCommand_RequestType_ARRAYSIZE ((UserConfigCommand_RequestType)(UserConfigCommand_RequestType_START+1))
 
 
 
@@ -291,7 +307,7 @@ extern "C" {
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
 #define PageCommand_init_default                 {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_default                 {_TestCommand_ChangeState_MIN, 0}
-#define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
+#define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, ""}
 #define UserConfigCommand_init_default           {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_default}
 #define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
@@ -305,7 +321,7 @@ extern "C" {
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
 #define PageCommand_init_zero                    {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_zero                    {_TestCommand_ChangeState_MIN, 0}
-#define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0}
+#define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, ""}
 #define UserConfigCommand_init_zero              {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_zero}
 #define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 
@@ -347,6 +363,7 @@ extern "C" {
 #define WiFiCommand_ts_tag                       6
 #define WiFiCommand_resp_tag                     7
 #define WiFiCommand_port_tag                     8
+#define WiFiCommand_mac_tag                      9
 #define UserConfiguration_logger_id_tag          1
 #define UserConfiguration_cell_id_tag            2
 #define UserConfiguration_Upload_method_tag      3
@@ -463,7 +480,8 @@ X(a, STATIC,   SINGULAR, STRING,   url,               4) \
 X(a, STATIC,   SINGULAR, UINT32,   rc,                5) \
 X(a, STATIC,   SINGULAR, UINT32,   ts,                6) \
 X(a, STATIC,   SINGULAR, BYTES,    resp,              7) \
-X(a, STATIC,   SINGULAR, UINT32,   port,              8)
+X(a, STATIC,   SINGULAR, UINT32,   port,              8) \
+X(a, STATIC,   SINGULAR, STRING,   mac,               9)
 #define WiFiCommand_CALLBACK NULL
 #define WiFiCommand_DEFAULT NULL
 
@@ -524,7 +542,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define BME280Measurement_size                   23
-#define Esp32Command_size                        607
+#define Esp32Command_size                        625
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
 #define PageCommand_size                         20
@@ -537,7 +555,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define TestCommand_size                         13
 #define UserConfigCommand_size                   243
 #define UserConfiguration_size                   238
-#define WiFiCommand_size                         604
+#define WiFiCommand_size                         622
 
 #ifdef __cplusplus
 } /* extern "C" */

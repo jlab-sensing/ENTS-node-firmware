@@ -152,3 +152,47 @@ ControllerWiFiResponse ControllerWiFiCheckRequest(void) {
   // return timestamp
   return http_resp;
 }
+
+bool ControllerWiFiHost(const char *ssid, const char *passwd) {
+  WiFiCommand wifi_cmd = WiFiCommand_init_zero;
+  wifi_cmd.type = WiFiCommand_Type_HOST;
+
+  strncpy(wifi_cmd.ssid, ssid, sizeof(wifi_cmd.ssid));
+  strncpy(wifi_cmd.passwd, passwd, sizeof(wifi_cmd.passwd));
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+  
+  if (WiFiCommandTransaction(&wifi_cmd, &resp) != CONTROLLER_SUCCESS) {
+    ip = NULL;
+    return false;
+  }
+
+  return true;
+}
+
+bool ControllerWiFiStopHost(void) {
+  WiFiCommand wifi_cmd = WiFiCommand_init_zero;
+  wifi_cmd.type = WiFiCommand_Type_STOP_HOST;
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+
+  if (WiFiCommandTransaction(&wifi_cmd, &resp) != CONTROLLER_SUCCESS) {
+    return false;
+  }
+
+  return true;
+}
+
+void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac) {
+  WiFiCommand wifi_cmd = WiFiCommand_init_zero;
+  wifi_cmd.type = WiFiCommand_Type_HOST_INFO;
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+
+  WiFiCommandTransaction(&wifi_cmd, &resp);
+
+  // copy the ssid and ip address
+  strncpy(ssid, resp.ssid, sizeof(resp.ssid));
+  strncpy(ip, resp.url, sizeof(resp.url));
+  strncpy(mac, resp.mac, sizeof(resp.mac));
+}

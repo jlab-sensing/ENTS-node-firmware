@@ -174,6 +174,38 @@ bool ControllerWiFiPost(const uint8_t *data, size_t data_len);
 ControllerWiFiResponse ControllerWiFiCheckRequest(void);
 
 /**
+ * @brief Sets the esp32 as a WiFi access point
+ *
+ * This function configures the esp32 to act as a WiFi access point with the
+ * given SSID and password. If the password is an empty string, the access point
+ * will be open (no password).
+ *
+ * @param ssid SSID for the access point
+ * @param passwd Password for the access point (empty for open)
+ *
+ * @return If the command succeeded
+ */
+bool ControllerWiFiHost(const char *ssid, const char *passwd);
+
+/**
+ * @brief Stops the esp32 from acting as a WiFi access point.
+ *
+ * Does not turn off the WiFi module on the esp32.
+ *
+ * @return If the command succeeded
+ */
+bool ControllerWiFiStopHost(void);
+
+/**
+ * @brief Gets information about the current access point.
+ *
+ * Copies the SSID, IP address, and MAC address of the access point into
+ * the provided buffers. The buffers must be large enough to hold the
+ * respective strings. SSID should be at least 32 bytes, IP should be at least
+ * 16 bytes, and MAC should be at least 18 bytes.
+ */
+void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac);
+/**
  * @}
  */
 

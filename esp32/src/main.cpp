@@ -22,14 +22,10 @@ static const uint8_t dev_addr = 0x20;
 static const int sda_pin = 0;
 /** Serial clock pin */
 static const int scl_pin = 1;
-
-// create wifi module
+  
+// create module handler
 static ModuleHandler::ModuleHandler mh;
 
-// create wifi module
-static ModuleWiFi wifi;
-// create user config module
-static ModuleHandler::ModuleUserConfig user_config;
 
 /**
  * @brief Callback for onReceive
@@ -71,8 +67,6 @@ RESET!
                __TIME__);
   Log.noticeln("Git SHA: %s", GIT_REV);
 
-  Log.noticeln("MAC Address: %s", WiFi.macAddress().c_str());
-
   // Start I2C interface
   Wire.onReceive(onReceive);
   Wire.onRequest(onRequest);
@@ -87,19 +81,20 @@ RESET!
     Log.errorln("LittleFS mount failed!");
     while (1);
   }
+  
+  //WiFi.mode(WIFI_AP);
+  //WiFi.softAP(AP_SSID.c_str(), AP_PASSWORD.c_str());
+  //Log.noticeln("Access Point started");
+  //Log.noticeln("IP Address: %s", WiFi.softAPIP().toString().c_str());
+
+  // create wifi module
+  ModuleWiFi wifi;
+  // create user config module
+  ModuleHandler::ModuleUserConfig user_config;
 
   // Register modules
-  //mh.RegisterModule(&wifi);
+  mh.RegisterModule(&wifi);
   mh.RegisterModule(&user_config);
-
-  const std::string AP_SSID = "ents";
-  const std::string AP_PASSWORD = "changeme";
-
-  // Start web server
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(AP_SSID.c_str(), AP_PASSWORD.c_str());
-  Log.noticeln("Access Point started");
-  Log.noticeln("IP Address: %s", WiFi.softAPIP().toString().c_str());
 }
 
 void loop() {

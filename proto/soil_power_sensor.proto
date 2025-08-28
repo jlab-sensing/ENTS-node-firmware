@@ -159,6 +159,12 @@ message WiFiCommand {
     CHECK_API = 6;
     /* Force NTP sync */
     NTP_SYNC = 7;
+    /* Host a WiFi network */
+    HOST = 8; 
+    /* Stop hosting a WiFi network */
+    STOP_HOST = 9;
+    /* Get host info */
+    HOST_INFO = 10;
   }
 
   /* Command type */
@@ -181,13 +187,19 @@ message WiFiCommand {
   uint32 ts = 6;
   // binary data response
   bytes resp = 7;
+
+  /* MAC address */
+  string mac = 9;
 }
 
 message UserConfigCommand {
   enum RequestType {
     /* controller requests config from target */
     REQUEST_CONFIG = 0;
+    /* controller sends config to target */
     RESPONSE_CONFIG = 1;
+    /* starts the user config webserver */
+    START = 2;
   }
 
   /* type of command */

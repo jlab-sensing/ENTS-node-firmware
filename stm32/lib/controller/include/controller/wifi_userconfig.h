@@ -27,6 +27,15 @@ UserConfigStatus ControllerUserConfigRequest(void);
 UserConfigStatus ControllerUserConfigSend(void);
 
 /**
+ * @brief Start the user configuration website.
+ *
+ * This function must be called after the station has been setup.
+ *
+ * @return true if command was sent sucessfully, false otherwise
+ */
+bool ControllerUserConfigStart(void);
+
+/**
  * @brief Check if configuration is empty/uninitialized
  *
  * @param config Pointer to UserConfiguration structure

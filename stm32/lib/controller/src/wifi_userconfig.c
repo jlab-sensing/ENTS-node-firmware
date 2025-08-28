@@ -1,7 +1,6 @@
 #include "controller/wifi_userconfig.h"
 
 #include "communication.h"
-#include "stm32_adv_trace.h"
 #include "transcoder.h"
 #include "userConfig.h"
 
@@ -117,6 +116,34 @@ UserConfigStatus ControllerUserConfigSend(void) {
 
   APP_LOG(TS_OFF, VLEVEL_M, "Configuration successfully sent to ESP32\r\n");
   return USERCONFIG_OK;
+}
+
+bool ControllerUserConfigStart(void) {
+  Buffer *tx = ControllerTx();
+  Buffer *rx = ControllerRx();
+
+  // Clear buffers
+  memset(tx->data, 0, tx->size);
+  memset(rx->data, 0, rx->size);
+  tx->len = 0;
+  rx->len = 0;
+
+  UserConfigCommand cmd = UserConfigCommand_init_zero;
+  cmd.type = UserConfigCommand_RequestType_START;
+
+  tx->len = EncodeUserConfigCommand(cmd.type, &cmd.config_data  , tx->data, tx->size);
+  if (tx->len == 0) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config response\r\n");
+    return false;
+  }
+
+  ControllerStatus status = ControllerTransaction(g_controller_i2c_timeout);
+  if (status != CONTROLLER_SUCCESS) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Failed to send start request: %d\r\n", status);
+    return false;
+  }
+
+  return true;
 }
 
 bool isConfigEmpty(const UserConfiguration *config) {
