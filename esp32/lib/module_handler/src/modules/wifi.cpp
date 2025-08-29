@@ -79,8 +79,13 @@ void ModuleWiFi::OnReceive(const Esp32Command &cmd) {
       StopHost();
       break;
 
+    case WiFiCommand_Type_HOST_INFO:
+      Log.traceln("Calling HOST_INFO");
+      HostInfo();
+      break;
+
     default:
-      Log.warningln("wifi command type not found!");
+      Log.warningln("wifi command type %d not found!", cmd.command.wifi_command.type);
       break;
   }
 }
@@ -293,6 +298,10 @@ void ModuleWiFi::HostInfo() {
   strncpy(resp.ssid, WiFi.softAPSSID().c_str(), sizeof(resp.ssid));
   strncpy(resp.url, WiFi.softAPIP().toString().c_str(), sizeof(resp.url));
   strncpy(resp.mac, WiFi.softAPmacAddress().c_str(), sizeof(resp.mac));
+
+  Log.noticeln("SSID: %s", resp.ssid);
+  Log.noticeln("IP: %s", resp.url);
+  Log.noticeln("MAC: %s", resp.mac);
 
   request_buffer_len =
       EncodeWiFiCommand(&resp, request_buffer, sizeof(request_buffer));

@@ -31,6 +31,7 @@
 #include "sys_app.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "ads.h"
 #include "phytos31.h"
@@ -40,6 +41,7 @@
 #include "wifi.h"
 #include "controller/controller.h"
 #include "controller/wifi.h"
+#include "controller/wifi_userconfig.h"
 #include "userConfig.h"
 #include "teros12.h"
 #include "teros21.h"
@@ -70,7 +72,57 @@ int main(void)
   StatusLedFlashSlow();
   
   // initialize esp32 controller module  
-  ControllerInit();
+  ControllerInit(); 
+
+  // variables to store WiFi host info
+  char ssid[255] = {};
+  char ip[16] = {};
+  char mac[18] = {};
+ 
+  // constant password for AP
+  const char pass[] = "ilovedirt";
+
+  // Print warning when using TEST_USER_CONFIG
+#ifdef TEST_USER_CONFIG
+  APP_LOG(TS_OFF, VLEVEL_M, "WARNING: TEST_USER_CONFIG is enabled!\n");
+#endif  // TEST_USER_CONFIG
+  
+  // Try loading user config
+  // If we fail, assume that it is empty and start user config website to get
+  // new configuration
+  if (UserConfigLoad() != USERCONFIG_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error loading user configuration!\n");
+    APP_LOG(TS_OFF, VLEVEL_M, "Waiting for new configuration...\n");
+
+    // start user config interface
+    const char ssid_unconfigured[] = "ents-unconfigured";
+    ControllerWiFiHost(ssid_unconfigured, pass);
+
+    ControllerWiFiHostInfo(ssid, ip, mac);
+    APP_LOG(TS_OFF, VLEVEL_M, "ssid \"%s\"\n", ssid);
+    APP_LOG(TS_OFF, VLEVEL_M, "pass \"%s\"\n", pass);
+    APP_LOG(TS_OFF, VLEVEL_M, "User Config http://%s/\n", ip);
+    APP_LOG(TS_OFF, VLEVEL_M, "WiFi MAC \"%s\"\n", mac);
+
+    while (1);
+  }
+  
+  // get the current user config
+  // NOTE needed to configure teh AP ssid
+  const UserConfiguration* cfg = UserConfigGet();
+  APP_LOG(TS_OFF, VLEVEL_M, "Current user configuration:\n");
+  UserConfigPrint();
+
+  // start user config interface
+  snprintf(ssid, sizeof(ssid), "ents-%d", cfg->logger_id);
+  ControllerWiFiHost(ssid, pass);
+
+  // Get host info
+  ControllerWiFiHostInfo(ssid, ip, mac);
+  APP_LOG(TS_OFF, VLEVEL_M, "ssid \"%s\"\n", ssid);
+  APP_LOG(TS_OFF, VLEVEL_M, "pass \"%s\"\n", pass);
+  APP_LOG(TS_OFF, VLEVEL_M, "User Config http://%s/\n", ip);
+  APP_LOG(TS_OFF, VLEVEL_M, "WiFi MAC \"%s\"\n", mac);
 
   // Get Config from esp32
   APP_LOG(TS_OFF, VLEVEL_M, "Requesting configuration from ESP32...\r\n");
@@ -85,46 +137,28 @@ int main(void)
       APP_LOG(TS_OFF, VLEVEL_M, "Failed to send config to ESP32: %d\r\n",
               status);
     }
+  } else {
+    // TODO Add user config save
+    
+    // Reload user config from FRAM
+    if (UserConfigLoad() != USERCONFIG_OK) {
+      APP_LOG(TS_OFF, VLEVEL_M, "Error loading saved configuration!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "Try sending configuration again.\n");
+
+      while (1);
+    }
+ 
+    // Print updated config
+    APP_LOG(TS_OFF, VLEVEL_M, "Updated user configuration:\n");
+    UserConfigPrint();
   }
-
-  char ssid[255] = {};
-  char ip[16] = {};
-  char mac[18] = {};
-
-  // get mac address for ssid
-  ControllerWiFIHostInfo(ssid, ip, mac);
-
-  // start user config interface
-  snprintf(ssid, sizeof(ssid), "ESP32-%s", mac);
-  const char pass[] = "ents";
-  ControllerWiFiHost(ssid, pass);
-
-  ControllerWiFIHostInfo(ssid, ip, mac);
-  APP_LOG(TS_OFF, VLEVEL_M, "ssid \"%s\"\n", ssid);
-  APP_LOG(TS_OFF, VLEVEL_M, "pass \"%s\"\n", pass);
-  APP_LOG(TS_OFF, VLEVEL_M, "User Config http://%s/\n", ip);
-  APP_LOG(TS_OFF, VLEVEL_M, "WiFi MAC \"%s\"\n", mac);
-
-  // Try loading user config
-  if (UserConfigLoad() != USERCONFIG_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Error loading user configuration!\n");
-    APP_LOG(TS_OFF, VLEVEL_M, "Waiting for new configuration...\n");
-
-    while (1);
-  }
-
-  // Print user config
-  UserConfigPrint();
-
-  // send user config to esp32
-  ControllerUserConfigSend();
 
   // required for SDI-12
   MX_USART2_UART_Init();
   MX_TIM1_Init();
 
   // initialize the user config interrupt
-  UserConfig_InitAdvanceTrace();
+  //UserConfig_InitAdvanceTrace();
   
   // currently not functional
   //FIFO_Init();
@@ -132,10 +166,6 @@ int main(void)
   // Debug message, gets printed after init code
   APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
   APP_PRINTF("Git SHA: %s\n", GIT_REV);
-
-
-  // get the current user config
-  const UserConfiguration* cfg = UserConfigGet();
   
   // init senors interface
   SensorsInit();
