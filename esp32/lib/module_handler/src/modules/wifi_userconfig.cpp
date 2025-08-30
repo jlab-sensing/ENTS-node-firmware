@@ -13,6 +13,9 @@ ModuleUserConfig::ModuleUserConfig() : Module() {
   this->type = Esp32Command_user_config_command_tag;
   this->state = 0;
 
+  UserConfiguration default_config = UserConfiguration_init_default;
+  strncpy(default_config.API_Endpoint_URL, "http://dirtviz.jlab.ucsc.edu/api/sensor/", sizeof(default_config.API_Endpoint_URL));
+  setConfig(default_config);
 }
 
 void ModuleUserConfig::OnReceive(const Esp32Command &cmd) {
