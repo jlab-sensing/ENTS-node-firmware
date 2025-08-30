@@ -1,8 +1,8 @@
 #include "config_server.hpp"
 
-#include <WebServer.h>
 #include <ArduinoLog.h>
 #include <LittleFS.h>
+#include <WebServer.h>
 
 #include "configuration.hpp"
 #include "protobuf_utils.hpp"
@@ -10,14 +10,13 @@
 #include "transcoder.h"
 #include "validation.hpp"
 
-
 /** Webserver instance on port 80 */
 WebServer server(80);
 
 /** @brief Handle the root path of the web server.
- * 
- * This function serves the root path of the web server, displaying the configuration
- * form for the user to fill out.
+ *
+ * This function serves the root path of the web server, displaying the
+ * configuration form for the user to fill out.
  */
 void handleRoot();
 
@@ -83,23 +82,22 @@ void handleSave() {
   // copy ssid
   String wifi_ssid = server.arg("wifi_ssid");
   wifi_ssid.trim();
-  strncpy(config.WiFi_SSID, wifi_ssid.c_str(),
-          sizeof(config.WiFi_SSID));
- 
+  strncpy(config.WiFi_SSID, wifi_ssid.c_str(), sizeof(config.WiFi_SSID));
+
   // copy password
   String wifi_password = server.arg("wifi_password");
   wifi_password.trim();
   strncpy(config.WiFi_Password, wifi_password.c_str(),
           sizeof(config.WiFi_Password));
- 
+
   // copy url
   String api_endpoint_url = server.arg("api_endpoint_url");
   api_endpoint_url.trim();
   strncpy(config.API_Endpoint_URL, api_endpoint_url.c_str(),
           sizeof(config.API_Endpoint_URL));
-    
+
   config.Upload_interval = server.arg("upload_interval").toInt();
- 
+
   bool voltage_enabled = server.hasArg("voltage_enabled");
   if (voltage_enabled) {
     config.enabled_sensors[config.enabled_sensors_count++] =
@@ -111,7 +109,7 @@ void handleSave() {
     config.enabled_sensors[config.enabled_sensors_count++] =
         EnabledSensor_Current;
   }
-  
+
   bool teros12_enabled = server.hasArg("teros12_enabled");
   if (teros12_enabled) {
     config.enabled_sensors[config.enabled_sensors_count++] =
@@ -136,16 +134,16 @@ void handleSave() {
   config.Current_Offset = server.arg("calibration_i_offset").toDouble();
 
   // POSTED config
-  //Log.noticeln("Received configuration:");
-  //Log.noticeln("-----------------------");
-  //printConfig(config);
+  // Log.noticeln("Received configuration:");
+  // Log.noticeln("-----------------------");
+  // printConfig(config);
 
   setConfig(config);
   printReceivedConfig();
 
   // NOTE: Direclty setting
   // Update the module's current configuration
-  //user_config.updateConfig(&decoded_config);
+  // user_config.updateConfig(&decoded_config);
 
   // Prepare success message
   String successMessage = "Configuration saved successfully!\\n";
@@ -214,7 +212,6 @@ String validateInputs() {
   return "";  // Empty string when no error
 }
 
-
 void printQuery() {
   IPAddress ip = server.client().remoteIP();
   String path = server.uri();
@@ -237,5 +234,6 @@ void printQuery() {
       method = "UNKNOWN";
   }
 
-  Log.noticeln("%s - %s %s", ip.toString().c_str(), method.c_str(),  path.c_str());
+  Log.noticeln("%s - %s %s", ip.toString().c_str(), method.c_str(),
+               path.c_str());
 }

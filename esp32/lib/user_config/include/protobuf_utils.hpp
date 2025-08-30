@@ -2,6 +2,7 @@
 #define PROTOBUF_UTILS_H
 
 #include <stdint.h>
+
 #include "soil_power_sensor.pb.h"
 #include "transcoder.h"
 

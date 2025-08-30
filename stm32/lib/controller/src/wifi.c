@@ -161,9 +161,9 @@ bool ControllerWiFiHost(const char *ssid, const char *passwd) {
   strncpy(wifi_cmd.passwd, passwd, sizeof(wifi_cmd.passwd));
 
   WiFiCommand resp = WiFiCommand_init_zero;
-  
+
   if (WiFiCommandTransaction(&wifi_cmd, &resp) != CONTROLLER_SUCCESS) {
-    //ip = NULL;
+    // ip = NULL;
     return false;
   }
 

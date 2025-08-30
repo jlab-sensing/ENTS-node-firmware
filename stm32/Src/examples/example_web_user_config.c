@@ -62,5 +62,6 @@ int main(void) {
   ControllerUserConfigStart();
   GetCurrentConfigFromSTM32();
 
-  while (1) {}
+  while (1) {
+  }
 }

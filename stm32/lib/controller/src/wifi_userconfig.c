@@ -17,7 +17,8 @@ UserConfigStatus ControllerUserConfigRequest(void) {
   tx->len = 0;
   rx->len = 0;
   // Encode and send request
-  tx->len = EncodeUserConfigCommand(UserConfigCommand_RequestType_REQUEST_CONFIG, NULL, tx->data, tx->size);
+  tx->len = EncodeUserConfigCommand(
+      UserConfigCommand_RequestType_REQUEST_CONFIG, NULL, tx->data, tx->size);
   if (tx->len == 0) {
     APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config request\r\n");
     return USERCONFIG_ENCODE_ERROR;
@@ -42,9 +43,11 @@ UserConfigStatus ControllerUserConfigRequest(void) {
     return USERCONFIG_INVALID_RESPONSE;
   }
 
-  if (cmd.command.user_config_command.type == UserConfigCommand_RequestType_RESPONSE_CONFIG) {
+  if (cmd.command.user_config_command.type ==
+      UserConfigCommand_RequestType_RESPONSE_CONFIG) {
     if (cmd.command.user_config_command.has_config_data) {
-      const UserConfiguration *config = &cmd.command.user_config_command.config_data;
+      const UserConfiguration *config =
+          &cmd.command.user_config_command.config_data;
       // Check if config is all zeros (uninitialized)
       if (isConfigEmpty(config)) {
         APP_LOG(TS_OFF, VLEVEL_M, "Received empty config from ESP32\r\n");
@@ -123,7 +126,8 @@ bool ControllerUserConfigStart(void) {
   UserConfigCommand cmd = UserConfigCommand_init_zero;
   cmd.type = UserConfigCommand_RequestType_START;
 
-  tx->len = EncodeUserConfigCommand(cmd.type, &cmd.config_data  , tx->data, tx->size);
+  tx->len =
+      EncodeUserConfigCommand(cmd.type, &cmd.config_data, tx->data, tx->size);
   if (tx->len == 0) {
     APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config response\r\n");
     return false;

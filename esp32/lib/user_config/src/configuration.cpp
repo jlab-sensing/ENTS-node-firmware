@@ -5,48 +5,48 @@
 
 #include "transcoder.h"
 
-
 /** Instance of user config served by the webserver */
 static UserConfiguration config = UserConfiguration_init_default;
 
 void setConfig(const UserConfiguration &new_config) {
-    // deeeeep copy
-    config.logger_id = new_config.logger_id;
-    config.cell_id = new_config.cell_id;
-    config.Upload_method = new_config.Upload_method;
-    config.Upload_interval = new_config.Upload_interval;
-    config.enabled_sensors_count = new_config.enabled_sensors_count;
-    memcpy(config.enabled_sensors, new_config.enabled_sensors, sizeof(config.enabled_sensors));
-    config.Voltage_Slope = new_config.Voltage_Slope;
-    config.Voltage_Offset = new_config.Voltage_Offset;
-    config.Current_Slope = new_config.Current_Slope;
-    config.Current_Offset = new_config.Current_Offset;
-    strncpy(config.WiFi_SSID, new_config.WiFi_SSID, sizeof(config.WiFi_SSID));
-    strncpy(config.WiFi_Password, new_config.WiFi_Password, sizeof(config.WiFi_Password));
-    strncpy(config.API_Endpoint_URL, new_config.API_Endpoint_URL, sizeof(config.API_Endpoint_URL));
-    config.API_Endpoint_Port = new_config.API_Endpoint_Port;
-  
-    // Check that the user config can be encoded/decoded?? (John)
-    uint8_t buffer[UserConfiguration_size];
-    size_t message_length = EncodeUserConfiguration(&config, buffer);
-    UserConfiguration decoded_config = UserConfiguration_init_zero;
+  // deeeeep copy
+  config.logger_id = new_config.logger_id;
+  config.cell_id = new_config.cell_id;
+  config.Upload_method = new_config.Upload_method;
+  config.Upload_interval = new_config.Upload_interval;
+  config.enabled_sensors_count = new_config.enabled_sensors_count;
+  memcpy(config.enabled_sensors, new_config.enabled_sensors,
+         sizeof(config.enabled_sensors));
+  config.Voltage_Slope = new_config.Voltage_Slope;
+  config.Voltage_Offset = new_config.Voltage_Offset;
+  config.Current_Slope = new_config.Current_Slope;
+  config.Current_Offset = new_config.Current_Offset;
+  strncpy(config.WiFi_SSID, new_config.WiFi_SSID, sizeof(config.WiFi_SSID));
+  strncpy(config.WiFi_Password, new_config.WiFi_Password,
+          sizeof(config.WiFi_Password));
+  strncpy(config.API_Endpoint_URL, new_config.API_Endpoint_URL,
+          sizeof(config.API_Endpoint_URL));
+  config.API_Endpoint_Port = new_config.API_Endpoint_Port;
 
-    if (message_length != -1) {
-        //printEncodedData(buffer, message_length);
+  // Check that the user config can be encoded/decoded?? (John)
+  uint8_t buffer[UserConfiguration_size];
+  size_t message_length = EncodeUserConfiguration(&config, buffer);
+  UserConfiguration decoded_config = UserConfiguration_init_zero;
 
-        if (DecodeUserConfiguration(buffer, message_length, &decoded_config) == 0) {
-            //printDecodedConfig(&decoded_config);
-        } else {
-            Log.errorln("Failed to decode the configuration");
-        }
+  if (message_length != -1) {
+    // printEncodedData(buffer, message_length);
+
+    if (DecodeUserConfiguration(buffer, message_length, &decoded_config) == 0) {
+      // printDecodedConfig(&decoded_config);
     } else {
-        Log.errorln("Failed to encode the configuration");
+      Log.errorln("Failed to decode the configuration");
     }
+  } else {
+    Log.errorln("Failed to encode the configuration");
+  }
 }
 
-const UserConfiguration& getConfig() {
-    return config;
-}
+const UserConfiguration &getConfig() { return config; }
 
 String getConfigJson() {
   const UserConfiguration &config = getConfig();
@@ -93,7 +93,7 @@ String getConfigJson() {
   // WiFi settings
   json += "\"wifi_ssid\":\"" + String(config.WiFi_SSID) + "\",";
   // Do not send password
-  //json += "\"wifi_password\":\"" + String(config.WiFi_Password) + "\",";
+  // json += "\"wifi_password\":\"" + String(config.WiFi_Password) + "\",";
   json += "\"api_endpoint_url\":\"" + String(config.API_Endpoint_URL) + "\"";
 
   json += "}";
@@ -105,9 +105,8 @@ void printConfig(const UserConfiguration &pconfig) {
   Log.noticeln(" ============ Configuration Details ============");
   Log.noticeln(" Logger ID: %u", pconfig.logger_id);
   Log.noticeln(" Cell ID: %u", pconfig.cell_id);
-  Log.noticeln(
-      " Upload Method: %s",
-      pconfig.Upload_method == Uploadmethod_LoRa ? "LoRa" : "WiFi");
+  Log.noticeln(" Upload Method: %s",
+               pconfig.Upload_method == Uploadmethod_LoRa ? "LoRa" : "WiFi");
   Log.noticeln(" Upload Interval: %u sec", pconfig.Upload_interval);
 
   Log.noticeln(" Enabled Sensors (%d):", pconfig.enabled_sensors_count);
@@ -154,6 +153,4 @@ void printConfig(const UserConfiguration &pconfig) {
   Log.noticeln(" =============================");
 }
 
-void printReceivedConfig() {
-  printConfig(config);
-}
+void printReceivedConfig() { printConfig(config); }

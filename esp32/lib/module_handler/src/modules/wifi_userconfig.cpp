@@ -4,8 +4,8 @@
 #include <pb_encode.h>
 #include <string.h>
 
-#include "configuration.hpp"
 #include "config_server.hpp"
+#include "configuration.hpp"
 
 namespace ModuleHandler {
 
@@ -14,7 +14,9 @@ ModuleUserConfig::ModuleUserConfig() : Module() {
   this->state = 0;
 
   UserConfiguration default_config = UserConfiguration_init_default;
-  strncpy(default_config.API_Endpoint_URL, "http://dirtviz.jlab.ucsc.edu/api/sensor/", sizeof(default_config.API_Endpoint_URL));
+  strncpy(default_config.API_Endpoint_URL,
+          "http://dirtviz.jlab.ucsc.edu/api/sensor/",
+          sizeof(default_config.API_Endpoint_URL));
   setConfig(default_config);
 }
 
@@ -56,43 +58,41 @@ size_t ModuleUserConfig::OnRequest(uint8_t *buffer) {
   return buffer_len;
 }
 
+void ModuleUserConfig::requestConfig(const UserConfigCommand &cmd) {
+  Log.noticeln(" ============ Received Config Request ============");
+  Log.noticeln(" STM32 is requesting current configuration");
+  // Log.noticeln("============ Sending Configuration ============");
+  // Log.noticeln(" Preparing to send current config to STM32");
 
-  void ModuleUserConfig::requestConfig(const UserConfigCommand &cmd) {
-    Log.noticeln(" ============ Received Config Request ============");
-    Log.noticeln(" STM32 is requesting current configuration");
-    //Log.noticeln("============ Sending Configuration ============");
-    //Log.noticeln(" Preparing to send current config to STM32");
+  Esp32Command response = {0};
+  response.which_command = Esp32Command_user_config_command_tag;
+  response.command.user_config_command.type =
+      UserConfigCommand_RequestType_RESPONSE_CONFIG;
+  response.command.user_config_command.has_config_data = true;
 
-    Esp32Command response = {0};
-    response.which_command = Esp32Command_user_config_command_tag;
-    response.command.user_config_command.type =
-        UserConfigCommand_RequestType_RESPONSE_CONFIG;
-    response.command.user_config_command.has_config_data = true;
+  const UserConfiguration config = getConfig();
 
-    const UserConfiguration config = getConfig();
+  memcpy(&response.command.user_config_command.config_data, &config,
+         sizeof(UserConfiguration));
 
-    memcpy(&response.command.user_config_command.config_data,
-           &config, sizeof(UserConfiguration));
-
-    pb_ostream_t ostream = pb_ostream_from_buffer(buffer, Esp32Command_size);
-    if (!pb_encode(&ostream, Esp32Command_fields, &response)) {
-      Log.errorln("Failed to encode response");
-      buffer_len = 0;
-    }
-
-    buffer_len = ostream.bytes_written;
-
-    Log.noticeln("Successfully encoded configuration (%d bytes)",
-                 buffer_len);
+  pb_ostream_t ostream = pb_ostream_from_buffer(buffer, Esp32Command_size);
+  if (!pb_encode(&ostream, Esp32Command_fields, &response)) {
+    Log.errorln("Failed to encode response");
+    buffer_len = 0;
   }
 
-  void ModuleUserConfig::responseConfig(const UserConfigCommand &cmd) {
-    Log.noticeln(" ============ Received New Configuration ============");
+  buffer_len = ostream.bytes_written;
 
-    setConfig(cmd.config_data);
-    //updateWebConfig(&current_config_);
-    printReceivedConfig();
-  }
+  Log.noticeln("Successfully encoded configuration (%d bytes)", buffer_len);
+}
+
+void ModuleUserConfig::responseConfig(const UserConfigCommand &cmd) {
+  Log.noticeln(" ============ Received New Configuration ============");
+
+  setConfig(cmd.config_data);
+  // updateWebConfig(&current_config_);
+  printReceivedConfig();
+}
 
 void ModuleUserConfig::start() {
   Log.noticeln("Starting WiFi User Config module");
@@ -103,12 +103,13 @@ void ModuleUserConfig::start() {
   Esp32Command response = Esp32Command_init_zero;
   response.which_command = Esp32Command_user_config_command_tag;
   response.command.user_config_command.type =
-    UserConfigCommand_RequestType_START;
+      UserConfigCommand_RequestType_START;
 
   pb_ostream_t ostream = pb_ostream_from_buffer(buffer, Esp32Command_size);
   if (!pb_encode(&ostream, Esp32Command_fields, &response)) {
     Log.errorln("Failed to encode response");
-    buffer_len = 0;;
+    buffer_len = 0;
+    ;
   }
 
   buffer_len = ostream.bytes_written;

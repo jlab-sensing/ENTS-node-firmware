@@ -285,18 +285,18 @@ UserConfigStatus UserConfigSave(const UserConfiguration *config) {
   if (encoded_length == -1) {
     return USERCONFIG_ENCODE_ERROR;
   }
-  
+
   // Write the length of the encoded data to FRAM
-  uint8_t length_buf[2] = {(encoded_length >> 8) & 0xFF,
-                           encoded_length & 0xFF};
-  UserConfigStatus status = UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
+  uint8_t length_buf[2] = {(encoded_length >> 8) & 0xFF, encoded_length & 0xFF};
+  UserConfigStatus status =
+      UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
   if (status != USERCONFIG_OK) {
     return status;
   }
 
   // Write the encoded data to FRAM
-  status = UserConfig_WriteToFRAM( USER_CONFIG_START_ADDRESS, encoded_data,
-      encoded_length);
+  status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, encoded_data,
+                                  encoded_length);
   if (status != USERCONFIG_OK) {
     return status;
   }

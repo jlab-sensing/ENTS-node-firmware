@@ -160,7 +160,7 @@ message WiFiCommand {
     /* Force NTP sync */
     NTP_SYNC = 7;
     /* Host a WiFi network */
-    HOST = 8; 
+    HOST = 8;
     /* Stop hosting a WiFi network */
     STOP_HOST = 9;
     /* Get host info */
@@ -227,7 +227,6 @@ message UserConfiguration {
   string WiFi_SSID = 10;
   string WiFi_Password = 11;
   string API_Endpoint_URL = 12;
-
 
   // Deprecated
   // Embedded into the endpoint URL

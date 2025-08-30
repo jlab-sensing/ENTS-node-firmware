@@ -79,5 +79,6 @@ int main(void) {
   uint8_t wifi_status = ControllerWiFiInit(ssid, passwd);
   APP_LOG(TS_OFF, VLEVEL_M, "%d\r\n", wifi_status);
 
-  while (1) {}
+  while (1) {
+  }
 }

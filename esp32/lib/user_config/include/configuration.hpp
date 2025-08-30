@@ -1,9 +1,8 @@
 #ifndef LIB_USER_CONFIG_INCLUDE_CONFIGURATION_H
 #define LIB_USER_CONFIG_INCLUDE_CONFIGURATION_H
 
-#include <stdint.h>
-
 #include <Arduino.h>
+#include <stdint.h>
 
 #include "soil_power_sensor.pb.h"
 
@@ -25,7 +24,7 @@ void setConfig(const UserConfiguration &new_config);
  *
  * @return A copy of the current user configuration.
  */
-const UserConfiguration& getConfig();
+const UserConfiguration &getConfig();
 
 /**
  * @brief Get the current configuration as a JSON string.

@@ -17,7 +17,7 @@ class ModuleUserConfig : public Module {
   // Implement required Module interface
   void OnReceive(const Esp32Command &cmd) override;
   size_t OnRequest(uint8_t *buffer) override;
- 
+
  private:
   /** @brief Request buffer. */
   uint8_t buffer[Esp32Command_size];

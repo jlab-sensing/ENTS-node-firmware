@@ -7,9 +7,9 @@
 
 #include <Arduino.h>
 #include <ArduinoLog.h>
+#include <LittleFS.h>
 #include <WiFi.h>
 #include <Wire.h>
-#include <LittleFS.h>
 
 #include "config_server.hpp"
 #include "module_handler.hpp"
@@ -22,7 +22,7 @@ static const uint8_t dev_addr = 0x20;
 static const int sda_pin = 0;
 /** Serial clock pin */
 static const int scl_pin = 1;
-  
+
 // create module handler
 static ModuleHandler::ModuleHandler mh;
 
@@ -86,12 +86,11 @@ RESET!
     Log.errorln("LittleFS mount failed!");
     while (1);
   }
-  
-  //WiFi.mode(WIFI_AP);
-  //WiFi.softAP(AP_SSID.c_str(), AP_PASSWORD.c_str());
-  //Log.noticeln("Access Point started");
-  //Log.noticeln("IP Address: %s", WiFi.softAPIP().toString().c_str());
 
+  // WiFi.mode(WIFI_AP);
+  // WiFi.softAP(AP_SSID.c_str(), AP_PASSWORD.c_str());
+  // Log.noticeln("Access Point started");
+  // Log.noticeln("IP Address: %s", WiFi.softAPIP().toString().c_str());
 
   // Register modules
   mh.RegisterModule(&wifi);

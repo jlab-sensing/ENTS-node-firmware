@@ -85,7 +85,8 @@ void ModuleWiFi::OnReceive(const Esp32Command &cmd) {
       break;
 
     default:
-      Log.warningln("wifi command type %d not found!", cmd.command.wifi_command.type);
+      Log.warningln("wifi command type %d not found!",
+                    cmd.command.wifi_command.type);
       break;
   }
 }
@@ -261,13 +262,13 @@ void ModuleWiFi::Host(const Esp32Command &cmd) {
 
   WiFiCommand resp = WiFiCommand_init_zero;
   resp.type = WiFiCommand_Type_HOST;
-  
+
   // append wifi mac to the ssid to make unique
   std::string ssid = cmd.command.wifi_command.ssid;
   std::string pass = cmd.command.wifi_command.passwd;
 
   WiFi.softAP(ssid.c_str(), pass.c_str());
- 
+
   std::string ip = WiFi.softAPIP().toString().c_str();
   Log.noticeln("Access Point started");
 

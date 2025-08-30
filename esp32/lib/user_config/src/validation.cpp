@@ -39,4 +39,3 @@ String validateURL(const String& value) {
   }
   return "";
 }
-
