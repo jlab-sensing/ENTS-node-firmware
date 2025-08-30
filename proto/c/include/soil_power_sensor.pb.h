@@ -196,7 +196,7 @@ typedef struct _WiFiCommand {
     /* Port */
     uint32_t port;
     /* MAC address */
-    char mac[17];
+    char mac[18];
 } WiFiCommand;
 
 typedef struct _UserConfiguration {
@@ -542,7 +542,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define BME280Measurement_size                   23
-#define Esp32Command_size                        625
+#define Esp32Command_size                        626
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
 #define PageCommand_size                         20
@@ -555,7 +555,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define TestCommand_size                         13
 #define UserConfigCommand_size                   243
 #define UserConfiguration_size                   238
-#define WiFiCommand_size                         622
+#define WiFiCommand_size                         623
 
 #ifdef __cplusplus
 } /* extern "C" */

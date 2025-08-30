@@ -90,6 +90,16 @@ void ModuleHandler::ModuleHandler::OnReceive(size_t num_bytes) {
                   cmd.which_command);
 
     // store reference to module for future OnRequest calls
+    if (req_map.find(cmd.which_command) == req_map.end()) {
+      Log.errorln("No module registered for command type: %d",
+                  cmd.which_command);
+
+      // reset buffer
+      receive_buffer.len = 0;
+      receive_buffer.idx = 0;
+      return;
+    }
+
     last_module = req_map.at(cmd.which_command);
 
     // forward command to module

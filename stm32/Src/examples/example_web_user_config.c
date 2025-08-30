@@ -32,6 +32,8 @@ void GetCurrentConfigFromSTM32() {
       APP_LOG(TS_OFF, VLEVEL_M, "Failed to send config to ESP32: %d\r\n",
               status);
     }
+  } else {
+    UserConfigPrint();
   }
 }
 
@@ -51,6 +53,14 @@ int main(void) {
   SystemApp_Init();
 
   ControllerInit();
+
+  // variables to store WiFi host info
+  char ssid[255] = "ents-unconfigured";
+  char pass[255] = "ilovedirt";
+
+  ControllerWiFiHost(ssid, pass);
+  ControllerUserConfigStart();
   GetCurrentConfigFromSTM32();
+
   while (1) {}
 }

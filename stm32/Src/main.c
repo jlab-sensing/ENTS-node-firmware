@@ -36,7 +36,6 @@
 #include "ads.h"
 #include "phytos31.h"
 #include "bme280_sensor.h"
-#include "rtc.h"
 #include "sensors.h"
 #include "wifi.h"
 #include "controller/controller.h"
@@ -67,6 +66,24 @@ int main(void)
   MX_I2C2_Init(); 
   SystemApp_Init(); 
 
+  const char header[] = R"""(
++-----------------------------------+
+|   ______  _   _  _______  _____   |
+|  |  ____|| \ | ||__   __|/ ____|  |
+|  | |__   |  \| |   | |  | (___    |
+|  |  __|  | . ` |   | |   \___ \   |
+|  | |____ | |\  |   | |   ____) |  |
+|  |______||_| \_|   |_|  |_____/   |
+|                                   |
+|  Environmentally NeTworked Sensor |
++-----------------------------------+
+)"""; 
+
+  APP_PRINTF("\n%s\n", header);
+  APP_PRINTF("\nRESET!\n");
+  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
+  APP_PRINTF("Git SHA: %s\n\n\n", GIT_REV);
+
   // Start status LEDs
   StatusLedInit();
   StatusLedFlashSlow();
@@ -87,70 +104,77 @@ int main(void)
   APP_LOG(TS_OFF, VLEVEL_M, "WARNING: TEST_USER_CONFIG is enabled!\n");
 #endif  // TEST_USER_CONFIG
   
-  // Try loading user config
-  // If we fail, assume that it is empty and start user config website to get
-  // new configuration
-  if (UserConfigLoad() != USERCONFIG_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Error loading user configuration!\n");
-    APP_LOG(TS_OFF, VLEVEL_M, "Waiting for new configuration...\n");
+  // Reload user config from FRAM 
+  UserConfigStatus status_load = UserConfigLoad();
 
-    // start user config interface
-    const char ssid_unconfigured[] = "ents-unconfigured";
-    ControllerWiFiHost(ssid_unconfigured, pass);
-
-    ControllerWiFiHostInfo(ssid, ip, mac);
-    APP_LOG(TS_OFF, VLEVEL_M, "ssid \"%s\"\n", ssid);
-    APP_LOG(TS_OFF, VLEVEL_M, "pass \"%s\"\n", pass);
-    APP_LOG(TS_OFF, VLEVEL_M, "User Config http://%s/\n", ip);
-    APP_LOG(TS_OFF, VLEVEL_M, "WiFi MAC \"%s\"\n", mac);
-
-    while (1);
-  }
-  
   // get the current user config
   // NOTE needed to configure teh AP ssid
   const UserConfiguration* cfg = UserConfigGet();
-  APP_LOG(TS_OFF, VLEVEL_M, "Current user configuration:\n");
-  UserConfigPrint();
 
   // start user config interface
-  snprintf(ssid, sizeof(ssid), "ents-%d", cfg->logger_id);
+  if (status_load != USERCONFIG_OK) {
+    strncpy(ssid, "ents-unconfigured", sizeof(ssid));
+  } else {
+    // print current user config
+    APP_LOG(TS_OFF, VLEVEL_M, "\nCurrent user configuration:\n");
+    APP_LOG(TS_OFF, VLEVEL_M, "---------------------------\n");
+    UserConfigPrint();
+    APP_LOG(TS_OFF, VLEVEL_M, "\n");
+
+    // set ssid to logger id
+    snprintf(ssid, sizeof(ssid), "ents-%d", (int) cfg->logger_id);
+  }
   ControllerWiFiHost(ssid, pass);
+  ControllerUserConfigStart();
 
   // Get host info
   ControllerWiFiHostInfo(ssid, ip, mac);
+  APP_LOG(TS_OFF, VLEVEL_M, "\nWiFi AP Info:\n");
+  APP_LOG(TS_OFF, VLEVEL_M, "---------------\n");
   APP_LOG(TS_OFF, VLEVEL_M, "ssid \"%s\"\n", ssid);
   APP_LOG(TS_OFF, VLEVEL_M, "pass \"%s\"\n", pass);
   APP_LOG(TS_OFF, VLEVEL_M, "User Config http://%s/\n", ip);
-  APP_LOG(TS_OFF, VLEVEL_M, "WiFi MAC \"%s\"\n", mac);
-
+  APP_LOG(TS_OFF, VLEVEL_M, "WiFi AP MAC: \"%s\"\n", mac);
+  APP_LOG(TS_OFF, VLEVEL_M, "\n");
+  
   // Get Config from esp32
-  APP_LOG(TS_OFF, VLEVEL_M, "Requesting configuration from ESP32...\r\n");
+  APP_LOG(TS_OFF, VLEVEL_M, "Requesting configuration from ESP32...\n");
   UserConfigStatus status = ControllerUserConfigRequest();
 
+  // If esp32 responded with an empty config
   if (status == USERCONFIG_EMPTY_CONFIG || status != USERCONFIG_OK) {
-    // 2. If ESP32 has empty config or request failed, send our config
-    APP_LOG(TS_OFF, VLEVEL_M, "Sending FRAM configuration to ESP32...\r\n");
-    status = ControllerUserConfigSend();
+    // If we don't have a saved config
+    if (status_load != USERCONFIG_OK) {
+      APP_LOG(TS_OFF, VLEVEL_M, "No configuration to send to ESP32!\n");
+    } else {
+      // If ESP32 has empty config or request failed, send our config
+      APP_LOG(TS_OFF, VLEVEL_M, "Sending FRAM configuration to ESP32...\n");
+      status = ControllerUserConfigSend();
 
-    if (status != USERCONFIG_OK) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Failed to send config to ESP32: %d\r\n",
-              status);
+      if (status != USERCONFIG_OK) {
+        APP_LOG(TS_OFF, VLEVEL_M, "Failed to send config to ESP32: %d\n",
+            status);
+      }
     }
-  } else {
-    // TODO Add user config save
-    
-    // Reload user config from FRAM
+
+    // it's a trap!
+    // Waiting for new configuration on reset
+    while (1);
+  // if ESP32 provided a config
+  } else { 
+    // Reload user config from FRAM 
     if (UserConfigLoad() != USERCONFIG_OK) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Error loading saved configuration!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "Error saved configuration not valid!\n");
       APP_LOG(TS_OFF, VLEVEL_M, "Try sending configuration again.\n");
 
       while (1);
     }
  
     // Print updated config
-    APP_LOG(TS_OFF, VLEVEL_M, "Updated user configuration:\n");
+    APP_LOG(TS_OFF, VLEVEL_M, "\nUpdated user configuration:\n");
+    APP_LOG(TS_OFF, VLEVEL_M, "---------------------------\n");
     UserConfigPrint();
+    APP_LOG(TS_OFF, VLEVEL_M, "\n");
   }
 
   // required for SDI-12
@@ -162,11 +186,10 @@ int main(void)
   
   // currently not functional
   //FIFO_Init();
-
-  // Debug message, gets printed after init code
-  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
-  APP_PRINTF("Git SHA: %s\n", GIT_REV);
   
+  APP_LOG(TS_OFF, VLEVEL_M, "Enabling Sensors\n");
+  APP_LOG(TS_OFF, VLEVEL_M, "----------------\n");
+
   // init senors interface
   SensorsInit();
 
@@ -191,10 +214,13 @@ int main(void)
       SensorsAdd(Teros21Measure);
       APP_LOG(TS_OFF, VLEVEL_M, "Teros21 Enabled!\n");
     }
+    // TODO add phytos31 support
     // TODO add support for dummy sensor
   }
  
   StatusLedFlashFast();
+  
+  APP_LOG(TS_OFF, VLEVEL_M, "\n\n");
 
   // init either WiFi or LoRaWAN
   if (cfg->Upload_method == Uploadmethod_LoRa) {

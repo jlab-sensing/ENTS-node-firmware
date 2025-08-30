@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 #include "communication.h"
-#include "usart.h"
 #include "userConfig.h"
 
 #ifdef __cplusplus

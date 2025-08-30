@@ -74,28 +74,29 @@ void handleSave() {
     config.Upload_method = Uploadmethod_LoRa;
   } else if (upload_method == "WiFi") {
     config.Upload_method = Uploadmethod_WiFi;
-
-    // copy ssid
-    String wifi_ssid = server.arg("wifi_ssid");
-    wifi_ssid.trim();
-    strncpy(config.WiFi_SSID, wifi_ssid.c_str(),
-            sizeof(config.WiFi_SSID));
-   
-    // copy password
-    String wifi_password = server.arg("wifi_password");
-    wifi_password.trim();
-    strncpy(config.WiFi_Password, wifi_password.c_str(),
-            sizeof(config.WiFi_Password));
-   
-    // copy url
-    String api_endpoint_url = server.arg("api_endpoint_url");
-    api_endpoint_url.trim();
-    strncpy(config.API_Endpoint_URL, api_endpoint_url.c_str(),
-            sizeof(config.API_Endpoint_URL));
   } else {
     Log.errorln("Invalid upload method: %s.", upload_method.c_str());
     Log.errorln("Defaulting to LoRa.");
+    config.Upload_method = Uploadmethod_LoRa;
   }
+
+  // copy ssid
+  String wifi_ssid = server.arg("wifi_ssid");
+  wifi_ssid.trim();
+  strncpy(config.WiFi_SSID, wifi_ssid.c_str(),
+          sizeof(config.WiFi_SSID));
+ 
+  // copy password
+  String wifi_password = server.arg("wifi_password");
+  wifi_password.trim();
+  strncpy(config.WiFi_Password, wifi_password.c_str(),
+          sizeof(config.WiFi_Password));
+ 
+  // copy url
+  String api_endpoint_url = server.arg("api_endpoint_url");
+  api_endpoint_url.trim();
+  strncpy(config.API_Endpoint_URL, api_endpoint_url.c_str(),
+          sizeof(config.API_Endpoint_URL));
     
   config.Upload_interval = server.arg("upload_interval").toInt();
  
@@ -134,6 +135,11 @@ void handleSave() {
   config.Current_Slope = server.arg("calibration_i_slope").toDouble();
   config.Current_Offset = server.arg("calibration_i_offset").toDouble();
 
+  // POSTED config
+  //Log.noticeln("Received configuration:");
+  //Log.noticeln("-----------------------");
+  //printConfig(config);
+
   setConfig(config);
   printReceivedConfig();
 
@@ -157,10 +163,16 @@ void handleConfig() {
 }
 
 void setupServer() {
-  server.serveStatic("/", LittleFS, "/index.html");
-  server.on("/save", HTTP_POST, handleSave);
-  server.on("/config", HTTP_GET, handleConfig);
-  server.begin();
+  // start server once
+  bool started = false;
+  if (!started) {
+    server.serveStatic("/", LittleFS, "/index.html");
+    server.on("/save", HTTP_POST, handleSave);
+    server.on("/config", HTTP_GET, handleConfig);
+    server.begin();
+
+    started = true;
+  }
 }
 
 void handleClient() { server.handleClient(); }

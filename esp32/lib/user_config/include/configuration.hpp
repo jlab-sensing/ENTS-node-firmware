@@ -42,4 +42,11 @@ String getConfigJson();
  */
 void printReceivedConfig();
 
+/**
+ * @brief Print a user config
+ *
+ * @param pconfig Config to print
+ */
+void printConfig(const UserConfiguration &pconfig);
+
 #endif  // LIB_USER_CONFIG_INCLUDE_CONFIGURATION_H

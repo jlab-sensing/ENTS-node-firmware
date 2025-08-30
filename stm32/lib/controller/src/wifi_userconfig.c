@@ -16,14 +16,8 @@ UserConfigStatus ControllerUserConfigRequest(void) {
   memset(rx->data, 0, rx->size);
   tx->len = 0;
   rx->len = 0;
-
-  // Create request
-  UserConfigCommand request = {0};
-  request.type = UserConfigCommand_RequestType_REQUEST_CONFIG;
-  request.has_config_data = false;
-
   // Encode and send request
-  tx->len = EncodeUserConfigCommand(request.type, NULL, tx->data, tx->size);
+  tx->len = EncodeUserConfigCommand(UserConfigCommand_RequestType_REQUEST_CONFIG, NULL, tx->data, tx->size);
   if (tx->len == 0) {
     APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config request\r\n");
     return USERCONFIG_ENCODE_ERROR;
@@ -51,18 +45,16 @@ UserConfigStatus ControllerUserConfigRequest(void) {
   if (cmd.command.user_config_command.type == UserConfigCommand_RequestType_RESPONSE_CONFIG) {
     if (cmd.command.user_config_command.has_config_data) {
       const UserConfiguration *config = &cmd.command.user_config_command.config_data;
-
       // Check if config is all zeros (uninitialized)
       if (isConfigEmpty(config)) {
         APP_LOG(TS_OFF, VLEVEL_M, "Received empty config from ESP32\r\n");
         return USERCONFIG_EMPTY_CONFIG;
       }
 
-      // Print received config
-      APP_LOG(TS_OFF, VLEVEL_M,
-              "-----------------Received configuration from "
-              "ESP32-----------------:\r\n");
-      UserConfigPrintAny(config);
+      if (UserConfigSave(config)) {
+        APP_LOG(TS_OFF, VLEVEL_M, "Failed to save config to FRAM\r\n");
+        return USERCONFIG_FRAM_ERROR;
+      }
 
       return USERCONFIG_OK;
     }

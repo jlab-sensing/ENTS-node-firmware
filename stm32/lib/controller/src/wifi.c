@@ -192,7 +192,7 @@ void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac) {
   WiFiCommandTransaction(&wifi_cmd, &resp);
 
   // copy the ssid and ip address
-  strncpy(ssid, resp.ssid, sizeof(resp.ssid));
-  strncpy(ip, resp.url, sizeof(resp.url));
-  strncpy(mac, resp.mac, sizeof(resp.mac));
+  strcpy(ssid, resp.ssid);
+  strcpy(ip, resp.url);
+  strcpy(mac, resp.mac);
 }

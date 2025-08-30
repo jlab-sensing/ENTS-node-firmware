@@ -26,6 +26,11 @@ static const int scl_pin = 1;
 // create module handler
 static ModuleHandler::ModuleHandler mh;
 
+// NOTE these variables must be relevant for the entire program lifetime
+// create wifi module
+static ModuleWiFi wifi;
+// create user config module
+static ModuleHandler::ModuleUserConfig user_config;
 
 /**
  * @brief Callback for onReceive
@@ -87,10 +92,6 @@ RESET!
   //Log.noticeln("Access Point started");
   //Log.noticeln("IP Address: %s", WiFi.softAPIP().toString().c_str());
 
-  // create wifi module
-  ModuleWiFi wifi;
-  // create user config module
-  ModuleHandler::ModuleUserConfig user_config;
 
   // Register modules
   mh.RegisterModule(&wifi);

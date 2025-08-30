@@ -21,9 +21,9 @@ void setConfig(const UserConfiguration &new_config) {
     config.Voltage_Offset = new_config.Voltage_Offset;
     config.Current_Slope = new_config.Current_Slope;
     config.Current_Offset = new_config.Current_Offset;
-    memcpy(config.WiFi_SSID, new_config.WiFi_SSID, sizeof(config.WiFi_SSID));
-    memcpy(config.WiFi_Password, new_config.WiFi_Password, sizeof(config.WiFi_Password));
-    memcpy(config.API_Endpoint_URL, new_config.API_Endpoint_URL, sizeof(config.API_Endpoint_URL));
+    strncpy(config.WiFi_SSID, new_config.WiFi_SSID, sizeof(config.WiFi_SSID));
+    strncpy(config.WiFi_Password, new_config.WiFi_Password, sizeof(config.WiFi_Password));
+    strncpy(config.API_Endpoint_URL, new_config.API_Endpoint_URL, sizeof(config.API_Endpoint_URL));
     config.API_Endpoint_Port = new_config.API_Endpoint_Port;
   
     // Check that the user config can be encoded/decoded?? (John)
@@ -31,7 +31,7 @@ void setConfig(const UserConfiguration &new_config) {
     size_t message_length = EncodeUserConfiguration(&config, buffer);
     UserConfiguration decoded_config = UserConfiguration_init_zero;
 
-    if (message_length > 0) {
+    if (message_length != -1) {
         //printEncodedData(buffer, message_length);
 
         if (DecodeUserConfiguration(buffer, message_length, &decoded_config) == 0) {
@@ -101,19 +101,19 @@ String getConfigJson() {
   return json;
 }
 
-void printReceivedConfig() {
+void printConfig(const UserConfiguration &pconfig) {
   Log.noticeln(" ============ Configuration Details ============");
-  Log.noticeln(" Logger ID: %u", config.logger_id);
-  Log.noticeln(" Cell ID: %u", config.cell_id);
+  Log.noticeln(" Logger ID: %u", pconfig.logger_id);
+  Log.noticeln(" Cell ID: %u", pconfig.cell_id);
   Log.noticeln(
       " Upload Method: %s",
-      config.Upload_method == Uploadmethod_LoRa ? "LoRa" : "WiFi");
-  Log.noticeln(" Upload Interval: %u sec", config.Upload_interval);
+      pconfig.Upload_method == Uploadmethod_LoRa ? "LoRa" : "WiFi");
+  Log.noticeln(" Upload Interval: %u sec", pconfig.Upload_interval);
 
-  Log.noticeln(" Enabled Sensors (%d):", config.enabled_sensors_count);
-  for (int i = 0; i < config.enabled_sensors_count; i++) {
+  Log.noticeln(" Enabled Sensors (%d):", pconfig.enabled_sensors_count);
+  for (int i = 0; i < pconfig.enabled_sensors_count; i++) {
     const char *sensor_name = "Unknown";
-    switch (config.enabled_sensors[i]) {
+    switch (pconfig.enabled_sensors[i]) {
       case EnabledSensor_Voltage:
         sensor_name = "Voltage";
         break;
@@ -135,24 +135,25 @@ void printReceivedConfig() {
 
   Log.noticeln(" Calibration Data:");
   char floatBuf[32];
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", config.Voltage_Slope);
+  snprintf(floatBuf, sizeof(floatBuf), "%.4f", pconfig.Voltage_Slope);
   Log.noticeln("   Voltage Slope: %s", floatBuf);
 
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", config.Voltage_Offset);
+  snprintf(floatBuf, sizeof(floatBuf), "%.4f", pconfig.Voltage_Offset);
   Log.noticeln("   Voltage Offset: %s", floatBuf);
 
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", config.Current_Slope);
+  snprintf(floatBuf, sizeof(floatBuf), "%.4f", pconfig.Current_Slope);
   Log.noticeln("   Current Slope: %s", floatBuf);
 
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", config.Current_Offset);
+  snprintf(floatBuf, sizeof(floatBuf), "%.4f", pconfig.Current_Offset);
   Log.noticeln("   Current Offset: %s", floatBuf);
 
-  if (config.Upload_method == Uploadmethod_WiFi) {
-    Log.noticeln(" WiFi Settings:");
-    Log.noticeln("   SSID: %s", config.WiFi_SSID);
-    Log.noticeln("   Password: %s", config.WiFi_Password);
-    Log.noticeln("   API Endpoint: %s:%u", config.API_Endpoint_URL,
-                 config.API_Endpoint_Port);
-  }
+  Log.noticeln(" WiFi Settings:");
+  Log.noticeln("   SSID: %s", pconfig.WiFi_SSID);
+  Log.noticeln("   Password: %s", pconfig.WiFi_Password);
+  Log.noticeln("   API Endpoint: %s", pconfig.API_Endpoint_URL);
   Log.noticeln(" =============================");
+}
+
+void printReceivedConfig() {
+  printConfig(config);
 }

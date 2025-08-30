@@ -35,6 +35,11 @@ void ModuleUserConfig::OnReceive(const Esp32Command &cmd) {
       responseConfig(cmd.command.user_config_command);
       break;
 
+    case UserConfigCommand_RequestType_START:
+      Log.traceln("Received start command");
+      start();
+      break;
+
     default:
       Log.errorln("Unknown user config command type: %d",
                   cmd.command.user_config_command.type);
@@ -69,12 +74,12 @@ size_t ModuleUserConfig::OnRequest(uint8_t *buffer) {
     pb_ostream_t ostream = pb_ostream_from_buffer(buffer, Esp32Command_size);
     if (!pb_encode(&ostream, Esp32Command_fields, &response)) {
       Log.errorln("Failed to encode response");
-      buffer_len = 0;;
+      buffer_len = 0;
     }
 
     buffer_len = ostream.bytes_written;
 
-    Log.noticeln(" Successfully encoded configuration (%d bytes)",
+    Log.noticeln("Successfully encoded configuration (%d bytes)",
                  buffer_len);
   }
 
