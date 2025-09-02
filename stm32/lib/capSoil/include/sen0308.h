@@ -48,7 +48,7 @@ void CapSoilInit(void);
 * @return   phytos_measurments
 ******************************************************************************
 */
-SEN0308Measurement SEN0308GetMeasurment(void);
+SEN03808Measurement SEN0308GetMeasurment(void);
 
 /**
  * @brief Read CapSoil sensor and serialize measurement

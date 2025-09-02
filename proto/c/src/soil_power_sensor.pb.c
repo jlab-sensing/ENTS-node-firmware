@@ -21,10 +21,10 @@ PB_BIND(Teros21Measurement, Teros21Measurement, AUTO)
 PB_BIND(Phytos31Measurement, Phytos31Measurement, AUTO)
 
 
+PB_BIND(SEN03808Measurement, SEN03808Measurement, AUTO)
+
+
 PB_BIND(BME280Measurement, BME280Measurement, AUTO)
-
-
-PB_BIND(SEN0308Measurement, SEN0308Measurement, AUTO)
 
 
 PB_BIND(SEN0257Measurement, SEN0257Measurement, AUTO)

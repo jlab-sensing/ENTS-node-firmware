@@ -47,10 +47,10 @@
 #include "sen0308.h"
 #include "waterFlow.h"
 
-// Different sensor definitions
+// Board configuration - define ONLY ONE of these
 // Comment these out to disable sensors
-#define DEFAULT
-//#define USE_CAP_SOIL_SENSOR
+//#define DEFAULT
+#define USE_CAP_SOIL_SENSOR
 //#define USE_WATER_PRESSURE_SENSOR
 //#define USE_FLOW_METER_SENSOR
 

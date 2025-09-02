@@ -8,12 +8,17 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
-## [Unreleased] - TBD
+## [2.3.4] - 2025-08-20
 
 ### Added
 
 - Example to force esp32 in deep sleep [#207](i207)
 - Utility to change SDI-12 sensor address [#210](i210)
+- Added new sensors
+    - SEN0308
+    - SEN0257
+    - YFS210C
+- Added controlling of solenoid from esp32 api
 
 ### Updated
 
