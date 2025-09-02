@@ -3,13 +3,37 @@
 // system includes
 #include "stm32wlxx_hal.h"
 
+// peripherials
+#include "adc.h"
+#include "app_lorawan.h"
+#include "dma.h"
+#include "gpio.h"
+#include "i2c.h"
+#include "rtc.h"
+#include "sys_app.h"
+#include "tim.h"
+#include "usart.h"
+
 // user includes
 #include "status_led.h"
 
-/**
- * @brief System Clock Configuration
- * @retval None
- */
+void Board_Init(void) {
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_ADC_Init();
+  MX_USART1_UART_Init();
+  MX_I2C2_Init();
+  SystemApp_Init();
+  
+  // required for SDI-12
+  MX_USART2_UART_Init();
+  MX_TIM1_Init();
+}
+
 void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};

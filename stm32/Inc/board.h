@@ -14,6 +14,15 @@
 extern "C" {
 #endif
 
+
+/**
+ * @brief Initialize board components
+ *
+ * All peripherials that should be running in normal operation should be
+ * configured here.
+ */
+void Board_Init(void);
+
 /**
   * @brief System Clock Configuration
   * @retval None

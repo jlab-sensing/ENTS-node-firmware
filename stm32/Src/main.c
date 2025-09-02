@@ -22,25 +22,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "adc.h"
-#include "ads.h"
+// peripherials
 #include "app_lorawan.h"
+
+// userland
+#include "ads.h"
 #include "bme280_sensor.h"
 #include "board.h"
 #include "controller/controller.h"
 #include "controller/wifi.h"
-#include "dma.h"
-#include "gpio.h"
-#include "i2c.h"
 #include "phytos31.h"
-#include "rtc.h"
 #include "sensors.h"
 #include "status_led.h"
-#include "sys_app.h"
 #include "teros12.h"
 #include "teros21.h"
-#include "tim.h"
-#include "usart.h"
 #include "userConfig.h"
 #include "wifi.h"
 #include "waterPressure.h"
@@ -57,16 +52,8 @@ int main(void) {
 
   HAL_Init();
 
-  /* Configure the system clock */
-  SystemClock_Config();
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_ADC_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
-  SystemApp_Init();
+  // Initialize clocks and peripherials
+  Board_Init();
 
   // Start status LEDs
   StatusLedInit();
@@ -88,9 +75,6 @@ int main(void) {
   // Print user config
   UserConfigPrint();
 
-  // required for SDI-12
-  MX_USART2_UART_Init();
-  MX_TIM1_Init();
 
   // initialize the user config interrupt
   UserConfig_InitAdvanceTrace();
