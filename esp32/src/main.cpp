@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include <ArduinoLog.h>
 #include <Wire.h>
+#include <WiFi.h>
 
 #include "module_handler.hpp"
 #include "modules/irrigation.hpp"

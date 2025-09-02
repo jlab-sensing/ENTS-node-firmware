@@ -119,7 +119,7 @@ void HandleTimed() {
 }
 
 void HandleState() {
-  
+
   IrrigationCommand_State currentState = GetSolenoidState();
   String stateStr = (currentState == IrrigationCommand_State_OPEN) ? "open" : "closed";
   Log.noticeln("Current state: %s (%d)", stateStr.c_str(), currentState);

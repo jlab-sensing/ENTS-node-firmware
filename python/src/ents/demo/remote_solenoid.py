@@ -13,7 +13,7 @@ for a set duration of time.
 import requests
 import sys
 
-ENTS_IP = "172.31.100.193"  # Default ENTS WiFi with HARE_Lab
+ENTS_IP = "172.31.105.241"  # Default ENTS WiFi with HARE_Lab
 PORT = 80   #Server Port
 
 def send_command(command):
