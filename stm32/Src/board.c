@@ -23,15 +23,38 @@ void Board_Init(void) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
+  MX_DMA_Init();  
   MX_ADC_Init();
   MX_USART1_UART_Init();
   MX_I2C2_Init();
-  SystemApp_Init();
   
   // required for SDI-12
   MX_USART2_UART_Init();
   MX_TIM1_Init();
+}
+
+void Board_DeInit(void) {
+  if (HAL_ADC_DeInit(&hadc) != HAL_OK) {
+    Error_Handler();
+  }
+
+  if (HAL_UART_DeInit(&huart1) != HAL_OK) {
+    Error_Handler();
+  }
+
+  // NOTE DMA does not have a deinit function, STOP2 clocks are sufficient
+
+  if (HAL_I2C_DeInit(&hi2c2) != HAL_OK) {
+    Error_Handler();
+  }
+
+  if (HAL_UART_DeInit(&huart2) != HAL_OK) {
+    Error_Handler();
+  }
+
+  if (HAL_TIM_Base_DeInit(&htim1) != HAL_OK) {
+    Error_Handler();
+  }
 }
 
 void SystemClock_Config(void) {

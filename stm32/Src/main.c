@@ -54,6 +54,7 @@ int main(void) {
 
   // Initialize clocks and peripherials
   Board_Init();
+  SystemApp_Init();
 
   APP_LOG(TS_OFF, VLEVEL_H, "MSI Value: %d\n", MSI_VALUE);
   APP_LOG(TS_OFF, VLEVEL_H, "LSE Value: %d\n", LSE_VALUE);

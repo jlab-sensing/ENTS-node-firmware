@@ -24,6 +24,14 @@ extern "C" {
 void Board_Init(void);
 
 /**
+ * @brief De-initialize board components
+ *
+ * All peripherials that should be turned off to save power should be
+ * de-initialized here.
+ */
+void Board_DeInit(void);
+
+/**
   * @brief System Clock Configuration
   * @retval None
   */
