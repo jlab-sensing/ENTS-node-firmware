@@ -96,8 +96,10 @@ void Error_Handler(void)
 
 void WaitForSerial(void)
 {
-  // Wait for UART to be ready
-  for (int i = 0; i < 5000000; i++)
+  // Wait 2 seconds for serial to be ready
+  int seconds = 2;
+  int cycles = seconds * MSI_VALUE;
+  for (int i = 0; i < cycles; i++)
   {
     __NOP();
   }
