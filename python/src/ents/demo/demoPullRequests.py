@@ -128,8 +128,8 @@ def display_menu():
     print("=" * 50)
     print("Available Cells and Measurements:")
     print("1. Cell 1350 - Pressure (kPa)")
-    print("2. Cell 1448 - Humidity (%)")
-    print("3. Cell 1353 - Flow Rate (L/min)")
+    print("2. Cell 1353 - Flow Rate (L/min)")
+    print("3. Cell 1448 - Soil Humidity (%)")
     print("4. Custom Cell (enter cell ID and measurement type)")
     print("5. Exit")
     print("=" * 50)
@@ -138,8 +138,8 @@ def get_cell_info(choice):
     """Return cell information based on user choice"""
     cell_info = {
         1: {"cell_id": 1350, "sensor_name": "sen0257", "measurement": "pressure"},
-        2: {"cell_id": 1448, "sensor_name": "sen03808", "measurement": "humidity"},
-        3: {"cell_id": 1353, "sensor_name": "yfs210c", "measurement": "flow"},
+        2: {"cell_id": 1353, "sensor_name": "yfs210c", "measurement": "flow"},
+        3: {"cell_id": 1448, "sensor_name": "sen0308", "measurement": "humidity"},
     }
     return cell_info.get(choice, None)
 
