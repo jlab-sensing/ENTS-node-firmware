@@ -58,13 +58,7 @@ message Phytos31Measurement {
   // calibrated leaf wetness
   double leaf_wetness = 2;
 }
-/* Capactive Soil Moisture Sensor */
-message SEN03808Measurement {
-  // voltage
-  double voltage = 1;
-  // humidity
-  double humidity = 2;
-}
+
 message BME280Measurement {
   // pressure
   uint32 pressure = 1;
@@ -72,6 +66,14 @@ message BME280Measurement {
   int32 temperature = 2;
   // humidity
   uint32 humidity = 3;
+}
+
+/* Capactive Soil Moisture Sensor */
+message SEN0308Measurement {
+  // voltage
+  double voltage = 1;
+  // humidity
+  double humidity = 2;
 }
 
 /* Water Pressure Sensor */
@@ -100,7 +102,7 @@ message Measurement {
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;
     Teros21Measurement teros21 = 6;
-    SEN03808Measurement sen03808 = 7;
+    SEN0308Measurement sen0308 = 7;
     SEN0257Measurement sen0257 = 8;
     YFS210CMeasurement yfs210c = 9;
   }
