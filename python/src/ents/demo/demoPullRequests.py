@@ -3,7 +3,7 @@ File: demoPullRequest.py
 Author: Caden Grace Jacobs
 
 This python script pulls data from the DirtViz API from various sensors
-to preform measurements and calculations. 
+to perform measurements and calculations. 
 """
 
 import requests
@@ -37,6 +37,48 @@ class DirtVizClient:
         response = self.session.get(f"{self.BASE_URL}{endpoint}", params=params)
         response.raise_for_status()
         return response.json()
+    
+    def get_sen0308_stream(self, cell_id=1448, time_window=30):
+        """
+        Get a stream of recent humidity data from sen0308 sensor with streaming enabled
+        
+        Args:
+            cell_id: Cell ID (default: 1448)
+            time_window: Time window in seconds to get data from (default: 30 seconds)
+        
+        Returns: List of data points from the specified time window
+        """
+        from datetime import datetime, timedelta
+        
+        end_time = datetime.now()
+        start_time = end_time - timedelta(seconds=time_window)
+        
+        # Use the streaming parameter
+        start_utc = start_time.astimezone(pytz.UTC)
+        end_utc = end_time.astimezone(pytz.UTC)
+        
+        endpoint = f"sensor/?name=sen0308&measurement=humidity&cellId={cell_id}"
+        params = {
+            "startTime": start_utc.strftime("%a, %d %b %Y %H:%M:%S GMT"),
+            "endTime": end_utc.strftime("%a, %d %b %Y %H:%M:%S GMT"),
+            "stream": "true"
+        }
+        
+        try:
+            print(f"Streaming sen0308 humidity data from last {time_window} seconds...")
+            response = self.session.get(f"{self.BASE_URL}{endpoint}", params=params, timeout=15)
+            response.raise_for_status()
+            return response.json()
+            
+        except requests.exceptions.RequestException as e:
+            print(f"Error getting stream: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"Response: {e.response.text[:200]}...")
+            return []
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return []
+
 
 def format_data_display(df, cell_id, measurement_type):
     """Format the data output with timestamp as first column"""
@@ -121,6 +163,20 @@ def format_data_display(df, cell_id, measurement_type):
 
     print("\n" + "=" * 80)
 
+
+def display_sen0308_stream_menu():
+    """Display the menu for sen0308 streaming options"""
+    print("\n" + "=" * 50)
+    print("SEN0308 HUMIDITY STREAMING MENU".center(50))
+    print("=" * 50)
+    print("1. Last 10 seconds of data")
+    print("2. Last 30 seconds of data")
+    print("3. Last 60 seconds of data")
+    print("4. Custom time window")
+    print("5. Back to main menu")
+    print("=" * 50)
+
+
 def display_menu():
     """Display the menu of available cells and measurements"""
     print("\n" + "=" * 50)
@@ -130,9 +186,11 @@ def display_menu():
     print("1. Cell 1350 - Pressure (kPa)")
     print("2. Cell 1353 - Flow Rate (L/min)")
     print("3. Cell 1448 - Soil Humidity (%)")
-    print("4. Custom Cell (enter cell ID and measurement type)")
-    print("5. Exit")
+    print("4. sen0308 Real-time Humidity Stream")
+    print("5. Custom Cell (enter cell ID and measurement type)")
+    print("6. Exit")
     print("=" * 50)
+
 
 def get_cell_info(choice):
     """Return cell information based on user choice"""
@@ -143,6 +201,7 @@ def get_cell_info(choice):
     }
     return cell_info.get(choice, None)
 
+
 def display_time_range_menu():
     """Display the time range selection menu"""
     print("\n" + "=" * 40)
@@ -152,6 +211,7 @@ def display_time_range_menu():
     print("2. This week's data")
     print("3. Custom date range")
     print("=" * 40)
+
 
 def get_valid_date(prompt):
     """Prompt user for a valid date and keep asking until valid input is provided"""
@@ -174,6 +234,7 @@ def get_valid_date(prompt):
             return ca_tz.localize(datetime(year, month, day, 0, 0, 0))
         except ValueError:
             print("Invalid date format. Please use YYYY-MM-DD format (e.g., 2025-08-21).")
+
 
 def get_time_range():
     """Get the time range based on user selection"""
@@ -211,19 +272,74 @@ def get_time_range():
         except ValueError:
             print("Please enter a valid number.")
 
+
+def handle_sen0308_stream(client):
+    """Handle sen0308 streaming menu"""
+    while True:
+        display_sen0308_stream_menu()
+        
+        try:
+            choice = int(input("\nEnter your choice (1-5): "))
+            
+            if choice == 5:
+                break
+                
+            if choice == 4:
+                # Custom time window
+                try:
+                    time_window = int(input("Enter time window in seconds: "))
+                    if time_window <= 0:
+                        print("Time window must be positive")
+                        continue
+                except ValueError:
+                    print("Please enter a valid number")
+                    continue
+            else:
+                # Predefined time windows
+                time_windows = {1: 10, 2: 30, 3: 60}
+                time_window = time_windows.get(choice, 10)
+            
+            # Get stream data
+            data = client.get_sen0308_stream(time_window=time_window)
+            
+            if data:
+                df = pd.DataFrame(data)
+                if not df.empty:
+                    format_data_display(df, 1448, "humidity")
+                else:
+                    print("No data received from stream")
+            else:
+                print("Failed to get stream data")
+                
+        except ValueError:
+            print("Please enter a valid number")
+        except Exception as e:
+            print(f"Error: {e}")
+        
+        # Ask if user wants to continue streaming
+        continue_choice = input("\nWould you like to get another stream? (y/n): ").lower()
+        if continue_choice != 'y':
+            break
+
+
 if __name__ == "__main__":
     client = DirtVizClient()
     
     while True:
         display_menu()
         try:
-            choice = int(input("\nEnter your choice (1-5): "))
+            choice = int(input("\nEnter your choice (1-6): "))
             
-            if choice == 5:
+            if choice == 6:
                 print("Exiting program. Goodbye!")
                 break
                 
             if choice == 4:
+                # sen0308 Real-time Stream
+                handle_sen0308_stream(client)
+                continue
+                
+            if choice == 5:
                 # Custom cell
                 cell_id = int(input("Enter cell ID: "))
                 sensor_name = input("Enter sensor name (e.g., sen0257, yfs210c, etc.): ")
@@ -238,7 +354,7 @@ if __name__ == "__main__":
                 sensor_name = cell_info["sensor_name"]
                 measurement = cell_info["measurement"]
             
-             # Get time range
+            # Get time range
             print(f"\nFetching {measurement} data for cell {cell_id}...")
             start, end = get_time_range()
             
