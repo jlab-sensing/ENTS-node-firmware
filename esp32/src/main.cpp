@@ -28,6 +28,9 @@ const std::string password = "";
 // create wifi module
 static ModuleHandler::ModuleHandler mh;
 
+// Create irrigation module
+static ModuleIrrigation irrigation;
+
 /**
  * @brief Callback for onReceive
  *
@@ -55,7 +58,9 @@ void setup() {
 
   // Create logging interfface
   Log.begin(LOG_LEVEL_TRACE, &Serial);
+  Log.noticeln("ESP32 Starting...");
 
+  // Connect to WiFi
   WiFi.begin(ssid.c_str(), password.c_str());
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -70,9 +75,7 @@ void setup() {
 
   // Setup Web server
   SetupServer();
-  
   Log.noticeln("Web server started");
-  //Log.noticeln("Connect to ESP32 AP and visit http://%s", WiFi.softAPIP().toString().c_str());
 
   Log.noticeln("ents-node esp32 firmware, compiled at %s %s", __DATE__,
                __TIME__);
@@ -80,7 +83,7 @@ void setup() {
 
   Log.noticeln("Starting i2c interface...");
 
-  static ModuleIrrigation irrigation;
+  //Register irrigation module
   mh.RegisterModule(&irrigation);
 
   // start i2c interface
@@ -98,5 +101,6 @@ void setup() {
 /** Loop code */
 void loop() {
   HandleClient();
+  irrigation.CheckAutoIrrigation();
   delay(20);
 }

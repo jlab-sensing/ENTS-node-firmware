@@ -1,7 +1,7 @@
 /**
  * @file irrigation.hpp
- * @author John Madden
- * @brief Module for controling irrigation valuve
+ * @author Caden Jacobs
+ * @brief Module for controling irrigation valve
  * @date 2025-08-19
  *
  *
@@ -42,6 +42,11 @@ class ModuleIrrigation : public ModuleHandler::Module {
    */
   size_t OnRequest(uint8_t *buffer);
 
+   /**
+   * Handles irrigation based on soil moisture measurements
+   */
+  void CheckAutoIrrigation();  
+
  private:
   /**
    * @brief Get the current state and send back to stm32.
@@ -53,6 +58,16 @@ class ModuleIrrigation : public ModuleHandler::Module {
   size_t request_buffer_len = 0;
 };
 
+// Auto irrigation control functions
+void EnableAutoIrrigation(float min_thresh, float max_thresh);
+void DisableAutoIrrigation();
+bool IsAutoIrrigationEnabled();
+float GetMinThreshold();
+float GetMaxThreshold();
+unsigned long GetCheckInterval();
+void SetCheckInterval(unsigned long interval_ms);
+float GetSoilMoistureFromAPI();
+void CheckIrrigationConditions();
 /**
  * @}
  */
