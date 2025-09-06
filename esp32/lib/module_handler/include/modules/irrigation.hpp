@@ -66,8 +66,10 @@ float GetMinThreshold();
 float GetMaxThreshold();
 unsigned long GetCheckInterval();
 void SetCheckInterval(unsigned long interval_ms);
-float GetSoilMoistureFromAPI();
+float GetSimpleSoilMoisture();
 void CheckIrrigationConditions();
+float GetCurrentMoistureFromCache();
+
 /**
  * @}
  */

@@ -4,7 +4,6 @@
 #include <ArduinoLog.h>
 #include <WebServer.h>
 
-
 // External declarations for irrigation functions
 extern void EnableAutoIrrigation(float min_thresh, float max_thresh);
 extern void DisableAutoIrrigation();
@@ -12,7 +11,7 @@ extern bool IsAutoIrrigationEnabled();
 extern float GetMinThreshold();
 extern float GetMaxThreshold();
 extern unsigned long GetCheckInterval();
-extern float GetSoilMoistureFromAPI();
+extern float GetCurrentMoistureFromCache();
 extern void SetCheckInterval(unsigned long interval_ms);
 extern void CheckIrrigationConditions();
 
@@ -31,13 +30,12 @@ extern float moisture_min_threshold;
 extern float moisture_max_threshold;
 extern unsigned long check_interval;
 
-// Current moisture reading from Python
+// Current moisture reading from irrigation module
 float current_moisture = -1.0;
 
 extern bool auto_irrigation_enabled;
 unsigned long last_moisture_check = 0;
 const unsigned long MOISTURE_CHECK_INTERVAL = 300000; // 5 minutes
-
 
 // Implement the getter function
 IrrigationCommand_State GetSolenoidState() {
@@ -52,7 +50,7 @@ void SetSolenoidState(IrrigationCommand_State newState) {
 
 // Getter and setter for moisture
 float GetCurrentMoisture() {
-  return current_moisture;
+  return GetCurrentMoistureFromCache();
 }
 
 void SetCurrentMoisture(float moisture) {
@@ -215,7 +213,7 @@ void HandleAutoToggle() {
 }
 
 void HandleStatus() {
-  // Get current moisture reading
+  // Get current moisture reading from cache
   float current_moisture_value = GetCurrentMoisture();
   
   String json = "{";
@@ -223,7 +221,7 @@ void HandleStatus() {
   json += "\"auto_irrigation_enabled\":" + String(IsAutoIrrigationEnabled() ? "true" : "false") + ",";
   json += "\"min_threshold\":" + String(GetMinThreshold(), 2) + ",";
   json += "\"max_threshold\":" + String(GetMaxThreshold(), 2) + ",";
-  json += "\"check_interval\":" + String(GetCheckInterval() / 60000) + ",";
+  json += "\"check_interval_seconds\":" + String(GetCheckInterval() / 1000) + ","; // Convert ms to seconds
   json += "\"current_moisture\":" + String(current_moisture_value, 2);
   json += "}";
   
