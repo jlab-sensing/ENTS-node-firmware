@@ -23,7 +23,6 @@ extern "C" {
 #include <stdlib.h>
 
 #include "gpio.h"
-#include "lptim.h"
 #include "tim.h"
 #include "usart.h"
 

@@ -15,7 +15,6 @@
 #include "app_lorawan.h"
 #include "board.h"
 #include "gpio.h"
-#include "lptim.h"
 #include "main.h"
 #include "rtc.h"
 #include "stm32_timer.h"

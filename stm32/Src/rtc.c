@@ -26,7 +26,7 @@
 
 /* USER CODE END 0 */
 
-RTC_HandleTypeDef hrtc;
+RTC_HandleTypeDef h;
 
 /* RTC init function */
 void MX_RTC_Init(void)
@@ -44,15 +44,15 @@ void MX_RTC_Init(void)
 
   /** Initialize RTC Only
   */
-  hrtc.Instance = RTC;
-  hrtc.Init.AsynchPrediv = RTC_PREDIV_A;
-  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
-  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
-  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-  hrtc.Init.OutPutPullUp = RTC_OUTPUT_PULLUP_NONE;
-  hrtc.Init.BinMode = RTC_BINARY_ONLY;
-  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  h.Instance = RTC;
+  h.Init.AsynchPrediv = RTC_PREDIV_A;
+  h.Init.OutPut = RTC_OUTPUT_DISABLE;
+  h.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+  h.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  h.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  h.Init.OutPutPullUp = RTC_OUTPUT_PULLUP_NONE;
+  h.Init.BinMode = RTC_BINARY_ONLY;
+  if (HAL_RTC_Init(&h) != HAL_OK)
   {
     Error_Handler();
   }
@@ -63,7 +63,7 @@ void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date
   */
-  if (HAL_RTCEx_SetSSRU_IT(&hrtc) != HAL_OK)
+  if (HAL_RTCEx_SetSSRU_IT(&h) != HAL_OK)
   {
     Error_Handler();
   }
@@ -75,7 +75,7 @@ void MX_RTC_Init(void)
   sAlarm.AlarmMask = RTC_ALARMMASK_NONE;
   sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDBINMASK_NONE;
   sAlarm.Alarm = RTC_ALARM_A;
-  if (HAL_RTC_SetAlarm_IT(&hrtc, &sAlarm, 0) != HAL_OK)
+  if (HAL_RTC_SetAlarm_IT(&h, &sAlarm, 0) != HAL_OK)
   {
     Error_Handler();
   }

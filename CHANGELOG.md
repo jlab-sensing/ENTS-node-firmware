@@ -8,6 +8,14 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
+## [Unreleased]
+
+### Fixed
+
+- Updated clock configuration [#268](i268)
+
+[i268]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/268
+
 ## [2.3.4] - 2025-08-20
 
 ### Added
