@@ -23,6 +23,12 @@ static const int scl_pin = 1;
 
 // create wifi module
 static ModuleHandler::ModuleHandler mh;
+  
+// create and register the microSD module
+ static ModuleMicroSD microSD;
+  
+// create and register the WiFi module
+static ModuleWiFi wifi;
 
 /**
  * @brief Callback for onReceive
@@ -66,16 +72,12 @@ RESET!
 
   Log.noticeln("Starting i2c interface...");
 
-  // create and register the WiFi module
-  // static ModuleWiFi wifi;
-  // mh.RegisterModule(&wifi);
+  mh.RegisterModule(&wifi);
 
-  // create and register the microSD module
-  // static ModuleMicroSD microSD;
-  // mh.RegisterModule(&microSD);
+  mh.RegisterModule(&microSD);
 
-  static ModuleIrrigation irrigation;
-  mh.RegisterModule(&irrigation);
+  //static ModuleIrrigation irrigation;
+  //mh.RegisterModule(&irrigation);
 
   // start i2c interface
   Wire.onReceive(onReceive);
