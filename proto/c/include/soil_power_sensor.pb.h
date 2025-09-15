@@ -140,6 +140,14 @@ typedef struct _Phytos31Measurement {
     double leaf_wetness;
 } Phytos31Measurement;
 
+/* Capactive Soil Moisture Sensor */
+typedef struct _SEN0308Measurement {
+    /* voltage */
+    double voltage;
+    /* humidity */
+    double humidity;
+} SEN0308Measurement;
+
 typedef struct _BME280Measurement {
     /* pressure */
     uint32_t pressure;
@@ -148,14 +156,6 @@ typedef struct _BME280Measurement {
     /* humidity */
     uint32_t humidity;
 } BME280Measurement;
-
-/* Capactive Soil Moisture Sensor */
-typedef struct _SEN0308Measurement {
-    /* voltage */
-    double voltage;
-    /* humidity */
-    double humidity;
-} SEN0308Measurement;
 
 /* Water Pressure Sensor */
 typedef struct _SEN0257Measurement {
@@ -366,8 +366,8 @@ extern "C" {
 #define Teros12Measurement_init_default          {0, 0, 0, 0}
 #define Teros21Measurement_init_default          {0, 0}
 #define Phytos31Measurement_init_default         {0, 0}
-#define BME280Measurement_init_default           {0, 0, 0}
 #define SEN0308Measurement_init_default          {0, 0}
+#define BME280Measurement_init_default           {0, 0, 0}
 #define SEN0257Measurement_init_default          {0, 0}
 #define YFS210CMeasurement_init_default          {0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
@@ -384,8 +384,8 @@ extern "C" {
 #define Teros12Measurement_init_zero             {0, 0, 0, 0}
 #define Teros21Measurement_init_zero             {0, 0}
 #define Phytos31Measurement_init_zero            {0, 0}
-#define BME280Measurement_init_zero              {0, 0, 0}
 #define SEN0308Measurement_init_zero             {0, 0}
+#define BME280Measurement_init_zero              {0, 0, 0}
 #define SEN0257Measurement_init_zero             {0, 0}
 #define YFS210CMeasurement_init_zero             {0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
@@ -412,11 +412,11 @@ extern "C" {
 #define Teros21Measurement_temp_tag              2
 #define Phytos31Measurement_voltage_tag          1
 #define Phytos31Measurement_leaf_wetness_tag     2
+#define SEN0308Measurement_voltage_tag           1
+#define SEN0308Measurement_humidity_tag          2
 #define BME280Measurement_pressure_tag           1
 #define BME280Measurement_temperature_tag        2
 #define BME280Measurement_humidity_tag           3
-#define SEN0308Measurement_voltage_tag           1
-#define SEN0308Measurement_humidity_tag          2
 #define SEN0257Measurement_voltage_tag           1
 #define SEN0257Measurement_pressure_tag          2
 #define YFS210CMeasurement_flow_tag              1
@@ -504,18 +504,18 @@ X(a, STATIC,   SINGULAR, DOUBLE,   leaf_wetness,      2)
 #define Phytos31Measurement_CALLBACK NULL
 #define Phytos31Measurement_DEFAULT NULL
 
+#define SEN0308Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
+X(a, STATIC,   SINGULAR, DOUBLE,   humidity,          2)
+#define SEN0308Measurement_CALLBACK NULL
+#define SEN0308Measurement_DEFAULT NULL
+
 #define BME280Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   pressure,          1) \
 X(a, STATIC,   SINGULAR, INT32,    temperature,       2) \
 X(a, STATIC,   SINGULAR, UINT32,   humidity,          3)
 #define BME280Measurement_CALLBACK NULL
 #define BME280Measurement_DEFAULT NULL
-
-#define SEN0308Measurement_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
-X(a, STATIC,   SINGULAR, DOUBLE,   humidity,          2)
-#define SEN0308Measurement_CALLBACK NULL
-#define SEN0308Measurement_DEFAULT NULL
 
 #define SEN0257Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
@@ -634,8 +634,8 @@ extern const pb_msgdesc_t PowerMeasurement_msg;
 extern const pb_msgdesc_t Teros12Measurement_msg;
 extern const pb_msgdesc_t Teros21Measurement_msg;
 extern const pb_msgdesc_t Phytos31Measurement_msg;
-extern const pb_msgdesc_t BME280Measurement_msg;
 extern const pb_msgdesc_t SEN0308Measurement_msg;
+extern const pb_msgdesc_t BME280Measurement_msg;
 extern const pb_msgdesc_t SEN0257Measurement_msg;
 extern const pb_msgdesc_t YFS210CMeasurement_msg;
 extern const pb_msgdesc_t Measurement_msg;
@@ -654,8 +654,8 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define Teros12Measurement_fields &Teros12Measurement_msg
 #define Teros21Measurement_fields &Teros21Measurement_msg
 #define Phytos31Measurement_fields &Phytos31Measurement_msg
-#define BME280Measurement_fields &BME280Measurement_msg
 #define SEN0308Measurement_fields &SEN0308Measurement_msg
+#define BME280Measurement_fields &BME280Measurement_msg
 #define SEN0257Measurement_fields &SEN0257Measurement_msg
 #define YFS210CMeasurement_fields &YFS210CMeasurement_msg
 #define Measurement_fields &Measurement_msg

@@ -18,12 +18,12 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
+#include "soil_power_sensor.pb.h"
 #include "sys_app.h"
 #include "usart.h"
-// #include "soil_power_sensor.pb.h"
 
 // user includes
-#include "bme280_sensor.h"
+#include "solenoid.h"
 
 /** Delay between print statements */
 #ifndef DELAY
@@ -51,6 +51,9 @@ int main(void) {
   // init system app
   SystemApp_Init();
 
+  // init solenoid
+  SolenoidInit();
+
   APP_LOG(TS_OFF, VLEVEL_ALWAYS,
           "Example controller irrigation (%s), compile on %s %s\r\n", __FILE__,
           __DATE__, __TIME__);
@@ -62,6 +65,7 @@ int main(void) {
     // Sleep
     HAL_Delay(1000);
 
+    // HandleClinet();
     IrrigationCommand_State state = ControllerIrrigationCheck();
     APP_LOG(TS_ON, VLEVEL_ALWAYS, "Irrigation state: %d\r\n", state);
   }

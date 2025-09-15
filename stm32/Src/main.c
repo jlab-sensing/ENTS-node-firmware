@@ -47,6 +47,14 @@
 #include "sen0308.h"
 #include "waterFlow.h"
 
+// Board configuration - define ONLY ONE of these
+// Comment these out to disable sensors
+//#define DEFAULT
+#define USE_CAP_SOIL_SENSOR
+//#define USE_WATER_PRESSURE_SENSOR
+//#define USE_FLOW_METER_SENSOR
+
+
 /**
  * @brief  The application entry point.
  * @retval int
@@ -124,9 +132,30 @@ int main(void) {
   for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
+      #ifdef DEFAULT
       ADC_init();
       SensorsAdd(ADC_measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "ADC Enabled!\n");
+      #endif
+
+      #ifdef USE_FLOW_METER_SENSOR
+      FlowInit();
+      SensorsAdd(WatFlow_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Flow Meter Enabled!\n");
+      #endif
+
+      #ifdef USE_WATER_PRESSURE_SENSOR
+      PressureInit();
+      SensorsAdd(WatPress_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Water Pressure Sensor Enabled!\n");
+      #endif
+
+      #ifdef USE_CAP_SOIL_SENSOR
+      CapSoilInit();
+      SensorsAdd(SEN0308_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Sensor Enabled!\n");
+      #endif
+
     }
     if (sensor == EnabledSensor_Teros12) {
       APP_LOG(TS_OFF, VLEVEL_M, "Teros12 Enabled!\n");
@@ -160,8 +189,25 @@ int main(void) {
   ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
 #endif
 
+
   while (1) {
     MX_LoRaWAN_Process();
+
+    #ifdef USE_FLOW_METER_SENSOR
+    FlowBackgroundTask();
+    #endif
   }
 }
 
+#ifdef USE_FLOW_METER_SENSOR
+void FlowBackgroundTask(void) {
+  static uint32_t last_check = 0;
+  uint32_t current_time = HAL_GetTick();
+  
+  // Update flow measurement every 100ms
+  if (current_time - last_check >= 100) {
+    FlowGetMeasurment(); // This updates the internal state
+    last_check = current_time;
+  }
+}
+#endif

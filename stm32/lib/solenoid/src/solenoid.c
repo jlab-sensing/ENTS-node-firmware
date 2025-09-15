@@ -39,11 +39,13 @@ void SolenoidInit() {
 }
 
 void SolenoidOpen(void) {
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay ON
-  // Solenoid = SOLENOID_ON;
+  printf("SOLENOID_OPEN: Setting PA10 to LOW (Relay ON)\n");
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);  // LOW = Relay ON
+  Solenoid = SOLENOID_ON;
 }
 
 void SolenoidClose(void) {
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);  // HIGH = Relay OFF
-  // Solenoid = SOLENOID_OFF;
+  printf("SOLENOID_CLOSE: Setting PA10 to HIGH (Relay OFF)\n");
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);  // HIGH = Relay OFF
+  Solenoid = SOLENOID_OFF;
 }

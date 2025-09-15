@@ -28,7 +28,7 @@ static volatile float last_flow_lpm = 0;
 static volatile unsigned long pulse_count = 0;
 SysTime_t currentTime;
 SysTime_t lastTime;
-float flow_history[FLOW_AVG_COUNT] = {0};
+static volatile float flow_history[FLOW_AVG_COUNT] = {0};
 uint8_t flow_index = 0;
 
 // For every one liter of water that passes through the sensor in one minute,
@@ -62,29 +62,25 @@ void FlowInit() {
 YFS210CMeasurement FlowGetMeasurment() {
   // get time
   currentTime = SysTimeGet();
+  SysTime_t diff = SysTimeSub(currentTime, lastTime);
+  // Always calculate flow, not just every 100ms
+  uint32_t pulses = pulse_count;
 
-  // variable for measurement
   YFS210CMeasurement flowMeas;
 
-  SysTime_t diff = SysTimeSub(currentTime, lastTime);
-
-  // Sampling time of 0.1s
-  if (diff.SubSeconds >= 100) {
-    uint32_t pulses = pulse_count;
-    pulse_count = 0;
-
-    // Calculate liters per minute
-    last_flow_lpm = (((float)pulses * 10.0f) / calibration_factor);
-
-    // Update history
-    flow_history[flow_index] = last_flow_lpm;
-    flow_index = (flow_index + 1) % FLOW_AVG_COUNT;
-
-    // reset last time
-    lastTime.SubSeconds = currentTime.SubSeconds;
+  // Calculate liters per minute based on actual time elapsed
+  float time_elapsed_minutes =
+      (float)diff.SubSeconds / 6000.0f;  // Convert subseconds to minutes
+  if (time_elapsed_minutes > 0) {
+    last_flow_lpm = ((float)pulses / calibration_factor) / time_elapsed_minutes;
+    pulse_count = 0;  // Reset after calculation
+    lastTime = currentTime;
   }
 
-  // Calculate average
+  // Update history and calculate average
+  flow_history[flow_index] = last_flow_lpm;
+  flow_index = (flow_index + 1) % FLOW_AVG_COUNT;
+
   float sum = 0.0f;
   for (int i = 0; i < FLOW_AVG_COUNT; i++) {
     sum += flow_history[i];
@@ -103,10 +99,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 size_t WatFlow_measure(uint8_t* data) {
   // get timestamp
   SysTime_t ts = SysTimeGet();
+  SysTime_t diff = SysTimeSub(currentTime, lastTime);
   YFS210CMeasurement flowMeas = {};
 
+  if (diff.SubSeconds >= 100) {  // If more than 0.1 seconds has passed
+    flowMeas = FlowGetMeasurment();
+  }
+
   /// read measurement
-  flowMeas = FlowGetMeasurment();
+  flowMeas.flow = last_flow_lpm;
   const UserConfiguration* cfg = UserConfigGet();
 
   // encode measurement

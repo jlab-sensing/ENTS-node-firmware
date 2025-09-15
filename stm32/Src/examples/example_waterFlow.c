@@ -35,7 +35,6 @@
 #include "sdi12.h"
 #include "sys_app.h"
 #include "waterFlow.h"
-#include "waterPressure.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -121,7 +120,7 @@ int main(void) {
   HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
-  PressureInit();
+  FlowInit();
   // FlowInit();
   //  TIMER_IF_Init();
   //  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
@@ -129,7 +128,7 @@ int main(void) {
 
   char output[50];
 
-  SEN0257Measurement measurment;
+  YFS210CMeasurement measurment;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -140,10 +139,9 @@ int main(void) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    measurment = PressureGetMeasurment();
-    reading_len = snprintf(output, sizeof(output),
-                           "Voltage: %.4f V\nPressure: %.4f kPa\r\n",
-                           measurment.voltage, measurment.pressure);
+    measurment = FlowGetMeasurment();
+    reading_len =
+        snprintf(output, sizeof(output), "Flow: %.4f \r\n", measurment.flow);
 
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);

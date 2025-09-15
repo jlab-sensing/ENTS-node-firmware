@@ -7,7 +7,6 @@
 #include "app_lorawan.h"
 #include "board.h"
 #include "dma.h"
-#include "esp_link.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "rtc.h"
