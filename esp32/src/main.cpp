@@ -26,6 +26,15 @@ const std::string password = "";
 
 // create wifi module
 static ModuleHandler::ModuleHandler mh;
+  
+// create and register the microSD module
+ static ModuleMicroSD microSD;
+  
+// create and register the WiFi module
+static ModuleWiFi wifi;
+
+// create and register the irrigation module
+//static ModuleIrrigation irrigation;
 
 /**
  * @brief Callback for onReceive
@@ -55,7 +64,8 @@ void setup() {
   // Create logging interfface
   Log.begin(LOG_LEVEL_TRACE, &Serial);
 
-  WiFi.begin(ssid.c_str(), password.c_str());
+  // Needed for irrigation
+  //WiFi.begin(ssid.c_str(), password.c_str());
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -80,8 +90,11 @@ void setup() {
 
   Log.noticeln("Starting i2c interface...");
 
-  static ModuleIrrigation irrigation;
-  mh.RegisterModule(&irrigation);
+  //mh.RegisterModule(&irrigation);
+
+  mh.RegisterModule(&wifi);
+
+  mh.RegisterModule(&microSD);
 
   // start i2c interface
   Wire.onReceive(onReceive);
