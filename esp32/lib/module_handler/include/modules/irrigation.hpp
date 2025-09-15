@@ -58,7 +58,6 @@ class ModuleIrrigation : public ModuleHandler::Module {
   size_t request_buffer_len = 0;
 };
 
-
 /**
  * @}
  */
