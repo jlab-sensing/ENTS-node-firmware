@@ -141,12 +141,12 @@ typedef struct _Phytos31Measurement {
 } Phytos31Measurement;
 
 /* Capactive Soil Moisture Sensor */
-typedef struct _SEN03808Measurement {
+typedef struct _SEN0308Measurement {
     /* voltage */
     double voltage;
     /* humidity */
     double humidity;
-} SEN03808Measurement;
+} SEN0308Measurement;
 
 typedef struct _BME280Measurement {
     /* pressure */
@@ -183,7 +183,7 @@ typedef struct _Measurement {
         Phytos31Measurement phytos31;
         BME280Measurement bme280;
         Teros21Measurement teros21;
-        SEN03808Measurement sen03808;
+        SEN0308Measurement sen0308;
         SEN0257Measurement sen0257;
         YFS210CMeasurement yfs210c;
     } measurement;
@@ -366,7 +366,7 @@ extern "C" {
 #define Teros12Measurement_init_default          {0, 0, 0, 0}
 #define Teros21Measurement_init_default          {0, 0}
 #define Phytos31Measurement_init_default         {0, 0}
-#define SEN03808Measurement_init_default         {0, 0}
+#define SEN0308Measurement_init_default          {0, 0}
 #define BME280Measurement_init_default           {0, 0, 0}
 #define SEN0257Measurement_init_default          {0, 0}
 #define YFS210CMeasurement_init_default          {0}
@@ -384,7 +384,7 @@ extern "C" {
 #define Teros12Measurement_init_zero             {0, 0, 0, 0}
 #define Teros21Measurement_init_zero             {0, 0}
 #define Phytos31Measurement_init_zero            {0, 0}
-#define SEN03808Measurement_init_zero            {0, 0}
+#define SEN0308Measurement_init_zero             {0, 0}
 #define BME280Measurement_init_zero              {0, 0, 0}
 #define SEN0257Measurement_init_zero             {0, 0}
 #define YFS210CMeasurement_init_zero             {0}
@@ -412,8 +412,8 @@ extern "C" {
 #define Teros21Measurement_temp_tag              2
 #define Phytos31Measurement_voltage_tag          1
 #define Phytos31Measurement_leaf_wetness_tag     2
-#define SEN03808Measurement_voltage_tag          1
-#define SEN03808Measurement_humidity_tag         2
+#define SEN0308Measurement_voltage_tag           1
+#define SEN0308Measurement_humidity_tag          2
 #define BME280Measurement_pressure_tag           1
 #define BME280Measurement_temperature_tag        2
 #define BME280Measurement_humidity_tag           3
@@ -426,7 +426,7 @@ extern "C" {
 #define Measurement_phytos31_tag                 4
 #define Measurement_bme280_tag                   5
 #define Measurement_teros21_tag                  6
-#define Measurement_sen03808_tag                 7
+#define Measurement_sen0308_tag                  7
 #define Measurement_sen0257_tag                  8
 #define Measurement_yfs210c_tag                  9
 #define Response_resp_tag                        1
@@ -504,11 +504,11 @@ X(a, STATIC,   SINGULAR, DOUBLE,   leaf_wetness,      2)
 #define Phytos31Measurement_CALLBACK NULL
 #define Phytos31Measurement_DEFAULT NULL
 
-#define SEN03808Measurement_FIELDLIST(X, a) \
+#define SEN0308Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
 X(a, STATIC,   SINGULAR, DOUBLE,   humidity,          2)
-#define SEN03808Measurement_CALLBACK NULL
-#define SEN03808Measurement_DEFAULT NULL
+#define SEN0308Measurement_CALLBACK NULL
+#define SEN0308Measurement_DEFAULT NULL
 
 #define BME280Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   pressure,          1) \
@@ -535,7 +535,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros12,measurement.teros12),   
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,phytos31,measurement.phytos31),   4) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,bme280,measurement.bme280),   5) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen03808,measurement.sen03808),   7) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0308,measurement.sen0308),   7) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   9)
 #define Measurement_CALLBACK NULL
@@ -546,7 +546,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   
 #define Measurement_measurement_phytos31_MSGTYPE Phytos31Measurement
 #define Measurement_measurement_bme280_MSGTYPE BME280Measurement
 #define Measurement_measurement_teros21_MSGTYPE Teros21Measurement
-#define Measurement_measurement_sen03808_MSGTYPE SEN03808Measurement
+#define Measurement_measurement_sen0308_MSGTYPE SEN0308Measurement
 #define Measurement_measurement_sen0257_MSGTYPE SEN0257Measurement
 #define Measurement_measurement_yfs210c_MSGTYPE YFS210CMeasurement
 
@@ -634,7 +634,7 @@ extern const pb_msgdesc_t PowerMeasurement_msg;
 extern const pb_msgdesc_t Teros12Measurement_msg;
 extern const pb_msgdesc_t Teros21Measurement_msg;
 extern const pb_msgdesc_t Phytos31Measurement_msg;
-extern const pb_msgdesc_t SEN03808Measurement_msg;
+extern const pb_msgdesc_t SEN0308Measurement_msg;
 extern const pb_msgdesc_t BME280Measurement_msg;
 extern const pb_msgdesc_t SEN0257Measurement_msg;
 extern const pb_msgdesc_t YFS210CMeasurement_msg;
@@ -654,7 +654,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define Teros12Measurement_fields &Teros12Measurement_msg
 #define Teros21Measurement_fields &Teros21Measurement_msg
 #define Phytos31Measurement_fields &Phytos31Measurement_msg
-#define SEN03808Measurement_fields &SEN03808Measurement_msg
+#define SEN0308Measurement_fields &SEN0308Measurement_msg
 #define BME280Measurement_fields &BME280Measurement_msg
 #define SEN0257Measurement_fields &SEN0257Measurement_msg
 #define YFS210CMeasurement_fields &YFS210CMeasurement_msg
@@ -680,7 +680,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define PowerMeasurement_size                    18
 #define Response_size                            2
 #define SEN0257Measurement_size                  18
-#define SEN03808Measurement_size                 18
+#define SEN0308Measurement_size                  18
 #define SOIL_POWER_SENSOR_PB_H_MAX_SIZE          Esp32Command_size
 #define Teros12Measurement_size                  33
 #define Teros21Measurement_size                  18

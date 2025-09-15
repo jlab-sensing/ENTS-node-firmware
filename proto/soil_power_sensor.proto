@@ -59,7 +59,7 @@ message Phytos31Measurement {
   double leaf_wetness = 2;
 }
 /* Capactive Soil Moisture Sensor */
-message SEN03808Measurement {
+message SEN0308Measurement {
   // voltage
   double voltage = 1;
   // humidity
@@ -100,7 +100,7 @@ message Measurement {
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;
     Teros21Measurement teros21 = 6;
-    SEN03808Measurement sen03808 = 7;
+    SEN0308Measurement sen0308 = 7;
     SEN0257Measurement sen0257 = 8;
     YFS210CMeasurement yfs210c = 9;
   }
