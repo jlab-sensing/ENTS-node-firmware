@@ -1,7 +1,7 @@
 /**
  * @file irrigation.hpp
- * @author John Madden
- * @brief Module for controling irrigation valuve
+ * @author Caden Jacobs
+ * @brief Module for controling irrigation valve
  * @date 2025-08-19
  *
  *
@@ -41,6 +41,11 @@ class ModuleIrrigation : public ModuleHandler::Module {
    * @see ModuleHandler::Module.OnRequest
    */
   size_t OnRequest(uint8_t *buffer);
+
+  /**
+   * Handles irrigation based on soil moisture measurements
+   */
+  void CheckAutoIrrigation();
 
  private:
   /**

@@ -1,67 +1,139 @@
 /**
- * @example example_irrigation.cpp
+ * @brief Main file for the Soil Power Sensor firmware
  *
- * This example demonstrates the webserver to control an irrigation value.
- *
- * @author John Madden
- * @date 2025-08-19
+ * @author John Madden <jmadden173@pm.me>
+ * @date 2023-11-28
  */
 
 #include <Arduino.h>
 #include <ArduinoLog.h>
 #include <WiFi.h>
+#include <Wire.h>
+#include <sys/time.h>  // For time functions
 
-#include "webserver.hpp"
+#include "module_handler.hpp"
+#include "modules/irrigation.hpp"
+#include "modules/microsd.hpp"
+#include "modules/wifi.hpp"
+
+/** Target device address */
+static const uint8_t dev_addr = 0x20;
+/** Serial data pin */
+static const int sda_pin = 0;
+/** Serial clock pin */
+static const int scl_pin = 1;
 
 const std::string ssid = "HARE_Lab";
 const std::string password = "";
 
-void setup() {
-  Serial.begin(115200);
-  delay(3000);  // Give time for serial to initialize
+// create wifi module
+static ModuleHandler::ModuleHandler mh;
 
-  Serial.println("ESP32-C3 Starting...");
+// Create irrigation module
+static ModuleIrrigation irrigation;
 
-  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
-  Serial.println("Logging initialized");
+// External declarations for time initialization flags (defined in
+// irrigation.cpp)
+bool time_initialized;
+bool time_sync_successful;
 
-  Serial.print("Connecting to WiFi: ");
-  Serial.println(ssid.c_str());
-  WiFi.begin(ssid.c_str(), password.c_str());
-
-  unsigned long startTime = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - startTime < 30000) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("-------------------");
-    Serial.println("WiFi connected");
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());  // THIS IS THE ACTUAL IP
-  } else {
-    Serial.println("-------------------");
-    Serial.println("WiFi connection FAILED!");
-    Serial.print("WiFi status: ");
-    Serial.println(WiFi.status());
-    while (1) {
-      delay(1000);
-    }  // Stop here if WiFi fails
-  }
-
-  SetupServer();
-  Serial.println("Web server started");
+/**
+ * @brief Callback for onReceive
+ *
+ * See Arduino wire library for reference
+ */
+void onReceive(int len) {
+  Log.traceln("onReceive(%d)", len);
+  mh.OnReceive(len);
 }
 
-void loop() {
-  // Add heartbeat to know it's running
-  static unsigned long lastPrint = 0;
-  if (millis() - lastPrint > 5000) {
-    Serial.println("Web server running...");
-    lastPrint = millis();
+/**
+ * @brief Callback for onRequest
+ *
+ * See Arduino wire library for reference
+ */
+void onRequest() {
+  Log.traceln("onRequest");
+  mh.OnRequest();
+}
+
+/** Startup code */
+void setup() {
+  // Start serial interface
+  Serial.begin(115200);
+
+  // Create logging interface
+  Log.begin(LOG_LEVEL_TRACE, &Serial);
+  Log.noticeln("ESP32 Starting...");
+
+  // Connect to WiFi
+  Log.noticeln("Connecting to WiFi: %s", ssid.c_str());
+  WiFi.begin(ssid.c_str(), password.c_str());
+
+  int wifi_retries = 0;
+  const int max_wifi_retries = 20;  // 10 seconds total
+
+  while (WiFi.status() != WL_CONNECTED && wifi_retries < max_wifi_retries) {
+    delay(500);
+    Serial.print(".");
+    wifi_retries++;
   }
 
+  if (WiFi.status() != WL_CONNECTED) {
+    Log.errorln("WiFi connection failed!");
+    // Continue anyway - time sync will fail but other functions should work
+  } else {
+    Log.noticeln("");
+    Log.noticeln("WiFi connected");
+    Log.noticeln("IP address: %s", WiFi.localIP().toString().c_str());
+
+    // Configure NTP time synchronization after WiFi is connected
+    Log.noticeln("Configuring NTP time...");
+    configTzTime("UTC", "pool.ntp.org", "time.nist.gov", "time.google.com");
+
+    // Wait a moment for time to sync
+    delay(2000);
+
+    // Check if time is synchronized
+    time_t now = time(nullptr);
+    if (now > 1000000000) {
+      Log.noticeln("Time synchronized: %s", ctime(&now));
+      time_sync_successful = true;
+    } else {
+      Log.errorln("Time not synchronized, using system time");
+      time_sync_successful = false;
+    }
+    time_initialized = true;
+  }
+
+  // Setup Web server (doesn't need time sync)
+  SetupServer();
+  Log.noticeln("Web server started");
+
+  Log.noticeln("ents-node esp32 firmware, compiled at %s %s", __DATE__,
+               __TIME__);
+  Log.noticeln("Git SHA: %s", GIT_REV);
+
+  Log.noticeln("Starting i2c interface...");
+
+  // Register irrigation module
+  mh.RegisterModule(&irrigation);
+
+  // start i2c interface
+  Wire.onReceive(onReceive);
+  Wire.onRequest(onRequest);
+  bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 100000);
+
+  if (i2c_status) {
+    Log.noticeln("Success!");
+  } else {
+    Log.noticeln("Failed!");
+  }
+}
+
+/** Loop code */
+void loop() {
   HandleClient();
+  irrigation.CheckAutoIrrigation();
   delay(20);
 }

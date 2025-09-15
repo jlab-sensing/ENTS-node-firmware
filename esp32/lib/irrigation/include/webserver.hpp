@@ -24,3 +24,15 @@ IrrigationCommand_State GetSolenoidState();
  * @brief Set the solenoid state
  */
 void SetSolenoidState(IrrigationCommand_State newState);
+
+// Auto irrigation control functions
+void EnableAutoIrrigation(float min_thresh, float max_thresh);
+void DisableAutoIrrigation();
+bool IsAutoIrrigationEnabled();
+float GetMinThreshold();
+float GetMaxThreshold();
+unsigned long GetCheckInterval();
+void SetCheckInterval(unsigned long interval_ms);
+float GetSimpleSoilMoisture();
+void CheckIrrigationConditions();
+float GetCurrentMoistureFromCache();
