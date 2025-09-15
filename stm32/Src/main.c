@@ -49,8 +49,8 @@
 
 // Board configuration - define ONLY ONE of these
 // Comment these out to disable sensors
-//#define DEFAULT
-#define USE_CAP_SOIL_SENSOR
+#define DEFAULT
+//#define USE_CAP_SOIL_SENSOR
 //#define USE_WATER_PRESSURE_SENSOR
 //#define USE_FLOW_METER_SENSOR
 
@@ -118,7 +118,7 @@ int main(void) {
   APP_PRINTF("Git SHA: %s\n", GIT_REV);
 
   // initialize esp32 controller module
-  ControllerInit();
+  ControllerInit(); 
 
   // get the current user config
   const UserConfiguration* cfg = UserConfigGet();
