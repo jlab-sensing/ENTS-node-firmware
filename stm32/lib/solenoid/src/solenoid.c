@@ -46,6 +46,6 @@ void SolenoidOpen(void) {
 
 void SolenoidClose(void) {
   printf("SOLENOID_CLOSE: Setting PA10 to LOW (Relay OFF)\n");
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);    // LOW = Relay OFF
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay OFF
   Solenoid = SOLENOID_OFF;
 }

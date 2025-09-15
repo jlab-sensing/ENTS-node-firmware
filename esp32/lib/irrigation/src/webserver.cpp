@@ -25,7 +25,7 @@ unsigned long timedStartTime = 0;
 unsigned long timedDuration = 0;
 bool timedOperation = false;
 
-//Thresholds for auto irrigation
+// Thresholds for auto irrigation
 extern float moisture_min_threshold;
 extern float moisture_max_threshold;
 extern unsigned long check_interval;
@@ -35,23 +35,19 @@ float current_moisture = -1.0;
 
 extern bool auto_irrigation_enabled;
 unsigned long last_moisture_check = 0;
-const unsigned long MOISTURE_CHECK_INTERVAL = 300000; // 5 minutes
+const unsigned long MOISTURE_CHECK_INTERVAL = 300000;  // 5 minutes
 
 // Implement the getter function
-IrrigationCommand_State GetSolenoidState() {
-    return currentSolenoidState;
-}
+IrrigationCommand_State GetSolenoidState() { return currentSolenoidState; }
 
-// Implement the setter function  
+// Implement the setter function
 void SetSolenoidState(IrrigationCommand_State newState) {
-    currentSolenoidState = newState;
-    Log.noticeln("Solenoid state changed to: %d", newState);
+  currentSolenoidState = newState;
+  Log.noticeln("Solenoid state changed to: %d", newState);
 }
 
 // Getter and setter for moisture
-float GetCurrentMoisture() {
-  return GetCurrentMoistureFromCache();
-}
+float GetCurrentMoisture() { return GetCurrentMoistureFromCache(); }
 
 void SetCurrentMoisture(float moisture) {
   current_moisture = moisture;
@@ -61,9 +57,9 @@ void SetCurrentMoisture(float moisture) {
 // Function to update timed operations
 void UpdateTimedOperation() {
   if (timedOperation && millis() - timedStartTime >= timedDuration) {
-      Log.noticeln("Timed operation completed, closing valve");
-      SetSolenoidState(IrrigationCommand_State_CLOSE);
-      timedOperation = false;
+    Log.noticeln("Timed operation completed, closing valve");
+    SetSolenoidState(IrrigationCommand_State_CLOSE);
+    timedOperation = false;
   }
 }
 
@@ -115,9 +111,9 @@ void HandleState();
 
 void HandleMoisture();
 
-void HandleClient() { 
-  server.handleClient(); 
-  UpdateTimedOperation(); // Check for timed operations
+void HandleClient() {
+  server.handleClient();
+  UpdateTimedOperation();  // Check for timed operations
 }
 
 void SetupServer() {
@@ -135,14 +131,14 @@ void SetupServer() {
 void HandleOpen() {
   Log.noticeln("Opening valve");
   SetSolenoidState(IrrigationCommand_State_OPEN);
-  timedOperation = false; // Cancel any timed operation
+  timedOperation = false;  // Cancel any timed operation
   server.send(200, "text/plain", "Opening valve");
 }
 
 void HandleClose() {
   Log.noticeln("Closing valve");
   SetSolenoidState(IrrigationCommand_State_CLOSE);
-  timedOperation = false; // Cancel any timed operation
+  timedOperation = false;  // Cancel any timed operation
   server.send(200, "text/plain", "Closing valve");
 }
 
@@ -165,11 +161,11 @@ void HandleTimed() {
   }
 
   Log.noticeln("Opening valve for %d seconds", time);
-  
-  //Timed sequence
+
+  // Timed sequence
   HandleOpen();
   timedStartTime = millis();
-  timedDuration = time * 1000; // Convert to milliseconds
+  timedDuration = time * 1000;  // Convert to milliseconds
   timedOperation = true;
 
   server.send(200, "text/plain", "Valve opened for set duration");
@@ -177,60 +173,70 @@ void HandleTimed() {
 
 void HandleAutoIrrigationSetup() {
   if (server.hasArg("min") && server.hasArg("max")) {
-      float min_thresh = server.arg("min").toFloat();
-      float max_thresh = server.arg("max").toFloat();
-      
-      EnableAutoIrrigation(min_thresh, max_thresh);
-      
-      if (server.hasArg("interval")) {
-          SetCheckInterval(server.arg("interval").toInt() * 60000);
-      }
-      
-      Log.noticeln("Auto irrigation configured: Min=%.1f%%, Max=%.1f%%, Interval=%lu min", 
-                  min_thresh, max_thresh, GetCheckInterval() / 60000);
-      server.send(200, "text/plain", "Auto irrigation configured");
+    float min_thresh = server.arg("min").toFloat();
+    float max_thresh = server.arg("max").toFloat();
+
+    EnableAutoIrrigation(min_thresh, max_thresh);
+
+    if (server.hasArg("interval")) {
+      SetCheckInterval(server.arg("interval").toInt() * 60000);
+    }
+
+    Log.noticeln(
+        "Auto irrigation configured: Min=%.1f%%, Max=%.1f%%, Interval=%lu min",
+        min_thresh, max_thresh, GetCheckInterval() / 60000);
+    server.send(200, "text/plain", "Auto irrigation configured");
   } else {
-      Log.errorln("Auto irrigation setup missing parameters");
-      server.send(400, "text/plain", "Missing min/max parameters");
+    Log.errorln("Auto irrigation setup missing parameters");
+    server.send(400, "text/plain", "Missing min/max parameters");
   }
 }
 
 void HandleAutoToggle() {
   if (server.hasArg("enable")) {
-      bool enable = server.arg("enable") == "true";
-      if (enable) {
-          // Enable with current thresholds - let CheckAutoIrrigation handle the state
-          EnableAutoIrrigation(GetMinThreshold(), GetMaxThreshold());
-      } else {
-          DisableAutoIrrigation();
-          SetSolenoidState(IrrigationCommand_State_CLOSE);  // Still close when disabling
-      }
-      Log.noticeln("Auto irrigation %s", enable ? "enabled" : "disabled");
-      server.send(200, "text/plain", enable ? "Auto enabled" : "Auto disabled");
+    bool enable = server.arg("enable") == "true";
+    if (enable) {
+      // Enable with current thresholds - let CheckAutoIrrigation handle the
+      // state
+      EnableAutoIrrigation(GetMinThreshold(), GetMaxThreshold());
+    } else {
+      DisableAutoIrrigation();
+      SetSolenoidState(
+          IrrigationCommand_State_CLOSE);  // Still close when disabling
+    }
+    Log.noticeln("Auto irrigation %s", enable ? "enabled" : "disabled");
+    server.send(200, "text/plain", enable ? "Auto enabled" : "Auto disabled");
   } else {
-      server.send(400, "text/plain", "Missing enable parameter");
+    server.send(400, "text/plain", "Missing enable parameter");
   }
 }
 
 void HandleStatus() {
   // Get current moisture reading from cache
   float current_moisture_value = GetCurrentMoisture();
-  
+
   String json = "{";
-  json += "\"solenoid_state\":\"" + String(GetSolenoidState() == IrrigationCommand_State_OPEN ? "open" : "closed") + "\",";
-  json += "\"auto_irrigation_enabled\":" + String(IsAutoIrrigationEnabled() ? "true" : "false") + ",";
+  json +=
+      "\"solenoid_state\":\"" +
+      String(GetSolenoidState() == IrrigationCommand_State_OPEN ? "open"
+                                                                : "closed") +
+      "\",";
+  json += "\"auto_irrigation_enabled\":" +
+          String(IsAutoIrrigationEnabled() ? "true" : "false") + ",";
   json += "\"min_threshold\":" + String(GetMinThreshold(), 2) + ",";
   json += "\"max_threshold\":" + String(GetMaxThreshold(), 2) + ",";
-  json += "\"check_interval_seconds\":" + String(GetCheckInterval() / 1000) + ","; // Convert ms to seconds
+  json += "\"check_interval_seconds\":" + String(GetCheckInterval() / 1000) +
+          ",";  // Convert ms to seconds
   json += "\"current_moisture\":" + String(current_moisture_value, 2);
   json += "}";
-  
+
   server.send(200, "application/json", json);
 }
 
 void HandleState() {
   IrrigationCommand_State currentState = GetSolenoidState();
-  String stateStr = (currentState == IrrigationCommand_State_OPEN) ? "open" : "closed";
+  String stateStr =
+      (currentState == IrrigationCommand_State_OPEN) ? "open" : "closed";
   Log.noticeln("Current state: %s (%d)", stateStr.c_str(), currentState);
   server.send(200, "text/plain", stateStr);
 }
@@ -239,16 +245,16 @@ void HandleMoisture() {
   if (server.hasArg("moisture")) {
     float moisture = server.arg("moisture").toFloat();
     SetCurrentMoisture(moisture);
-    
+
     // Trigger auto irrigation check when new moisture data arrives
     if (IsAutoIrrigationEnabled()) {
-      Log.noticeln("New moisture reading received, triggering irrigation check");
+      Log.noticeln(
+          "New moisture reading received, triggering irrigation check");
       CheckIrrigationConditions();
     }
-    
+
     server.send(200, "text/plain", "Moisture received");
-  }
-  else {
+  } else {
     Log.errorln("Moisture endpoint missing parameter");
     server.send(400, "text/plain", "Missing moisture parameter");
   }

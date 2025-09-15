@@ -42,10 +42,10 @@ class ModuleIrrigation : public ModuleHandler::Module {
    */
   size_t OnRequest(uint8_t *buffer);
 
-   /**
+  /**
    * Handles irrigation based on soil moisture measurements
    */
-  void CheckAutoIrrigation();  
+  void CheckAutoIrrigation();
 
  private:
   /**

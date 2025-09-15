@@ -1,16 +1,17 @@
 #include "modules/irrigation.hpp"
-#include <ArduinoLog.h>
 
-#include "webserver.hpp"
-#include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <ArduinoLog.h>
+#include <HTTPClient.h>
 #include <sys/time.h>  // For gettimeofday()
 #include <time.h>      // For gmtime() and strftime()
+
+#include "webserver.hpp"
 
 // Soil moisture thresholds
 static float moisture_min_threshold = 50.0f;
 static float moisture_max_threshold = 75.0f;
-static unsigned long check_interval = 10000; // 10 seconds
+static unsigned long check_interval = 10000;  // 10 seconds
 static unsigned long last_check_time = 0;
 bool auto_irrigation_enabled = false;
 
@@ -53,12 +54,12 @@ void ModuleIrrigation::CheckAutoIrrigation() {
   if ((current_time - last_check_time) < check_interval) {
     return;
   }
-  
+
   last_check_time = current_time;
-  
+
   Log.noticeln("Fetching soil moisture from API...");
   float new_moisture = GetSimpleSoilMoisture();
-  
+
   if (new_moisture >= 0) {
     current_moisture_value = new_moisture;
     Log.noticeln("Moisture reading: %.1f%%", new_moisture);
@@ -72,23 +73,23 @@ void ModuleIrrigation::CheckAutoIrrigation() {
 void ModuleIrrigation::Check(const Esp32Command &cmd) {
   IrrigationCommand resp = IrrigationCommand_init_zero;
   resp.state = GetSolenoidState();
-  request_buffer_len = EncodeIrrigationCommand(&resp, request_buffer, sizeof(request_buffer));
+  request_buffer_len =
+      EncodeIrrigationCommand(&resp, request_buffer, sizeof(request_buffer));
 }
 
 void CheckIrrigationConditions() {
   if (!auto_irrigation_enabled || current_moisture_value < 0) {
     return;
   }
-  
+
   IrrigationCommand_State current_state = GetSolenoidState();
-  
+
   if (current_moisture_value < moisture_min_threshold) {
-    Log.noticeln("Moisture low (%.1f%% < %.1f%%) - Opening valve", 
+    Log.noticeln("Moisture low (%.1f%% < %.1f%%) - Opening valve",
                  current_moisture_value, moisture_min_threshold);
     SetSolenoidState(IrrigationCommand_State_OPEN);
-  }
-  else if (current_moisture_value > moisture_max_threshold) {
-    Log.noticeln("Moisture adequate (%.1f%% > %.1f%%) - Closing valve", 
+  } else if (current_moisture_value > moisture_max_threshold) {
+    Log.noticeln("Moisture adequate (%.1f%% > %.1f%%) - Closing valve",
                  current_moisture_value, moisture_max_threshold);
     SetSolenoidState(IrrigationCommand_State_CLOSE);
   }
@@ -111,12 +112,12 @@ float GetSimpleSoilMoisture() {
   struct timeval tv;
   if (gettimeofday(&tv, NULL) == 0) {
     time_t now = tv.tv_sec;
-    time_t start_time = now - 30; // 30 seconds ago
-    
+    time_t start_time = now - 30;  // 30 seconds ago
+
     // Format timestamps in RFC 1123 format
     String start_time_str = formatTimeRFC1123(start_time);
     String end_time_str = formatTimeRFC1123(now);
-    
+
     String url = "http://dirtviz.jlab.ucsc.edu/api/sensor/";
     url += "?name=sen0308";
     url += "&measurement=humidity";
@@ -126,16 +127,16 @@ float GetSimpleSoilMoisture() {
     url += "&stream=true";
 
     Log.traceln("API URL: %s", url.c_str());
-    
+
     if (http.begin(url)) {
       Log.traceln("Requesting data from last 30 seconds...");
       int httpCode = http.GET();
       Log.traceln("HTTP response code: %d", httpCode);
-      
+
       if (httpCode == HTTP_CODE_OK) {
         String payload = http.getString();
         Log.traceln("Payload: %s", payload.c_str());
-        
+
         DynamicJsonDocument doc(2048);
         DeserializationError error = deserializeJson(doc, payload);
 
@@ -143,7 +144,7 @@ float GetSimpleSoilMoisture() {
           // The response is a JSON object with a "data" array
           if (doc.containsKey("data") && doc["data"].is<JsonArray>()) {
             JsonArray data_array = doc["data"];
-            
+
             if (data_array.size() > 0) {
               // Get the most recent reading (last in array)
               moisture_value = data_array[data_array.size() - 1].as<float>();
@@ -157,7 +158,8 @@ float GetSimpleSoilMoisture() {
               if (kv.value().is<JsonArray>()) {
                 Log.traceln("Key: %s (Array)", kv.key().c_str());
               } else {
-                Log.traceln("Key: %s, Value: %s", kv.key().c_str(), kv.value().as<String>().c_str());
+                Log.traceln("Key: %s, Value: %s", kv.key().c_str(),
+                            kv.value().as<String>().c_str());
               }
             }
           }
@@ -183,7 +185,8 @@ void EnableAutoIrrigation(float min_thresh, float max_thresh) {
   auto_irrigation_enabled = true;
   moisture_min_threshold = min_thresh;
   moisture_max_threshold = max_thresh;
-  Log.noticeln("Auto irrigation enabled: Min=%.1f%%, Max=%.1f%%", min_thresh, max_thresh);
+  Log.noticeln("Auto irrigation enabled: Min=%.1f%%, Max=%.1f%%", min_thresh,
+               max_thresh);
 }
 
 void DisableAutoIrrigation() {
@@ -191,26 +194,16 @@ void DisableAutoIrrigation() {
   Log.noticeln("Auto irrigation disabled");
 }
 
-bool IsAutoIrrigationEnabled() {
-  return auto_irrigation_enabled;
-}
+bool IsAutoIrrigationEnabled() { return auto_irrigation_enabled; }
 
-float GetMinThreshold() {
-  return moisture_min_threshold;
-}
+float GetMinThreshold() { return moisture_min_threshold; }
 
-float GetMaxThreshold() {
-  return moisture_max_threshold;
-}
+float GetMaxThreshold() { return moisture_max_threshold; }
 
-unsigned long GetCheckInterval() {
-  return check_interval;
-}
+unsigned long GetCheckInterval() { return check_interval; }
 
 void SetCheckInterval(unsigned long interval_ms) {
   check_interval = interval_ms;
 }
 
-float GetCurrentMoistureFromCache() {
-  return current_moisture_value;
-}
+float GetCurrentMoistureFromCache() { return current_moisture_value; }
