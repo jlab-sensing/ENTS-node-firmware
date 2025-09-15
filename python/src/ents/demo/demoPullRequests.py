@@ -3,7 +3,11 @@ File: demoPullRequest.py
 Author: Caden Grace Jacobs
 
 This python script pulls data from the DirtViz API from various sensors
+<<<<<<< HEAD
 to perform measurements and calculations. 
+=======
+to preform measurements and calculations.
+>>>>>>> main
 """
 
 import requests
@@ -80,6 +84,7 @@ class DirtVizClient:
             return []
 
 
+
 def format_data_display(df, cell_id, measurement_type):
     """Format the data output with timestamp as first column"""
     ca_tz = pytz.timezone('America/Los_Angeles')
@@ -94,8 +99,8 @@ def format_data_display(df, cell_id, measurement_type):
         df["timestamp"] = df["timestamp"].dt.strftime("%m-%d-%Y %H:%M:%S")
 
     # Calculate statistics - check if 'data' column exists
-    data_values = df['data'] if 'data' in df.columns else pd.Series(dtype=float)
-    
+    data_values = df["data"] if "data" in df.columns else pd.Series(dtype=float)
+
     # Determine the unit and measurement name based on the measurement type
     if measurement_type == "pressure":
         unit = "kPa"
@@ -110,10 +115,10 @@ def format_data_display(df, cell_id, measurement_type):
         measurement_name = "Flow Rate"
         column_name = f"{measurement_name} ({unit})"
     else:
-        unit = df['unit'].iloc[0] if 'unit' in df.columns and len(df) > 0 else "units"
+        unit = df["unit"].iloc[0] if "unit" in df.columns and len(df) > 0 else "units"
         measurement_name = measurement_type.capitalize()
         column_name = f"{measurement_name} ({unit})"
-    
+
     stats = {
         "Cell ID": cell_id,
         "Measurement Type": measurement_name,
@@ -123,8 +128,12 @@ def format_data_display(df, cell_id, measurement_type):
             else "N/A"
         ),
         "Data Points": len(df),
-        f"Avg {column_name}": f"{data_values.mean():.2f}" if not data_values.empty else "N/A",
-        f"Max {column_name}": f"{data_values.max():.2f}" if not data_values.empty else "N/A",
+        f"Avg {column_name}": (
+            f"{data_values.mean():.2f}" if not data_values.empty else "N/A"
+        ),
+        f"Max {column_name}": (
+            f"{data_values.max():.2f}" if not data_values.empty else "N/A"
+        ),
     }
 
     column_rename = {
@@ -164,6 +173,7 @@ def format_data_display(df, cell_id, measurement_type):
     print("\n" + "=" * 80)
 
 
+<<<<<<< HEAD
 def display_sen0308_stream_menu():
     """Display the menu for sen0308 streaming options"""
     print("\n" + "=" * 50)
@@ -177,6 +187,8 @@ def display_sen0308_stream_menu():
     print("=" * 50)
 
 
+=======
+>>>>>>> main
 def display_menu():
     """Display the menu of available cells and measurements"""
     print("\n" + "=" * 50)
@@ -202,6 +214,7 @@ def get_cell_info(choice):
     return cell_info.get(choice, None)
 
 
+<<<<<<< HEAD
 def display_time_range_menu():
     """Display the time range selection menu"""
     print("\n" + "=" * 40)
@@ -213,6 +226,8 @@ def display_time_range_menu():
     print("=" * 40)
 
 
+=======
+>>>>>>> main
 def get_valid_date(prompt):
     """Prompt user for a valid date and keep asking until valid input is provided"""
 
@@ -221,19 +236,40 @@ def get_valid_date(prompt):
     while True:
         date_input = input(prompt)
         if not date_input:  # Use default if empty input
+<<<<<<< HEAD
             return datetime.now(ca_tz).replace(hour=0, minute=0, second=0, microsecond=0)
         
+=======
+            return datetime(2025, 8, 21, tzinfo=timezone.utc)
+
+>>>>>>> main
         try:
             # Validate date format
-            year, month, day = map(int, date_input.split('-'))
+            year, month, day = map(int, date_input.split("-"))
             # Validate date values
-            if year < 2000 or year > 2100 or month < 1 or month > 12 or day < 1 or day > 31:
-                print("Invalid date values. Please enter a valid date between 2000-2100.")
+            if (
+                year < 2000
+                or year > 2100
+                or month < 1
+                or month > 12
+                or day < 1
+                or day > 31
+            ):
+                print(
+                    "Invalid date values. Please enter a valid date between 2000-2100."
+                )
                 continue
+<<<<<<< HEAD
                 
             return ca_tz.localize(datetime(year, month, day, 0, 0, 0))
+=======
+
+            return datetime(year, month, day, tzinfo=timezone.utc)
+>>>>>>> main
         except ValueError:
-            print("Invalid date format. Please use YYYY-MM-DD format (e.g., 2025-08-21).")
+            print(
+                "Invalid date format. Please use YYYY-MM-DD format (e.g., 2025-08-21)."
+            )
 
 
 def get_time_range():
@@ -324,16 +360,22 @@ def handle_sen0308_stream(client):
 
 if __name__ == "__main__":
     client = DirtVizClient()
-    
+
     while True:
         display_menu()
         try:
+<<<<<<< HEAD
             choice = int(input("\nEnter your choice (1-6): "))
             
             if choice == 6:
+=======
+            choice = int(input("\nEnter your choice (1-4): "))
+
+            if choice == 5:
+>>>>>>> main
                 print("Exiting program. Goodbye!")
                 break
-                
+
             if choice == 4:
                 # sen0308 Real-time Stream
                 handle_sen0308_stream(client)
@@ -342,41 +384,63 @@ if __name__ == "__main__":
             if choice == 5:
                 # Custom cell
                 cell_id = int(input("Enter cell ID: "))
-                sensor_name = input("Enter sensor name (e.g., sen0257, yfs210c, etc.): ")
-                measurement = input("Enter measurement type (e.g., pressure, humidity): ")
+                sensor_name = input(
+                    "Enter sensor name (e.g., sen0257, yfs210c, etc.): "
+                )
+                measurement = input(
+                    "Enter measurement type (e.g., pressure, humidity): "
+                )
             else:
                 cell_info = get_cell_info(choice)
                 if not cell_info:
                     print("Invalid choice. Please try again.")
                     continue
-                
+
                 cell_id = cell_info["cell_id"]
                 sensor_name = cell_info["sensor_name"]
                 measurement = cell_info["measurement"]
+<<<<<<< HEAD
             
             # Get time range
             print(f"\nFetching {measurement} data for cell {cell_id}...")
             start, end = get_time_range()
             
+=======
+
+            # Get time range with validation
+            print(f"\nFetching {measurement} data for cell {cell_id}...")
+            start = get_valid_date(
+                "Enter start date (YYYY-MM-DD) or press Enter for default (2025-08-21): "
+            )
+            end = datetime.now(timezone.utc)
+
+>>>>>>> main
             # Fetch and display data
             data = client.get_sensor_data(sensor_name, measurement, cell_id, start, end)
-            
+
             if data:
                 df = pd.DataFrame(data)
                 format_data_display(df, cell_id, measurement)
             else:
                 print("No data received for the specified time range.")
-                
+
         except ValueError:
             print("Please enter a valid number.")
         except requests.exceptions.HTTPError as e:
             print(f"\nHTTP Error: {e}")
             print(f"Response: {e.response.text[:500]}...")
         except Exception as e:
+<<<<<<< HEAD
             print(f"\nUnexpected error: {str(e)}")
         
+=======
+            print(f"\n⚠️ Unexpected error: {str(e)}")
+
+>>>>>>> main
         # Ask if user wants to continue
-        continue_choice = input("\nWould you like to view another cell? (y/n): ").lower()
-        if continue_choice != 'y':
+        continue_choice = input(
+            "\nWould you like to view another cell? (y/n): "
+        ).lower()
+        if continue_choice != "y":
             print("Exiting program. Goodbye!")
             break

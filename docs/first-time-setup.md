@@ -22,6 +22,7 @@ The following is a list of steps that should be complated on a newly assembled b
             - Can also be a nearby value (i.e. 2.2 kOhm) because the SMU will regulate the voltage and current provided to the ADC.
         - [STLINK-V3MINIE](https://www.st.com/en/development-tools/stlink-v3minie.html) programmer/debugger, used for programming the STM32.
         - [USB to TTL adapter](https://ftdichip.com/products/ttl-232r-3v3/), used for programming the ESP32 (3.3 V logic level).
+
 1. Solder the remaining components
     - J1: 5pos screw terminal, facing board edge.
     - J4: 3pos screw terminal, facing board edge.
@@ -31,6 +32,7 @@ The following is a list of steps that should be complated on a newly assembled b
     - JP5: solder bridge across middle pad and top pad (marked by arrow, closest to the JP5 silkscreen label).
     - JP1, JP3, J9: solder bridge these jumpers. J9 was originally for inserting a resistor, but should instead be bridged.
         - NOTE: Leave JP2 unsoldered.
+
 2. Clear STM32 bootloader
     - Prerequistes
         - Use the STLINK to connect the D2 JTAG header to your computer.
@@ -112,9 +114,9 @@ The following is a list of steps that should be complated on a newly assembled b
             - The device with STLINK in the description should be used for the upload port.
             - The device with CP2102 in the description should be used for the monitor port.
         - The monitor port can be closed with CTRL+C.
-    - ~~Save the Wio-E5's DevEUI which is needed for LoRaWAN registration.~~ Skip for now, TTN registration will be integrated into the DirtViz logger registration.
-        - ~~NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI.~~
-        - ~~Regex string: `00:80:E1:15.*`~~
+    - Save the Wio-E5's DevEUI which is needed for LoRaWAN registration. Skip for now, TTN registration will be integrated into the DirtViz logger registration.
+        - NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI, JoinEUI (AppEUI), and AppKey.
+        - Regex string: `00:80:E1:15.*`
     - (Optional): Enter the ESP32's bootloader. Use the blue buttons nearest to the ESP32.
         - RST down
         - BOOT down
@@ -149,8 +151,16 @@ The following is a list of steps that should be complated on a newly assembled b
                 - NOTE: Do not include any trailing spaces after the URL!
             - API Port: 443
 
-7. ~~Register device on The Things Network~~ Skip for now, TTN registration will be integrated into the DirtViz logger registration.
-    - ~~Follow instructions here: https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/docs/add-device-to-ttn.md~~
+7. Register logger on DirtViz (which performs The Things Network registration).
+    - Log in to DirtViz and go to your profile's Loggers page: https://dirtviz.jlab.ucsc.edu/profile/loggers
+    - Click on the plus icon in the top right to begin adding a new logger.
+        - Logger Name: This should match the serial number of the device. See column A of the spreadsheet. Ex. 2.2.3-071
+        - Logger Type: ENTS
+        - Device EUI: Copy the DeviceEUI from the spreadsheet
+        - Join EUI: Copy the JoinEUI/AppEUI from the spreadsheet
+        - App Key: Copy the AppKey from the spreadsheet
+        - Description: Copy and paste the voltage slope, voltage intercept, current slope, and current intercept. Ex. [-0.00039374, -0.00030046] [-1.18649323e-10, 4.04241107e-05]
+    -  ~~Follow instructions here: https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/docs/add-device-to-ttn.md~~
         - ~~If you followed step 5 to flash the latest release firmware, skip to step 2 on the document.~~
         - ~~If you do not have access to the soil power sensor group, ask John to add you.~~
         - ~~You can also register devices in bulk via a CSV upload. One of the tabs in the Board Inventory can help you do that.~~

@@ -141,7 +141,8 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
     measurment = PressureGetMeasurment();
-    reading_len = snprintf(output, sizeof(output), "Voltage: %.4f V\nPressure: %.4f kPa\r\n",
+    reading_len = snprintf(output, sizeof(output),
+                           "Voltage: %.4f V\nPressure: %.4f kPa\r\n",
                            measurment.voltage, measurment.pressure);
 
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,

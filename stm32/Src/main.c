@@ -93,8 +93,6 @@ int main(void) {
     while (1);
   }
 
-  // Print user config
-  UserConfigPrint();
 
   // required for SDI-12
   MX_USART2_UART_Init();
@@ -105,6 +103,9 @@ int main(void) {
 
   // placeholder for UserConfig polling
   HAL_Delay(10000);
+  
+  // Print user config
+  UserConfigPrint();
 
   // alternative blocking polling method
   // UserConfig_ProcessDataPolling();

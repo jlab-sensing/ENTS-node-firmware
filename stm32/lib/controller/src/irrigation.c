@@ -1,8 +1,8 @@
 #include "controller/irrigation.h"
 
 #include "communication.h"
-#include "transcoder.h"
 #include "solenoid.h"
+#include "transcoder.h"
 
 extern unsigned int g_controller_i2c_timeout;
 
@@ -44,8 +44,9 @@ IrrigationCommand_State ControllerIrrigationCheck(void) {
   IrrigationCommand resp = IrrigationCommand_init_zero;
 
   printf("Requesting state from ESP32...\n");
-  
-  if (IrrigationCommandTransaction(&irrigation_cmd, &resp) != CONTROLLER_SUCCESS) {
+
+  if (IrrigationCommandTransaction(&irrigation_cmd, &resp) !=
+      CONTROLLER_SUCCESS) {
     printf("ERROR: Communication with ESP32 failed!\n");
     return;
   }
@@ -53,11 +54,17 @@ IrrigationCommand_State ControllerIrrigationCheck(void) {
   // Add verbose output
   const char *state_name = "UNKNOWN";
   switch (resp.state) {
-    case IrrigationCommand_State_OPEN: state_name = "OPEN"; break;
-    case IrrigationCommand_State_CLOSE: state_name = "CLOSE"; break;
-    default: state_name = "ERROR"; break;
+    case IrrigationCommand_State_OPEN:
+      state_name = "OPEN";
+      break;
+    case IrrigationCommand_State_CLOSE:
+      state_name = "CLOSE";
+      break;
+    default:
+      state_name = "ERROR";
+      break;
   }
-  
+
   printf("Received state: %s (%d)\n", state_name, resp.state);
 
   // Control solenoid based on the received state

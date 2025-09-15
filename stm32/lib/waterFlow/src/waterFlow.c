@@ -69,17 +69,18 @@ YFS210CMeasurement FlowGetMeasurment() {
   YFS210CMeasurement flowMeas;
 
   // Calculate liters per minute based on actual time elapsed
-  float time_elapsed_minutes = (float)diff.SubSeconds / 6000.0f; // Convert subseconds to minutes
+  float time_elapsed_minutes =
+      (float)diff.SubSeconds / 6000.0f;  // Convert subseconds to minutes
   if (time_elapsed_minutes > 0) {
     last_flow_lpm = ((float)pulses / calibration_factor) / time_elapsed_minutes;
-    pulse_count = 0; // Reset after calculation
+    pulse_count = 0;  // Reset after calculation
     lastTime = currentTime;
   }
 
   // Update history and calculate average
   flow_history[flow_index] = last_flow_lpm;
   flow_index = (flow_index + 1) % FLOW_AVG_COUNT;
-  
+
   float sum = 0.0f;
   for (int i = 0; i < FLOW_AVG_COUNT; i++) {
     sum += flow_history[i];
@@ -101,7 +102,7 @@ size_t WatFlow_measure(uint8_t* data) {
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
   YFS210CMeasurement flowMeas = {};
 
-  if (diff.SubSeconds >= 100) { // If more than 0.1 seconds has passed
+  if (diff.SubSeconds >= 100) {  // If more than 0.1 seconds has passed
     flowMeas = FlowGetMeasurment();
   }
 
