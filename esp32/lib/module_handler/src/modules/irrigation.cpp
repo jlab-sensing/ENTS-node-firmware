@@ -1,6 +1,7 @@
 #include "modules/irrigation.hpp"
 
 #include <ArduinoLog.h>
+
 #include "webserver.hpp"
 
 ModuleIrrigation::ModuleIrrigation(void) {
@@ -42,7 +43,7 @@ size_t ModuleIrrigation::OnRequest(uint8_t *buffer) {
 void ModuleIrrigation::Check(const Esp32Command &cmd) {
   IrrigationCommand resp = IrrigationCommand_init_zero;
 
-  //Get state from webserver
+  // Get state from webserver
   resp.state = GetSolenoidState();
 
   Log.noticeln("Responding with state %d", resp.state);

@@ -19,9 +19,9 @@ const std::string password = "";
 void setup() {
   Serial.begin(115200);
   delay(3000);  // Give time for serial to initialize
-  
+
   Serial.println("ESP32-C3 Starting...");
-  
+
   Log.begin(LOG_LEVEL_VERBOSE, &Serial);
   Serial.println("Logging initialized");
 
@@ -39,13 +39,15 @@ void setup() {
     Serial.println("-------------------");
     Serial.println("WiFi connected");
     Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());  //THIS IS THE ACTUAL IP
+    Serial.println(WiFi.localIP());  // THIS IS THE ACTUAL IP
   } else {
     Serial.println("-------------------");
     Serial.println("WiFi connection FAILED!");
     Serial.print("WiFi status: ");
     Serial.println(WiFi.status());
-    while(1) { delay(1000); }  // Stop here if WiFi fails
+    while (1) {
+      delay(1000);
+    }  // Stop here if WiFi fails
   }
 
   SetupServer();
@@ -59,7 +61,7 @@ void loop() {
     Serial.println("Web server running...");
     lastPrint = millis();
   }
-  
+
   HandleClient();
   delay(20);
 }

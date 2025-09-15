@@ -24,7 +24,6 @@ extern "C" {
 
 #include "ads.h"
 
-
 /**
  ******************************************************************************
  * @brief    Wrapper function for the ADC initilization.

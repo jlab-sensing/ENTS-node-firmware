@@ -15,22 +15,20 @@ unsigned long timedDuration = 0;
 bool timedOperation = false;
 
 // Implement the getter function
-IrrigationCommand_State GetSolenoidState() {
-    return currentSolenoidState;
-}
+IrrigationCommand_State GetSolenoidState() { return currentSolenoidState; }
 
-// Implement the setter function  
+// Implement the setter function
 void SetSolenoidState(IrrigationCommand_State newState) {
-    currentSolenoidState = newState;
-    Log.noticeln("Solenoid state changed to: %d", newState);
+  currentSolenoidState = newState;
+  Log.noticeln("Solenoid state changed to: %d", newState);
 }
 
 // Function to update timed operations
 void UpdateTimedOperation() {
   if (timedOperation && millis() - timedStartTime >= timedDuration) {
-      Log.noticeln("Timed operation completed, closing valve");
-      SetSolenoidState(IrrigationCommand_State_CLOSE);
-      timedOperation = false;
+    Log.noticeln("Timed operation completed, closing valve");
+    SetSolenoidState(IrrigationCommand_State_CLOSE);
+    timedOperation = false;
   }
 }
 /**
@@ -62,9 +60,9 @@ void HandleTimed();
  */
 void HandleState();
 
-void HandleClient() { 
-  server.handleClient(); 
-  UpdateTimedOperation(); // Check for timed operations
+void HandleClient() {
+  server.handleClient();
+  UpdateTimedOperation();  // Check for timed operations
 }
 
 void SetupServer() {
@@ -78,14 +76,14 @@ void SetupServer() {
 void HandleOpen() {
   Log.noticeln("Opening valve");
   SetSolenoidState(IrrigationCommand_State_OPEN);
-  timedOperation = false; // Cancel any timed operation
+  timedOperation = false;  // Cancel any timed operation
   server.send(200, "text/plain", "Opening valve");
 }
 
 void HandleClose() {
   Log.noticeln("Closing valve");
   SetSolenoidState(IrrigationCommand_State_CLOSE);
-  timedOperation = false; // Cancel any timed operation
+  timedOperation = false;  // Cancel any timed operation
   server.send(200, "text/plain", "Closing valve");
 }
 
@@ -108,20 +106,20 @@ void HandleTimed() {
   }
 
   Log.noticeln("Opening valve for %d seconds", time);
-  
-  //Timed sequence
+
+  // Timed sequence
   HandleOpen();
   timedStartTime = millis();
-  timedDuration = time * 1000; // Convert to milliseconds
+  timedDuration = time * 1000;  // Convert to milliseconds
   timedOperation = true;
 
   server.send(200, "text/plain", "Valve opened for set duration");
 }
 
 void HandleState() {
-  
   IrrigationCommand_State currentState = GetSolenoidState();
-  String stateStr = (currentState == IrrigationCommand_State_OPEN) ? "open" : "closed";
+  String stateStr =
+      (currentState == IrrigationCommand_State_OPEN) ? "open" : "closed";
   Log.noticeln("Current state: %s (%d)", stateStr.c_str(), currentState);
   server.send(200, "text/plain", stateStr);
 }

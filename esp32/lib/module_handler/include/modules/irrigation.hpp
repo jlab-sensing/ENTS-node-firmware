@@ -13,8 +13,8 @@
 #include <Arduino.h>
 
 #include "template_module.hpp"
-#include "webserver.hpp"
 #include "transcoder.h"
+#include "webserver.hpp"
 
 /**
  * @ingroup moduleHandler

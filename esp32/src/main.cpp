@@ -69,9 +69,10 @@ void setup() {
 
   // Setup Web server
   SetupServer();
-  
+
   Log.noticeln("Web server started");
-  //Log.noticeln("Connect to ESP32 AP and visit http://%s", WiFi.softAPIP().toString().c_str());
+  // Log.noticeln("Connect to ESP32 AP and visit http://%s",
+  // WiFi.softAPIP().toString().c_str());
 
   Log.noticeln("ents-node esp32 firmware, compiled at %s %s", __DATE__,
                __TIME__);
