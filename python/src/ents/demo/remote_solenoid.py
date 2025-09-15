@@ -105,6 +105,8 @@ def send_command(command):
     global auto_monitoring_active
     
     try:
+        response = None
+
         if command == "open":
             if (len(sys.argv) > 2):
                 print("\r\nError: Too many arguments.\r\nFormat: python remote_solenoid.py open\r\n")
@@ -207,7 +209,7 @@ def send_command(command):
                 print(f"  Solenoid State: {status.get('solenoid_state', 'unknown')}")
                 print(f"  Auto Irrigation: {'Enabled' if status.get('auto_irrigation_enabled', False) else 'Disabled'}")
                 print(f"  Irrigation Thresholds: {status.get('min_threshold', 'N/A')}% - {status.get('max_threshold', 'N/A')}%")
-                print(f"  Check Interval: {status.get('check_interval', 'N/A')} minutes")
+                print(f"  Check Interval: {status.get('check_interval_seconds', 'N/A')} seconds")  # Changed to seconds
                 print(f"  Current Moisture: {status.get('current_moisture', 'N/A')}%")
                 print(f"  Monitoring Active: {'Yes' if auto_monitoring_active else 'No'}")
             else:
@@ -228,12 +230,13 @@ def send_command(command):
             print_usage()
             sys.exit(1)
 
-        # Check response status
-        if response.status_code != 200:
-            print(f"Error: Server responded with status {response.status_code}")
-            print(f"Response: {response.text}")
-        else:
-            print(f"Response: {response.text}")
+        # Check response status only for commands that made HTTP requests
+        if response is not None:
+            if response.status_code != 200:
+                print(f"Error: Server responded with status {response.status_code}")
+                print(f"Response: {response.text}")
+            else:
+                print(f"Response: {response.text}")
             
     except requests.exceptions.RequestException as e:
         print(f"Error: Could not connect to ESP32 at {ENTS_IP}")

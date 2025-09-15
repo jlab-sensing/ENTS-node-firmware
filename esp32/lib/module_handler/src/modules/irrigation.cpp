@@ -81,12 +81,12 @@ void CheckIrrigationConditions() {
   
   IrrigationCommand_State current_state = GetSolenoidState();
   
-  if (current_moisture_value < moisture_min_threshold && current_state != IrrigationCommand_State_OPEN) {
+  if (current_moisture_value < moisture_min_threshold) {
     Log.noticeln("Moisture low (%.1f%% < %.1f%%) - Opening valve", 
                  current_moisture_value, moisture_min_threshold);
     SetSolenoidState(IrrigationCommand_State_OPEN);
   }
-  else if (current_moisture_value > moisture_max_threshold && current_state == IrrigationCommand_State_OPEN) {
+  else if (current_moisture_value > moisture_max_threshold) {
     Log.noticeln("Moisture adequate (%.1f%% > %.1f%%) - Closing valve", 
                  current_moisture_value, moisture_max_threshold);
     SetSolenoidState(IrrigationCommand_State_CLOSE);
