@@ -4,17 +4,6 @@
 #include <ArduinoLog.h>
 #include <WebServer.h>
 
-// External declarations for irrigation functions
-extern void EnableAutoIrrigation(float min_thresh, float max_thresh);
-extern void DisableAutoIrrigation();
-extern bool IsAutoIrrigationEnabled();
-extern float GetMinThreshold();
-extern float GetMaxThreshold();
-extern unsigned long GetCheckInterval();
-extern float GetCurrentMoistureFromCache();
-extern void SetCheckInterval(unsigned long interval_ms);
-extern void CheckIrrigationConditions();
-
 WebServer server(80);
 
 // Global variable to track solenoid state

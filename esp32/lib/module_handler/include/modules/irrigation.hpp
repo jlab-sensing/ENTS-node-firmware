@@ -58,17 +58,6 @@ class ModuleIrrigation : public ModuleHandler::Module {
   size_t request_buffer_len = 0;
 };
 
-// Auto irrigation control functions
-void EnableAutoIrrigation(float min_thresh, float max_thresh);
-void DisableAutoIrrigation();
-bool IsAutoIrrigationEnabled();
-float GetMinThreshold();
-float GetMaxThreshold();
-unsigned long GetCheckInterval();
-void SetCheckInterval(unsigned long interval_ms);
-float GetSimpleSoilMoisture();
-void CheckIrrigationConditions();
-float GetCurrentMoistureFromCache();
 
 /**
  * @}
