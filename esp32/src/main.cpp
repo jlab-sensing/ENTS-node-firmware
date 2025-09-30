@@ -24,11 +24,11 @@ static const int scl_pin = 1;
 // create wifi module
 static ModuleHandler::ModuleHandler mh;
 
- // create and register the WiFi module
- static ModuleWiFi wifi;
+// create and register the WiFi module
+static ModuleWiFi wifi;
 
- // create and register the microSD module
- static ModuleMicroSD microSD;
+// create and register the microSD module
+static ModuleMicroSD microSD;
 
 static ModuleIrrigation irrigation;
 
@@ -75,11 +75,11 @@ RESET!
   Log.noticeln("Starting i2c interface...");
 
   mh.RegisterModule(&wifi);
- 
+
   mh.RegisterModule(&microSD);
 
   // commented out for now due to conflict with WiFi
-  //mh.RegisterModule(&irrigation);
+  // mh.RegisterModule(&irrigation);
 
   // start i2c interface
   Wire.onReceive(onReceive);
