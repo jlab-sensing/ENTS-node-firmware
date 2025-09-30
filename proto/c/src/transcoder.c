@@ -134,6 +134,59 @@ size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
+size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
+                                uint32_t cell_id, double voltage,
+                                double humidity, uint8_t *buffer) {
+  Measurement meas = Measurement_init_zero;
+
+  meas.has_meta = true;
+
+  meas.meta.ts = ts;
+  meas.meta.logger_id = logger_id;
+  meas.meta.cell_id = cell_id;
+
+  meas.which_measurement = Measurement_sen0308_tag;
+  meas.measurement.sen0308.voltage = voltage;
+  meas.measurement.sen0308.humidity = humidity;
+
+  return EncodeMeasurement(&meas, buffer);
+}
+
+size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
+                                   uint32_t cell_id, double voltage,
+                                   double water_pressure, uint8_t *buffer) {
+  Measurement meas = Measurement_init_zero;
+
+  meas.has_meta = true;
+
+  meas.meta.ts = ts;
+  meas.meta.logger_id = logger_id;
+  meas.meta.cell_id = cell_id;
+
+  meas.which_measurement = Measurement_sen0257_tag;
+  meas.measurement.sen0257.voltage = voltage;
+  meas.measurement.sen0257.pressure = water_pressure;
+
+  return EncodeMeasurement(&meas, buffer);
+}
+
+size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
+                                  uint32_t cell_id, double water_flow,
+                                  uint8_t *buffer) {
+  Measurement meas = Measurement_init_zero;
+
+  meas.has_meta = true;
+
+  meas.meta.ts = ts;
+  meas.meta.logger_id = logger_id;
+  meas.meta.cell_id = cell_id;
+
+  meas.which_measurement = Measurement_yfs210c_tag;
+  meas.measurement.yfs210c.flow = water_flow;
+
+  return EncodeMeasurement(&meas, buffer);
+}
+
 Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len) {
   Response resp;
 
@@ -160,6 +213,17 @@ size_t EncodeMeasurement(Measurement *meas, uint8_t *buffer) {
 
   // return number of bytes written
   return ostream.bytes_written;
+}
+
+int DecodeMeasurement(Measurement *meas, const uint8_t *buffer,
+                      const size_t len) {
+  pb_istream_t istream = pb_istream_from_buffer(buffer, len);
+  bool status = pb_decode(&istream, Measurement_fields, meas);
+  if (!status) {
+    return -1;
+  }
+
+  return 0;
 }
 
 Esp32Command DecodeEsp32Command(const uint8_t *data, const size_t len) {
@@ -194,6 +258,18 @@ size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
   return EncodeEsp32Command(&cmd, buffer, size);
 }
 
+size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
+                            size_t size) {
+  Esp32Command cmd = Esp32Command_init_default;
+
+  cmd.which_command = Esp32Command_microsd_command_tag;
+
+  // copy data from microsd_cmd to cmd
+  memcpy(&cmd.command.microsd_command, microsd_cmd, sizeof(MicroSDCommand));
+
+  return EncodeEsp32Command(&cmd, buffer, size);
+}
+
 size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
                          size_t size) {
   Esp32Command cmd = Esp32Command_init_default;
@@ -222,6 +298,19 @@ size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
   } else {
     cmd.command.user_config_command.has_config_data = false;
   }
+
+  return EncodeEsp32Command(&cmd, buffer, size);
+}
+
+size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
+                               uint8_t *buffer, size_t size) {
+  Esp32Command cmd = Esp32Command_init_default;
+
+  cmd.which_command = Esp32Command_irrigation_command_tag;
+
+  // copy data from irrigation_cmd to cmd
+  memcpy(&cmd.command.irrigation_command, irrigation_cmd,
+         sizeof(IrrigationCommand));
 
   return EncodeEsp32Command(&cmd, buffer, size);
 }

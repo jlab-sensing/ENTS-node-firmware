@@ -32,7 +32,7 @@ static bool checked;
 const static UserConfiguration testConfig = {
     .logger_id = 200,
     .cell_id = 200,
-    .Upload_method = Uploadmethod_LoRa,
+    .Upload_method = Uploadmethod_WiFi,
     .Upload_interval = 10,
     .enabled_sensors_count = 1,
     .enabled_sensors = {EnabledSensor_Voltage},
@@ -233,6 +233,9 @@ UserConfigStatus UserConfig_ReadFromFRAM(uint16_t fram_addr, uint16_t length,
 
 // Load user configuration data from FRAM to RAM
 UserConfigStatus UserConfigLoad(void) {
+#ifdef TEST_USER_CONFIG
+  return USERCONFIG_OK;
+#else
   uint16_t data_length = 0;
   uint8_t length_buf[2];
 
@@ -264,6 +267,7 @@ UserConfigStatus UserConfigLoad(void) {
   }
 
   return USERCONFIG_OK;  // Return success if decoding is successful
+#endif  // TEST_USER_CONFIG
 }
 
 // Get a reference to the loaded user configuration data in RAM.
@@ -334,6 +338,11 @@ void UserConfigPrintAny(const UserConfiguration *config) {
         break;
       case 4:
         sensor_name = "BME280";
+        break;
+
+      // Currently Inactive
+      case 5:
+        sensor_name = "SEN0257";
         break;
     }
     APP_PRINTF("Enabled Sensor %d: %s\r\n", i + 1, sensor_name);

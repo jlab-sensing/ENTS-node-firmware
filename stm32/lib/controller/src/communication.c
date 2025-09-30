@@ -5,6 +5,9 @@
 
 #include "i2c.h"
 
+/** Global timeout for i2c communication with esp32 */
+unsigned int g_controller_i2c_timeout = 10000;
+
 /**
  * @brief Mutex lock to prevent subsequent transmissions
  *

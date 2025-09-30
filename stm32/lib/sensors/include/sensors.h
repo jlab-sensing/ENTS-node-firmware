@@ -11,6 +11,7 @@
 #include "fifo.h"
 #include "lora_app.h"
 #include "stm32_seq.h"
+#include "stm32_systime.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
 
@@ -61,7 +62,7 @@ extern "C" {
  *
  * @return Number of bytes in data
  */
-typedef size_t (*SensorsPrototypeMeasure)(uint8_t *data);
+typedef size_t (*SensorsPrototypeMeasure)(uint8_t *data, SysTime_t ts);
 
 /**
  * @brief Registers the measurement task with the sequencer

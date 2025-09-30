@@ -3,8 +3,8 @@
 #include "communication.h"
 #include "transcoder.h"
 
-/** Timeout for i2c communication with esp32 */
-unsigned int g_controller_i2c_timeout = 10000;
+/** Timeout for i2c communication with esp32, in communication.h */
+extern unsigned int g_controller_i2c_timeout;
 
 ControllerStatus WiFiCommandTransaction(const WiFiCommand *input,
                                         WiFiCommand *output) {

@@ -8,7 +8,8 @@
 #ifndef LIB_SDI12_INCLUDE_TEROS12_H_
 #define LIB_SDI12_INCLUDE_TEROS12_H_
 
-#include <sdi12.h>
+#include "sdi12.h"
+#include "stm32_systime.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +74,7 @@ SDI12Status Teros12GetMeasurement(char addr, Teros12Data *data);
  * @see SensorsPrototypeMeasure
  *
  */
-size_t Teros12Measure(uint8_t *data);
+size_t Teros12Measure(uint8_t *data, SysTime_t ts);
 
 /**
  * @}

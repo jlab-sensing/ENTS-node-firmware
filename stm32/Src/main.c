@@ -17,42 +17,49 @@
  */
 
 #include "main.h"
-#include "adc.h"
-#include "dma.h"
-#include "i2c.h"
-#include "app_lorawan.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
-#include "board.h"
 
-#include <stdio.h>
-
-#include "sys_app.h"
-#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
+// peripherials
+#include "app_lorawan.h"
+
+// userland
 #include "ads.h"
-#include "phytos31.h"
 #include "bme280_sensor.h"
-#include "sensors.h"
-#include "wifi.h"
+#include "board.h"
 #include "controller/controller.h"
 #include "controller/wifi.h"
 #include "controller/wifi_userconfig.h"
-#include "userConfig.h"
+#include "phytos31.h"
+#include "sensors.h"
+#include "status_led.h"
 #include "teros12.h"
 #include "teros21.h"
-#include "status_led.h"
+#include "userConfig.h"
+#include "wifi.h"
+#include "waterPressure.h"
+#include "sen0308.h"
+#include "waterFlow.h"
+
+// Board configuration - define ONLY ONE of these
+// Comment these out to disable sensors
+#define DEFAULT
+//#define USE_CAP_SOIL_SENSOR
+//#define USE_WATER_PRESSURE_SENSOR
+//#define USE_FLOW_METER_SENSOR
+
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+ * @brief  The application entry point.
+ * @retval int
+ */
+int main(void) {
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick.
+   */
+
   HAL_Init();
 
   /* Configure the system clock */
@@ -177,9 +184,6 @@ int main(void)
     APP_LOG(TS_OFF, VLEVEL_M, "\n");
   }
 
-  // required for SDI-12
-  MX_USART2_UART_Init();
-  MX_TIM1_Init();
 
   // initialize the user config interrupt
   //UserConfig_InitAdvanceTrace();
@@ -193,13 +197,35 @@ int main(void)
   // init senors interface
   SensorsInit();
 
+
   // configure enabled sensors
-  for (int i=0; i < cfg->enabled_sensors_count; i++) {
+  for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
     if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
+      #ifdef DEFAULT
       ADC_init();
       SensorsAdd(ADC_measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "ADS Enabled!\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "ADC Enabled!\n");
+      #endif
+
+      #ifdef USE_FLOW_METER_SENSOR
+      FlowInit();
+      SensorsAdd(WatFlow_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Flow Meter Enabled!\n");
+      #endif
+
+      #ifdef USE_WATER_PRESSURE_SENSOR
+      PressureInit();
+      SensorsAdd(WatPress_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Water Pressure Sensor Enabled!\n");
+      #endif
+
+      #ifdef USE_CAP_SOIL_SENSOR
+      CapSoilInit();
+      SensorsAdd(SEN0308_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Sensor Enabled!\n");
+      #endif
+
     }
     if (sensor == EnabledSensor_Teros12) {
       APP_LOG(TS_OFF, VLEVEL_M, "Teros12 Enabled!\n");
@@ -217,7 +243,7 @@ int main(void)
     // TODO add phytos31 support
     // TODO add support for dummy sensor
   }
- 
+
   StatusLedFlashFast();
   
   APP_LOG(TS_OFF, VLEVEL_M, "\n\n");
@@ -230,11 +256,32 @@ int main(void)
   } else {
     APP_LOG(TS_ON, VLEVEL_M, "Invalid upload method!\n");
     Error_Handler();
-  } 
-  
-  while (1)
-  {
+  }
+
+#ifdef SAVE_TO_MICROSD
+  ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
+#endif
+
+
+  while (1) {
     MX_LoRaWAN_Process();
+
+    #ifdef USE_FLOW_METER_SENSOR
+    FlowBackgroundTask();
+    #endif
   }
 }
 
+// TODO update this to use the scheduler
+#ifdef USE_FLOW_METER_SENSOR
+void FlowBackgroundTask(void) {
+  static uint32_t last_check = 0;
+  uint32_t current_time = HAL_GetTick();
+  
+  // Update flow measurement every 100ms
+  if (current_time - last_check >= 100) {
+    FlowGetMeasurment(); // This updates the internal state
+    last_check = current_time;
+  }
+}
+#endif

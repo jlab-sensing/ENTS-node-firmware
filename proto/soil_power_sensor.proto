@@ -68,6 +68,28 @@ message BME280Measurement {
   uint32 humidity = 3;
 }
 
+/* Capactive Soil Moisture Sensor */
+message SEN0308Measurement {
+  // voltage
+  double voltage = 1;
+  // humidity
+  double humidity = 2;
+}
+
+/* Water Pressure Sensor */
+message SEN0257Measurement {
+  // voltage
+  double voltage = 1;
+  // pressure
+  double pressure = 2;
+}
+
+/* Water Flow Sensor  */
+message YFS210CMeasurement {
+  // flow
+  double flow = 1;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -80,6 +102,9 @@ message Measurement {
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;
     Teros21Measurement teros21 = 6;
+    SEN0308Measurement sen0308 = 7;
+    SEN0257Measurement sen0257 = 8;
+    YFS210CMeasurement yfs210c = 9;
   }
 }
 
@@ -102,7 +127,9 @@ message Esp32Command {
     PageCommand page_command = 1;
     TestCommand test_command = 2;
     WiFiCommand wifi_command = 3;
-    UserConfigCommand user_config_command = 4;
+    MicroSDCommand microsd_command = 4;
+    IrrigationCommand irrigation_command = 5;
+    UserConfigCommand user_config_command = 6;
   }
 }
 
@@ -207,6 +234,53 @@ message UserConfigCommand {
 
   /* configuration data */
   UserConfiguration config_data = 2;
+}
+
+message MicroSDCommand {
+  enum Type {
+    /* Decode and save data to a CSV file on the microSD card */
+    SAVE = 0;
+    /* Send UserConfig for CSV header creation */
+    USERCONFIG = 1;
+  }
+  enum ReturnCode {
+    SUCCESS = 0;
+    ERROR_GENERAL = 1;
+    ERROR_MICROSD_NOT_INSERTED = 2;
+    ERROR_FILE_SYSTEM_NOT_MOUNTABLE = 3;
+    ERROR_PAYLOAD_NOT_DECODED = 4;
+    ERROR_FILE_NOT_OPENED = 5;
+  }
+
+  /* Command type */
+  Type type = 1;
+  /* Filename */
+  string filename = 2;
+  /* Return code */
+  ReturnCode rc = 3;
+
+  oneof data {
+    /* measurement to be saved */
+    Measurement meas = 4;
+    /* userConfig to be saved */
+    UserConfiguration uc = 5;
+  }
+}
+
+message IrrigationCommand {
+  enum Type {
+    CHECK = 0;
+  }
+
+  enum State {
+    // needs to be opened to prevent open defined twice
+    OPEN = 0;
+    CLOSE = 1;
+  }
+
+  Type type = 1;
+
+  State state = 2;
 }
 
 message UserConfiguration {
