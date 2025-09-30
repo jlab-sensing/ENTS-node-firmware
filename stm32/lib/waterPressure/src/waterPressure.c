@@ -18,8 +18,8 @@
 
 #include "transcoder.h"
 
-// Calibration determined in tests with specific sensor
-const double OffSet = 0.5104;
+// Measured when the sensor is at atmospheric pressure (not submerged)
+const double AtmosphericOffset = 2.065;
 
 HAL_StatusTypeDef PressureInit() { return ADC_init(); }
 
@@ -27,8 +27,10 @@ SEN0257Measurement PressureGetMeasurment() {
   SEN0257Measurement waterPressMeas;
   waterPressMeas.voltage = ADC_readVoltage();
 
-  // Calibration factor (250) determined in sensor documentation
-  waterPressMeas.pressure = (waterPressMeas.voltage - OffSet) * 250;
+  // Calibration: 250kPa range with 0.5V-4.5V output
+  // Pressure (kPa) = (Vout - Voffset) * (250kPa / (4.5V - 0.5V))
+  // Simplified: Pressure (kPa) = (Vout - Voffset) * 62.5
+  waterPressMeas.pressure = (waterPressMeas.voltage - 0.5) * 62.5 + 33.8;
   return waterPressMeas;
 }
 
