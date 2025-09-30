@@ -32,7 +32,7 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern RTC_HandleTypeDef hrtc;
+extern RTC_HandleTypeDef h;
 
 /* USER CODE BEGIN Private defines */
 
