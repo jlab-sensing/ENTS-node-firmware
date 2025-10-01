@@ -149,9 +149,14 @@ int main(void) {
 
   // If esp32 responded with an empty config
   if (status == USERCONFIG_EMPTY_CONFIG) {
-    // If we don't have a saved config
+    // Don't do anything if we don't have a saved config
     if (status_load != USERCONFIG_OK) {
       APP_LOG(TS_OFF, VLEVEL_M, "No configuration to send to ESP32!\n");
+      // it's a trap! No valid userconfig
+      // Waiting for new configuration on reset
+      while (1);
+
+    // Otherwise send the saved config and continue
     } else {
       // If ESP32 has empty config or request failed, send our config
       APP_LOG(TS_OFF, VLEVEL_M, "Sending FRAM configuration to ESP32...\n");
@@ -163,9 +168,6 @@ int main(void) {
       }
     }
 
-    // it's a trap!
-    // Waiting for new configuration on reset
-    while (1);
   // if ESP32 provided a config
   } else { 
     // Reload user config from FRAM 
