@@ -73,6 +73,7 @@ int main(void) {
   MX_I2C2_Init(); 
   SystemApp_Init(); 
 
+  APP_PRINTF("\n\nRESET!\n\n");
   const char header[] = R"""(
 +-----------------------------------+
 |   ______  _   _  _______  _____   |
@@ -85,11 +86,9 @@ int main(void) {
 |  Environmentally NeTworked Sensor |
 +-----------------------------------+
 )"""; 
-
   APP_PRINTF("\n%s\n", header);
-  APP_PRINTF("\nRESET!\n");
   APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
-  APP_PRINTF("Git SHA: %s\n\n\n", GIT_REV);
+  APP_PRINTF("Git SHA: %s\n\n", GIT_REV);
 
   // Start status LEDs
   StatusLedInit();
@@ -149,7 +148,7 @@ int main(void) {
   UserConfigStatus status = ControllerUserConfigRequest();
 
   // If esp32 responded with an empty config
-  if (status == USERCONFIG_EMPTY_CONFIG || status != USERCONFIG_OK) {
+  if (status == USERCONFIG_EMPTY_CONFIG) {
     // If we don't have a saved config
     if (status_load != USERCONFIG_OK) {
       APP_LOG(TS_OFF, VLEVEL_M, "No configuration to send to ESP32!\n");

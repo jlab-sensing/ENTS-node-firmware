@@ -73,7 +73,12 @@ void setup() {
   Serial.begin(115200);
 
   // Create logging interfface
-  Log.begin(LOG_LEVEL_TRACE, &Serial);
+  Log.begin(LOG_LEVEL_INFO, &Serial);
+
+  if (!LittleFS.begin()) {
+    Log.errorln("LittleFS mount failed!");
+    return;
+  }
 
   /*
   // Needed for irrigation
@@ -124,6 +129,6 @@ void setup() {
 
 /** Loop code */
 void loop() {
-  HandleClient();
+  handleClient();
   delay(20);
 }

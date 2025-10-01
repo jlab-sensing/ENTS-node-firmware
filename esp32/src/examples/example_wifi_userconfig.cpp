@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <LittleFS.h>
 
 #include "config_server.hpp"
 
@@ -13,6 +14,11 @@ void setup() {
   Serial.println("Access Point started");
   Serial.print("IP Address: ");
   Serial.println(WiFi.softAPIP());
+
+  if (!LittleFS.begin()) {
+    Serial.println("LittleFS mount failed");
+    return;
+  }
 
   // Setup server
   setupServer();
