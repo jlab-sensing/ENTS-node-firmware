@@ -198,6 +198,15 @@ void UserConfigPrintAny(const UserConfiguration *config);
 void UserConfigPrint(void);
 
 /**
+ * @brief Clears the user configuration stored in FRAM.
+ *
+ * This function sets the userconfig to all zeros in FRAM.
+ *
+ * @return USERCONFIG_OK if successful, error code otherwise.
+ */
+UserConfigStatus UserConfigClear(void);
+
+/**
  * @}
  */
 

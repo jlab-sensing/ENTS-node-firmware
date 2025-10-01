@@ -248,6 +248,10 @@ UserConfigStatus UserConfigLoad(void) {
   // Convert length bytes to integer
   data_length = (length_buf[0] << 8) | length_buf[1];
 
+  if (data_length == 0) {
+    return USERCONFIG_EMPTY_CONFIG;
+  }
+
   // check the length for errors
   if (data_length > UserConfiguration_size) {
     return USERCONFIG_FRAM_ERROR;
@@ -375,4 +379,19 @@ void UserConfigPrint(void) {
   const UserConfiguration *config = UserConfigGet();
 
   UserConfigPrintAny(config);
+}
+
+UserConfigStatus UserConfigClear(void) {
+  FramStatus status = FRAM_OK;
+  const uint8_t length[2] = {};
+  const uint8_t empty[UserConfiguration_size] = {};
+  status = FramWrite(USER_CONFIG_LEN_ADDR, length, sizeof(length));
+  if (status != FRAM_OK) {
+    return USERCONFIG_FRAM_ERROR;
+  }
+  status = FramWrite(USER_CONFIG_START_ADDRESS, empty, sizeof(empty));
+  if (status != FRAM_OK) {
+    return USERCONFIG_FRAM_ERROR;
+  }
+  return USERCONFIG_OK;
 }
