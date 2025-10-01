@@ -1,44 +1,36 @@
 #include "wifi.h"
 
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stm32_systime.h>
 
+#include "adc.h"
+#include "ads.h"
+#include "app_lorawan.h"
+#include "bme280_sensor.h"
+#include "board.h"
+#include "controller/controller.h"
 #include "controller/wifi.h"
+#include "dma.h"
 #include "fifo.h"
+#include "gpio.h"
+#include "i2c.h"
+#include "main.h"
+#include "phytos31.h"
+#include "rtc.h"
 #include "sensors.h"
 #include "status_led.h"
 #include "stm32_seq.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
-#include "userConfig.h"
-
-#include "main.h"
-#include "adc.h"
-#include "dma.h"
-#include "i2c.h"
-#include "app_lorawan.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
-#include "board.h"
-
-#include <stdio.h>
-
-#include "sys_app.h"
-#include <stdlib.h>
-#include <stdbool.h>
-
-#include "ads.h"
-#include "phytos31.h"
-#include "bme280_sensor.h"
-#include "rtc.h"
-#include "sensors.h"
-#include "wifi.h"
-#include "controller/controller.h"
-#include "controller/wifi.h"
-#include "userConfig.h"
 #include "teros12.h"
 #include "teros21.h"
-#include "status_led.h"
+#include "tim.h"
+#include "usart.h"
+#include "userConfig.h"
+#include "user_config.h"
+#include "wifi.h"
 
 /**
  * @brief Timer for uploads
@@ -146,9 +138,8 @@ void WiFiInit(void) {
 }
 
 void UploadEvent(void* context) {
-  UTIL_SEQ_SetTask(
-      (1 << CFG_SEQ_Task_WiFiUpload),
-      CFG_SEQ_Prio_1);  // lower priority (higher value) than measure task
+   // lower priority (higher value) than measure task
+  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_WiFiUpload), CFG_SEQ_Prio_1); 
 }
 
 void Upload(void) {
@@ -438,6 +429,9 @@ bool Esp32Init(void) {
   if (!TimeSync()) {
     return false;
   }
+
+  // Stop webserver if running (timeout of 60 seconds)
+  UserConfigSetupStop(60);
 
   return true;
 }

@@ -183,7 +183,7 @@ bool ControllerWiFiStopHost(void) {
   return true;
 }
 
-void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac) {
+void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac, uint8_t *clients) {
   WiFiCommand wifi_cmd = WiFiCommand_init_zero;
   wifi_cmd.type = WiFiCommand_Type_HOST_INFO;
 
@@ -191,8 +191,19 @@ void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac) {
 
   WiFiCommandTransaction(&wifi_cmd, &resp);
 
-  // copy the ssid and ip address
-  strcpy(ssid, resp.ssid);
-  strcpy(ip, resp.url);
-  strcpy(mac, resp.mac);
+  if (ssid != NULL) {
+    strcpy(ssid, resp.ssid);
+  }
+
+  if (ip != NULL) {
+    strcpy(ip, resp.url);
+  }
+
+  if (mac != NULL) {
+    strcpy(mac, resp.mac);
+  }
+
+  if (clients != NULL) {
+    *clients = resp.clients;
+  }
 }

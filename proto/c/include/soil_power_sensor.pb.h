@@ -248,6 +248,8 @@ typedef struct _WiFiCommand {
     uint32_t port;
     /* MAC address */
     char mac[18];
+    /* Number of connected devices */
+    uint32_t clients;
 } WiFiCommand;
 
 typedef struct _IrrigationCommand {
@@ -409,7 +411,7 @@ extern "C" {
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
 #define PageCommand_init_default                 {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_default                 {_TestCommand_ChangeState_MIN, 0}
-#define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, ""}
+#define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, "", 0}
 #define UserConfigCommand_init_default           {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_default}
 #define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_default}}
 #define IrrigationCommand_init_default           {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
@@ -428,7 +430,7 @@ extern "C" {
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
 #define PageCommand_init_zero                    {_PageCommand_RequestType_MIN, 0, 0, 0}
 #define TestCommand_init_zero                    {_TestCommand_ChangeState_MIN, 0}
-#define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, ""}
+#define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, "", 0}
 #define UserConfigCommand_init_zero              {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_zero}
 #define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_zero}}
 #define IrrigationCommand_init_zero              {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
@@ -481,6 +483,7 @@ extern "C" {
 #define WiFiCommand_resp_tag                     7
 #define WiFiCommand_port_tag                     8
 #define WiFiCommand_mac_tag                      9
+#define WiFiCommand_clients_tag                  10
 #define IrrigationCommand_type_tag               1
 #define IrrigationCommand_state_tag              2
 #define UserConfiguration_logger_id_tag          1
@@ -634,7 +637,8 @@ X(a, STATIC,   SINGULAR, UINT32,   rc,                5) \
 X(a, STATIC,   SINGULAR, UINT32,   ts,                6) \
 X(a, STATIC,   SINGULAR, BYTES,    resp,              7) \
 X(a, STATIC,   SINGULAR, UINT32,   port,              8) \
-X(a, STATIC,   SINGULAR, STRING,   mac,               9)
+X(a, STATIC,   SINGULAR, STRING,   mac,               9) \
+X(a, STATIC,   SINGULAR, UINT32,   clients,          10)
 #define WiFiCommand_CALLBACK NULL
 #define WiFiCommand_DEFAULT NULL
 
@@ -722,7 +726,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define BME280Measurement_size                   23
-#define Esp32Command_size                        626
+#define Esp32Command_size                        632
 #define IrrigationCommand_size                   4
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
@@ -739,7 +743,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define TestCommand_size                         13
 #define UserConfigCommand_size                   243
 #define UserConfiguration_size                   238
-#define WiFiCommand_size                         623
+#define WiFiCommand_size                         629
 #define YFS210CMeasurement_size                  9
 
 #ifdef __cplusplus

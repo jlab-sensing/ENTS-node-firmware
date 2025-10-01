@@ -42,6 +42,7 @@
 #include "sensors.h"
 #include "userConfig.h"
 #include "status_led.h"
+#include "user_config.h"
 
 #include <time.h>
 /* USER CODE END Includes */
@@ -433,6 +434,10 @@ static void SendTxData(void)
       APP_LOG(TS_OFF, VLEVEL_M, "Clock sync request send successfully\r\n")
       // toggle flag
       clock_synced = true;
+      
+      // Stop webserver after 60 seconds
+      UserConfigSetupStop(60);
+
       // start taking measurements
       SensorsStart();
     }

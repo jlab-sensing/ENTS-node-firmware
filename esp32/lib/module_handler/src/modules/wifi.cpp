@@ -299,6 +299,9 @@ void ModuleWiFi::HostInfo() {
   strncpy(resp.ssid, WiFi.softAPSSID().c_str(), sizeof(resp.ssid));
   strncpy(resp.url, WiFi.softAPIP().toString().c_str(), sizeof(resp.url));
   strncpy(resp.mac, WiFi.softAPmacAddress().c_str(), sizeof(resp.mac));
+ 
+  // get number of connected clients
+  resp.clients = WiFi.softAPgetStationNum();
 
   Log.noticeln("SSID: %s", resp.ssid);
   Log.noticeln("IP: %s", resp.url);

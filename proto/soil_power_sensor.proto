@@ -217,6 +217,9 @@ message WiFiCommand {
 
   /* MAC address */
   string mac = 9;
+
+  /* Number of connected devices */
+  uint32 clients = 10;
 }
 
 message UserConfigCommand {

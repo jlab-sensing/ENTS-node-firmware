@@ -203,8 +203,16 @@ bool ControllerWiFiStopHost(void);
  * the provided buffers. The buffers must be large enough to hold the
  * respective strings. SSID should be at least 32 bytes, IP should be at least
  * 16 bytes, and MAC should be at least 18 bytes.
+ *
+ * If the pointers are NULL, the corresponding information will not be copied.
+ *
+ * @param ssid Buffer to store the SSID of the access point.
+ * @param ip Buffer to store the IP address of the access point.
+ * @param mac Buffer to store the MAC address of the access point.
+ * @param clients Pointer to store the number of connected clients.
  */
-void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac);
+void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac, uint8_t *clients);
+
 /**
  * @}
  */
