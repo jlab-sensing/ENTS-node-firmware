@@ -76,7 +76,7 @@ int main(void) {
   const char* passwd = "123";
 
   APP_LOG(TS_OFF, VLEVEL_M, "Connecting to %s. Status: ", ssid);
-  uint8_t wifi_status = ControllerWiFiInit(ssid, passwd);
+  uint8_t wifi_status = ControllerWiFiConnect(ssid, passwd);
   APP_LOG(TS_OFF, VLEVEL_M, "%d\r\n", wifi_status);
 
   while (1) {
