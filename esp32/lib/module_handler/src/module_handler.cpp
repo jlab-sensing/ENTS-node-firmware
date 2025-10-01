@@ -154,38 +154,50 @@ void ModuleHandler::ModuleHandler::OnRequest(void) {
     size_t bytes_remaining = request_buffer.len - request_buffer.idx;
     Log.traceln("Bytes remaining: %d", bytes_remaining);
 
-    for (int i = 0; i < request_buffer.len; i++) {
-      Log.verboseln("request_buffer[%d] = %X", request_buffer.len,
-                    request_buffer.data[i]);
-    }
+    // print entire buffer
+    //for (int i = 0; i < request_buffer.len; i++) {
+    //  Log.verboseln("request_buffer[%d] = %X", request_buffer.idx,
+    //                request_buffer.data[i]);
+    //}
 
-    // check if length is less than buffer size
-    if (bytes_remaining < wire_buffer_size - 1) {
+    bool finished = bytes_remaining < wire_buffer_size - 1;
+    size_t bytes_to_send = 0;
+
+    // write flag indicating if we are finished
+    if (finished) {
       Log.traceln("Writing with finished flag");
-
       // write finished flag
       Wire.write(1);
-      // write directly to i2c
-      Wire.write(request_buffer.data, request_buffer.len);
 
+      bytes_to_send = bytes_remaining;
+    } else {
+      Log.traceln("Writing with not finished flag");
+      // write unfinished flag
+      Wire.write(0);
+
+      bytes_to_send = wire_buffer_size - 1;
+    }
+    
+    // find the end of pr
+    uint8_t *end = request_buffer.data + request_buffer.idx;
+
+    // print what will be sent
+    for (int i = 0; i < bytes_to_send; i++) {
+      Log.verboseln("request_buffer[%d] = %X", request_buffer.idx + i, end[i]);
+    }
+
+    Wire.write(end, bytes_to_send);
+
+    request_buffer.idx += bytes_to_send;
+
+    // cleanup after finished
+    if (finished) {
       // reset to indicate flushed buffer
       request_buffer.len = 0;
       request_buffer.idx = 0;
 
       // set flag to send length when complate
       send_length = true;
-    } else {
-      Log.traceln("Writing with not finished flag");
-
-      // write unfinished flag
-      Wire.write(0);
-
-      // write block of data
-      uint8_t *end = request_buffer.data + request_buffer.idx;
-      Wire.write(end, wire_buffer_size - 1);
-
-      // increment idx
-      request_buffer.idx += wire_buffer_size - 1;
     }
   }
 }
