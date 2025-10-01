@@ -11,7 +11,7 @@
 #include "validation.hpp"
 
 /** Webserver instance on port 80 */
-WebServer server(80);
+static WebServer server(80);
 
 /** @brief Handle the root path of the web server.
  *
