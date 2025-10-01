@@ -14,6 +14,7 @@ ModuleUserConfig::ModuleUserConfig() : Module() {
   this->state = 0;
 
   UserConfiguration default_config = UserConfiguration_init_default;
+  default_config.upload_interval = 10;
   strncpy(default_config.API_Endpoint_URL,
           "http://dirtviz.jlab.ucsc.edu/api/sensor/",
           sizeof(default_config.API_Endpoint_URL));
