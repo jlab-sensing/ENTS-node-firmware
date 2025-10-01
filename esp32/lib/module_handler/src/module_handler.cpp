@@ -155,7 +155,7 @@ void ModuleHandler::ModuleHandler::OnRequest(void) {
     Log.traceln("Bytes remaining: %d", bytes_remaining);
 
     // print entire buffer
-    //for (int i = 0; i < request_buffer.len; i++) {
+    // for (int i = 0; i < request_buffer.len; i++) {
     //  Log.verboseln("request_buffer[%d] = %X", request_buffer.idx,
     //                request_buffer.data[i]);
     //}
@@ -177,7 +177,7 @@ void ModuleHandler::ModuleHandler::OnRequest(void) {
 
       bytes_to_send = wire_buffer_size - 1;
     }
-    
+
     // find the end of pr
     uint8_t *end = request_buffer.data + request_buffer.idx;
 

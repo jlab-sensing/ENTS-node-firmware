@@ -20,26 +20,26 @@ UserConfigStatus ControllerUserConfigRequest(void) {
   tx->len = EncodeUserConfigCommand(
       UserConfigCommand_RequestType_REQUEST_CONFIG, NULL, tx->data, tx->size);
   if (tx->len == 0) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config request\r\n");
+    // APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config request\r\n");
     return USERCONFIG_ENCODE_ERROR;
   }
 
   ControllerStatus status = ControllerTransaction(g_controller_i2c_timeout);
   if (status != CONTROLLER_SUCCESS) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Config request failed: %d\r\n", status);
+    // APP_LOG(TS_OFF, VLEVEL_M, "Config request failed: %d\r\n", status);
     return USERCONFIG_COMM_ERROR;
   }
 
   // Check if we got a response
   if (rx->len == 0) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Empty config response\r\n");
+    // APP_LOG(TS_OFF, VLEVEL_M, "Empty config response\r\n");
     return USERCONFIG_NO_RESPONSE;
   }
 
   // Decode the response
   Esp32Command cmd = DecodeEsp32Command(rx->data, rx->len);
   if (cmd.which_command != Esp32Command_user_config_command_tag) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Invalid response type\r\n");
+    // APP_LOG(TS_OFF, VLEVEL_M, "Invalid response type\r\n");
     return USERCONFIG_INVALID_RESPONSE;
   }
 
@@ -50,12 +50,12 @@ UserConfigStatus ControllerUserConfigRequest(void) {
           &cmd.command.user_config_command.config_data;
       // Check if config is all zeros (uninitialized)
       if (isConfigEmpty(config)) {
-        //APP_LOG(TS_OFF, VLEVEL_M, "Received empty config from ESP32\r\n");
+        // APP_LOG(TS_OFF, VLEVEL_M, "Received empty config from ESP32\r\n");
         return USERCONFIG_EMPTY_CONFIG;
       }
 
       if (UserConfigSave(config)) {
-        //APP_LOG(TS_OFF, VLEVEL_M, "Failed to save config to FRAM\r\n");
+        // APP_LOG(TS_OFF, VLEVEL_M, "Failed to save config to FRAM\r\n");
         return USERCONFIG_FRAM_ERROR;
       }
 
@@ -70,7 +70,7 @@ UserConfigStatus ControllerUserConfigRequest(void) {
 UserConfigStatus ControllerUserConfigSend(void) {
   const UserConfiguration *config = UserConfigGet();
   if (config == NULL) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Null config received from FRAM\r\n");
+    // APP_LOG(TS_OFF, VLEVEL_M, "Null config received from FRAM\r\n");
     return USERCONFIG_NULL_CONFIG;
   }
 
@@ -101,17 +101,17 @@ UserConfigStatus ControllerUserConfigSend(void) {
   tx->len = EncodeUserConfigCommand(response.type, &response.config_data,
                                     tx->data, tx->size);
   if (tx->len == 0) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config response\r\n");
+    // APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config response\r\n");
     return USERCONFIG_ENCODE_ERROR;
   }
 
   ControllerStatus status = ControllerTransaction(g_controller_i2c_timeout);
   if (status != CONTROLLER_SUCCESS) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Failed to send config: %d\r\n", status);
+    // APP_LOG(TS_OFF, VLEVEL_M, "Failed to send config: %d\r\n", status);
     return USERCONFIG_COMM_ERROR;
   }
 
-  //APP_LOG(TS_OFF, VLEVEL_M, "Configuration successfully sent to ESP32\r\n");
+  // APP_LOG(TS_OFF, VLEVEL_M, "Configuration successfully sent to ESP32\r\n");
   return USERCONFIG_OK;
 }
 
@@ -131,13 +131,14 @@ bool ControllerUserConfigStart(void) {
   tx->len =
       EncodeUserConfigCommand(cmd.type, &cmd.config_data, tx->data, tx->size);
   if (tx->len == 0) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config response\r\n");
+    // APP_LOG(TS_OFF, VLEVEL_M, "Failed to encode config response\r\n");
     return false;
   }
 
   ControllerStatus status = ControllerTransaction(g_controller_i2c_timeout);
   if (status != CONTROLLER_SUCCESS) {
-    //APP_LOG(TS_OFF, VLEVEL_M, "Failed to send start request: %d\r\n", status);
+    // APP_LOG(TS_OFF, VLEVEL_M, "Failed to send start request: %d\r\n",
+    // status);
     return false;
   }
 

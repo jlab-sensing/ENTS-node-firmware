@@ -42,10 +42,7 @@ static ModuleHandler::ModuleUserConfig user_config;
 static ModuleMicroSD microSD;
 
 // commented out for now due to conflict with WiFi
-//static ModuleIrrigation irrigation;
-
-
-
+// static ModuleIrrigation irrigation;
 
 /**
  * @brief Callback for onReceive
@@ -109,7 +106,7 @@ void setup() {
   mh.RegisterModule(&wifi);
 
   mh.RegisterModule(&microSD);
-  
+
   mh.RegisterModule(&user_config);
 
   // commented out for now due to conflict with WiFi
