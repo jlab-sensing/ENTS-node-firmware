@@ -27,6 +27,7 @@ firmware versions for a hardware version.
     - SEN0257
     - YFS210C
 - Added controlling of solenoid from esp32 api
+- Add user configuration vai WiFi [#259](i259)
 
 ### Updated
 
@@ -40,6 +41,7 @@ firmware versions for a hardware version.
 [i210]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/210
 [i252]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/252
 [pr249]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/249
+[i259]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/259
 
 ## [2.3.3] - 2025-06-18
 
