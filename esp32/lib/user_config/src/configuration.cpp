@@ -132,19 +132,12 @@ void printConfig(const UserConfiguration &pconfig) {
     Log.noticeln("   - %s", sensor_name);
   }
 
+  // NOTE(jtmadden): This doesn't print all the precision
   Log.noticeln(" Calibration Data:");
-  char floatBuf[32];
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", pconfig.Voltage_Slope);
-  Log.noticeln("   Voltage Slope: %s", floatBuf);
-
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", pconfig.Voltage_Offset);
-  Log.noticeln("   Voltage Offset: %s", floatBuf);
-
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", pconfig.Current_Slope);
-  Log.noticeln("   Current Slope: %s", floatBuf);
-
-  snprintf(floatBuf, sizeof(floatBuf), "%.4f", pconfig.Current_Offset);
-  Log.noticeln("   Current Offset: %s", floatBuf);
+  Log.noticeln("   Voltage Slope: %D", pconfig.Voltage_Slope);
+  Log.noticeln("   Voltage Offset: %D", pconfig.Voltage_Offset);
+  Log.noticeln("   Current Slope: %D", pconfig.Current_Slope);
+  Log.noticeln("   Current Offset: %D", pconfig.Current_Offset);
 
   Log.noticeln(" WiFi Settings:");
   Log.noticeln("   SSID: %s", pconfig.WiFi_SSID);

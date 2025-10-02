@@ -26,7 +26,7 @@ void ModuleUserConfig::OnReceive(const Esp32Command &cmd) {
 
   // Check which command
   if (cmd.which_command != Esp32Command_user_config_command_tag) {
-    Log.errorln(" Wrong command type received");
+    Log.errorln("Wrong command type received");
     return;
   }
 

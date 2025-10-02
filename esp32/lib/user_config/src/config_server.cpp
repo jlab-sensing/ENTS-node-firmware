@@ -51,6 +51,9 @@ String validateInputs();
 
 void handleSave() {
   printQuery();
+  
+  Log.infoln("Slope: %s", server.arg("calibration_v_slope"));
+  Log.infoln("Slope: %D", server.arg("calibration_v_slope").toDouble());
 
   // validate inputs and return error if any
   String error = validateInputs();
@@ -128,10 +131,10 @@ void handleSave() {
         EnabledSensor_BME280;
   }
 
-  config.Voltage_Slope = server.arg("calibration_v_slope").toDouble();
-  config.Voltage_Offset = server.arg("calibration_v_offset").toDouble();
-  config.Current_Slope = server.arg("calibration_i_slope").toDouble();
-  config.Current_Offset = server.arg("calibration_i_offset").toDouble();
+  config.Voltage_Slope = strtod(server.arg("calibration_v_slope").c_str(), NULL);
+  config.Voltage_Offset = strtod(server.arg("calibration_v_offset").c_str(), NULL);
+  config.Current_Slope = strtod(server.arg("calibration_i_slope").c_str(), NULL);
+  config.Current_Offset = strtod(server.arg("calibration_i_offset").c_str(), NULL);
 
   // POSTED config
   // Log.noticeln("Received configuration:");
@@ -232,6 +235,7 @@ void printQuery() {
       break;
     default:
       method = "UNKNOWN";
+      break;
   }
 
   Log.noticeln("%s - %s %s", ip.toString().c_str(), method.c_str(),
