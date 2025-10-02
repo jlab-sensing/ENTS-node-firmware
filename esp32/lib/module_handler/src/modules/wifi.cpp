@@ -69,8 +69,24 @@ void ModuleWiFi::OnReceive(const Esp32Command &cmd) {
       NtpSync(cmd);
       break;
 
+    case WiFiCommand_Type_HOST:
+      Log.traceln("Calling HOST");
+      Host(cmd);
+      break;
+
+    case WiFiCommand_Type_STOP_HOST:
+      Log.traceln("Calling STOP_HOST");
+      StopHost();
+      break;
+
+    case WiFiCommand_Type_HOST_INFO:
+      Log.traceln("Calling HOST_INFO");
+      HostInfo();
+      break;
+
     default:
-      Log.warningln("wifi command type not found!");
+      Log.warningln("wifi command type %d not found!",
+                    cmd.command.wifi_command.type);
       break;
   }
 }
@@ -239,4 +255,58 @@ void ModuleWiFi::CheckApi(const Esp32Command &cmd) {
 
   request_buffer_len =
       EncodeWiFiCommand(&wifi_cmd, request_buffer, sizeof(request_buffer));
+}
+
+void ModuleWiFi::Host(const Esp32Command &cmd) {
+  Log.traceln("ModuleWiFi::Host");
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+  resp.type = WiFiCommand_Type_HOST;
+
+  // append wifi mac to the ssid to make unique
+  std::string ssid = cmd.command.wifi_command.ssid;
+  std::string pass = cmd.command.wifi_command.passwd;
+
+  WiFi.softAP(ssid.c_str(), pass.c_str());
+
+  std::string ip = WiFi.softAPIP().toString().c_str();
+  Log.noticeln("Access Point started");
+
+  request_buffer_len =
+      EncodeWiFiCommand(&resp, request_buffer, sizeof(request_buffer));
+}
+
+void ModuleWiFi::StopHost() {
+  Log.traceln("ModuleWiFi::StopHost");
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+  resp.type = WiFiCommand_Type_STOP_HOST;
+
+  // stop hosting access point
+  WiFi.softAPdisconnect();
+
+  request_buffer_len =
+      EncodeWiFiCommand(&resp, request_buffer, sizeof(request_buffer));
+}
+
+void ModuleWiFi::HostInfo() {
+  Log.traceln("ModuleWiFi::HostInfo");
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+  resp.type = WiFiCommand_Type_HOST_INFO;
+
+  // copy the ip address
+  strncpy(resp.ssid, WiFi.softAPSSID().c_str(), sizeof(resp.ssid));
+  strncpy(resp.url, WiFi.softAPIP().toString().c_str(), sizeof(resp.url));
+  strncpy(resp.mac, WiFi.softAPmacAddress().c_str(), sizeof(resp.mac));
+
+  // get number of connected clients
+  resp.clients = WiFi.softAPgetStationNum();
+
+  Log.noticeln("SSID: %s", resp.ssid);
+  Log.noticeln("IP: %s", resp.url);
+  Log.noticeln("MAC: %s", resp.mac);
+
+  request_buffer_len =
+      EncodeWiFiCommand(&resp, request_buffer, sizeof(request_buffer));
 }

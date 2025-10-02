@@ -2,6 +2,7 @@ WiFiCommand.ssid max_length:32
 WiFiCommand.passwd max_length:64
 WiFiCommand.url max_length:256
 WiFiCommand.resp max_size:222
+WiFiCommand.mac max_size:18
 
 MicroSDCommand.filename max_length:255
 

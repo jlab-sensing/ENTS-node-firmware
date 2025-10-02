@@ -4,7 +4,7 @@
 #include <ArduinoLog.h>
 #include <WebServer.h>
 
-WebServer server(80);
+static WebServer server(80);
 
 // Global variable to track solenoid state
 IrrigationCommand_State currentSolenoidState = IrrigationCommand_State_CLOSE;

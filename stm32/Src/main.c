@@ -19,6 +19,7 @@
 #include "main.h"
 
 #include <stdbool.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,10 +28,12 @@
 
 // userland
 #include "ads.h"
+#include "adc.h"
 #include "bme280_sensor.h"
 #include "board.h"
 #include "controller/controller.h"
 #include "controller/wifi.h"
+#include "controller/wifi_userconfig.h"
 #include "phytos31.h"
 #include "sensors.h"
 #include "status_led.h"
@@ -41,6 +44,7 @@
 #include "waterPressure.h"
 #include "sen0308.h"
 #include "waterFlow.h"
+#include "user_config.h"
 
 // Board configuration - define ONLY ONE of these
 // Comment these out to disable sensors
@@ -60,57 +64,57 @@ int main(void) {
 
   HAL_Init();
 
-  // Initialize clocks and peripherials
-  Board_Init();
-  SystemApp_Init();
+  /* Configure the system clock */
+  SystemClock_Config();
 
-  APP_LOG(TS_OFF, VLEVEL_H, "MSI Value: %d\n", MSI_VALUE);
-  APP_LOG(TS_OFF, VLEVEL_H, "LSE Value: %d\n", LSE_VALUE);
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_ADC_Init();
+  MX_USART1_UART_Init();
+  MX_I2C2_Init(); 
+  SystemApp_Init(); 
+
+  APP_PRINTF("\n\nRESET!\n\n");
+  const char header[] = R"""(
++-----------------------------------+
+|   ______  _   _  _______  _____   |
+|  |  ____|| \ | ||__   __|/ ____|  |
+|  | |__   |  \| |   | |  | (___    |
+|  |  __|  | . ` |   | |   \___ \   |
+|  | |____ | |\  |   | |   ____) |  |
+|  |______||_| \_|   |_|  |_____/   |
+|                                   |
+|  Environmentally NeTworked Sensor |
++-----------------------------------+
+)"""; 
+  APP_PRINTF("\n%s\n", header);
+  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
+  APP_PRINTF("Git SHA: %s\n\n", GIT_REV);
 
   // Start status LEDs
   StatusLedInit();
   StatusLedFlashSlow();
+  
+  // initialize esp32 controller module  
+  ControllerInit(); 
+  
+  // Print warning when using TEST_USER_CONFIG
+#ifdef TEST_USER_CONFIG
+  APP_LOG(TS_OFF, VLEVEL_M, "WARNING: TEST_USER_CONFIG is enabled!\n");
+#endif  // TEST_USER_CONFIG
 
-  // Try loading user config
-  if (UserConfigLoad() != USERCONFIG_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Error loading user configuration!\n");
-    APP_LOG(TS_OFF, VLEVEL_M, "Waiting for new configuration...\n");
-
-    // TODO implement status code with LED
-
-    // Wait for new configuration
-    // UserConfig_ProcessDataPolling();
-    UserConfig_InitAdvanceTrace();
-    while (1);
-  }
-
-
+  UserConfigStart(60);
+  const UserConfiguration* cfg = UserConfigGet();
 
   // initialize the user config interrupt
-  UserConfig_InitAdvanceTrace();
-
-  // placeholder for UserConfig polling
-  HAL_Delay(10000);
+  //UserConfig_InitAdvanceTrace();
   
-  // Print user config
-  UserConfigPrint();
-
-  // alternative blocking polling method
-  // UserConfig_ProcessDataPolling();
-
   // currently not functional
-  // FIFO_Init();
-
-  // Debug message, gets printed after init code
-  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__,
-             __TIME__);
-  APP_PRINTF("Git SHA: %s\n", GIT_REV);
-
-  // initialize esp32 controller module
-  ControllerInit(); 
-
-  // get the current user config
-  const UserConfiguration* cfg = UserConfigGet();
+  //FIFO_Init();
+  
+  APP_LOG(TS_OFF, VLEVEL_M, "Enabling Sensors\n");
+  APP_LOG(TS_OFF, VLEVEL_M, "----------------\n");
 
   // init senors interface
   SensorsInit();
@@ -158,10 +162,13 @@ int main(void) {
       SensorsAdd(Teros21Measure);
       APP_LOG(TS_OFF, VLEVEL_M, "Teros21 Enabled!\n");
     }
+    // TODO add phytos31 support
     // TODO add support for dummy sensor
   }
 
   StatusLedFlashFast();
+  
+  APP_LOG(TS_OFF, VLEVEL_M, "\n\n");
 
   // init either WiFi or LoRaWAN
   if (cfg->Upload_method == Uploadmethod_LoRa) {
@@ -187,6 +194,7 @@ int main(void) {
   }
 }
 
+// TODO update this to use the scheduler
 #ifdef USE_FLOW_METER_SENSOR
 void FlowBackgroundTask(void) {
   static uint32_t last_check = 0;

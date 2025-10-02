@@ -7,12 +7,16 @@
 
 #include <Arduino.h>
 #include <ArduinoLog.h>
+#include <LittleFS.h>
+#include <WiFi.h>
 #include <Wire.h>
 
+#include "config_server.hpp"
 #include "module_handler.hpp"
 #include "modules/irrigation.hpp"
 #include "modules/microsd.hpp"
 #include "modules/wifi.hpp"
+#include "modules/wifi_userconfig.hpp"
 
 /** Target device address */
 static const uint8_t dev_addr = 0x20;
@@ -24,16 +28,21 @@ static const int scl_pin = 1;
 const std::string ssid = "HARE_Lab";
 const std::string password = "";
 
-// create wifi module
+// create module handler
 static ModuleHandler::ModuleHandler mh;
 
-// create and register the WiFi module
+// NOTE these variables must be relevant for the entire program lifetime
+// create wifi module
 static ModuleWiFi wifi;
+
+// create user config module
+static ModuleHandler::ModuleUserConfig user_config;
 
 // create and register the microSD module
 static ModuleMicroSD microSD;
 
-static ModuleIrrigation irrigation;
+// commented out for now due to conflict with WiFi
+// static ModuleIrrigation irrigation;
 
 /**
  * @brief Callback for onReceive
@@ -61,8 +70,14 @@ void setup() {
   Serial.begin(115200);
 
   // Create logging interfface
-  Log.begin(LOG_LEVEL_TRACE, &Serial);
+  Log.begin(LOG_LEVEL_INFO, &Serial);
 
+  if (!LittleFS.begin()) {
+    Log.errorln("LittleFS mount failed!");
+    return;
+  }
+
+  /*
   // Needed for irrigation
   // WiFi.begin(ssid.c_str(), password.c_str());
 
@@ -82,16 +97,17 @@ void setup() {
   Log.noticeln("Web server started");
   // Log.noticeln("Connect to ESP32 AP and visit http://%s",
   // WiFi.softAPIP().toString().c_str());
+  */
 
   Log.noticeln("ents-node esp32 firmware, compiled at %s %s", __DATE__,
                __TIME__);
   Log.noticeln("Git SHA: %s", GIT_REV);
 
-  Log.noticeln("Starting i2c interface...");
-
   mh.RegisterModule(&wifi);
 
   mh.RegisterModule(&microSD);
+
+  mh.RegisterModule(&user_config);
 
   // commented out for now due to conflict with WiFi
   // mh.RegisterModule(&irrigation);
@@ -110,6 +126,6 @@ void setup() {
 
 /** Loop code */
 void loop() {
-  HandleClient();
+  handleClient();
   delay(20);
 }

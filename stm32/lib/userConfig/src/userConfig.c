@@ -248,6 +248,10 @@ UserConfigStatus UserConfigLoad(void) {
   // Convert length bytes to integer
   data_length = (length_buf[0] << 8) | length_buf[1];
 
+  if (data_length == 0) {
+    return USERCONFIG_EMPTY_CONFIG;
+  }
+
   // check the length for errors
   if (data_length > UserConfiguration_size) {
     return USERCONFIG_FRAM_ERROR;
@@ -279,9 +283,36 @@ const UserConfiguration *UserConfigGet(void) {
 #endif  // TEST_USER_CONFIG
 }
 
-void UserConfigPrint(void) {
-  const UserConfiguration *config = UserConfigGet();
+UserConfigStatus UserConfigSave(const UserConfiguration *config) {
+  if (config == NULL) {
+    return USERCONFIG_NULL_CONFIG;
+  }
 
+  uint8_t encoded_data[UserConfiguration_size];
+  size_t encoded_length = EncodeUserConfiguration(config, encoded_data);
+  if (encoded_length == -1) {
+    return USERCONFIG_ENCODE_ERROR;
+  }
+
+  // Write the length of the encoded data to FRAM
+  uint8_t length_buf[2] = {(encoded_length >> 8) & 0xFF, encoded_length & 0xFF};
+  UserConfigStatus status =
+      UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
+  if (status != USERCONFIG_OK) {
+    return status;
+  }
+
+  // Write the encoded data to FRAM
+  status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, encoded_data,
+                                  encoded_length);
+  if (status != USERCONFIG_OK) {
+    return status;
+  }
+
+  return USERCONFIG_OK;
+}
+
+void UserConfigPrintAny(const UserConfiguration *config) {
   // Print each member of the UserConfiguration
   APP_PRINTF("Logger ID: %u\r\n", config->logger_id);
   APP_PRINTF("Cell ID: %u\r\n", config->cell_id);
@@ -342,4 +373,25 @@ void UserConfigPrint(void) {
   APP_PRINTF("API Endpoint URL: %s\r\n", config->API_Endpoint_URL);
 
   APP_PRINTF("API Port: %u\r\n", config->API_Endpoint_Port);
+}
+
+void UserConfigPrint(void) {
+  const UserConfiguration *config = UserConfigGet();
+
+  UserConfigPrintAny(config);
+}
+
+UserConfigStatus UserConfigClear(void) {
+  FramStatus status = FRAM_OK;
+  const uint8_t length[2] = {};
+  const uint8_t empty[UserConfiguration_size] = {};
+  status = FramWrite(USER_CONFIG_LEN_ADDR, length, sizeof(length));
+  if (status != FRAM_OK) {
+    return USERCONFIG_FRAM_ERROR;
+  }
+  status = FramWrite(USER_CONFIG_START_ADDRESS, empty, sizeof(empty));
+  if (status != FRAM_OK) {
+    return USERCONFIG_FRAM_ERROR;
+  }
+  return USERCONFIG_OK;
 }

@@ -312,6 +312,18 @@ size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
  */
 size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
                          size_t size);
+/**
+ * @brief Encodes a UserConfigCommand into a protobuf message
+ * @param type The request type (REQUEST_CONFIG or RESPONSE_CONFIG)
+ * @param config_data Pointer to UserConfiguration data
+ * @param buffer Output buffer for encoded data
+ * @param size Size of output buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
+                               const UserConfiguration *config_data,
+                               uint8_t *buffer, size_t size);
 
 /**
  * @brief Encodes an IrrigationCommand

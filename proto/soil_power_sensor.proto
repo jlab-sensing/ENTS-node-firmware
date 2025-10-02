@@ -129,6 +129,7 @@ message Esp32Command {
     WiFiCommand wifi_command = 3;
     MicroSDCommand microsd_command = 4;
     IrrigationCommand irrigation_command = 5;
+    UserConfigCommand user_config_command = 6;
   }
 }
 
@@ -185,6 +186,12 @@ message WiFiCommand {
     CHECK_API = 6;
     /* Force NTP sync */
     NTP_SYNC = 7;
+    /* Host a WiFi network */
+    HOST = 8;
+    /* Stop hosting a WiFi network */
+    STOP_HOST = 9;
+    /* Get host info */
+    HOST_INFO = 10;
   }
 
   /* Command type */
@@ -207,6 +214,29 @@ message WiFiCommand {
   uint32 ts = 6;
   // binary data response
   bytes resp = 7;
+
+  /* MAC address */
+  string mac = 9;
+
+  /* Number of connected devices */
+  uint32 clients = 10;
+}
+
+message UserConfigCommand {
+  enum RequestType {
+    /* controller requests config from target */
+    REQUEST_CONFIG = 0;
+    /* controller sends config to target */
+    RESPONSE_CONFIG = 1;
+    /* starts the user config webserver */
+    START = 2;
+  }
+
+  /* type of command */
+  RequestType type = 1;
+
+  /* configuration data */
+  UserConfiguration config_data = 2;
 }
 
 message MicroSDCommand {
@@ -274,6 +304,9 @@ message UserConfiguration {
   string WiFi_SSID = 10;
   string WiFi_Password = 11;
   string API_Endpoint_URL = 12;
+
+  // Deprecated
+  // Embedded into the endpoint URL
   uint32 API_Endpoint_Port = 13;
 }
 

@@ -282,6 +282,26 @@ size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
   return EncodeEsp32Command(&cmd, buffer, size);
 }
 
+size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
+                               const UserConfiguration *config_data,
+                               uint8_t *buffer, size_t size) {
+  // Create command object
+  Esp32Command cmd = Esp32Command_init_default;
+  cmd.which_command = Esp32Command_user_config_command_tag;
+  cmd.command.user_config_command.type = type;
+
+  // Only copy config_data if it's provided (for RESPONSE_CONFIG)
+  if (config_data != NULL) {
+    cmd.command.user_config_command.has_config_data = true;
+    memcpy(&cmd.command.user_config_command.config_data, config_data,
+           sizeof(UserConfiguration));
+  } else {
+    cmd.command.user_config_command.has_config_data = false;
+  }
+
+  return EncodeEsp32Command(&cmd, buffer, size);
+}
+
 size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
                                uint8_t *buffer, size_t size) {
   Esp32Command cmd = Esp32Command_init_default;
