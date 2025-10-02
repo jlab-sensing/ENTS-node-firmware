@@ -47,7 +47,8 @@ String validateFloat(const String& value, const String& name) {
       digit_after_exp = false;
 
       // Allow sign right after exponent
-      if (i + 1 < value.length() && (value.charAt(i+1) == '+' || value.charAt(i+1) == '-')) {
+      if (i + 1 < value.length() &&
+          (value.charAt(i + 1) == '+' || value.charAt(i + 1) == '-')) {
         i++;
       }
       continue;
