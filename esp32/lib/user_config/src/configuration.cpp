@@ -85,10 +85,15 @@ String getConfigJson() {
   }
   json += "],";
 
-  json += "\"calibration_v_slope\":" + String(config.Voltage_Slope, 8) + ",";
-  json += "\"calibration_v_offset\":" + String(config.Voltage_Offset, 8) + ",";
-  json += "\"calibration_i_slope\":" + String(config.Current_Slope, 8) + ",";
-  json += "\"calibration_i_offset\":" + String(config.Current_Offset, 8) + ",";
+  char calib_buffer[32];
+  snprintf(calib_buffer, sizeof(calib_buffer), "%g", config.Voltage_Slope);
+  json += "\"calibration_v_slope\":" + String(calib_buffer) + ",";
+  snprintf(calib_buffer, sizeof(calib_buffer), "%g", config.Voltage_Offset);
+  json += "\"calibration_v_offset\":" + String(calib_buffer) + ",";
+  snprintf(calib_buffer, sizeof(calib_buffer), "%g", config.Current_Slope);
+  json += "\"calibration_i_slope\":" + String(calib_buffer) + ",";
+  snprintf(calib_buffer, sizeof(calib_buffer), "%g", config.Current_Offset);
+  json += "\"calibration_i_offset\":" + String(calib_buffer) + ",";
 
   // WiFi settings
   json += "\"wifi_ssid\":\"" + String(config.WiFi_SSID) + "\",";
