@@ -33,7 +33,7 @@ jobs:
       - name: Build PlatformIO Project
         run: pio run
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build
           path: esp32/.pio/build/
