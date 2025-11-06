@@ -8,13 +8,9 @@
 #ifndef LIB_CONTROLLER_INCLUDE_CONTROLLER_POWER_H_
 #define LIB_CONTROLLER_INCLUDE_CONTROLLER_POWER_H_
 
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 /**
  * @ingroup controller

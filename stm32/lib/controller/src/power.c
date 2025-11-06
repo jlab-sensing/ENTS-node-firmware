@@ -1,17 +1,15 @@
-#include "controller/wifi.h"
-
 #include "communication.h"
+#include "controller/wifi.h"
 #include "transcoder.h"
 
 /** Timeout for i2c communication with esp32, in communication.h */
 extern unsigned int g_controller_i2c_timeout;
 
+ControllerStatus PowerCommandTransaction(const PowerCommand *input,
+                                         PowerCommand *output);
 
 ControllerStatus PowerCommandTransaction(const PowerCommand *input,
-                                        PowerCommand *output);
-
-ControllerStatus PowerCommandTransaction(const PowerCommand *input,
-                                        PowerCommand *output) {
+                                         PowerCommand *output) {
   // get reference to tx and rx buffers
   Buffer *tx = ControllerTx();
   Buffer *rx = ControllerRx();

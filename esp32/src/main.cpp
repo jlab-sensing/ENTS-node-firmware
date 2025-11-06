@@ -15,9 +15,9 @@
 #include "module_handler.hpp"
 #include "modules/irrigation.hpp"
 #include "modules/microsd.hpp"
+#include "modules/power.hpp"
 #include "modules/wifi.hpp"
 #include "modules/wifi_userconfig.hpp"
-#include "modules/power.hpp"
 
 /** Target device address */
 static const uint8_t dev_addr = 0x20;
@@ -116,7 +116,7 @@ void setup() {
 
   // commented out for now due to conflict with WiFi
   // mh.RegisterModule(&irrigation);
-  
+
   mh.RegisterModule(&power);
 
   // start i2c interface

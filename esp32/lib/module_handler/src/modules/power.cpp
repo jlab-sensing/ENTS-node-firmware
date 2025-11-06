@@ -2,13 +2,13 @@
 
 #include <ArduinoLog.h>
 
-#include "transcoder.h"
 #include "driver/gpio.h"
 #include "esp_sleep.h"
+#include "transcoder.h"
 
 namespace ModuleHandler {
 
-  /** Boot count */
+/** Boot count */
 RTC_DATA_ATTR static unsigned int boot_count = 0;
 
 ModulePower::ModulePower() {
@@ -57,7 +57,7 @@ size_t ModulePower::OnRequest(uint8_t *buffer) {
 void ModulePower::Sleep() {
   Log.noticeln("Setting sleep flag");
   sleep_flag = true;
- 
+
   PowerCommand resp = PowerCommand_init_zero;
   resp.type = PowerCommand_Type_SLEEP;
 
@@ -90,8 +90,8 @@ void ModulePower::EnterSleep() {
   // configure gpio pin
   const gpio_config_t config = {
       .pin_bit_mask = BIT(GPIO_NUM_3),
-      .mode         = GPIO_MODE_INPUT,
-      .pull_up_en   = GPIO_PULLUP_DISABLE,
+      .mode = GPIO_MODE_INPUT,
+      .pull_up_en = GPIO_PULLUP_DISABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
   };
   gpio_config(&config);

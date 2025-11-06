@@ -54,18 +54,15 @@ int main(void) {
   HAL_GPIO_Init(ESP32_WAKEUP_GPIO_Port, &GPIO_InitStruct);
 
   while (1) {
-
     // set wakeup pin
-    HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin,
-                          GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_SET);
     StatusLedOn();
 
     HAL_Delay(100);
 
     // reset wakeup pin
-    HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin,
-                          GPIO_PIN_RESET);
-    StatusLedOff(); 
+    HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
+    StatusLedOff();
 
     APP_LOG(TS_ON, VLEVEL_M, "Triggered wakeup pin\n");
 
