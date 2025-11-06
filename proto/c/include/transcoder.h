@@ -337,6 +337,19 @@ size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
 size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
                                uint8_t *buffer, size_t size);
 
+
+/**
+ * @brief Encodes a PowerCommand
+ *
+ * @param power_cmd Command containing the data
+ * @param buffer Buffer to store serialized measurement
+ * @param size Size of buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodePowerCommand(const PowerCommand *power_cmd, uint8_t *buffer,
+                          size_t size);
+
 /**
  * @brief Encodes user configuration data.
  *

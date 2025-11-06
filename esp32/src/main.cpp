@@ -17,6 +17,7 @@
 #include "modules/microsd.hpp"
 #include "modules/wifi.hpp"
 #include "modules/wifi_userconfig.hpp"
+#include "modules/power.hpp"
 
 /** Target device address */
 static const uint8_t dev_addr = 0x20;
@@ -44,6 +45,9 @@ static ModuleMicroSD microSD;
 // commented out for now due to conflict with WiFi
 // static ModuleIrrigation irrigation;
 
+// power module
+static ModuleHandler::ModulePower power;
+
 /**
  * @brief Callback for onReceive
  *
@@ -62,6 +66,7 @@ void onReceive(int len) {
 void onRequest() {
   Log.traceln("onRequest");
   mh.OnRequest();
+  power.EnterSleep();
 }
 
 /** Startup code */
@@ -111,6 +116,8 @@ void setup() {
 
   // commented out for now due to conflict with WiFi
   // mh.RegisterModule(&irrigation);
+  
+  mh.RegisterModule(&power);
 
   // start i2c interface
   Wire.onReceive(onReceive);

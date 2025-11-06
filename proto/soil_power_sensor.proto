@@ -130,6 +130,7 @@ message Esp32Command {
     MicroSDCommand microsd_command = 4;
     IrrigationCommand irrigation_command = 5;
     UserConfigCommand user_config_command = 6;
+    PowerCommand power_command = 7;
   }
 }
 
@@ -285,6 +286,37 @@ message IrrigationCommand {
 
   State state = 2;
 }
+
+message PowerCommand {
+  enum Type {
+    /* Put the device to sleep */
+    SLEEP = 0;
+    /* Check functionality after wakeup */
+    WAKEUP = 1;
+  }
+
+  // copied from idf library
+  enum WakeupReason {
+    POWER_WAKEUP_EXT0 = 0;
+    POWER_WAKEUP_EXT1 = 1;
+    POWER_WAKEUP_TIMER = 2; 
+    POWER_WAKEUP_TOUCHPAD = 3;
+    POWER_WAKEUP_ULP = 4;
+    POWER_WAKEUP_GPIO = 5;
+    POWER_WAKEUP_UART = 6;
+    POWER_WAKEUP_WIFI = 7; 
+    POWER_WAKEUP_COCPU = 8;
+    POWER_WAKEUP_COCPU_TRAP_TRIG = 9;
+    POWER_WAKEUP_BT = 10;
+  }
+
+  Type type = 1;
+
+  WakeupReason reason = 2; 
+
+  uint32 boot_count = 3;
+}
+
 
 message UserConfiguration {
   /********** Upload Settings **********/

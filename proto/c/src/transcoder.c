@@ -315,6 +315,18 @@ size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
   return EncodeEsp32Command(&cmd, buffer, size);
 }
 
+size_t EncodePowerCommand(const PowerCommand *power_cmd, uint8_t *buffer,
+                          size_t size) {
+  Esp32Command cmd = Esp32Command_init_default;
+
+  cmd.which_command = Esp32Command_power_command_tag;
+
+  // copy data from power_cmd to cmd
+  memcpy(&cmd.command.power_command, power_cmd, sizeof(PowerCommand));
+
+  return EncodeEsp32Command(&cmd, buffer, size);
+}
+
 size_t EncodeEsp32Command(const Esp32Command *cmd, uint8_t *buffer,
                           size_t size) {
   // create output stream

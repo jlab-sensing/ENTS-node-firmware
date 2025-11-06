@@ -4,6 +4,7 @@
 #include "userConfig.h"
 #include "controller/wifi.h"
 #include "controller/wifi_userconfig.h"
+#include "controller/power.h"
 #include "stm32_seq.h"
 #include "stm32_timer.h"
 #include "utilities_def.h"
@@ -126,6 +127,13 @@ void UserConfigStop(void) {
       UTIL_TIMER_Start(&UserConfigTimer);
     } else {
       APP_LOG(TS_OFF, VLEVEL_M, "Stopped!\n");
+
+      // if uploading via LoRaWAN deep sleep esp32
+      const UserConfiguration* cfg = UserConfigGet();
+      if (cfg->Upload_method == Uploadmethod_LoRa) {
+        APP_LOG(TS_OFF, VLEVEL_M, "Entering deep sleep...\n");
+        ControllerPowerSleep();
+      }
     } 
   }
 }
