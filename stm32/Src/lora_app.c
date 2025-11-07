@@ -325,14 +325,17 @@ void LoRaWAN_Init(void)
 
   /* USER CODE BEGIN LoRaWAN_Init_1 */
   // load the upload interval
-  const UserConfiguration *cfg = UserConfigGet();
+  //const UserConfiguration *cfg = UserConfigGet();
   // convert interval to ms
-  TxPeriodicity = (cfg->Upload_interval * 1000);
+  //TxPeriodicity = (cfg->Upload_interval * 1000);
   // divide by number of sensors
   //TxPeriodicity /= cfg->enabled_sensors_count;
   // divide by 2 to keep upload buffer empty for failed uploads
   //TxPeriodicity /= 2;
   /* USER CODE END LoRaWAN_Init_1 */
+
+  // initial period set to 10s to allow time sync first
+  TxPeriodicity = 10000;
 
   UTIL_TIMER_Create(&StopJoinTimer, JOIN_TIME, UTIL_TIMER_ONESHOT, OnStopJoinTimerEvent, NULL);
 
@@ -437,6 +440,25 @@ static void SendTxData(void)
       
       // Stop webserver after 60 seconds
       UserConfigSetupStop(60);
+
+      const UserConfiguration *cfg = UserConfigGet();
+      // convert interval to ms
+      TxPeriodicity = (cfg->Upload_interval * 1000);
+      // divide by number of sensors
+      TxPeriodicity /= cfg->enabled_sensors_count;
+      // divide by 2 to keep upload buffer empty for failed uploads
+      TxPeriodicity /= 2;
+
+      APP_LOG(TS_OFF, VLEVEL_M, "Upload interval set to %lums\r\n", TxPeriodicity);
+
+      // clamp to 10s
+      if (TxPeriodicity < 10000) {
+        TxPeriodicity = 10000;
+        APP_LOG(TS_OFF, VLEVEL_L, "Warning : upload interval too low, clamping to 10s\r\n");
+      }
+
+      UTIL_TIMER_SetPeriod(&TxTimer, TxPeriodicity);
+
 
       // start taking measurements
       SensorsStart();
