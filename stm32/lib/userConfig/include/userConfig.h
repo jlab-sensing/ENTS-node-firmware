@@ -66,149 +66,145 @@ extern "C" {
 typedef enum {
   USERCONFIG_OK,
   USERCONFIG_FRAM_ERROR,
-  USERCONFIG_DECODE_ERROR
+  USERCONFIG_DECODE_ERROR,
+  USERCONFIG_NO_RESPONSE,
+  USERCONFIG_COMM_ERROR,
+  USERCONFIG_INVALID_RESPONSE,
+  USERCONFIG_NOT_LOADED,
+  USERCONFIG_EMPTY_CONFIG,
+  USERCONFIG_ENCODE_ERROR,
+  USERCONFIG_NULL_CONFIG,
 } UserConfigStatus;
 
 /**
- ******************************************************************************
- * @brief    Initializes user configuration settings.
+ * @brief Initializes user configuration settings.
  *
- *           This function Initializes Advanced Trace for interrupt-based
- *           UART reception.
- *
- * @param    void
- * @return   void
- ******************************************************************************
+ * This function Initializes Advanced Trace for interrupt-based
+ * UART reception.
  */
 void UserConfig_InitAdvanceTrace(void);
 
 /**
- ******************************************************************************
- * @brief    UART interrupt callback function.
+ * @brief UART interrupt callback function.
  *
- *           This function Handles incoming data based on RQFlag.
+ * This function Handles incoming data based on RQFlag.
  *
  * @param    pData Pointer to the received data byte.
  * @param    Size  Size of the received data (should be 1).
  * @param    Error UART error status.
  * @return   void
- ******************************************************************************
  */
 void UserConfig_RxCallback(uint8_t *pData, uint16_t Size, uint8_t Error);
 
 /**
- ******************************************************************************
  * @brief    Handles received user configuration data via UART interrupt.
  *
- *           This function is called when user configuration data is received
- *           via UART interrupt. It processes and stores the data into FRAM for
- *           further use.
- *
- * @param    void
- * @return   void
- ******************************************************************************
+ * This function is called when user configuration data is received
+ * via UART interrupt. It processes and stores the data into FRAM for
+ * further use.
  */
 void UserConfig_InterruptHandler(void);
 
 /**
- ******************************************************************************
- * @brief    Processes incoming user configuration data via UART in polling
- *mode.
+ * @brief Processes incoming user configuration data via UART in polling mode.
  *
- *           This function checks for incoming user configuration data over UART
- *           in polling mode and processes it as needed.
- *
- * @param    void
- * @return   void
- ******************************************************************************
+ * This function checks for incoming user configuration data over UART
+ * in polling mode and processes it as needed.
  */
 void UserConfig_ProcessDataPolling(void);
 
 /**
- ******************************************************************************
- * @brief    Sends current userconfig data via UART interrupt.
+ * @brief Sends current userconfig data via UART interrupt.
  *
- *           This function is called when the user want to see the current
- *           configurations on the GUI. It gets the current encoded data
- *           from the FRAM and send it via UART to be shown on the GUI.
+ * This function is called when the user want to see the current
+ * configurations on the GUI. It gets the current encoded data
+ * from the FRAM and send it via UART to be shown on the GUI.
  *
- * @param    void
- * @return   UserConfigStatus - USERCONFIG_OK if successful, error code
- *otherwise.
- ******************************************************************************
+ * @return   USERCONFIG_OK if successful, error code otherwise.
  */
 UserConfigStatus UserConfig_SendCurrentUserConfig(void);
 
 /**
- ******************************************************************************
  * @brief    Writes user configuration data to FRAM.
  *
- *           This function writes a specified amount of user configuration data
- *           to the FRAM memory starting at a specified address.
+ * This function writes a specified amount of user configuration data
+ * to the FRAM memory starting at a specified address.
  *
  * @param    fram_addr  Starting address in FRAM to write data.
  * @param    data       Pointer to the data to be written.
  * @param    length     Length of the data to be written.
- * @return   UserConfigStatus - USERCONFIG_OK if successful, error code
- *otherwise.
- ******************************************************************************
+ * @return   USERCONFIG_OK if successful, error code otherwise.
  */
 UserConfigStatus UserConfig_WriteToFRAM(uint16_t fram_addr, uint8_t *data,
                                         uint16_t length);
 
 /**
- ******************************************************************************
- * @brief    Reads user configuration data from FRAM.
+ * @brief Reads user configuration data from FRAM.
  *
- *           This function reads a specified amount of user configuration data
- *           from the FRAM memory starting at a specified address.
+ * This function reads a specified amount of user configuration data
+ * from the FRAM memory starting at a specified address.
  *
- * @param    fram_addr  Starting address in FRAM to read data from.
- * @param    length     Length of the data to be read.
- * @param    data       Pointer to the buffer to store the read data.
- * @return   UserConfigStatus - USERCONFIG_OK if successful, error code
- *otherwise.
- ******************************************************************************
+ * @param fram_addr   Starting address in FRAM to read data from.
+ * @param length      Length of the data to be read.
+ * @param data        Pointer to the buffer to store the read data.
+ * @return USERCONFIG_OK if successful, error code otherwise.
  */
 UserConfigStatus UserConfig_ReadFromFRAM(uint16_t fram_addr, uint16_t length,
                                          uint8_t *data);
 
 /**
- ******************************************************************************
- * @brief    Loads user configuration data from FRAM to RAM.
+ * @brief Loads user configuration data from FRAM to RAM.
  *
- *           This function reads the stored user configuration data from FRAM,
- *           decodes it, and loads it into RAM. The data will be stored in a
- *           static UserConfig structure.
+ * This function reads the stored user configuration data from FRAM,
+ * decodes it, and loads it into RAM. The data will be stored in a
+ * static UserConfig structure.
  *
- * @param    void
- * @return   UserConfigStatus - USERCONFIG_OK if successful, error code
- *otherwise.
- ******************************************************************************
+ * @return UserConfigStatus - USERCONFIG_OK if successful, error code
+ * otherwise.
  */
 UserConfigStatus UserConfigLoad(void);
 
 /**
- ******************************************************************************
- * @brief    Gets a reference to the loaded user configuration data in RAM.
+ * @brief Saves the configuration to FRAM.
  *
- *           This function returns a pointer to the UserConfig structure in RAM,
- *           allowing access to the loaded configuration without reading from
- *FRAM.
+ * @param config  Pointer to the UserConfiguration structure to save.
+ * @return USERCONFIG_OK if successful, error code otherwise.
+ */
+UserConfigStatus UserConfigSave(const UserConfiguration *config);
+
+/**
+ * @brief Gets a reference to the loaded user configuration data in RAM.
  *
- * @param    void
- * @return   const UserConfig* - Pointer to the loaded UserConfig structure.
- ******************************************************************************
+ * This function returns a pointer to the UserConfig structure in RAM, allowing
+ * access to the loaded configuration without reading from FRAM.
+ *
+ * @return Pointer to the loaded UserConfig structure.
  */
 const UserConfiguration *UserConfigGet(void);
 
 /**
- * @brief Prints the current user configuration over serial
+ * @brief Prints arbitrary user config over serial.
  *
  * The printing/formatting is done with APP_LOG functions requiring
  * SystemApp_Init() to be called before this function can be used.
  */
+void UserConfigPrintAny(const UserConfiguration *config);
+
+/**
+ * @brief Prints the current user configuration over serial.
+ *
+ * @see UserConfigPrintAny
+ */
 void UserConfigPrint(void);
+
+/**
+ * @brief Clears the user configuration stored in FRAM.
+ *
+ * This function sets the userconfig to all zeros in FRAM.
+ *
+ * @return USERCONFIG_OK if successful, error code otherwise.
+ */
+UserConfigStatus UserConfigClear(void);
 
 /**
  * @}

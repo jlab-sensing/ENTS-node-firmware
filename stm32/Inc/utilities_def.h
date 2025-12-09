@@ -64,7 +64,7 @@ typedef enum
 {
   CFG_SEQ_Prio_0,
   /* USER CODE BEGIN CFG_SEQ_Prio_Id_t */
-
+  CFG_SEQ_Prio_1,
   /* USER CODE END CFG_SEQ_Prio_Id_t */
   CFG_SEQ_Prio_NBR,
 } CFG_SEQ_Prio_Id_t;
@@ -83,6 +83,7 @@ typedef enum
   CFG_SEQ_Task_Measurement,
   CFG_SEQ_Task_TimeSync,
   CFG_SEQ_Task_WiFiUpload,
+  CFG_SEQ_Task_UserConfigStop,
   /* USER CODE END CFG_SEQ_Task_Id_t */
   CFG_SEQ_Task_NBR
 } CFG_SEQ_Task_Id_t;

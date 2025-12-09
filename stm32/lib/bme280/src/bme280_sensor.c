@@ -1,9 +1,13 @@
 #include "bme280_sensor.h"
 
+// system includes
 #include "sys_app.h"
 #include "stm32_systime.h"
+
+// user includes
 #include "bme280_common.h"
 #include "transcoder.h"
+#include "userConfig.h"
 
 /**
  * @brief Required time between measurements
@@ -127,10 +131,7 @@ BME280Status BME280MeasureAll(BME280Data *data) {
   return rslt;
 }
 
-size_t BME280Measure(uint8_t *data) {
-  // get timestamp
-  SysTime_t ts = SysTimeGet();
-
+size_t BME280Measure(uint8_t *data, SysTime_t ts) {
   // read sensor
   BME280Data sens_data;
   BME280Status status = BME280MeasureAll(&sens_data);

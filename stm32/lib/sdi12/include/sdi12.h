@@ -23,7 +23,6 @@ extern "C" {
 #include <stdlib.h>
 
 #include "gpio.h"
-#include "lptim.h"
 #include "tim.h"
 #include "usart.h"
 
@@ -107,6 +106,17 @@ SDI12Status SDI12ReadData(char *buffer, uint16_t bufferSize,
 SDI12Status SDI12GetMeasurment(uint8_t addr,
                                SDI12_Measure_TypeDef *measurment_info,
                                char *measurment_data, uint16_t timeoutMillis);
+
+/**
+ * @brief Get the address of the current SDI-12 sensor.
+ *
+ * Only a single sensor can be connected to the bus at a time.
+ *
+ * @param addr Pointer to a character array where the address will be stored.
+ *
+ * @return SDI12Status
+ */
+SDI12Status SDI12GetAddress(char *addr, uint16_t timeoutMillis);
 
 /**
  * @}

@@ -60,7 +60,7 @@ BME280_INTF_RET_TYPE bme280_i2c_write(uint8_t reg_addr, const uint8_t *reg_data,
 
     HAL_StatusTypeDef status = HAL_I2C_Mem_Write(&hi2c2, dev_addr << 1,
                                                  reg_addr, I2C_MEMADD_SIZE_8BIT,
-                                                 reg_data, length, i2c_timeout);
+                                                 (uint8_t *) reg_data, length, i2c_timeout);
 
     if (status != HAL_OK) {
         return BME280_E_COMM_FAIL;

@@ -56,7 +56,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc;
-extern RTC_HandleTypeDef hrtc;
+extern RTC_HandleTypeDef h;
 extern SUBGHZ_HandleTypeDef hsubghz;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern DMA_HandleTypeDef hdma_usart1_rx;
@@ -211,7 +211,7 @@ void TAMP_STAMP_LSECSS_SSRU_IRQHandler(void)
   /* USER CODE BEGIN TAMP_STAMP_LSECSS_SSRU_IRQn 0 */
 
   /* USER CODE END TAMP_STAMP_LSECSS_SSRU_IRQn 0 */
-  HAL_RTCEx_SSRUIRQHandler(&hrtc);
+  HAL_RTCEx_SSRUIRQHandler(&h);
   /* USER CODE BEGIN TAMP_STAMP_LSECSS_SSRU_IRQn 1 */
 
   /* USER CODE END TAMP_STAMP_LSECSS_SSRU_IRQn 1 */
@@ -281,7 +281,7 @@ void RTC_Alarm_IRQHandler(void)
   /* USER CODE BEGIN RTC_Alarm_IRQn 0 */
 
   /* USER CODE END RTC_Alarm_IRQn 0 */
-  HAL_RTC_AlarmIRQHandler(&hrtc);
+  HAL_RTC_AlarmIRQHandler(&h);
   /* USER CODE BEGIN RTC_Alarm_IRQn 1 */
 
   /* USER CODE END RTC_Alarm_IRQn 1 */
@@ -304,3 +304,9 @@ void SUBGHZ_Radio_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
+
+
+//Specific Interrupt for jLab Demo Irrigation Site Flow Meter
+void EXTI15_10_IRQHandler(void) {
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+}

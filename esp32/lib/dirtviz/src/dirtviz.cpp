@@ -39,8 +39,6 @@ void Dirtviz::SetUrl(const char *url) {
 
 unsigned int Dirtviz::Check() {
   Log.traceln("Dirtviz::Check");
-  WiFiClient client;
-
   Log.noticeln("Connecting to %s:%d", url.getHost().c_str(), url.getPort());
 
   if (!client.connect(url.getHost().c_str(), (uint16_t)url.getPort())) {
@@ -60,44 +58,10 @@ unsigned int Dirtviz::Check() {
   int bytes_written = client.write(req.str().c_str());
   Log.noticeln("Wrote %d bytes to server", bytes_written);
 
-  // wait until there's bytes available with timeout
-  unsigned int timeout = millis() + g_resp_timeout;
-  while (!client.available()) {
-    // timeout
-    if (millis() > timeout) {
-      Log.errorln("API Check timeout!");
-      return (uint32_t)-1;
-    }
-
-    // Log.traceln("Delaying until available");
-    delay(100);
-  }
-
-  // read response
-  std::string resp;
-  while (client.available()) {
-    char c = client.read();
-    resp += c;
-  }
-
-  // close connection
-  client.flush();
-  client.stop();
-
-  // read string into an object
-  HttpClient http_client(resp);
-
-  unsigned int http_code = http_client.ResponseCode();
-  if (http_code != 200) {
-    Log.errorln("Api health check failed! Reponse code: %d", http_code);
-  }
-
-  return http_code;
+  return bytes_written;
 }
 
-HttpClient Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
-  WiFiClient client;
-
+unsigned int Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
   char buffer[100];
 
   Log.noticeln("Sending measurement");
@@ -106,8 +70,6 @@ HttpClient Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
   // connect to server
   if (!client.connect(url.getHost().c_str(), (uint16_t)url.getPort())) {
     Log.errorln("Connection to %s:%d failed!", url.getHost(), url.getPort());
-    HttpClient empty;
-    return empty;
   }
 
   // send data
@@ -137,14 +99,16 @@ HttpClient Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
   int bytes_written = client.write(request.data(), request.size());
   Log.noticeln("Wrote %d bytes to server", bytes_written);
 
-  // read response
+  return bytes_written;
+}
 
+HttpClient Dirtviz::GetResponse() {
   // wait until there's bytes available with timeout
   unsigned int timeout = millis() + g_resp_timeout;
   while (!client.available()) {
     // timeout
     if (millis() > timeout) {
-      Log.warningln("Send measurement timeout!");
+      Log.warningln("Response timeout!");
       Log.warningln("WiFi status: %d", WiFi.status());
       HttpClient empty_resp;
 
@@ -164,7 +128,7 @@ HttpClient Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
     char c = client.read();
     resp += c;
   }
-
+  Log.verboseln("%s", resp.c_str());
   // close connection
   client.flush();
   client.stop();

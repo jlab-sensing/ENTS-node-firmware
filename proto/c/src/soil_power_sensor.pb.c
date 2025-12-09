@@ -45,10 +45,16 @@ PB_BIND(Phytos31Measurement, Phytos31Measurement, AUTO)
 PB_BIND(BME280Measurement, BME280Measurement, AUTO)
 
 
+PB_BIND(SEN0308Measurement, SEN0308Measurement, AUTO)
+
+
+PB_BIND(SEN0257Measurement, SEN0257Measurement, AUTO)
+
+
+PB_BIND(YFS210CMeasurement, YFS210CMeasurement, AUTO)
+
+
 PB_BIND(Measurement, Measurement, AUTO)
-
-
-PB_BIND(RepeatedMeasurement, RepeatedMeasurement, AUTO)
 
 
 PB_BIND(Response, Response, AUTO)
@@ -66,10 +72,36 @@ PB_BIND(TestCommand, TestCommand, AUTO)
 PB_BIND(WiFiCommand, WiFiCommand, 2)
 
 
+PB_BIND(UserConfigCommand, UserConfigCommand, 2)
+
+
+PB_BIND(MicroSDCommand, MicroSDCommand, 2)
+
+
+PB_BIND(IrrigationCommand, IrrigationCommand, AUTO)
+
+
+PB_BIND(PowerCommand, PowerCommand, AUTO)
+
+
 PB_BIND(UserConfiguration, UserConfiguration, AUTO)
 
 
 PB_BIND(adcValue, adcValue, AUTO)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -7,10 +7,17 @@
 
 #include <Arduino.h>
 #include <ArduinoLog.h>
+#include <LittleFS.h>
+#include <WiFi.h>
 #include <Wire.h>
 
+#include "config_server.hpp"
 #include "module_handler.hpp"
+#include "modules/irrigation.hpp"
+#include "modules/microsd.hpp"
+#include "modules/power.hpp"
 #include "modules/wifi.hpp"
+#include "modules/wifi_userconfig.hpp"
 
 /** Target device address */
 static const uint8_t dev_addr = 0x20;
@@ -19,8 +26,27 @@ static const int sda_pin = 0;
 /** Serial clock pin */
 static const int scl_pin = 1;
 
-// create wifi module
+const std::string ssid = "HARE_Lab";
+const std::string password = "";
+
+// create module handler
 static ModuleHandler::ModuleHandler mh;
+
+// NOTE these variables must be relevant for the entire program lifetime
+// create wifi module
+static ModuleWiFi wifi;
+
+// create user config module
+static ModuleHandler::ModuleUserConfig user_config;
+
+// create and register the microSD module
+static ModuleMicroSD microSD;
+
+// commented out for now due to conflict with WiFi
+// static ModuleIrrigation irrigation;
+
+// power module
+static ModuleHandler::ModulePower power;
 
 /**
  * @brief Callback for onReceive
@@ -40,6 +66,7 @@ void onReceive(int len) {
 void onRequest() {
   Log.traceln("onRequest");
   mh.OnRequest();
+  power.EnterSleep();
 }
 
 /** Startup code */
@@ -48,30 +75,54 @@ void setup() {
   Serial.begin(115200);
 
   // Create logging interfface
-  Log.begin(LOG_LEVEL_NOTICE, &Serial);
+  Log.begin(LOG_LEVEL_INFO, &Serial);
 
-  Log.verbose(R"(
--------------------------------------------------------------------------------
+  if (!LittleFS.begin()) {
+    Log.errorln("LittleFS mount failed!");
+    return;
+  }
 
-RESET!
+  /*
+  // Needed for irrigation
+  // WiFi.begin(ssid.c_str(), password.c_str());
 
--------------------------------------------------------------------------------
-)");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  // Setup Web server
+  SetupServer();
+
+  Log.noticeln("Web server started");
+  // Log.noticeln("Connect to ESP32 AP and visit http://%s",
+  // WiFi.softAPIP().toString().c_str());
+  */
 
   Log.noticeln("ents-node esp32 firmware, compiled at %s %s", __DATE__,
                __TIME__);
   Log.noticeln("Git SHA: %s", GIT_REV);
 
-  Log.noticeln("Starting i2c interface...");
-
-  // create adn register the WiFi module
-  static ModuleWiFi wifi;
   mh.RegisterModule(&wifi);
+
+  mh.RegisterModule(&microSD);
+
+  mh.RegisterModule(&user_config);
+
+  // commented out for now due to conflict with WiFi
+  // mh.RegisterModule(&irrigation);
+
+  mh.RegisterModule(&power);
 
   // start i2c interface
   Wire.onReceive(onReceive);
   Wire.onRequest(onRequest);
-  bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 100000);
+  bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 400000);
 
   if (i2c_status) {
     Log.noticeln("Success!");
@@ -81,4 +132,7 @@ RESET!
 }
 
 /** Loop code */
-void loop() {}
+void loop() {
+  handleClient();
+  delay(20);
+}

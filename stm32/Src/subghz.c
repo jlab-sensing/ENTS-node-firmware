@@ -20,6 +20,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "subghz.h"
 
+#include "board.h"
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -37,7 +39,7 @@ void MX_SUBGHZ_Init(void)
   /* USER CODE BEGIN SUBGHZ_Init 1 */
 
   /* USER CODE END SUBGHZ_Init 1 */
-  hsubghz.Init.BaudratePrescaler = SUBGHZSPI_BAUDRATEPRESCALER_4;
+  hsubghz.Init.BaudratePrescaler = SUBGHZSPI_BAUDRATEPRESCALER_8;
   if (HAL_SUBGHZ_Init(&hsubghz) != HAL_OK)
   {
     Error_Handler();

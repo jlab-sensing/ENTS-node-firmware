@@ -116,13 +116,15 @@ def parse_measurement(meas : Measurement) -> dict:
     # convert meta into dict
     if not meas.HasField("meta"):
         raise KeyError("Measurement missing metadata")
-    meta_dict = MessageToDict(meas.meta)
+    meta_dict = MessageToDict(meas.meta, always_print_fields_with_no_presence=True)
 
     # decode measurement
     if not meas.HasField("measurement"):
         raise KeyError("Measurement missing data")
     measurement_type = meas.WhichOneof("measurement")
-    measurement_dict = MessageToDict(getattr(meas, measurement_type))
+    measurement_dict = MessageToDict(
+        getattr(meas, measurement_type), always_print_fields_with_no_presence=True
+    )
 
     # store measurement type
     meta_dict["type"] = measurement_type

@@ -50,7 +50,6 @@ extern "C" {
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -60,6 +59,8 @@ void Error_Handler(void);
 #define RTC_PREDIV_A ((1<<(15-RTC_N_PREDIV_S))-1)
 #define RTC_N_PREDIV_S 10
 #define RTC_PREDIV_S ((1<<RTC_N_PREDIV_S)-1)
+#define USER_LED_Pin GPIO_PIN_5
+#define USER_LED_GPIO_Port GPIOB
 #define RF_CTRL3_Pin GPIO_PIN_3
 #define RF_CTRL3_GPIO_Port GPIOC
 #define VCC_Pin GPIO_PIN_13
@@ -70,17 +71,16 @@ void Error_Handler(void);
 #define POWERDOWN_GPIO_Port GPIOA
 #define SDI_12_MUX_Pin GPIO_PIN_1
 #define SDI_12_MUX_GPIO_Port GPIOC
+#define ADC_DRDY_Pin GPIO_PIN_0
+#define ADC_DRDY_GPIO_Port GPIOC
 #define RF_CTRL1_Pin GPIO_PIN_4
 #define RF_CTRL1_GPIO_Port GPIOC
 #define ESP32_EN_Pin GPIO_PIN_10
 #define ESP32_EN_GPIO_Port GPIOB
-#define USER_LED_Pin GPIO_PIN_5
-#define USER_LED_GPIO_Port GPIOB
+#define ESP32_WAKEUP_Pin GPIO_PIN_0
+#define ESP32_WAKEUP_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
-
-/** Global variable for HAL return codes */
-HAL_StatusTypeDef rc;
 
 /* USER CODE END Private defines */
 

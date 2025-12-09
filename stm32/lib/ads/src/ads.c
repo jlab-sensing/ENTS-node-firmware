@@ -180,8 +180,9 @@ double ADC_readVoltage(void) {
   meas = (double)raw;
 #else
   meas = (voltage_calibration_m * raw) + voltage_calibration_b;
-  meas /= 1000;
 #endif
+
+  meas /= 1000;
 
   return meas;
 }
@@ -221,10 +222,7 @@ HAL_StatusTypeDef probeADS12(void) {
   return ret;
 }
 
-size_t ADC_measure(uint8_t *data) {
-  // get timestamp
-  SysTime_t ts = SysTimeGet();
-
+size_t ADC_measure(uint8_t *data, SysTime_t ts) {
   // read power
   int32_t adc_voltage = ADC_readVoltage();
   int32_t adc_current = ADC_readCurrent();

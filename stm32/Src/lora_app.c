@@ -42,6 +42,7 @@
 #include "sensors.h"
 #include "userConfig.h"
 #include "status_led.h"
+#include "user_config.h"
 
 #include <time.h>
 /* USER CODE END Includes */
@@ -324,14 +325,17 @@ void LoRaWAN_Init(void)
 
   /* USER CODE BEGIN LoRaWAN_Init_1 */
   // load the upload interval
-  const UserConfiguration *cfg = UserConfigGet();
+  //const UserConfiguration *cfg = UserConfigGet();
   // convert interval to ms
-  TxPeriodicity = (cfg->Upload_interval * 1000);
+  //TxPeriodicity = (cfg->Upload_interval * 1000);
   // divide by number of sensors
-  TxPeriodicity /= cfg->enabled_sensors_count;
+  //TxPeriodicity /= cfg->enabled_sensors_count;
   // divide by 2 to keep upload buffer empty for failed uploads
-  TxPeriodicity /= 2;
+  //TxPeriodicity /= 2;
   /* USER CODE END LoRaWAN_Init_1 */
+
+  // initial period set to 10s to allow time sync first
+  TxPeriodicity = 10000;
 
   UTIL_TIMER_Create(&StopJoinTimer, JOIN_TIME, UTIL_TIMER_ONESHOT, OnStopJoinTimerEvent, NULL);
 
@@ -421,7 +425,6 @@ static void SendTxData(void)
 {
   /* USER CODE BEGIN SendTxData_1 */
 
-
   // preconditions
 
   // local flag for if clock has been synced
@@ -434,6 +437,30 @@ static void SendTxData(void)
       APP_LOG(TS_OFF, VLEVEL_M, "Clock sync request send successfully\r\n")
       // toggle flag
       clock_synced = true;
+      
+      // Stop webserver after 60 seconds
+      UserConfigSetupStop(60);
+
+      const UserConfiguration *cfg = UserConfigGet();
+      // convert interval to ms
+      TxPeriodicity = (cfg->Upload_interval * 1000);
+      // divide by number of sensors
+      // NOTE John I think this is zero indexed so we need to add 1
+      TxPeriodicity /= cfg->enabled_sensors_count + 1;
+      // divide by 2 to keep upload buffer empty for failed uploads
+      TxPeriodicity /= 2;
+
+      APP_LOG(TS_OFF, VLEVEL_M, "Upload interval set to %lums\r\n", TxPeriodicity);
+
+      // clamp to 10s
+      if (TxPeriodicity < 10000) {
+        TxPeriodicity = 10000;
+        APP_LOG(TS_OFF, VLEVEL_L, "Warning : upload interval too low, clamping to 10s\r\n");
+      }
+
+      UTIL_TIMER_SetPeriod(&TxTimer, TxPeriodicity);
+
+
       // start taking measurements
       SensorsStart();
     }
@@ -446,29 +473,46 @@ static void SendTxData(void)
   }
 
   // check if radio is busy
-  // if (LmHandlerIsBusy())
-  // {
-  //   APP_LOG(TS_ON, VLEVEL_M, "LmHandler is busy\r\n");
-  //   return;
-  // }
+  if (LmHandlerIsBusy())
+  {
+    APP_LOG(TS_ON, VLEVEL_M, "LmHandler is busy\r\n");
+    return;
+  }
 
   // check if buffer is empty
-  // if (FramBufferLen() <= 0)
-  // {
-  //   APP_LOG(TS_ON, VLEVEL_M, "Nothing in buffer\r\n");
-  //   return;
-  // }
+  if (FramBufferLen() <= 0)
+  {
+    APP_LOG(TS_ON, VLEVEL_M, "Nothing in buffer\r\n");
+    return;
+  }
 
   uint8_t battery_level = GetBatteryLevel();
   uint16_t temperature = SYS_GetTemperatureLevel();
 
-  // FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
-  // if (status != FRAM_OK)
-  // {
-  //   APP_LOG(TS_OFF, VLEVEL_M,
-  //           "Error getting data from fram buffer. FramStatus = %d", status);
-  //   return;
-  // }
+   FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
+   if (status != FRAM_OK)
+   {
+     APP_LOG(TS_OFF, VLEVEL_M,
+             "Error getting data from fram buffer. FramStatus = %d", status);
+     return;
+   }
+
+  // NOTE: Old code from Steve packet compression
+  //size_t size = 0;
+  //FramStatus status = FramGet(AppData.Buffer, &size);
+  //if (status != FRAM_OK)
+  //{
+  //  APP_LOG(TS_OFF, VLEVEL_M,
+  //          "Error getting data from fram buffer. FramStatus = %d", status);
+  //  return;
+  //}
+  //if (size > LORAWAN_APP_DATA_BUFFER_MAX_SIZE)
+  //{
+  //  APP_LOG(TS_OFF, VLEVEL_M, "Data size exceeds buffer size\r\n");
+  //  return;
+  //} else {
+  //  AppData.BufferSize = (uint8_t) size;
+  //}
 
   APP_LOG(TS_ON, VLEVEL_M, "Payload: ");
   for (int i = 0; i < AppData.BufferSize; i++)
@@ -479,18 +523,6 @@ static void SendTxData(void)
   APP_LOG(TS_ON, VLEVEL_M, "%d\r\n", AppData.BufferSize);
 
   AppData.Port = LORAWAN_SPS_MEAS_PORT;
-
-  // Define your own buffer and size
-  uint8_t customBuffer[50];  // Example: 50 bytes of data
-  uint32_t customBufferSize = sizeof(customBuffer);
-  // Fill the buffer with dummy data (e.g., incremental values)
-  for (uint32_t i = 0; i < customBufferSize; i++) {
-    customBuffer[i] = i;  // Fill with values 0, 1, 2, ...
-  }
-
-  // Prepare the AppData structure
-  AppData.Buffer = customBuffer;
-  AppData.BufferSize = customBufferSize;
 
   LmHandlerErrorStatus_t status;
   status = LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false);

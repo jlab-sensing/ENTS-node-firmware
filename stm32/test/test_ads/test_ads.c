@@ -7,11 +7,11 @@
 #include <unity.h>
 
 #include "ads.h"
+#include "board.h"
 #include "fifo.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "main.h"
-#include "main_helper.h"
 #include "sys_app.h"
 #include "usart.h"
 
@@ -69,9 +69,7 @@ int main(void) {
   UTIL_TIMER_Init();
 
   // wait for UART
-  for (int i = 0; i < 1000000; i++) {
-    __NOP();
-  }
+  WaitForSerial();
 
   UNITY_BEGIN();
   // other tests depend on the following two

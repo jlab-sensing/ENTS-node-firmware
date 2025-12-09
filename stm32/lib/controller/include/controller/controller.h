@@ -43,6 +43,18 @@ void ControllerInit(void);
 void ControllerDeinit(void);
 
 /**
+ * @brief Trigger esp32 wakeup pin
+ *
+ * After this function is called and the controller is initialized with
+ * ControllerInit(), the function ControllerPowerWakeup() should be used to
+ * check that the esp32 has correctly woken up.
+ *
+ * Since this is blocking code, a small internal delay is added for the startup
+ * time on the esp32.
+ */
+void ControllerWakeup(void);
+
+/**
  * @}
  */
 

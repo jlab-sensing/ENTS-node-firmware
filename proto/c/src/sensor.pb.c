@@ -18,7 +18,7 @@ PB_BIND(DeltaSensorMeasurement, DeltaSensorMeasurement, AUTO)
 PB_BIND(SensorMeasurement, SensorMeasurement, AUTO)
 
 
-PB_BIND(RepeatedSensorMeasurement, RepeatedSensorMeasurement, AUTO)
+PB_BIND(RepeatedSensorMeasurements, RepeatedSensorMeasurements, AUTO)
 
 
 

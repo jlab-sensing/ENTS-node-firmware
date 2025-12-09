@@ -51,7 +51,7 @@ extern "C" {
  * @return Number of bytes in @p buffer
  */
 size_t EncodePowerMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
-                              double voltage, double current, uint8_t *buffer);
+                              double voltage, double current, uint8_t* buffer);
 
 /**
  * @brief Encodes power delta measurements
@@ -93,7 +93,27 @@ size_t EncodePowerDeltaMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cel
 size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double vwc_raw,
                                 double vwc_adj, double temp, uint32_t ec,
-                                uint8_t *buffer);
+                                uint8_t* buffer);
+
+/**
+ * @brief Encodes a Teros21 measurement
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param matric_pot Matric potential
+ * @param temp Temperature in celsius
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
+                                uint32_t cell_id, double matric_pot,
+                                double temp, uint8_t* buffer);
 
 /**
  * @brief Encodes a Phytos31 measurement
@@ -116,7 +136,7 @@ size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
  */
 size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
                                  uint32_t cell_id, double voltage,
-                                 double leaf_wetness, uint8_t *buffer);
+                                 double leaf_wetness, uint8_t* buffer);
 
 /**
  * @brief Encodes a BME280 measurement
@@ -153,7 +173,88 @@ size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
 size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
                                uint32_t cell_id, uint32_t pressure,
                                int32_t temperature, uint32_t humidity,
-                               uint8_t *buffer);
+                               uint8_t* buffer);
+
+/**
+ * @brief Encodes a Water Pressure measurement
+ *
+ * Currently only the voltage measurement is used. Sensor will
+ * be implemented once more is known about the sensor.
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param voltage Raw voltage reading
+ * @param water_pressure Water Pressure
+ * @param buffer Buffer to store serialized measurement
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
+                                   uint32_t cell_id, double voltage,
+                                   double water_pressure, uint8_t* buffer);
+
+/**
+ * @brief Encodes a Capacitive Soil Moisture measurement
+ *
+ * Currently only the voltage measurement is used. Sensor will
+ * be implemented once more is known about the sensor.
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param voltage Raw voltage reading
+ * @param soil_moister Calibrated soil moister
+ * @param buffer Buffer to store serialized measurement
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
+                                uint32_t cell_id, double voltage,
+                                double humidity, uint8_t* buffer);
+
+/**
+ * @brief Encodes a Water Flow measurement
+ *
+ * Currently only the voltage measurement is used. Sensor will
+ * be implemented once more is known about the sensor.
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param water_flow Water Flow
+ * @param buffer Buffer to store serialized measurement
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
+                                  uint32_t cell_id, double water_flow,
+                                  uint8_t* buffer);
+
+/**
+ * @brief Decodes a measurement
+ *
+ * Use meas.which_measurement to determine the type of sensor data.
+ *
+ * @param meas Destination Measurement struct
+ * @param buffer Source buffer containing the serialized measurement to decode
+ * @param len Number of bytes in @p buffer
+ * @return 0 on success, -1 on error
+ */
+int DecodeMeasurement(Measurement* meas, const uint8_t* buffer,
+                      const size_t len);
 
 /**
  * @brief Decodes a response message
@@ -167,7 +268,7 @@ size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
  * @param len Number of bytes in @p data
  * @return Response type
  */
-Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len);
+Response_ResponseType DecodeResponse(const uint8_t* data, const size_t len);
 
 /**
  * @brief Decodes an Esp32Command message
@@ -177,7 +278,7 @@ Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len);
  *
  * @returns Esp32Command data
  */
-Esp32Command DecodeEsp32Command(const uint8_t *data, const size_t len);
+Esp32Command DecodeEsp32Command(const uint8_t* data, const size_t len);
 
 /**
  * @brief Encodes a page command
@@ -192,7 +293,7 @@ Esp32Command DecodeEsp32Command(const uint8_t *data, const size_t len);
  * @returns Number of bytes in @p buffer
  */
 size_t EncodePageCommand(PageCommand_RequestType req, int fd, size_t bs,
-                         size_t n, uint8_t *buffer, size_t size);
+                         size_t n, uint8_t* buffer, size_t size);
 
 /**
  * @brief Encodes a test command
@@ -205,7 +306,19 @@ size_t EncodePageCommand(PageCommand_RequestType req, int fd, size_t bs,
  * @return Number of bytes in @p buffer
  */
 size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
-                         uint8_t *buffer, size_t size);
+                         uint8_t* buffer, size_t size);
+
+/**
+ * @brief Encodes a MicroSDCommand
+ *
+ * @param microsd_cmd Command containing the data
+ * @param buffer Buffer to store serialized command
+ * @param size Size of buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeMicroSDCommand(const MicroSDCommand* microsd_cmd, uint8_t* buffer,
+                            size_t size);
 
 /**
  * @brief Encodes a WiFiCommand
@@ -216,8 +329,44 @@ size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
  *
  * @return Number of bytes in @p buffer
  */
-size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
+size_t EncodeWiFiCommand(const WiFiCommand* wifi_cmd, uint8_t* buffer,
                          size_t size);
+/**
+ * @brief Encodes a UserConfigCommand into a protobuf message
+ * @param type The request type (REQUEST_CONFIG or RESPONSE_CONFIG)
+ * @param config_data Pointer to UserConfiguration data
+ * @param buffer Output buffer for encoded data
+ * @param size Size of output buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
+                               const UserConfiguration* config_data,
+                               uint8_t* buffer, size_t size);
+
+/**
+ * @brief Encodes an IrrigationCommand
+ *
+ * @param irrigation_cmd Command containing the data
+ * @param buffer Buffer to store serialized measurement
+ * @param size Size of buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodeIrrigationCommand(const IrrigationCommand* irrigation_cmd,
+                               uint8_t* buffer, size_t size);
+
+/**
+ * @brief Encodes a PowerCommand
+ *
+ * @param power_cmd Command containing the data
+ * @param buffer Buffer to store serialized measurement
+ * @param size Size of buffer
+ *
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodePowerCommand(const PowerCommand* power_cmd, uint8_t* buffer,
+                          size_t size);
 
 /**
  * @brief Encodes user configuration data.
@@ -231,7 +380,7 @@ size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
  * @param buffer Buffer to store serialized data
  * @return Number of bytes in the buffer, or -1 on error
  */
-size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer);
+size_t EncodeUserConfiguration(UserConfiguration* config, uint8_t* buffer);
 
 /**
  * @brief Decodes user configuration data.
@@ -245,8 +394,8 @@ size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer);
  * @param config Decoded user configuration output
  * @return 0 on success, -1 on error
  */
-int DecodeUserConfiguration(const uint8_t *data, const size_t len,
-                            UserConfiguration *config);
+int DecodeUserConfiguration(const uint8_t* data, const size_t len,
+                            UserConfiguration* config);
 
 /**
  * @}

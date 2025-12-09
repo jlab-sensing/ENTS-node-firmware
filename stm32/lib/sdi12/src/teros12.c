@@ -1,6 +1,5 @@
 #include "teros12.h"
 
-#include "stm32_systime.h"
 #include "userConfig.h"
 
 SDI12Status Teros12ParseMeasurement(const char *buffer, Teros12Data *data) {
@@ -32,7 +31,6 @@ SDI12Status Teros12GetMeasurement(char addr, Teros12Data *data) {
   }
 
   // parse measurement into data structure
-  size_t buffer_len = 5;
   status = Teros12ParseMeasurement(buffer, data);
   if (status != SDI12_OK) {
     return status;
@@ -41,10 +39,7 @@ SDI12Status Teros12GetMeasurement(char addr, Teros12Data *data) {
   return status;
 }
 
-size_t Teros12Measure(uint8_t *data) {
-  // get timestamp
-  SysTime_t ts = SysTimeGet();
-
+size_t Teros12Measure(uint8_t *data, SysTime_t ts) {
   Teros12Data sens_data = {};
   SDI12Status status = Teros12GetMeasurement('0', &sens_data);
   if (status != SDI12_OK) {

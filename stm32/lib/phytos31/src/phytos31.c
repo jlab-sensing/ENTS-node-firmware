@@ -14,11 +14,14 @@
 
 #include "phytos31.h"
 
+// standard includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// user includes
 #include "transcoder.h"
+#include "userConfig.h"
 
 HAL_StatusTypeDef Phytos31Init() { return ADC_init(); }
 

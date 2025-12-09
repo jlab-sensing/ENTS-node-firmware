@@ -24,6 +24,8 @@
 #include "stm32_lpm_if.h"
 #include "usart_if.h"
 
+#include "board.h"
+
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -99,7 +101,7 @@ void PWR_EnterStopMode(void)
   LL_PWR_ClearFlag_C1STOP_C1STB();
 
   /* USER CODE BEGIN EnterStopMode_2 */
-
+  Board_DeInit();
   /* USER CODE END EnterStopMode_2 */
   HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
   /* USER CODE BEGIN EnterStopMode_3 */
@@ -120,9 +122,10 @@ void PWR_ExitStopMode(void)
     SRAM ctrls, DMAx, DMAMux, AES, RNG, HSEM  */
 
   /* Resume not retained USARTx and DMA */
-  vcom_Resume();
+  //vcom_Resume();
   /* USER CODE BEGIN ExitStopMode_2 */
-
+  // reconfigure clocks and peripherals
+  Board_Init();
   /* USER CODE END ExitStopMode_2 */
 }
 

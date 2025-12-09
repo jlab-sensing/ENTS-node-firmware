@@ -64,6 +64,9 @@ void RTC_Alarm_IRQHandler(void);
 void SUBGHZ_Radio_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
+//Interrupt handler used for jLab Demo Irrigation Site Flow Meter
+void EXTI15_10_IRQnHandler(void);
+
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

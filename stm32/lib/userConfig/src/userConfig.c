@@ -28,6 +28,26 @@ static uint8_t RQFlag = 0x05;
 // Flag indicating if the request flag byte has been received.
 static bool checked;
 
+#ifdef TEST_USER_CONFIG
+const static UserConfiguration testConfig = {
+    .logger_id = 200,
+    .cell_id = 200,
+    .Upload_method = Uploadmethod_WiFi,
+    .Upload_interval = 10,
+    .enabled_sensors_count = 1,
+    .enabled_sensors = {EnabledSensor_Voltage},
+    // calibration values are taken from 2.2.3-033
+    .Voltage_Slope = -0.00039326,
+    .Voltage_Offset = 4.92916378e-05,
+    .Current_Slope = -1.18693164e-10,
+    .Current_Offset = 4.14518594e-05,
+    .WiFi_SSID = "HARE_Lab",
+    .WiFi_Password = "",
+    .API_Endpoint_URL = "http://dirtviz.jlab.ucsc.edu/api/sensor/",
+    // port is not used
+    .API_Endpoint_Port = 80};
+#endif  // TEST_USER_CONFIG
+
 // Initialize Advance Trace for interrupt-based receiving
 void UserConfig_InitAdvanceTrace() {
   // Set up the callback function
@@ -213,6 +233,9 @@ UserConfigStatus UserConfig_ReadFromFRAM(uint16_t fram_addr, uint16_t length,
 
 // Load user configuration data from FRAM to RAM
 UserConfigStatus UserConfigLoad(void) {
+#ifdef TEST_USER_CONFIG
+  return USERCONFIG_OK;
+#else
   uint16_t data_length = 0;
   uint8_t length_buf[2];
 
@@ -224,6 +247,10 @@ UserConfigStatus UserConfigLoad(void) {
 
   // Convert length bytes to integer
   data_length = (length_buf[0] << 8) | length_buf[1];
+
+  if (data_length == 0) {
+    return USERCONFIG_EMPTY_CONFIG;
+  }
 
   // check the length for errors
   if (data_length > UserConfiguration_size) {
@@ -244,14 +271,48 @@ UserConfigStatus UserConfigLoad(void) {
   }
 
   return USERCONFIG_OK;  // Return success if decoding is successful
+#endif  // TEST_USER_CONFIG
 }
 
 // Get a reference to the loaded user configuration data in RAM.
-const UserConfiguration *UserConfigGet(void) { return &loadedConfig; }
+const UserConfiguration *UserConfigGet(void) {
+#ifdef TEST_USER_CONFIG
+  return &testConfig;
+#else
+  return &loadedConfig;
+#endif  // TEST_USER_CONFIG
+}
 
-void UserConfigPrint(void) {
-  const UserConfiguration *config = UserConfigGet();
+UserConfigStatus UserConfigSave(const UserConfiguration *config) {
+  if (config == NULL) {
+    return USERCONFIG_NULL_CONFIG;
+  }
 
+  uint8_t encoded_data[UserConfiguration_size];
+  size_t encoded_length = EncodeUserConfiguration(config, encoded_data);
+  if (encoded_length == -1) {
+    return USERCONFIG_ENCODE_ERROR;
+  }
+
+  // Write the length of the encoded data to FRAM
+  uint8_t length_buf[2] = {(encoded_length >> 8) & 0xFF, encoded_length & 0xFF};
+  UserConfigStatus status =
+      UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
+  if (status != USERCONFIG_OK) {
+    return status;
+  }
+
+  // Write the encoded data to FRAM
+  status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, encoded_data,
+                                  encoded_length);
+  if (status != USERCONFIG_OK) {
+    return status;
+  }
+
+  return USERCONFIG_OK;
+}
+
+void UserConfigPrintAny(const UserConfiguration *config) {
   // Print each member of the UserConfiguration
   APP_PRINTF("Logger ID: %u\r\n", config->logger_id);
   APP_PRINTF("Cell ID: %u\r\n", config->cell_id);
@@ -265,7 +326,7 @@ void UserConfigPrint(void) {
   APP_PRINTF("Upload Interval: %u\r\n", config->Upload_interval);
 
   for (int i = 0; i < config->enabled_sensors_count; i++) {
-    const char *sensor_name;
+    const char *sensor_name = NULL;
     switch (config->enabled_sensors[i]) {
       case 0:
         sensor_name = "Voltage";
@@ -281,6 +342,11 @@ void UserConfigPrint(void) {
         break;
       case 4:
         sensor_name = "BME280";
+        break;
+
+      // Currently Inactive
+      case 5:
+        sensor_name = "SEN0257";
         break;
     }
     APP_PRINTF("Enabled Sensor %d: %s\r\n", i + 1, sensor_name);
@@ -307,4 +373,25 @@ void UserConfigPrint(void) {
   APP_PRINTF("API Endpoint URL: %s\r\n", config->API_Endpoint_URL);
 
   APP_PRINTF("API Port: %u\r\n", config->API_Endpoint_Port);
+}
+
+void UserConfigPrint(void) {
+  const UserConfiguration *config = UserConfigGet();
+
+  UserConfigPrintAny(config);
+}
+
+UserConfigStatus UserConfigClear(void) {
+  FramStatus status = FRAM_OK;
+  const uint8_t length[2] = {};
+  const uint8_t empty[UserConfiguration_size] = {};
+  status = FramWrite(USER_CONFIG_LEN_ADDR, length, sizeof(length));
+  if (status != FRAM_OK) {
+    return USERCONFIG_FRAM_ERROR;
+  }
+  status = FramWrite(USER_CONFIG_START_ADDRESS, empty, sizeof(empty));
+  if (status != FRAM_OK) {
+    return USERCONFIG_FRAM_ERROR;
+  }
+  return USERCONFIG_OK;
 }
