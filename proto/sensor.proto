@@ -25,6 +25,21 @@ enum SensorType {
   BME280_PRESSURE = 7;
   BME280_TEMP = 8;
   BME280_HUMIDITY = 9;
+
+  /** Teros21 measurements */
+  TEROS21_MATRIC_POT = 10;
+  TEROS21_TEMP = 11;
+
+  /** Sen0308 measurements */
+  SEN0308_VOLTAGE = 12;
+  SEN0308_HUMIDITY = 13;
+
+  /** Sen0257 measurements */
+  SEN0257_VOLTAGE = 14;
+  SEN0257_PRESSURE = 15;
+  
+  /** YFS210C measurements */
+  YFS210C_FLOW = 16;
 }
 
 message Metadata {
