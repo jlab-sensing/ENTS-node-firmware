@@ -13,6 +13,7 @@ firmware versions for a hardware version.
 ### Updated
 
 - Esp32 enters a deep sleep state when idle [#150](i150)
+- Upload interval for LoRaWAN
 
 ### Fixed
 
