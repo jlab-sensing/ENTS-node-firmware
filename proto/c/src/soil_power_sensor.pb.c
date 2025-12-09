@@ -60,7 +60,14 @@ PB_BIND(MicroSDCommand, MicroSDCommand, 2)
 PB_BIND(IrrigationCommand, IrrigationCommand, AUTO)
 
 
+PB_BIND(PowerCommand, PowerCommand, AUTO)
+
+
 PB_BIND(UserConfiguration, UserConfiguration, AUTO)
+
+
+
+
 
 
 

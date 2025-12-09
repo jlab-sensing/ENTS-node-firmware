@@ -77,6 +77,8 @@ extern "C" {
 #define RF_CTRL1_GPIO_Port GPIOC
 #define ESP32_EN_Pin GPIO_PIN_10
 #define ESP32_EN_GPIO_Port GPIOB
+#define ESP32_WAKEUP_Pin GPIO_PIN_0
+#define ESP32_WAKEUP_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

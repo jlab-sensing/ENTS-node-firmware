@@ -108,6 +108,28 @@ typedef enum _IrrigationCommand_State {
     IrrigationCommand_State_CLOSE = 1
 } IrrigationCommand_State;
 
+typedef enum _PowerCommand_Type {
+    /* Put the device to sleep */
+    PowerCommand_Type_SLEEP = 0,
+    /* Check functionality after wakeup */
+    PowerCommand_Type_WAKEUP = 1
+} PowerCommand_Type;
+
+/* copied from idf library */
+typedef enum _PowerCommand_WakeupReason {
+    PowerCommand_WakeupReason_POWER_WAKEUP_EXT0 = 0,
+    PowerCommand_WakeupReason_POWER_WAKEUP_EXT1 = 1,
+    PowerCommand_WakeupReason_POWER_WAKEUP_TIMER = 2,
+    PowerCommand_WakeupReason_POWER_WAKEUP_TOUCHPAD = 3,
+    PowerCommand_WakeupReason_POWER_WAKEUP_ULP = 4,
+    PowerCommand_WakeupReason_POWER_WAKEUP_GPIO = 5,
+    PowerCommand_WakeupReason_POWER_WAKEUP_UART = 6,
+    PowerCommand_WakeupReason_POWER_WAKEUP_WIFI = 7,
+    PowerCommand_WakeupReason_POWER_WAKEUP_COCPU = 8,
+    PowerCommand_WakeupReason_POWER_WAKEUP_COCPU_TRAP_TRIG = 9,
+    PowerCommand_WakeupReason_POWER_WAKEUP_BT = 10
+} PowerCommand_WakeupReason;
+
 /* Struct definitions */
 /* Data shared between all measurement messages */
 typedef struct _MeasurementMetadata {
@@ -257,6 +279,12 @@ typedef struct _IrrigationCommand {
     IrrigationCommand_State state;
 } IrrigationCommand;
 
+typedef struct _PowerCommand {
+    PowerCommand_Type type;
+    PowerCommand_WakeupReason reason;
+    uint32_t boot_count;
+} PowerCommand;
+
 typedef struct _UserConfiguration {
     /* ********* Upload Settings ********* */
     uint32_t logger_id; /* id of the logging device */
@@ -312,6 +340,7 @@ typedef struct _Esp32Command {
         MicroSDCommand microsd_command;
         IrrigationCommand irrigation_command;
         UserConfigCommand user_config_command;
+        PowerCommand power_command;
     } command;
 } Esp32Command;
 
@@ -365,6 +394,14 @@ extern "C" {
 #define _IrrigationCommand_State_MAX IrrigationCommand_State_CLOSE
 #define _IrrigationCommand_State_ARRAYSIZE ((IrrigationCommand_State)(IrrigationCommand_State_CLOSE+1))
 
+#define _PowerCommand_Type_MIN PowerCommand_Type_SLEEP
+#define _PowerCommand_Type_MAX PowerCommand_Type_WAKEUP
+#define _PowerCommand_Type_ARRAYSIZE ((PowerCommand_Type)(PowerCommand_Type_WAKEUP+1))
+
+#define _PowerCommand_WakeupReason_MIN PowerCommand_WakeupReason_POWER_WAKEUP_EXT0
+#define _PowerCommand_WakeupReason_MAX PowerCommand_WakeupReason_POWER_WAKEUP_BT
+#define _PowerCommand_WakeupReason_ARRAYSIZE ((PowerCommand_WakeupReason)(PowerCommand_WakeupReason_POWER_WAKEUP_BT+1))
+
 
 
 
@@ -392,6 +429,9 @@ extern "C" {
 #define IrrigationCommand_type_ENUMTYPE IrrigationCommand_Type
 #define IrrigationCommand_state_ENUMTYPE IrrigationCommand_State
 
+#define PowerCommand_type_ENUMTYPE PowerCommand_Type
+#define PowerCommand_reason_ENUMTYPE PowerCommand_WakeupReason
+
 #define UserConfiguration_Upload_method_ENUMTYPE Uploadmethod
 #define UserConfiguration_enabled_sensors_ENUMTYPE EnabledSensor
 
@@ -415,6 +455,7 @@ extern "C" {
 #define UserConfigCommand_init_default           {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_default}
 #define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_default}}
 #define IrrigationCommand_init_default           {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
+#define PowerCommand_init_default                {_PowerCommand_Type_MIN, _PowerCommand_WakeupReason_MIN, 0}
 #define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
 #define PowerMeasurement_init_zero               {0, 0}
@@ -434,6 +475,7 @@ extern "C" {
 #define UserConfigCommand_init_zero              {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_zero}
 #define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_zero}}
 #define IrrigationCommand_init_zero              {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
+#define PowerCommand_init_zero                   {_PowerCommand_Type_MIN, _PowerCommand_WakeupReason_MIN, 0}
 #define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -486,6 +528,9 @@ extern "C" {
 #define WiFiCommand_clients_tag                  10
 #define IrrigationCommand_type_tag               1
 #define IrrigationCommand_state_tag              2
+#define PowerCommand_type_tag                    1
+#define PowerCommand_reason_tag                  2
+#define PowerCommand_boot_count_tag              3
 #define UserConfiguration_logger_id_tag          1
 #define UserConfiguration_cell_id_tag            2
 #define UserConfiguration_Upload_method_tag      3
@@ -512,6 +557,7 @@ extern "C" {
 #define Esp32Command_microsd_command_tag         4
 #define Esp32Command_irrigation_command_tag      5
 #define Esp32Command_user_config_command_tag     6
+#define Esp32Command_power_command_tag           7
 
 /* Struct field encoding specification for nanopb */
 #define MeasurementMetadata_FIELDLIST(X, a) \
@@ -604,7 +650,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (command,test_command,command.test_command), 
 X(a, STATIC,   ONEOF,    MESSAGE,  (command,wifi_command,command.wifi_command),   3) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (command,microsd_command,command.microsd_command),   4) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (command,irrigation_command,command.irrigation_command),   5) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (command,user_config_command,command.user_config_command),   6)
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,user_config_command,command.user_config_command),   6) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,power_command,command.power_command),   7)
 #define Esp32Command_CALLBACK NULL
 #define Esp32Command_DEFAULT NULL
 #define Esp32Command_command_page_command_MSGTYPE PageCommand
@@ -613,6 +660,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (command,user_config_command,command.user_con
 #define Esp32Command_command_microsd_command_MSGTYPE MicroSDCommand
 #define Esp32Command_command_irrigation_command_MSGTYPE IrrigationCommand
 #define Esp32Command_command_user_config_command_MSGTYPE UserConfigCommand
+#define Esp32Command_command_power_command_MSGTYPE PowerCommand
 
 #define PageCommand_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    file_request,      1) \
@@ -666,6 +714,13 @@ X(a, STATIC,   SINGULAR, UENUM,    state,             2)
 #define IrrigationCommand_CALLBACK NULL
 #define IrrigationCommand_DEFAULT NULL
 
+#define PowerCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
+X(a, STATIC,   SINGULAR, UENUM,    reason,            2) \
+X(a, STATIC,   SINGULAR, UINT32,   boot_count,        3)
+#define PowerCommand_CALLBACK NULL
+#define PowerCommand_DEFAULT NULL
+
 #define UserConfiguration_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   logger_id,         1) \
 X(a, STATIC,   SINGULAR, UINT32,   cell_id,           2) \
@@ -701,6 +756,7 @@ extern const pb_msgdesc_t WiFiCommand_msg;
 extern const pb_msgdesc_t UserConfigCommand_msg;
 extern const pb_msgdesc_t MicroSDCommand_msg;
 extern const pb_msgdesc_t IrrigationCommand_msg;
+extern const pb_msgdesc_t PowerCommand_msg;
 extern const pb_msgdesc_t UserConfiguration_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
@@ -722,6 +778,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define UserConfigCommand_fields &UserConfigCommand_msg
 #define MicroSDCommand_fields &MicroSDCommand_msg
 #define IrrigationCommand_fields &IrrigationCommand_msg
+#define PowerCommand_fields &PowerCommand_msg
 #define UserConfiguration_fields &UserConfiguration_msg
 
 /* Maximum encoded size of messages (where known) */
@@ -733,6 +790,7 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define MicroSDCommand_size                      503
 #define PageCommand_size                         20
 #define Phytos31Measurement_size                 18
+#define PowerCommand_size                        10
 #define PowerMeasurement_size                    18
 #define Response_size                            2
 #define SEN0257Measurement_size                  18

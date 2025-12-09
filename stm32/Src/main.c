@@ -95,16 +95,23 @@ int main(void) {
   // Start status LEDs
   StatusLedInit();
   StatusLedFlashSlow();
+
+  // Wakeup via GPIO pin
+  ControllerWakeup();
   
   // initialize esp32 controller module  
-  ControllerInit(); 
+  ControllerInit();
+
+  if (!ControllerPowerWakeup()) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error waking up ESP32!\n");
+  }
   
   // Print warning when using TEST_USER_CONFIG
 #ifdef TEST_USER_CONFIG
   APP_LOG(TS_OFF, VLEVEL_M, "WARNING: TEST_USER_CONFIG is enabled!\n");
 #endif  // TEST_USER_CONFIG
 
-  UserConfigStart(60);
+  UserConfigStart(120);
   const UserConfiguration* cfg = UserConfigGet();
 
   // initialize the user config interrupt

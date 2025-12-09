@@ -63,6 +63,9 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(ESP32_EN_GPIO_Port, ESP32_EN_Pin, GPIO_PIN_RESET);
+  
+  // ensure wakeup pin is low
+  HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PA12 PA11 PA10 PA0
                            PA6 PA1 PA7 PA4
@@ -120,6 +123,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+ 
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = ESP32_WAKEUP_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(ESP32_WAKEUP_GPIO_Port, &GPIO_InitStruct);
 
 }
 
