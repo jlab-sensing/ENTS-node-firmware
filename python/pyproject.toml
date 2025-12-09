@@ -17,7 +17,7 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  'protobuf==6.32.1',
+  'protobuf==6.33.2',
   'matplotlib',
   'pandas',
   'pyserial',
