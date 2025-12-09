@@ -10,6 +10,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from multiprocessing import Process
 from datetime import datetime, timedelta
+from time import sleep
 
 from ents.simulator.node import NodeSimulator
 
@@ -51,6 +52,8 @@ class TestNodeSimulator(unittest.TestCase):
 
         self.backend = Process(target=run_server)
         self.backend.start()
+        # give server time to start
+        sleep(0.5)
 
     def tearDown(self):
         """Terminate process"""
