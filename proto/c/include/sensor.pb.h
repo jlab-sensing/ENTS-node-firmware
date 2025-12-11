@@ -11,20 +11,32 @@
 
 /* Enum definitions */
 typedef enum _SensorType {
+    SensorType_NONE = 0,
     /* * Onboard power measurements */
-    SensorType_POWER_VOLTAGE = 0,
-    SensorType_POWER_CURRENT = 1,
+    SensorType_POWER_VOLTAGE = 1,
+    SensorType_POWER_CURRENT = 2,
     /* * Teros12 measurements */
-    SensorType_TEROS12_VWC = 2,
-    SensorType_TEROS12_TEMP = 3,
-    SensorType_TEROS12_EC = 4,
+    SensorType_TEROS12_VWC = 3,
+    SensorType_TEROS12_TEMP = 4,
+    SensorType_TEROS12_EC = 5,
     /* * Phytos31 measurements */
-    SensorType_PHYTOS31_VOLTAGE = 5,
-    SensorType_PHYTOS31_LEAF_WETNESS = 6,
+    SensorType_PHYTOS31_VOLTAGE = 6,
+    SensorType_PHYTOS31_LEAF_WETNESS = 7,
     /* * Bme280 measurements */
-    SensorType_BME280_PRESSURE = 7,
-    SensorType_BME280_TEMP = 8,
-    SensorType_BME280_HUMIDITY = 9
+    SensorType_BME280_PRESSURE = 8,
+    SensorType_BME280_TEMP = 9,
+    SensorType_BME280_HUMIDITY = 10,
+    /* * Teros21 measurements */
+    SensorType_TEROS21_MATRIC_POT = 11,
+    SensorType_TEROS21_TEMP = 12,
+    /* * Sen0308 measurements */
+    SensorType_SEN0308_VOLTAGE = 13,
+    SensorType_SEN0308_HUMIDITY = 14,
+    /* * Sen0257 measurements */
+    SensorType_SEN0257_VOLTAGE = 15,
+    SensorType_SEN0257_PRESSURE = 16,
+    /* * YFS210C measurements */
+    SensorType_YFS210C_FLOW = 17
 } SensorType;
 
 /* Struct definitions */
@@ -37,43 +49,29 @@ typedef struct _Metadata {
     uint32_t ts;
 } Metadata;
 
-typedef struct _FullSensorMeasurement {
-    pb_size_t which_measurement;
-    union {
-        uint64_t unsigned_int;
-        int64_t signed_int;
-        double floating_point;
-        pb_callback_t text;
-    } measurement;
-} FullSensorMeasurement;
-
-typedef struct _DeltaSensorMeasurement {
-    pb_size_t which_delta;
-    union {
-        int64_t signed_int;
-        double floating_point;
-    } delta;
-} DeltaSensorMeasurement;
-
 typedef struct _SensorMeasurement {
     /* * Metadata for the measurement */
     bool has_meta;
     Metadata meta;
     /* * Type of sensor measurement */
     SensorType type;
-    pb_size_t which_measurement;
+    pb_size_t which_value;
     union {
-        FullSensorMeasurement full;
-        DeltaSensorMeasurement delta;
-    } measurement;
+        uint64_t unsigned_int;
+        int64_t signed_int;
+        double decimal;
+    } value;
 } SensorMeasurement;
 
 typedef struct _RepeatedSensorMeasurements {
     /* * Metadata for all measurements */
     bool has_meta;
     Metadata meta;
+    /* * Type of sensor measurements */
+    SensorType type;
     /* * List of sensor measurements */
-    pb_callback_t measurements;
+    pb_size_t measurements_count;
+    SensorMeasurement measurements[16];
 } RepeatedSensorMeasurements;
 
 
@@ -82,45 +80,36 @@ extern "C" {
 #endif
 
 /* Helper constants for enums */
-#define _SensorType_MIN SensorType_POWER_VOLTAGE
-#define _SensorType_MAX SensorType_BME280_HUMIDITY
-#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_BME280_HUMIDITY+1))
-
-
+#define _SensorType_MIN SensorType_NONE
+#define _SensorType_MAX SensorType_YFS210C_FLOW
+#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_YFS210C_FLOW+1))
 
 
 #define SensorMeasurement_type_ENUMTYPE SensorType
 
+#define RepeatedSensorMeasurements_type_ENUMTYPE SensorType
 
 
 /* Initializer values for message structs */
 #define Metadata_init_default                    {0, 0, 0}
-#define FullSensorMeasurement_init_default       {0, {0}}
-#define DeltaSensorMeasurement_init_default      {0, {0}}
-#define SensorMeasurement_init_default           {false, Metadata_init_default, _SensorType_MIN, 0, {FullSensorMeasurement_init_default}}
-#define RepeatedSensorMeasurements_init_default  {false, Metadata_init_default, {{NULL}, NULL}}
+#define SensorMeasurement_init_default           {false, Metadata_init_default, _SensorType_MIN, 0, {0}}
+#define RepeatedSensorMeasurements_init_default  {false, Metadata_init_default, _SensorType_MIN, 0, {SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default, SensorMeasurement_init_default}}
 #define Metadata_init_zero                       {0, 0, 0}
-#define FullSensorMeasurement_init_zero          {0, {0}}
-#define DeltaSensorMeasurement_init_zero         {0, {0}}
-#define SensorMeasurement_init_zero              {false, Metadata_init_zero, _SensorType_MIN, 0, {FullSensorMeasurement_init_zero}}
-#define RepeatedSensorMeasurements_init_zero     {false, Metadata_init_zero, {{NULL}, NULL}}
+#define SensorMeasurement_init_zero              {false, Metadata_init_zero, _SensorType_MIN, 0, {0}}
+#define RepeatedSensorMeasurements_init_zero     {false, Metadata_init_zero, _SensorType_MIN, 0, {SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero, SensorMeasurement_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define Metadata_cell_id_tag                     1
 #define Metadata_logger_id_tag                   2
 #define Metadata_ts_tag                          3
-#define FullSensorMeasurement_unsigned_int_tag   1
-#define FullSensorMeasurement_signed_int_tag     2
-#define FullSensorMeasurement_floating_point_tag 3
-#define FullSensorMeasurement_text_tag           4
-#define DeltaSensorMeasurement_signed_int_tag    1
-#define DeltaSensorMeasurement_floating_point_tag 2
 #define SensorMeasurement_meta_tag               1
 #define SensorMeasurement_type_tag               2
-#define SensorMeasurement_full_tag               3
-#define SensorMeasurement_delta_tag              4
+#define SensorMeasurement_unsigned_int_tag       3
+#define SensorMeasurement_signed_int_tag         4
+#define SensorMeasurement_decimal_tag            5
 #define RepeatedSensorMeasurements_meta_tag      1
-#define RepeatedSensorMeasurements_measurements_tag 2
+#define RepeatedSensorMeasurements_type_tag      2
+#define RepeatedSensorMeasurements_measurements_tag 3
 
 /* Struct field encoding specification for nanopb */
 #define Metadata_FIELDLIST(X, a) \
@@ -130,59 +119,39 @@ X(a, STATIC,   SINGULAR, UINT32,   ts,                3)
 #define Metadata_CALLBACK NULL
 #define Metadata_DEFAULT NULL
 
-#define FullSensorMeasurement_FIELDLIST(X, a) \
-X(a, STATIC,   ONEOF,    UINT64,   (measurement,unsigned_int,measurement.unsigned_int),   1) \
-X(a, STATIC,   ONEOF,    SINT64,   (measurement,signed_int,measurement.signed_int),   2) \
-X(a, STATIC,   ONEOF,    DOUBLE,   (measurement,floating_point,measurement.floating_point),   3) \
-X(a, CALLBACK, ONEOF,    STRING,   (measurement,text,measurement.text),   4)
-#define FullSensorMeasurement_CALLBACK pb_default_field_callback
-#define FullSensorMeasurement_DEFAULT NULL
-
-#define DeltaSensorMeasurement_FIELDLIST(X, a) \
-X(a, STATIC,   ONEOF,    SINT64,   (delta,signed_int,delta.signed_int),   1) \
-X(a, STATIC,   ONEOF,    DOUBLE,   (delta,floating_point,delta.floating_point),   2)
-#define DeltaSensorMeasurement_CALLBACK NULL
-#define DeltaSensorMeasurement_DEFAULT NULL
-
 #define SensorMeasurement_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
 X(a, STATIC,   SINGULAR, UENUM,    type,              2) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,full,measurement.full),   3) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,delta,measurement.delta),   4)
+X(a, STATIC,   ONEOF,    UINT64,   (value,unsigned_int,value.unsigned_int),   3) \
+X(a, STATIC,   ONEOF,    SINT64,   (value,signed_int,value.signed_int),   4) \
+X(a, STATIC,   ONEOF,    DOUBLE,   (value,decimal,value.decimal),   5)
 #define SensorMeasurement_CALLBACK NULL
 #define SensorMeasurement_DEFAULT NULL
 #define SensorMeasurement_meta_MSGTYPE Metadata
-#define SensorMeasurement_measurement_full_MSGTYPE FullSensorMeasurement
-#define SensorMeasurement_measurement_delta_MSGTYPE DeltaSensorMeasurement
 
 #define RepeatedSensorMeasurements_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
-X(a, CALLBACK, REPEATED, MESSAGE,  measurements,      2)
-#define RepeatedSensorMeasurements_CALLBACK pb_default_field_callback
+X(a, STATIC,   SINGULAR, UENUM,    type,              2) \
+X(a, STATIC,   REPEATED, MESSAGE,  measurements,      3)
+#define RepeatedSensorMeasurements_CALLBACK NULL
 #define RepeatedSensorMeasurements_DEFAULT NULL
 #define RepeatedSensorMeasurements_meta_MSGTYPE Metadata
 #define RepeatedSensorMeasurements_measurements_MSGTYPE SensorMeasurement
 
 extern const pb_msgdesc_t Metadata_msg;
-extern const pb_msgdesc_t FullSensorMeasurement_msg;
-extern const pb_msgdesc_t DeltaSensorMeasurement_msg;
 extern const pb_msgdesc_t SensorMeasurement_msg;
 extern const pb_msgdesc_t RepeatedSensorMeasurements_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define Metadata_fields &Metadata_msg
-#define FullSensorMeasurement_fields &FullSensorMeasurement_msg
-#define DeltaSensorMeasurement_fields &DeltaSensorMeasurement_msg
 #define SensorMeasurement_fields &SensorMeasurement_msg
 #define RepeatedSensorMeasurements_fields &RepeatedSensorMeasurements_msg
 
 /* Maximum encoded size of messages (where known) */
-/* FullSensorMeasurement_size depends on runtime parameters */
-/* SensorMeasurement_size depends on runtime parameters */
-/* RepeatedSensorMeasurements_size depends on runtime parameters */
-#define DeltaSensorMeasurement_size              11
 #define Metadata_size                            18
-#define SENSOR_PB_H_MAX_SIZE                     Metadata_size
+#define RepeatedSensorMeasurements_size          582
+#define SENSOR_PB_H_MAX_SIZE                     RepeatedSensorMeasurements_size
+#define SensorMeasurement_size                   33
 
 #ifdef __cplusplus
 } /* extern "C" */

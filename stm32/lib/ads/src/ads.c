@@ -41,7 +41,6 @@ int32_t previous_voltage_reading = 0;
 int32_t previous_current_reading = 0; 
 
 // default sane calibration
-#ifdef CALIBRATION
 static double voltage_calibration_m = 0.0;
 static double voltage_calibration_b = 0.0;
 static double current_calibration_m = 0.0;
@@ -129,7 +128,6 @@ HAL_StatusTypeDef ADC_init(void) {
   const UserConfiguration *cfg = UserConfigGet();
 
   // read calibration values
-  #ifdef CALIBRATION
   voltage_calibration_m = cfg->Voltage_Slope;
   voltage_calibration_b = cfg->Voltage_Offset;
   current_calibration_m = cfg->Current_Slope;

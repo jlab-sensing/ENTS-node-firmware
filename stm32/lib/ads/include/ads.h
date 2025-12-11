@@ -70,7 +70,7 @@ HAL_StatusTypeDef ADC_init(void);
 * @return   double, current ADC reading in microvolts
 ******************************************************************************
 */
-int32_t ADC_readVoltage(void);
+double ADC_readVoltage(void);
 
 /**
 ******************************************************************************
@@ -84,7 +84,7 @@ int32_t ADC_readVoltage(void);
 * @return   int32_t, current ADC reading in microamps
 ******************************************************************************
 */
-int32_t ADC_readCurrent(void);
+double ADC_readCurrent(void);
 
 /**
 ******************************************************************************

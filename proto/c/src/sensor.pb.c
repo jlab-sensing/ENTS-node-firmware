@@ -9,16 +9,10 @@
 PB_BIND(Metadata, Metadata, AUTO)
 
 
-PB_BIND(FullSensorMeasurement, FullSensorMeasurement, AUTO)
-
-
-PB_BIND(DeltaSensorMeasurement, DeltaSensorMeasurement, AUTO)
-
-
 PB_BIND(SensorMeasurement, SensorMeasurement, AUTO)
 
 
-PB_BIND(RepeatedSensorMeasurements, RepeatedSensorMeasurements, AUTO)
+PB_BIND(RepeatedSensorMeasurements, RepeatedSensorMeasurements, 2)
 
 
 

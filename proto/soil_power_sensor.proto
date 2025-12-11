@@ -171,6 +171,7 @@ message Measurement {
 
   // Possible measurements
   oneof measurement {
+    PowerMeasurement power = 2;
     Teros12Measurement teros12 = 3;
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;

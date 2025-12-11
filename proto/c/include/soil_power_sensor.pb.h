@@ -284,6 +284,7 @@ typedef struct _Measurement {
     MeasurementMetadata meta;
     pb_size_t which_measurement;
     union {
+        PowerMeasurement power;
         Teros12Measurement teros12;
         Phytos31Measurement phytos31;
         BME280Measurement bme280;
@@ -533,7 +534,7 @@ extern "C" {
 #define SEN0308Measurement_init_default          {0, 0}
 #define SEN0257Measurement_init_default          {0, 0}
 #define YFS210CMeasurement_init_default          {0}
-#define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {Teros12Measurement_init_default}}
+#define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
 #define PageCommand_init_default                 {_PageCommand_RequestType_MIN, 0, 0, 0}
@@ -561,7 +562,7 @@ extern "C" {
 #define SEN0308Measurement_init_zero             {0, 0}
 #define SEN0257Measurement_init_zero             {0, 0}
 #define YFS210CMeasurement_init_zero             {0}
-#define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {Teros12Measurement_init_zero}}
+#define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
 #define PageCommand_init_zero                    {_PageCommand_RequestType_MIN, 0, 0, 0}
@@ -609,6 +610,7 @@ extern "C" {
 #define SEN0257Measurement_pressure_tag          2
 #define YFS210CMeasurement_flow_tag              1
 #define Measurement_meta_tag                     1
+#define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
 #define Measurement_phytos31_tag                 4
 #define Measurement_bme280_tag                   5
@@ -768,6 +770,7 @@ X(a, STATIC,   SINGULAR, DOUBLE,   flow,              1)
 
 #define Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power,measurement.power),   2) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros12,measurement.teros12),   3) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,phytos31,measurement.phytos31),   4) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,bme280,measurement.bme280),   5) \
@@ -778,6 +781,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
+#define Measurement_measurement_power_MSGTYPE PowerMeasurement
 #define Measurement_measurement_teros12_MSGTYPE Teros12Measurement
 #define Measurement_measurement_phytos31_MSGTYPE Phytos31Measurement
 #define Measurement_measurement_bme280_MSGTYPE BME280Measurement

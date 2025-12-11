@@ -489,13 +489,13 @@ static void SendTxData(void)
   uint8_t battery_level = GetBatteryLevel();
   uint16_t temperature = SYS_GetTemperatureLevel();
 
-   FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
-   if (status != FRAM_OK)
-   {
-     APP_LOG(TS_OFF, VLEVEL_M,
-             "Error getting data from fram buffer. FramStatus = %d", status);
-     return;
-   }
+  FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
+  if (status != FRAM_OK)
+  {
+    APP_LOG(TS_OFF, VLEVEL_M,
+            "Error getting data from fram buffer. FramStatus = %d", status);
+    return;
+  }
 
   // NOTE: Old code from Steve packet compression
   //size_t size = 0;
@@ -524,9 +524,9 @@ static void SendTxData(void)
 
   AppData.Port = LORAWAN_SPS_MEAS_PORT;
 
-  LmHandlerErrorStatus_t status;
-  status = LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false);
-  if (status == LORAMAC_HANDLER_SUCCESS)
+  LmHandlerErrorStatus_t lmstatus;
+  lmstatus = LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false);
+  if (lmstatus == LORAMAC_HANDLER_SUCCESS)
   {
     APP_LOG(TS_ON, VLEVEL_L, "SEND REQUEST\r\n");
   }

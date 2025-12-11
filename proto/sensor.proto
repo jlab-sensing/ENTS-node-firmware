@@ -8,38 +8,40 @@
 syntax = "proto3";
 
 enum SensorType {
+  NONE = 0;
+
   /** Onboard power measurements */
-  POWER_VOLTAGE = 0;
-  POWER_CURRENT = 1;
+  POWER_VOLTAGE = 1;
+  POWER_CURRENT = 2;
 
   /** Teros12 measurements */
-  TEROS12_VWC = 2;
-  TEROS12_TEMP = 3;
-  TEROS12_EC = 4;
+  TEROS12_VWC = 3;
+  TEROS12_TEMP = 4;
+  TEROS12_EC = 5;
 
   /** Phytos31 measurements */
-  PHYTOS31_VOLTAGE = 5;
-  PHYTOS31_LEAF_WETNESS = 6;
+  PHYTOS31_VOLTAGE = 6;
+  PHYTOS31_LEAF_WETNESS = 7;
 
   /** Bme280 measurements */
-  BME280_PRESSURE = 7;
-  BME280_TEMP = 8;
-  BME280_HUMIDITY = 9;
+  BME280_PRESSURE = 8;
+  BME280_TEMP = 9;
+  BME280_HUMIDITY = 10;
 
   /** Teros21 measurements */
-  TEROS21_MATRIC_POT = 10;
-  TEROS21_TEMP = 11;
+  TEROS21_MATRIC_POT = 11;
+  TEROS21_TEMP = 12;
 
   /** Sen0308 measurements */
-  SEN0308_VOLTAGE = 12;
-  SEN0308_HUMIDITY = 13;
+  SEN0308_VOLTAGE = 13;
+  SEN0308_HUMIDITY = 14;
 
   /** Sen0257 measurements */
-  SEN0257_VOLTAGE = 14;
-  SEN0257_PRESSURE = 15;
+  SEN0257_VOLTAGE = 15;
+  SEN0257_PRESSURE = 16;
   
   /** YFS210C measurements */
-  YFS210C_FLOW = 16;
+  YFS210C_FLOW = 17;
 }
 
 message Metadata {
@@ -51,24 +53,6 @@ message Metadata {
   uint32 ts = 3;
 }
 
-message FullSensorMeasurement {
-  /** Measurement value */
-  oneof measurement {
-    uint64 unsigned_int = 1; 
-    sint64 signed_int = 2;
-    double floating_point = 3;
-    string text = 4;
-  }
-}
-
-message DeltaSensorMeasurement {
-  /** Stores the delta from the previous measurement */
-  oneof delta {
-    sint64 signed_int = 1;
-    double floating_point = 2;
-  }
-}
-
 message SensorMeasurement {
   /** Metadata for the measurement */
   Metadata meta = 1;
@@ -76,10 +60,10 @@ message SensorMeasurement {
   /** Type of sensor measurement */
   SensorType type = 2;
 
-  /** Holds either full measurement or delta measurement */
-  oneof measurement {
-    FullSensorMeasurement full = 3;
-    DeltaSensorMeasurement delta = 4;
+  oneof value {
+    uint64 unsigned_int = 3; 
+    sint64 signed_int = 4;
+    double decimal = 5;
   }
 }
 
@@ -87,6 +71,9 @@ message RepeatedSensorMeasurements {
   /** Metadata for all measurements */
   Metadata meta = 1;
 
+  /** Type of sensor measurements */
+  SensorType type = 2;
+
   /** List of sensor measurements */
-  repeated SensorMeasurement measurements = 2;
+  repeated SensorMeasurement measurements = 3;
 }
