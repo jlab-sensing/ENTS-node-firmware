@@ -5,7 +5,7 @@ pio check -e stm32
 cd ..
 
 cd esp32
-pio check
+pio check -e release
 cd ..
 
 # lint python code

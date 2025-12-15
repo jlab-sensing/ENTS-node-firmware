@@ -152,3 +152,58 @@ ControllerWiFiResponse ControllerWiFiCheckRequest(void) {
   // return timestamp
   return http_resp;
 }
+
+bool ControllerWiFiHost(const char *ssid, const char *passwd) {
+  WiFiCommand wifi_cmd = WiFiCommand_init_zero;
+  wifi_cmd.type = WiFiCommand_Type_HOST;
+
+  strncpy(wifi_cmd.ssid, ssid, sizeof(wifi_cmd.ssid));
+  strncpy(wifi_cmd.passwd, passwd, sizeof(wifi_cmd.passwd));
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+
+  if (WiFiCommandTransaction(&wifi_cmd, &resp) != CONTROLLER_SUCCESS) {
+    // ip = NULL;
+    return false;
+  }
+
+  return true;
+}
+
+bool ControllerWiFiStopHost(void) {
+  WiFiCommand wifi_cmd = WiFiCommand_init_zero;
+  wifi_cmd.type = WiFiCommand_Type_STOP_HOST;
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+
+  if (WiFiCommandTransaction(&wifi_cmd, &resp) != CONTROLLER_SUCCESS) {
+    return false;
+  }
+
+  return true;
+}
+
+void ControllerWiFiHostInfo(char *ssid, char *ip, char *mac, uint8_t *clients) {
+  WiFiCommand wifi_cmd = WiFiCommand_init_zero;
+  wifi_cmd.type = WiFiCommand_Type_HOST_INFO;
+
+  WiFiCommand resp = WiFiCommand_init_zero;
+
+  WiFiCommandTransaction(&wifi_cmd, &resp);
+
+  if (ssid != NULL) {
+    strcpy(ssid, resp.ssid);
+  }
+
+  if (ip != NULL) {
+    strcpy(ip, resp.url);
+  }
+
+  if (mac != NULL) {
+    strcpy(mac, resp.mac);
+  }
+
+  if (clients != NULL) {
+    *clients = resp.clients;
+  }
+}

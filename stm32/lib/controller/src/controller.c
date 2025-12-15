@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "communication.h"
+#include "main.h"
 #include "soil_power_sensor.pb.h"
 
 void ControllerInit(void) {
@@ -39,4 +40,14 @@ void ControllerDeinit(void) {
   free(rx->data);
   rx->size = 0;
   rx->len = 0;
+}
+
+void ControllerWakeup(void) {
+  HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_SET);
+
+  HAL_Delay(50);
+
+  HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
+
+  HAL_Delay(50);
 }

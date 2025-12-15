@@ -3,13 +3,60 @@
 // system includes
 #include "stm32wlxx_hal.h"
 
+// peripherials
+#include "adc.h"
+#include "app_lorawan.h"
+#include "dma.h"
+#include "gpio.h"
+#include "i2c.h"
+#include "rtc.h"
+#include "sys_app.h"
+#include "tim.h"
+#include "usart.h"
+
 // user includes
 #include "status_led.h"
 
-/**
- * @brief System Clock Configuration
- * @retval None
- */
+void Board_Init(void) {
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_DMA_Init();  
+  MX_ADC_Init();
+  MX_USART1_UART_Init();
+  MX_I2C2_Init();
+  
+  // required for SDI-12
+  MX_USART2_UART_Init();
+  MX_TIM1_Init();
+}
+
+void Board_DeInit(void) {
+  if (HAL_ADC_DeInit(&hadc) != HAL_OK) {
+    Error_Handler();
+  }
+
+  if (HAL_UART_DeInit(&huart1) != HAL_OK) {
+    Error_Handler();
+  }
+
+  // NOTE DMA does not have a deinit function, STOP2 clocks are sufficient
+
+  if (HAL_I2C_DeInit(&hi2c2) != HAL_OK) {
+    Error_Handler();
+  }
+
+  if (HAL_UART_DeInit(&huart2) != HAL_OK) {
+    Error_Handler();
+  }
+
+  if (HAL_TIM_Base_DeInit(&htim1) != HAL_OK) {
+    Error_Handler();
+  }
+}
+
 void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
@@ -21,22 +68,16 @@ void SystemClock_Config(void) {
 
   /** Configure the main internal regulator output voltage
   */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
 
   /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE | RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
-  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV1;
-  RCC_OscInitStruct.PLL.PLLN = 42;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -44,18 +85,19 @@ void SystemClock_Config(void) {
 
   /** Configure the SYSCLKSource, HCLK, PCLK1 and PCLK2 clocks dividers
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK3 | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV5;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK3|RCC_CLOCKTYPE_HCLK
+                              |RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1
+                              |RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.AHBCLK3Divider = RCC_SYSCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
-  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_1);
 }
 
 void Error_Handler(void)
@@ -77,8 +119,10 @@ void Error_Handler(void)
 
 void WaitForSerial(void)
 {
-  // Wait for UART to be ready
-  for (int i = 0; i < 5000000; i++)
+  // Wait 2 seconds for serial to be ready
+  int seconds = 2;
+  int cycles = seconds * MSI_VALUE;
+  for (int i = 0; i < cycles; i++)
   {
     __NOP();
   }

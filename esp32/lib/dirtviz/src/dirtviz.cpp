@@ -128,7 +128,7 @@ HttpClient Dirtviz::GetResponse() {
     char c = client.read();
     resp += c;
   }
-
+  Log.verboseln("%s", resp.c_str());
   // close connection
   client.flush();
   client.stop();

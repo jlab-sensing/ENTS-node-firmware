@@ -80,6 +80,12 @@ class ModuleWiFi : public ModuleHandler::Module {
 
   void NtpSync(const Esp32Command &cmd);
 
+  void Host(const Esp32Command &cmd);
+
+  void StopHost();
+
+  void HostInfo();
+
   WiFiUDP ntpUDP;
 
   NTPClient *timeClient;

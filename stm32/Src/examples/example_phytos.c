@@ -82,9 +82,6 @@ int main(void) {
   // UTIL_TIMER_Init();
 
   char output[20];
-  char output2[20];
-
-  double voltage_reading;
   phytos_measurments measurment;
   size_t reading_len;
 

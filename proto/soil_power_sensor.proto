@@ -68,6 +68,28 @@ message BME280Measurement {
   uint32 humidity = 3;
 }
 
+/* Capactive Soil Moisture Sensor */
+message SEN0308Measurement {
+  // voltage
+  double voltage = 1;
+  // humidity
+  double humidity = 2;
+}
+
+/* Water Pressure Sensor */
+message SEN0257Measurement {
+  // voltage
+  double voltage = 1;
+  // pressure
+  double pressure = 2;
+}
+
+/* Water Flow Sensor  */
+message YFS210CMeasurement {
+  // flow
+  double flow = 1;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -80,6 +102,9 @@ message Measurement {
     Phytos31Measurement phytos31 = 4;
     BME280Measurement bme280 = 5;
     Teros21Measurement teros21 = 6;
+    SEN0308Measurement sen0308 = 7;
+    SEN0257Measurement sen0257 = 8;
+    YFS210CMeasurement yfs210c = 9;
   }
 }
 
@@ -103,6 +128,9 @@ message Esp32Command {
     TestCommand test_command = 2;
     WiFiCommand wifi_command = 3;
     MicroSDCommand microsd_command = 4;
+    IrrigationCommand irrigation_command = 5;
+    UserConfigCommand user_config_command = 6;
+    PowerCommand power_command = 7;
   }
 }
 
@@ -159,6 +187,12 @@ message WiFiCommand {
     CHECK_API = 6;
     /* Force NTP sync */
     NTP_SYNC = 7;
+    /* Host a WiFi network */
+    HOST = 8;
+    /* Stop hosting a WiFi network */
+    STOP_HOST = 9;
+    /* Get host info */
+    HOST_INFO = 10;
   }
 
   /* Command type */
@@ -181,6 +215,29 @@ message WiFiCommand {
   uint32 ts = 6;
   // binary data response
   bytes resp = 7;
+
+  /* MAC address */
+  string mac = 9;
+
+  /* Number of connected devices */
+  uint32 clients = 10;
+}
+
+message UserConfigCommand {
+  enum RequestType {
+    /* controller requests config from target */
+    REQUEST_CONFIG = 0;
+    /* controller sends config to target */
+    RESPONSE_CONFIG = 1;
+    /* starts the user config webserver */
+    START = 2;
+  }
+
+  /* type of command */
+  RequestType type = 1;
+
+  /* configuration data */
+  UserConfiguration config_data = 2;
 }
 
 message MicroSDCommand {
@@ -214,6 +271,52 @@ message MicroSDCommand {
   }
 }
 
+message IrrigationCommand {
+  enum Type {
+    CHECK = 0;
+  }
+
+  enum State {
+    // needs to be opened to prevent open defined twice
+    OPEN = 0;
+    CLOSE = 1;
+  }
+
+  Type type = 1;
+
+  State state = 2;
+}
+
+message PowerCommand {
+  enum Type {
+    /* Put the device to sleep */
+    SLEEP = 0;
+    /* Check functionality after wakeup */
+    WAKEUP = 1;
+  }
+
+  // copied from idf library
+  enum WakeupReason {
+    POWER_WAKEUP_EXT0 = 0;
+    POWER_WAKEUP_EXT1 = 1;
+    POWER_WAKEUP_TIMER = 2;
+    POWER_WAKEUP_TOUCHPAD = 3;
+    POWER_WAKEUP_ULP = 4;
+    POWER_WAKEUP_GPIO = 5;
+    POWER_WAKEUP_UART = 6;
+    POWER_WAKEUP_WIFI = 7;
+    POWER_WAKEUP_COCPU = 8;
+    POWER_WAKEUP_COCPU_TRAP_TRIG = 9;
+    POWER_WAKEUP_BT = 10;
+  }
+
+  Type type = 1;
+
+  WakeupReason reason = 2;
+
+  uint32 boot_count = 3;
+}
+
 message UserConfiguration {
   /********** Upload Settings **********/
   uint32 logger_id = 1;            // id of the logging device
@@ -232,6 +335,9 @@ message UserConfiguration {
   string WiFi_SSID = 10;
   string WiFi_Password = 11;
   string API_Endpoint_URL = 12;
+
+  // Deprecated
+  // Embedded into the endpoint URL
   uint32 API_Endpoint_Port = 13;
 }
 
