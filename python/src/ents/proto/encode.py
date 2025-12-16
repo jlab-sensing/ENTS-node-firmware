@@ -20,69 +20,6 @@ from .soil_power_sensor_pb2 import (
     RepeatedPowerDeltas,
 )
 
-from .sensor_pb2 import (
-    SensorMeasurement,
-    RepeatedSensorMeasurements,
-)
-
-def encode_measurement_v2(cell_id : int, logger_id : int, ts : int, meas : list[SensorMeasurement]) -> bytes:
-    """Encodes one or measurements
-
-    List cannot be empty
-
-    Args:
-        cell_id: Cell id from dirtviz
-        logger_id: Logger id from dirtviz
-        ts: Timestamp in unix epochs seconds
-        meas: List of sensor measurements
-
-    Returns:
-        Encodes measurements into a binary format.
-    """
-
-    measurements = RepeatedSensorMeasurements()
-    measurements.meta.logger_id = logger_id
-    measurements.meta.cell_id = cell_id
-    measurements.meta.ts = ts
-
-    for m in meas:
-        measurements.add(m)
-
-    serialized = measurements.SerializeToString()
-
-    return serialized
-
-
-def create_measurement_v2(
-    cell_id : int,
-    logger_id : int,
-    ts : int,
-    _type : int,
-    value : [int, float , str],
-    delta : bool = True,
-) -> SensorMeasurement:
-    """Encodes a generic sensor measurement
-
-    cell_id and logger_id are taken from dirtviz. Type type is defined in
-    sensor.proto to indicate what type of sensor 
-
-    Args:
-        cell_id: Cell id from dirtviz
-        logger_id: Logger id from dirtviz
-        ts: Timestamp in unix epochs seconds
-        _type: Type of measurement
-        value: Measurement value
-        delta: If value is a difference from the previous
-    """
-
-    meas = SensorMeasurement()
-    meas.meta.logger_id = logger_id
-    meas.meta.cell_id = cell_id
-    meas.meta.ts = ts
-
-    # TODO Finish encoding a measuremnet
-
-
 def encode_response(success: bool = True) -> bytes:
     """Encodes a Response message
 

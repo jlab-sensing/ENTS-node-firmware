@@ -1,6 +1,6 @@
 {
     "name": "Soil Power Sensor Protocal Buffer",
-    "version": "2.3.0",
+    "version": "2.3.1",
     "description": "The protocol buffers define the data format for measurements taken on the Soil Power Sensor. The library uses Nanopb for a pure C protobuf implementation.",
     "repository":
     {

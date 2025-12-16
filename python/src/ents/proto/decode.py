@@ -4,7 +4,6 @@ from google.protobuf.json_format import MessageToDict
 
 from .soil_power_sensor_pb2 import (
     Measurement,
-    RepeatedMeasurement,
     Response,
     UserConfiguration,
 )
