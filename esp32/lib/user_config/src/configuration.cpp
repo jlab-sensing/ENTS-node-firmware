@@ -79,6 +79,21 @@ String getConfigJson() {
       case EnabledSensor_BME280:
         json += "\"BME280\"";
         break;
+      case EnabledSensor_Phytos31:
+        json += "\"Phytos31\"";
+        break;
+      case EnabledSensor_SEN0308:
+        json += "\"SEN0308\"";
+        break;
+      case EnabledSensor_SEN0257:
+        json += "\"SEN0257\"";
+        break;
+      case EnabledSensor_YFS210C:
+        json += "\"YFS210C\"";
+        break;
+      case EnabledSensor_PCAP02:
+        json += "\"PCAP02\"";
+        break;
       default:
         break;
     }
@@ -132,6 +147,21 @@ void printConfig(const UserConfiguration &pconfig) {
         break;
       case EnabledSensor_BME280:
         sensor_name = "BME280";
+        break;
+      case EnabledSensor_Phytos31:
+        sensor_name = "Phytos31";
+        break;
+      case EnabledSensor_SEN0308:
+        sensor_name = "SEN0308";
+        break;
+      case EnabledSensor_SEN0257:
+        sensor_name = "SEN0257";
+        break;
+      case EnabledSensor_YFS210C:
+        sensor_name = "YFS210C";
+        break;
+      case EnabledSensor_PCAP02:
+        sensor_name = "PCAP02";
         break;
     }
     Log.noticeln("   - %s", sensor_name);

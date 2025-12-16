@@ -2,14 +2,146 @@
 
 #include "board.h"
 #include "i2c.h"
+#include "userConfig.h"
 
 // Private Globals
 static HAL_StatusTypeDef ret = HAL_OK;
 static volatile uint16_t dev_addr = PCAP02_I2C_ADDRESS;
 
-// Function Definitions
+volatile uint32_t My_INTN_Counter = 0;
+volatile uint8_t My_INTN_State = 1;
+
+// Private Function Definitions
+uint32_t test_sram_write_byte(uint8_t txData, uint16_t location);
+uint32_t test_sram_write_memory_access(uint8_t txData[], uint8_t rxData[],
+                                       uint16_t location, uint32_t length);
 
 void pcap02_init(void) {
+  pcap02_read_register_status_t status_register;
+  uint8_t runbit;
+
+  /* runbit = 0x00;
+  ret = I2C_Config_Access(
+      dev_addr, PCAP02_OPCODE_CONFIG_WRITE, PCAP02_CONFIG_REGISTERS_RUNBIT_REG,
+      &runbit,
+      1);  // Disable reg 77 runbit as recommended before any memory access.
+
+  APP_LOG(TS_OFF, VLEVEL_H,
+          "OPCODE POR: Writing opcode 0x%02X to device 0x%02X\r\n",
+          PCAP02_OPCODE_POR, dev_addr);
+  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_POR);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+  HAL_Delay(500);
+
+  if (test_sram_write_byte(0xA5, 0x047)) {
+    APP_LOG(TS_OFF, VLEVEL_H, "Failed to write byte to pcap02 sram.\r\n");
+    Error_Handler();
+  }
+
+  uint8_t txData[100];
+  for (uint16_t i = 0; i < sizeof(txData); i++) {
+    txData[i] = i;
+    APP_LOG(TS_OFF, VLEVEL_H, "%d ", txData[i]);
+  }
+  APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
+  uint8_t rxData[sizeof(txData)];
+  if (test_sram_write_memory_access(txData, rxData, 0, sizeof(txData))) {
+    APP_LOG(TS_OFF, VLEVEL_H,
+            "Failed to write memory access to pcap02 sram.\r\n");
+    Error_Handler();
+  }
+
+  APP_LOG(TS_OFF, VLEVEL_H, "\r\nTests concluded.\r\n\r\n");
+
+  // POR + INIT
+  APP_LOG(TS_OFF, VLEVEL_H, "Power On Reset\r\n");
+  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_POR);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+  HAL_Delay(500);
+  APP_LOG(TS_OFF, VLEVEL_H, "Initialize\r\n");
+  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_INITIALIZE);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+  HAL_Delay(10); */
+
+  // 1. Set configuration register 77 to RUNBIT = 0
+  APP_LOG(TS_OFF, VLEVEL_H, "Setting runbit to 0.\r\n");
+  runbit = 0x00;
+  ret = I2C_Config_Access(
+      dev_addr, PCAP02_OPCODE_CONFIG_WRITE, PCAP02_CONFIG_REGISTERS_RUNBIT_REG,
+      &runbit,
+      1);  // Disable reg 77 runbit as recommended before any memory access.
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  // 2. Write standard configuration register values for registers 0 - 76
+  APP_LOG(TS_OFF, VLEVEL_H,
+          "Writing to all (non-runbit) config registers.\r\n");
+  ret = I2C_Config_Access(dev_addr, PCAP02_OPCODE_CONFIG_WRITE, 0,
+                          pcap02_standard_config_registers,
+                          PCAP02_CONFIG_REGISTERS_LENGTH - 1);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  // 3. Write standard firmware (and version information) to SRAM
+  APP_LOG(TS_OFF, VLEVEL_H, "Writing standard firmware to SRAM.\r\n");
+  pcap02_sram_write_firmware(pcap02_standard_firmware,
+                             PCAP02_STANDARD_FIRMWARE_PROGRAM_OFFSET +
+                                 PCAP02_STANDARD_FIRMWARE_MAIN_OFFSET,
+                             PCAP02_STANDARD_FIRMWARE_PROGRAM_LENGTH);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  APP_LOG(TS_OFF, VLEVEL_H, "Writing standard firmware version to SRAM.\r\n");
+  pcap02_sram_write_firmware(pcap02_standard_firmware_version,
+                             PCAP02_STANDARD_FIRMWARE_PROGRAM_OFFSET +
+                                 PCAP02_STANDARD_FIRMWARE_VERSION_OFFSET,
+                             PCAP02_STANDARD_FIRMWARE_VERSION_LENGTH);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  // APP_LOG(TS_OFF, VLEVEL_H,
+  //         "Reading status register. (Before runbit=1 and final "
+  //         "initialization)\r\n");
+  // ret = I2C_Config_Access(
+  //     dev_addr, PCAP02_OPCODE_RESULT_READ,
+  //     PCAP02_READ_REGISTERS_STATUS_OFFSET, status_register.byte,
+  //     PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
+  // APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+  // pcap02_print_status_register(status_register);
+
+  // 4. Set configuration register 77 to RUNBIT = 1
+  APP_LOG(TS_OFF, VLEVEL_H, "Setting runbit to 1.\r\n");
+  runbit = 0x01;
+  ret = I2C_Config_Access(dev_addr, PCAP02_OPCODE_CONFIG_WRITE,
+                          PCAP02_CONFIG_REGISTERS_RUNBIT_REG, &runbit, 1);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  // 5. Send partial reset (Initialize)
+  APP_LOG(TS_OFF, VLEVEL_H, "Initialize.\r\n");
+  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_INITIALIZE);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  // 6. Start measurement (CDC Start conversion)
+  APP_LOG(TS_OFF, VLEVEL_H, "CDC Start Conversion.\r\n");
+  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_CDC_START_CONVERSION);
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  // 7. Read status registers 0x24 25 26 (decimal 36 37 38)
+  APP_LOG(
+      TS_OFF, VLEVEL_H,
+      "Reading status register. (After runbit=1 and final initialization)\r\n");
+  ret = I2C_Config_Access(
+      dev_addr, PCAP02_OPCODE_RESULT_READ, PCAP02_READ_REGISTERS_STATUS_OFFSET,
+      status_register.byte,
+      PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
+  APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+  // pcap02_print_status_register(status_register);
+
+  // 8. ‘h40 03 00 00 00; Read Res1, addresses 3, 4, 5. Res1 is expected to be
+  //                      in the range of 2,000,000 or ’h2000XX if the two
+  //                      capacitors are of same size. Res1 has the format of a
+  //                      fixed point number with 3 integer digits and 21
+  //                      fractional digits. So, dividing the 2,000,000 by 2^21
+  //                      gives a factor of about 1 for the ratio C1/C0.
+}
+
+void pcap02_gpio_init(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
@@ -184,7 +316,7 @@ void I2C_Sweep_DevAddr(uint8_t from_addr, uint8_t to_addr,
 /******************************************************************************/
 /**
  * @brief  Write one byte Opcode.
- * @param  slave (7 Bit) decive address
+ * @param  slave (7 Bit) device address
  * @param  one_byte
  * @retval HAL_StatusTypeDef
  */
@@ -206,7 +338,8 @@ HAL_StatusTypeDef I2C_Write_Opcode(uint8_t slave, uint8_t one_byte) {
     }
   }
 
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+    ;
 
   return HAL_OK;
 }
@@ -257,7 +390,8 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+      ;
   } else if (opcode == PCAP02_OPCODE_SRAM_READ) {
     uint8_t i2cTX[2];
     uint8_t i2cRX[size];
@@ -276,7 +410,8 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+      ;
 
     /* Receieve data in the register */
     while (HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, size,
@@ -288,7 +423,8 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+      ;
 
     // copy array
     for (int i = 0; i < size; i++) {
@@ -306,7 +442,7 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
 /******************************************************************************/
 /**
  * @brief  Write one double word.
- * @param  slave (7 Bit) decive address
+ * @param  slave (7 Bit) device address
  * @param  opcode (byte)
  * @param  address (byte)
  * @param  dword (double word)
@@ -337,7 +473,8 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+      ;
   } else if (opcode == PCAP02_OPCODE_RESULT_READ) {
     uint8_t i2cTX[2];
     uint8_t i2cRX[size];
@@ -355,7 +492,8 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+      ;
 
     while (HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, size,
                                   timeout) != HAL_OK) {
@@ -366,7 +504,8 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+      ;
 
     // copy array
     for (int i = 0; i < size; i++) {
@@ -384,7 +523,7 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
 /******************************************************************************/
 /**
  * @brief  Write one double word.
- * @param  slave (7 Bit) decive address
+ * @param  slave (7 Bit) device address
  * @param  opcode (byte)
  * @param  address (byte)
  * @param  dword (double word)
@@ -415,7 +554,8 @@ HAL_StatusTypeDef I2C_Write_Dword(uint8_t slave, uint8_t opcode,
       Error_Handler();
     }
   }
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+    ;
 
   return HAL_OK;
 }
@@ -450,7 +590,8 @@ HAL_StatusTypeDef I2C_Write_Byte(uint8_t slave, uint8_t opcode, uint8_t address,
       Error_Handler();
     }
   }
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+    ;
 
   return HAL_OK;
 }
@@ -580,4 +721,114 @@ uint32_t I2C_Read_Result(uint8_t slave, uint8_t rd_opcode, uint8_t address) {
 #endif
 
   return temp_u32;
+}
+
+// Note: location is a 12-bit address (lower 12 bits only)
+uint32_t test_sram_write_byte(uint8_t txData, uint16_t location) {
+  uint8_t rxData = 0x00;
+
+  APP_LOG(
+      TS_OFF, VLEVEL_M,
+      "TEST SRAM RANDOM WRITE: Write 0x%02X at SRAM address 0x%02X to device "
+      "0x%02X\r\n",
+      txData, location, dev_addr);
+  ret = I2C_Write_Byte(dev_addr, PCAP02_OPCODE_SRAM_WRITE, location, txData);
+  APP_LOG(TS_OFF, VLEVEL_M, "\tret (HAL) %d\r\n", ret);
+
+  APP_LOG(TS_OFF, VLEVEL_M,
+          "Reading at SRAM address 0x%02X on device 0x%02X\r\n", location,
+          dev_addr);
+  rxData = I2C_Read_Byte(dev_addr, PCAP02_OPCODE_SRAM_READ, location);
+  APP_LOG(TS_OFF, VLEVEL_M, "Received 0x%02X at SRAM address 0x%02X\r\n",
+          rxData, location);
+
+  if (txData == rxData) {
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
+uint32_t test_sram_write_memory_access(uint8_t txData[], uint8_t rxData[],
+                                       uint16_t location, uint32_t length) {
+  APP_LOG(TS_OFF, VLEVEL_M,
+          "\r\nTEST SRAM SEQUENTIAL WRITE: Writing %u bytes to SRAM (at "
+          "+0x%03X).\r\n",
+          length, location);
+  ret =
+      I2C_Memory_Access(dev_addr, PCAP02_OPCODE_SRAM_WRITE, 0, txData, length);
+  APP_LOG(TS_OFF, VLEVEL_M, "\tret (HAL) %d\r\n", ret);
+
+  APP_LOG(TS_OFF, VLEVEL_M, "\r\nReading %u bytes from SRAM.\r\n", length);
+  ret = I2C_Memory_Access(dev_addr, PCAP02_OPCODE_SRAM_READ, 0, rxData, length);
+  APP_LOG(TS_OFF, VLEVEL_M, "\tret (HAL) %d\r\n", ret);
+
+  for (uint16_t i = 0; i < length; i++) {
+    APP_LOG(TS_OFF, VLEVEL_M, "%d ", rxData[i]);
+    if (rxData[i] != txData[i]) {
+      return -1;
+    }
+  }
+  return 0;
+}
+
+size_t pcap02_measure_capacitance(pcap02_result_t *result) {
+  while (1) {
+    // Read result register after INTN = 0
+    // Note: Approximately 82 ms or 83 ms between prints.
+    if (My_INTN_State == 0) {
+      // APP_LOG(
+      //     TS_OFF, VLEVEL_H,
+      //     "[reading %lu @ tick %lu] Read Result on RES1 (ratio of C1 /
+      //     C0)\r\n", My_INTN_Counter, HAL_GetTick());
+      // MyRawRES0 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x00);
+      // MyRawRES1 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x04);
+      result->word = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ,
+                                  PCAP02_READ_REGISTERS_RES1_OFFSET);
+      // APP_LOG(TS_OFF, VLEVEL_H,
+      //         "\tbytes: 0x%02X%02X%02X\r\n\t24-bit: 0x%06X\r\n\tfixed: "
+      //         "%01d\r\n\tfractional (raw): %d\r\n\tfloat RATIO: %f\r\n",
+      //         RES1.byte[2], RES1.byte[1], RES1.byte[0], RES1.word,
+      //         RES1.fixed, RES1.fractional, fixed_to_float(RES1));
+
+      // Post Processing
+      // MyRatioRES0 = (float)MyRawRES0 / 134217728; // = 2^27
+      // MyRatioRES1 = (float)MyRawRES1 / 134217728; // = 2^27
+
+      // APP_LOG(TS_OFF, VLEVEL_H,"\r\nRES0: raw %ld ratio %f\r\nRES1: raw %ld
+      // ratio %f\r\n", MyRawRES0, MyRatioRES0, MyRawRES1, MyRatioRES1);
+      // HAL_Delay(50); // used for debugging
+    }
+  }
+  return 1;
+}
+size_t pcap02_measure(uint8_t *data, SysTime_t ts) {
+  // read sensor
+  pcap02_result_t result;
+  if (pcap02_measure_capacitance(&result) != 0) {
+    return -1;
+  }
+
+  const UserConfiguration *cfg = UserConfigGet();
+
+  // encode measurement
+  size_t data_len = EncodePCAP02Measurement(ts.Seconds, cfg->logger_id,
+                                            cfg->cell_id, result.word, data);
+
+  return data_len;
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
+
+  // Note: It takes about 1us after INTN
+
+  if (GPIO_Pin == PCAP02_INTN_Pin) {
+    My_INTN_State = (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
+                     GPIO_PIN_SET); /* low active */
+    if (My_INTN_State == 0) {
+      My_INTN_Counter += 1;
+    }
+  }
 }

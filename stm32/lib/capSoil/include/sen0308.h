@@ -41,14 +41,14 @@ void CapSoilInit(void);
 
 /**
 ******************************************************************************
-* @brief    Returns both the raw voltage value and a calibrated measurment
+* @brief    Returns both the raw voltage value and a calibrated measurement
 *           from a CapSoil sensor.
 *
 * @param    void
-* @return   phytos_measurments
+* @return   phytos_measurements
 ******************************************************************************
 */
-SEN0308Measurement SEN0308GetMeasurment(void);
+SEN0308Measurement SEN0308GetMeasurement(void);
 
 /**
  * @brief Read CapSoil sensor and serialize measurement

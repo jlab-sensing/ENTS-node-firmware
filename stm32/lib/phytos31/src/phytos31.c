@@ -25,20 +25,18 @@
 
 HAL_StatusTypeDef Phytos31Init() { return ADC_init(); }
 
-phytos_measurments Phytos31GetMeasurment() {
-  phytos_measurments measurments;
-  measurments.phytos31_raw = ADC_readVoltage();
-  return measurments;
+phytos_measurements Phytos31GetMeasurement() {
+  phytos_measurements measurements;
+  measurements.phytos31_raw = ADC_readVoltage();
+  return measurements;
 }
 
-size_t Phytos31_measure(uint8_t *data) {
-  // get timestamp
-  SysTime_t ts = SysTimeGet();
-  phytos_measurments measurment;
+size_t Phytos31_measure(uint8_t *data, SysTime_t ts) {
+  phytos_measurements measurement;
 
   // read voltage
-  measurment = Phytos31GetMeasurment();
-  double adc_voltage_float = measurment.phytos31_raw / 1000.;
+  measurement = Phytos31GetMeasurement();
+  double adc_voltage_float = measurement.phytos31_raw / 1000.;
 
   const UserConfiguration *cfg = UserConfigGet();
 

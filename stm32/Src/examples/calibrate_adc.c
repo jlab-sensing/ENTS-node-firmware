@@ -85,7 +85,7 @@ int main(void) {
   char check_input[7];
   char check_result[4];
   char size_proto_string[4];
-  uint8_t encoded_measurment[256];
+  uint8_t encoded_measurement[256];
   int size_check = snprintf(check_result, sizeof(check_result), "ok\n");
   // status for HAL_UART_* functions
   HAL_StatusTypeDef status = HAL_OK;
@@ -120,7 +120,7 @@ int main(void) {
     status = HAL_UART_Receive(
         &huart1, (uint8_t *)controller_input, 1,
         HAL_MAX_DELAY);  // On every other iteration, send the encoded
-                         // measurment in response to the '0' command
+                         // measurement in response to the '0' command
     if (status != HAL_OK) {
       continue;
     }
@@ -129,7 +129,7 @@ int main(void) {
     if (controller_input[0] == '0') {
       SysTime_t ts = SysTimeGet();
       size_t measurement_size = ADC_measure(
-          encoded_measurment, ts);  // Read the measurment, and store it's size
+          encoded_measurement, ts);  // Read the measurement, and store it's size
                                     // in measurement_size (size int 64)
       if (measurement_size == -1) {
         continue;
@@ -143,7 +143,7 @@ int main(void) {
       }
 
       // send data
-      status = HAL_UART_Transmit(&huart1, (uint8_t *)encoded_measurment,
+      status = HAL_UART_Transmit(&huart1, (uint8_t *)encoded_measurement,
                                  measurement_size, uart_timeout);
       if (status != HAL_OK) {
         continue;

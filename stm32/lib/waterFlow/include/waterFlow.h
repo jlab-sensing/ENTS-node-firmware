@@ -36,14 +36,14 @@ void FlowInit(void);
 
 /**
  ******************************************************************************
- * @brief    Returns both the raw voltage value and a calibrated measurment
+ * @brief    Returns both the raw voltage value and a calibrated measurement
  *           from a water Flow sensor.
  *
  * @param    void
- * @return   measurments
+ * @return   measurements
  ******************************************************************************
  */
-YFS210CMeasurement FlowGetMeasurment(void);
+YFS210CMeasurement FlowGetMeasurement(void);
 
 /**
  * @brief Read water Flow sensor and serialize measurement
@@ -56,7 +56,7 @@ YFS210CMeasurement FlowGetMeasurment(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatFlow_measure(uint8_t *data);
+size_t WatFlow_measure(uint8_t *data, SysTime_t ts);
 
 #ifdef __cplusplus
 }

@@ -98,7 +98,7 @@ HAL_StatusTypeDef ADC_probe(void);
 
 /**
 ******************************************************************************
-* @brief    This function encodes the ADS1219 power measurments into protobuf
+* @brief    This function encodes the ADS1219 power measurements into protobuf
 *
 * @param    *data
 * @return   size_t

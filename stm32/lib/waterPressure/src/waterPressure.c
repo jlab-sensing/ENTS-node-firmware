@@ -23,7 +23,7 @@ const double AtmosphericOffset = 2.065;
 
 HAL_StatusTypeDef PressureInit() { return ADC_init(); }
 
-SEN0257Measurement PressureGetMeasurment() {
+SEN0257Measurement PressureGetMeasurement() {
   SEN0257Measurement waterPressMeas;
   waterPressMeas.voltage = ADC_readVoltage();
 
@@ -34,13 +34,11 @@ SEN0257Measurement PressureGetMeasurment() {
   return waterPressMeas;
 }
 
-size_t WatPress_measure(uint8_t* data) {
-  // get timestamp
-  SysTime_t ts = SysTimeGet();
+size_t WatPress_measure(uint8_t* data, SysTime_t ts) {
   SEN0257Measurement waterPressMeas = {};
 
   /// read voltage
-  waterPressMeas = PressureGetMeasurment();
+  waterPressMeas = PressureGetMeasurement();
   const UserConfiguration* cfg = UserConfigGet();
 
   // encode measurement

@@ -59,7 +59,7 @@ void FlowInit() {
   lastTime = currentTime;
 }
 
-YFS210CMeasurement FlowGetMeasurment() {
+YFS210CMeasurement FlowGetMeasurement() {
   // get time
   currentTime = SysTimeGet();
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
@@ -96,14 +96,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   }
 }
 
-size_t WatFlow_measure(uint8_t* data) {
-  // get timestamp
-  SysTime_t ts = SysTimeGet();
+size_t WatFlow_measure(uint8_t* data, SysTime_t ts) {
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
   YFS210CMeasurement flowMeas = {};
 
   if (diff.SubSeconds >= 100) {  // If more than 0.1 seconds has passed
-    flowMeas = FlowGetMeasurment();
+    flowMeas = FlowGetMeasurement();
   }
 
   /// read measurement

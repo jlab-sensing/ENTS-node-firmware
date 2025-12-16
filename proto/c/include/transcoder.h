@@ -51,7 +51,7 @@ extern "C" {
  * @return Number of bytes in @p buffer
  */
 size_t EncodePowerMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
-                              double voltage, double current, uint8_t* buffer);
+                              double voltage, double current, uint8_t *buffer);
 
 /**
  * @brief Encodes a Teros12 measurement
@@ -74,7 +74,7 @@ size_t EncodePowerMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
 size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double vwc_raw,
                                 double vwc_adj, double temp, uint32_t ec,
-                                uint8_t* buffer);
+                                uint8_t *buffer);
 
 /**
  * @brief Encodes a Teros21 measurement
@@ -94,7 +94,7 @@ size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
  */
 size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double matric_pot,
-                                double temp, uint8_t* buffer);
+                                double temp, uint8_t *buffer);
 
 /**
  * @brief Encodes a Phytos31 measurement
@@ -117,7 +117,7 @@ size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
  */
 size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
                                  uint32_t cell_id, double voltage,
-                                 double leaf_wetness, uint8_t* buffer);
+                                 double leaf_wetness, uint8_t *buffer);
 
 /**
  * @brief Encodes a BME280 measurement
@@ -154,7 +154,7 @@ size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
 size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
                                uint32_t cell_id, uint32_t pressure,
                                int32_t temperature, uint32_t humidity,
-                               uint8_t* buffer);
+                               uint8_t *buffer);
 
 /**
  * @brief Encodes a Water Pressure measurement
@@ -177,7 +177,7 @@ size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
  */
 size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
                                    uint32_t cell_id, double voltage,
-                                   double water_pressure, uint8_t* buffer);
+                                   double water_pressure, uint8_t *buffer);
 
 /**
  * @brief Encodes a Capacitive Soil Moisture measurement
@@ -200,7 +200,7 @@ size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
  */
 size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double voltage,
-                                double humidity, uint8_t* buffer);
+                                double humidity, uint8_t *buffer);
 
 /**
  * @brief Encodes a Water Flow measurement
@@ -222,7 +222,27 @@ size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
  */
 size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
                                   uint32_t cell_id, double water_flow,
-                                  uint8_t* buffer);
+                                  uint8_t *buffer);
+
+/**
+ * @brief Encodes a PCAP02 measurement
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param voltage Raw voltage reading
+ * @param capacitance Capacitance
+ * @param buffer Buffer to store serialized measurement
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodePCAP02Measurement(uint32_t ts, uint32_t logger_id,
+                               uint32_t cell_id, double capacitance,
+                               uint8_t *buffer);
 
 /**
  * @brief Decodes a measurement
@@ -234,7 +254,7 @@ size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
  * @param len Number of bytes in @p buffer
  * @return 0 on success, -1 on error
  */
-int DecodeMeasurement(Measurement* meas, const uint8_t* buffer,
+int DecodeMeasurement(Measurement *meas, const uint8_t *buffer,
                       const size_t len);
 
 /**
@@ -249,7 +269,7 @@ int DecodeMeasurement(Measurement* meas, const uint8_t* buffer,
  * @param len Number of bytes in @p data
  * @return Response type
  */
-Response_ResponseType DecodeResponse(const uint8_t* data, const size_t len);
+Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len);
 
 /**
  * @brief Decodes an Esp32Command message
@@ -259,7 +279,7 @@ Response_ResponseType DecodeResponse(const uint8_t* data, const size_t len);
  *
  * @returns Esp32Command data
  */
-Esp32Command DecodeEsp32Command(const uint8_t* data, const size_t len);
+Esp32Command DecodeEsp32Command(const uint8_t *data, const size_t len);
 
 /**
  * @brief Encodes a page command
@@ -274,7 +294,7 @@ Esp32Command DecodeEsp32Command(const uint8_t* data, const size_t len);
  * @returns Number of bytes in @p buffer
  */
 size_t EncodePageCommand(PageCommand_RequestType req, int fd, size_t bs,
-                         size_t n, uint8_t* buffer, size_t size);
+                         size_t n, uint8_t *buffer, size_t size);
 
 /**
  * @brief Encodes a test command
@@ -287,7 +307,7 @@ size_t EncodePageCommand(PageCommand_RequestType req, int fd, size_t bs,
  * @return Number of bytes in @p buffer
  */
 size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
-                         uint8_t* buffer, size_t size);
+                         uint8_t *buffer, size_t size);
 
 /**
  * @brief Encodes a MicroSDCommand
@@ -298,7 +318,7 @@ size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
  *
  * @return Number of bytes in @p buffer
  */
-size_t EncodeMicroSDCommand(const MicroSDCommand* microsd_cmd, uint8_t* buffer,
+size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
                             size_t size);
 
 /**
@@ -310,7 +330,7 @@ size_t EncodeMicroSDCommand(const MicroSDCommand* microsd_cmd, uint8_t* buffer,
  *
  * @return Number of bytes in @p buffer
  */
-size_t EncodeWiFiCommand(const WiFiCommand* wifi_cmd, uint8_t* buffer,
+size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
                          size_t size);
 /**
  * @brief Encodes a UserConfigCommand into a protobuf message
@@ -322,8 +342,8 @@ size_t EncodeWiFiCommand(const WiFiCommand* wifi_cmd, uint8_t* buffer,
  * @return Number of bytes in @p buffer
  */
 size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
-                               const UserConfiguration* config_data,
-                               uint8_t* buffer, size_t size);
+                               const UserConfiguration *config_data,
+                               uint8_t *buffer, size_t size);
 
 /**
  * @brief Encodes an IrrigationCommand
@@ -334,8 +354,8 @@ size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
  *
  * @return Number of bytes in @p buffer
  */
-size_t EncodeIrrigationCommand(const IrrigationCommand* irrigation_cmd,
-                               uint8_t* buffer, size_t size);
+size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
+                               uint8_t *buffer, size_t size);
 
 /**
  * @brief Encodes a PowerCommand
@@ -346,7 +366,7 @@ size_t EncodeIrrigationCommand(const IrrigationCommand* irrigation_cmd,
  *
  * @return Number of bytes in @p buffer
  */
-size_t EncodePowerCommand(const PowerCommand* power_cmd, uint8_t* buffer,
+size_t EncodePowerCommand(const PowerCommand *power_cmd, uint8_t *buffer,
                           size_t size);
 
 /**
@@ -361,7 +381,7 @@ size_t EncodePowerCommand(const PowerCommand* power_cmd, uint8_t* buffer,
  * @param buffer Buffer to store serialized data
  * @return Number of bytes in the buffer, or -1 on error
  */
-size_t EncodeUserConfiguration(UserConfiguration* config, uint8_t* buffer);
+size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer);
 
 /**
  * @brief Decodes user configuration data.
@@ -375,8 +395,8 @@ size_t EncodeUserConfiguration(UserConfiguration* config, uint8_t* buffer);
  * @param config Decoded user configuration output
  * @return 0 on success, -1 on error
  */
-int DecodeUserConfiguration(const uint8_t* data, const size_t len,
-                            UserConfiguration* config);
+int DecodeUserConfiguration(const uint8_t *data, const size_t len,
+                            UserConfiguration *config);
 
 /**
  * @}
@@ -386,4 +406,4 @@ int DecodeUserConfiguration(const uint8_t* data, const size_t len,
 }
 #endif
 
-#endif  // PROTO_C_INCLUDE_TRANSCODER_H_
+#endif // PROTO_C_INCLUDE_TRANSCODER_H_
