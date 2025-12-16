@@ -4,11 +4,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "stm32_systime.h"
-
-#include "pcap02_standard.h"
-
 #include "main.h"
+#include "pcap02_standard.h"
+#include "stm32_systime.h"
 
 // Interrupt for PCAP02 INTN pin, which signals result ready
 #define PCAP02_INTN_Pin GPIO_PIN_10
@@ -115,7 +113,6 @@ uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
                                     uint16_t length_bytes);
 void pcap02_print_status_register(pcap02_read_register_status_t status);
 
-
 // Low level I2C functions
 void I2C_Sweep_DevAddr(uint8_t from_addr, uint8_t to_addr, uint8_t *addr_array);
 HAL_StatusTypeDef I2C_Write_Opcode(uint8_t slave, uint8_t one_byte);
@@ -134,6 +131,5 @@ HAL_StatusTypeDef I2C_Write_Byte(uint8_t slave, uint8_t opcode, uint8_t address,
 uint32_t I2C_Read_Dword(uint8_t slave, uint8_t rd_opcode, uint8_t address);
 uint8_t I2C_Read_Byte(uint8_t slave, uint8_t rd_opcode, uint8_t address);
 uint32_t I2C_Read_Result(uint8_t slave, uint8_t rd_opcode, uint8_t address);
-
 
 #endif

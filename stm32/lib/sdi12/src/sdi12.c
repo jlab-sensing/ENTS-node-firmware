@@ -96,8 +96,9 @@ SDI12Status ParseServiceRequest(const char *requestBuffer, char addr) {
 }
 
 SDI12Status SDI12GetMeasurement(uint8_t addr,
-                               SDI12_Measure_TypeDef *measurement_info,
-                               char *measurement_data, uint16_t timeoutMillis) {
+                                SDI12_Measure_TypeDef *measurement_info,
+                                char *measurement_data,
+                                uint16_t timeoutMillis) {
   // Command to request measurement ("0!\r\n" for example)
   char reqMeas[4];
 

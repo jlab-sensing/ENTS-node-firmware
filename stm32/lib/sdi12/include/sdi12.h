@@ -104,8 +104,8 @@ SDI12Status SDI12ReadData(char *buffer, uint16_t bufferSize,
 ******************************************************************************
 */
 SDI12Status SDI12GetMeasurement(uint8_t addr,
-                               SDI12_Measure_TypeDef *measurement_info,
-                               char *measurement_data, uint16_t timeoutMillis);
+                                SDI12_Measure_TypeDef *measurement_info,
+                                char *measurement_data, uint16_t timeoutMillis);
 
 /**
  * @brief Get the address of the current SDI-12 sensor.

@@ -784,7 +784,7 @@ size_t pcap02_measure_capacitance(pcap02_result_t *result) {
       // MyRawRES0 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x00);
       // MyRawRES1 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x04);
       result->word = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ,
-                                  PCAP02_READ_REGISTERS_RES1_OFFSET);
+                                     PCAP02_READ_REGISTERS_RES1_OFFSET);
       // APP_LOG(TS_OFF, VLEVEL_H,
       //         "\tbytes: 0x%02X%02X%02X\r\n\t24-bit: 0x%06X\r\n\tfixed: "
       //         "%01d\r\n\tfractional (raw): %d\r\n\tfloat RATIO: %f\r\n",

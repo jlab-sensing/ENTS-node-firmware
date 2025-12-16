@@ -12,15 +12,17 @@
 // The main program is offset by MAIN_OFFSET from PROGRAM_OFFSET.
 #define PCAP02_STANDARD_FIRMWARE_MAIN_OFFSET 0
 #define PCAP02_STANDARD_FIRMWARE_MAIN_LENGTH 364
-// Likewise, the included headers are offset by INCLUDE_OFFSET from PROGRAM_OFFSET.
+// Likewise, the included headers are offset by INCLUDE_OFFSET from
+// PROGRAM_OFFSET.
 #define PCAP02_STANDARD_FIRMWARE_INCLUDE_OFFSET 512
 #define PCAP02_STANDARD_FIRMWARE_INCLUDE_LENGTH 1011
 
-// The firmware version data is not included in pcap02_standard_firmware[] and must be written separately (if desired).
-// The firmware version is offset by VERSION_OFFSET from PROGRAM_OFFSET.
-#define PCAP02_STANDARD_FIRMWARE_VERSION_OFFSET 4008 // Firmware version at offset +4008 (+0xFA8) {2 + FWT_Standard + FWG_Capacitance}
+// The firmware version data is not included in pcap02_standard_firmware[] and
+// must be written separately (if desired). The firmware version is offset by
+// VERSION_OFFSET from PROGRAM_OFFSET. Firmware version at offset +4008 (+0xFA8)
+// {2 + FWT_Standard + FWG_Capacitance}
+#define PCAP02_STANDARD_FIRMWARE_VERSION_OFFSET 4008
 #define PCAP02_STANDARD_FIRMWARE_VERSION_LENGTH 3
-
 
 extern uint8_t pcap02_standard_firmware[];
 
@@ -29,18 +31,17 @@ extern uint8_t pcap02_standard_firmware_version[];
 // Note: Register 77 (RUNBIT) is included here.
 extern uint8_t pcap02_standard_config_registers[];
 
-// The standard firmware's result registers store the output as 3.21 unsigned fixed point numbers.
-// Note: RES0 is a regular integer for debugging. See Section 5.5.1 "Result Registers" of the datasheet.
+// The standard firmware's result registers store the output as 3.21 unsigned
+// fixed point numbers. Note: RES0 is a regular integer for debugging. See
+// Section 5.5.1 "Result Registers" of the datasheet.
 #define PCAP02_STANDARD_FIRMWARE_RESULT_FIXED_BITS 3
 #define PCAP02_STANDARD_FIRMWARE_RESULT_FRACTIONAL_BITS 21
 
 // typedef __attribute__((__packed__)) union
-typedef union
-{
+typedef union {
   uint8_t byte[3];
   uint32_t word : 24;
-  struct
-  {
+  struct {
     uint32_t fractional : PCAP02_STANDARD_FIRMWARE_RESULT_FRACTIONAL_BITS;
     uint32_t fixed : PCAP02_STANDARD_FIRMWARE_RESULT_FIXED_BITS;
   };

@@ -153,16 +153,18 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
                 cmd.command.microsd_command.data.meas.measurement.teros21.temp);
             break;
           case Measurement_sen0308_tag:
-            Log.verbose(
-                ",%lf,%lf",
-                cmd.command.microsd_command.data.meas.measurement.sen0308.voltage,
-                cmd.command.microsd_command.data.meas.measurement.sen0308.humidity);
+            Log.verbose(",%lf,%lf",
+                        cmd.command.microsd_command.data.meas.measurement
+                            .sen0308.voltage,
+                        cmd.command.microsd_command.data.meas.measurement
+                            .sen0308.humidity);
             break;
           case Measurement_sen0257_tag:
-            Log.verbose(
-                ",%lf,%lf",
-                cmd.command.microsd_command.data.meas.measurement.sen0257.voltage,
-                cmd.command.microsd_command.data.meas.measurement.sen0257.pressure);
+            Log.verbose(",%lf,%lf",
+                        cmd.command.microsd_command.data.meas.measurement
+                            .sen0257.voltage,
+                        cmd.command.microsd_command.data.meas.measurement
+                            .sen0257.pressure);
             break;
           case Measurement_yfs210c_tag:
             Log.verbose(
@@ -170,10 +172,8 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
                 cmd.command.microsd_command.data.meas.measurement.yfs210c.flow);
             break;
           case Measurement_pcap02_tag:
-            Log.verbose(
-                ",%lf",
-                cmd.command.microsd_command.data.meas.measurement.pcap02
-                    .capacitance);
+            Log.verbose(",%lf", cmd.command.microsd_command.data.meas
+                                    .measurement.pcap02.capacitance);
             break;
           case Measurement_meta_tag:
             Log.verbose(
@@ -226,8 +226,11 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
                 cmd.command.microsd_command.data.meas.measurement.teros12.temp);
             break;
           case Measurement_phytos31_tag:
-            dataFile.printf(",%lf,%lf", cmd.command.microsd_command.data.meas.measurement.phytos31.voltage,
-                            cmd.command.microsd_command.data.meas.measurement.phytos31.leaf_wetness);
+            dataFile.printf(",%lf,%lf",
+                            cmd.command.microsd_command.data.meas.measurement
+                                .phytos31.voltage,
+                            cmd.command.microsd_command.data.meas.measurement
+                                .phytos31.leaf_wetness);
             break;
           case Measurement_bme280_tag:
             dataFile.printf(",%u,%d,%u",
@@ -246,16 +249,18 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
                 cmd.command.microsd_command.data.meas.measurement.teros21.temp);
             break;
           case Measurement_sen0308_tag:
-            dataFile.printf(
-                ",%lf,%lf",
-                cmd.command.microsd_command.data.meas.measurement.sen0308.voltage,
-                cmd.command.microsd_command.data.meas.measurement.sen0308.humidity);
+            dataFile.printf(",%lf,%lf",
+                            cmd.command.microsd_command.data.meas.measurement
+                                .sen0308.voltage,
+                            cmd.command.microsd_command.data.meas.measurement
+                                .sen0308.humidity);
             break;
           case Measurement_sen0257_tag:
-            dataFile.printf(
-                ",%lf,%lf",
-                cmd.command.microsd_command.data.meas.measurement.sen0257.voltage,
-                cmd.command.microsd_command.data.meas.measurement.sen0257.pressure);
+            dataFile.printf(",%lf,%lf",
+                            cmd.command.microsd_command.data.meas.measurement
+                                .sen0257.voltage,
+                            cmd.command.microsd_command.data.meas.measurement
+                                .sen0257.pressure);
             break;
           case Measurement_yfs210c_tag:
             dataFile.printf(
@@ -263,10 +268,8 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
                 cmd.command.microsd_command.data.meas.measurement.yfs210c.flow);
             break;
           case Measurement_pcap02_tag:
-            dataFile.printf(
-                ",%lf",
-                cmd.command.microsd_command.data.meas.measurement.pcap02
-                    .capacitance);
+            dataFile.printf(",%lf", cmd.command.microsd_command.data.meas
+                                        .measurement.pcap02.capacitance);
             break;
           default:
             Log.error("Unrecognized measurement type: %d\r\n",

@@ -74,8 +74,8 @@ int main(void) {
     APP_LOG(TS_OFF, VLEVEL_M,
             "\tbytes: 0x%02X%02X%02X\r\n\t24-bit: 0x%06X\r\n\tfixed: "
             "%01d\r\n\tfractional (raw): %d\r\n\tfloat RATIO: %f\r\n",
-            result.byte[2], result.byte[1], result.byte[0], result.word, result.fixed,
-            result.fractional, fixed_to_float(result));
+            result.byte[2], result.byte[1], result.byte[0], result.word,
+            result.fixed, result.fractional, fixed_to_float(result));
   }
 }
 
