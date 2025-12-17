@@ -47,12 +47,17 @@ extern "C" {
 /**
   * @brief  Verbose level for all trace logs
   */
-#define VERBOSE_LEVEL                        VLEVEL_M
+#define VERBOSE_LEVEL                        VLEVEL_H
 
 /**
   * @brief Enable trace logs
   */
 #define APP_LOG_ENABLED                      1
+
+/**
+  * @brief Substitute float-enabled vsnprintf() in place of tiny_vsnprintf_like()
+  */
+#define APP_LOG_ENABLE_FLOAT                 1
 
 /**
   * @brief Activate monitoring (probes) of some internal RF signals for debug purpose

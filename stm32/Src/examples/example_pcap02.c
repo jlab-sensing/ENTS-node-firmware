@@ -30,7 +30,8 @@
 // volatile uint8_t My_INTN_State = 1;
 
 /* Private function prototypes -----------------------------------------------*/
-float fixed_to_float(pcap02_result_t RESx);
+// float fixed_to_float(pcap02_result_t *RESx);
+
 /**
  * @brief  The application entry point.
  * @retval int
@@ -65,17 +66,47 @@ int main(void) {
     APP_LOG(TS_OFF, VLEVEL_M,"%d 0x%02X\r\n", i, slave[i]);
   }
   */
+
+  // 8. ‘h40 03 00 00 00; Read Res1, addresses 3, 4, 5. Res1 is expected to be
+  //                      in the range of 2,000,000 or ’h2000XX if the two
+  //                      capacitors are of same size. Res1 has the format of a
+  //                      fixed point number with 3 integer digits and 21
+  //                      fractional digits. So, dividing the 2,000,000 by 2^21
+  //                      gives a factor of about 1 for the ratio C1/C0.
+
+  // 2^21 == 2,097,152
+
+  // char print_buffer[256];
   pcap02_result_t result = {0};
+  uint32_t previous_tick, current_tick;
+  previous_tick = HAL_GetTick();
 
   while (1) {
     if (pcap02_measure_capacitance(&result) != 0) {
       continue;
     }
-    APP_LOG(TS_OFF, VLEVEL_M,
-            "\tbytes: 0x%02X%02X%02X\r\n\t24-bit: 0x%06X\r\n\tfixed: "
-            "%01d\r\n\tfractional (raw): %d\r\n\tfloat RATIO: %f\r\n",
-            result.byte[2], result.byte[1], result.byte[0], result.word,
-            result.fixed, result.fractional, fixed_to_float(result));
+
+    current_tick = HAL_GetTick();
+    if ((current_tick - previous_tick) > 1000) {
+      // APP_LOG unable to print float?
+      // Workaround: allocate own buffer and print string
+      // APP_LOG (sys_app.h)
+      //    --> UTIL_ADV_TRACE_COND_FSend (stm32_adv_trace.c)
+      //    --> UTIL_ADV_TRACE_VSNPRINTF (utilities_conf.h)
+      //    --> tiny_vsnprintf_like (stm32_tiny_vsnprintf.h)
+      //        ^ This function does not support %f
+      // snprintf(print_buffer, sizeof(print_buffer), );
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "0x%02X%02X%02X (0x%06X)\r\n"
+              "\tfixed  (3): %01d\r\n"
+              "\tfract (21): %d / %d = %lf\r\n"
+              "\tC1/C0     : %lf\r\n",
+              result.byte[2], result.byte[1], result.byte[0], result.word,
+              result.fixed, result.fractional, (1 << 21),
+              result.fractional / ((double)(1 << 21)),
+              result.fixed + result.fractional / ((double)(1 << 21)));
+      previous_tick = current_tick;
+    }
   }
 }
 
@@ -95,8 +126,8 @@ int main(void) {
 //   }
 // }
 
-float fixed_to_float(pcap02_result_t RESx) {
-  return ((float)RESx.fixed) +
-         ((float)(RESx.fractional) /
-          (1 << PCAP02_STANDARD_FIRMWARE_RESULT_FRACTIONAL_BITS));
-}
+// float fixed_to_float(pcap02_result_t *RESx) {
+//   return ((float)RESx->fixed) +
+//          ((float)(RESx->fractional) /
+//           (1 << PCAP02_STANDARD_FIRMWARE_RESULT_FRACTIONAL_BITS));
+// }

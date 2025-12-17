@@ -20,7 +20,6 @@ extern "C" {
 
 #include "i2c.h"
 #include "stm32_systime.h"
-#include "timestamp.h"
 #include "transcoder.h"
 #include "usart.h"
 
