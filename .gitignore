@@ -1,6 +1,6 @@
 # user-defined
 *.code-workspace
-**/.vscode/settings.json
+**/.vscode/
 .mypy_cache
 tags*
 .DS_Store
