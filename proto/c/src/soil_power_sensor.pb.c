@@ -8,93 +8,45 @@
 
 PB_BIND(MeasurementMetadata, MeasurementMetadata, AUTO)
 
-
 PB_BIND(PowerMeasurement, PowerMeasurement, AUTO)
-
 
 PB_BIND(Teros12Measurement, Teros12Measurement, AUTO)
 
-
 PB_BIND(Teros21Measurement, Teros21Measurement, AUTO)
-
 
 PB_BIND(Phytos31Measurement, Phytos31Measurement, AUTO)
 
-
 PB_BIND(BME280Measurement, BME280Measurement, AUTO)
-
 
 PB_BIND(SEN0308Measurement, SEN0308Measurement, AUTO)
 
-
 PB_BIND(SEN0257Measurement, SEN0257Measurement, AUTO)
-
 
 PB_BIND(YFS210CMeasurement, YFS210CMeasurement, AUTO)
 
-
 PB_BIND(PCAP02Measurement, PCAP02Measurement, AUTO)
-
 
 PB_BIND(Measurement, Measurement, AUTO)
 
-
 PB_BIND(Response, Response, AUTO)
-
 
 PB_BIND(Esp32Command, Esp32Command, 2)
 
-
 PB_BIND(PageCommand, PageCommand, AUTO)
-
 
 PB_BIND(TestCommand, TestCommand, AUTO)
 
-
 PB_BIND(WiFiCommand, WiFiCommand, 2)
-
 
 PB_BIND(UserConfigCommand, UserConfigCommand, 2)
 
-
 PB_BIND(MicroSDCommand, MicroSDCommand, 2)
-
 
 PB_BIND(IrrigationCommand, IrrigationCommand, AUTO)
 
-
 PB_BIND(PowerCommand, PowerCommand, AUTO)
 
-
 PB_BIND(UserConfiguration, UserConfiguration, AUTO)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #ifndef PB_CONVERT_DOUBLE_FLOAT
 /* On some platforms (such as AVR), double is really float.
@@ -103,4 +55,3 @@ PB_BIND(UserConfiguration, UserConfiguration, AUTO)
  */
 PB_STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
 #endif
-
