@@ -338,8 +338,7 @@ HAL_StatusTypeDef I2C_Write_Opcode(uint8_t slave, uint8_t one_byte) {
     }
   }
 
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-    ;
+  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
 
   return HAL_OK;
 }
@@ -390,8 +389,7 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-      ;
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
   } else if (opcode == PCAP02_OPCODE_SRAM_READ) {
     uint8_t i2cTX[2];
     uint8_t i2cRX[size];
@@ -410,8 +408,7 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-      ;
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
 
     /* Receieve data in the register */
     while (HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, size,
@@ -423,8 +420,7 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-      ;
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
 
     // copy array
     for (int i = 0; i < size; i++) {
@@ -473,8 +469,7 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-      ;
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
   } else if (opcode == PCAP02_OPCODE_RESULT_READ) {
     uint8_t i2cTX[2];
     uint8_t i2cRX[size];
@@ -492,8 +487,7 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-      ;
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
 
     while (HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, size,
                                   timeout) != HAL_OK) {
@@ -504,8 +498,7 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-      ;
+    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
 
     // copy array
     for (int i = 0; i < size; i++) {
@@ -554,8 +547,7 @@ HAL_StatusTypeDef I2C_Write_Dword(uint8_t slave, uint8_t opcode,
       Error_Handler();
     }
   }
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-    ;
+  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
 
   return HAL_OK;
 }
@@ -590,8 +582,7 @@ HAL_StatusTypeDef I2C_Write_Byte(uint8_t slave, uint8_t opcode, uint8_t address,
       Error_Handler();
     }
   }
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
-    ;
+  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
 
   return HAL_OK;
 }

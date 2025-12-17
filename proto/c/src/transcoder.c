@@ -23,7 +23,7 @@
  * @param buffer Buffer to store serialized measurement
  * @return Length of buffer, -1 indicates there was an error
  */
-size_t EncodeMeasurement(Measurement *meas, uint8_t *buffer);
+size_t EncodeMeasurement(Measurement* meas, uint8_t* buffer);
 
 /**
  * @brief Encodes a esp32command
@@ -37,11 +37,11 @@ size_t EncodeMeasurement(Measurement *meas, uint8_t *buffer);
  *
  * @return Length of buffer, -1 indicates there was an error
  */
-size_t EncodeEsp32Command(const Esp32Command *cmd, uint8_t *buffer,
+size_t EncodeEsp32Command(const Esp32Command* cmd, uint8_t* buffer,
                           size_t size);
 
 size_t EncodePowerMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
-                              double voltage, double current, uint8_t *buffer) {
+                              double voltage, double current, uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -60,7 +60,7 @@ size_t EncodePowerMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
 size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double vwc_raw,
                                 double vwc_adj, double temp, uint32_t ec,
-                                uint8_t *buffer) {
+                                uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -80,7 +80,7 @@ size_t EncodeTeros12Measurement(uint32_t ts, uint32_t logger_id,
 
 size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
                                  uint32_t cell_id, double voltage,
-                                 double leaf_wetness, uint8_t *buffer) {
+                                 double leaf_wetness, uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -99,7 +99,7 @@ size_t EncodePhytos31Measurement(uint32_t ts, uint32_t logger_id,
 size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
                                uint32_t cell_id, uint32_t pressure,
                                int32_t temperature, uint32_t humidity,
-                               uint8_t *buffer) {
+                               uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -118,7 +118,7 @@ size_t EncodeBME280Measurement(uint32_t ts, uint32_t logger_id,
 
 size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double matric_pot,
-                                double temp, uint8_t *buffer) {
+                                double temp, uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -136,7 +136,7 @@ size_t EncodeTeros21Measurement(uint32_t ts, uint32_t logger_id,
 
 size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
                                 uint32_t cell_id, double voltage,
-                                double humidity, uint8_t *buffer) {
+                                double humidity, uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -154,7 +154,7 @@ size_t EncodeSEN0308Measurement(uint32_t ts, uint32_t logger_id,
 
 size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
                                    uint32_t cell_id, double voltage,
-                                   double water_pressure, uint8_t *buffer) {
+                                   double water_pressure, uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -172,7 +172,7 @@ size_t EncodeWaterPressMeasurement(uint32_t ts, uint32_t logger_id,
 
 size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
                                   uint32_t cell_id, double water_flow,
-                                  uint8_t *buffer) {
+                                  uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -189,7 +189,7 @@ size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
 
 size_t EncodePCAP02Measurement(uint32_t ts, uint32_t logger_id,
                                uint32_t cell_id, double capacitance,
-                               uint8_t *buffer) {
+                               uint8_t* buffer) {
   Measurement meas = Measurement_init_zero;
 
   meas.has_meta = true;
@@ -204,7 +204,7 @@ size_t EncodePCAP02Measurement(uint32_t ts, uint32_t logger_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
-Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len) {
+Response_ResponseType DecodeResponse(const uint8_t* data, const size_t len) {
   Response resp;
 
   // create input buffer
@@ -219,7 +219,7 @@ Response_ResponseType DecodeResponse(const uint8_t *data, const size_t len) {
   return resp.resp;
 }
 
-size_t EncodeMeasurement(Measurement *meas, uint8_t *buffer) {
+size_t EncodeMeasurement(Measurement* meas, uint8_t* buffer) {
   // create output stream
   pb_ostream_t ostream = pb_ostream_from_buffer(buffer, 256);
   // encode message and check rc
@@ -232,7 +232,7 @@ size_t EncodeMeasurement(Measurement *meas, uint8_t *buffer) {
   return ostream.bytes_written;
 }
 
-int DecodeMeasurement(Measurement *meas, const uint8_t *buffer,
+int DecodeMeasurement(Measurement* meas, const uint8_t* buffer,
                       const size_t len) {
   pb_istream_t istream = pb_istream_from_buffer(buffer, len);
   bool status = pb_decode(&istream, Measurement_fields, meas);
@@ -243,7 +243,7 @@ int DecodeMeasurement(Measurement *meas, const uint8_t *buffer,
   return 0;
 }
 
-Esp32Command DecodeEsp32Command(const uint8_t *data, const size_t len) {
+Esp32Command DecodeEsp32Command(const uint8_t* data, const size_t len) {
   Esp32Command cmd;
 
   pb_istream_t istream = pb_istream_from_buffer(data, len);
@@ -253,7 +253,7 @@ Esp32Command DecodeEsp32Command(const uint8_t *data, const size_t len) {
 }
 
 size_t EncodePageCommand(PageCommand_RequestType req, int fd, size_t bs,
-                         size_t n, uint8_t *buffer, size_t size) {
+                         size_t n, uint8_t* buffer, size_t size) {
   // create command object
   Esp32Command cmd = Esp32Command_init_default;
   cmd.which_command = Esp32Command_page_command_tag;
@@ -266,7 +266,7 @@ size_t EncodePageCommand(PageCommand_RequestType req, int fd, size_t bs,
 }
 
 size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
-                         uint8_t *buffer, size_t size) {
+                         uint8_t* buffer, size_t size) {
   Esp32Command cmd = Esp32Command_init_default;
   cmd.which_command = Esp32Command_test_command_tag;
   cmd.command.test_command.state = state;
@@ -275,7 +275,7 @@ size_t EncodeTestCommand(TestCommand_ChangeState state, int32_t data,
   return EncodeEsp32Command(&cmd, buffer, size);
 }
 
-size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
+size_t EncodeMicroSDCommand(const MicroSDCommand* microsd_cmd, uint8_t* buffer,
                             size_t size) {
   Esp32Command cmd = Esp32Command_init_default;
 
@@ -287,7 +287,7 @@ size_t EncodeMicroSDCommand(const MicroSDCommand *microsd_cmd, uint8_t *buffer,
   return EncodeEsp32Command(&cmd, buffer, size);
 }
 
-size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
+size_t EncodeWiFiCommand(const WiFiCommand* wifi_cmd, uint8_t* buffer,
                          size_t size) {
   Esp32Command cmd = Esp32Command_init_default;
 
@@ -300,8 +300,8 @@ size_t EncodeWiFiCommand(const WiFiCommand *wifi_cmd, uint8_t *buffer,
 }
 
 size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
-                               const UserConfiguration *config_data,
-                               uint8_t *buffer, size_t size) {
+                               const UserConfiguration* config_data,
+                               uint8_t* buffer, size_t size) {
   // Create command object
   Esp32Command cmd = Esp32Command_init_default;
   cmd.which_command = Esp32Command_user_config_command_tag;
@@ -319,8 +319,8 @@ size_t EncodeUserConfigCommand(UserConfigCommand_RequestType type,
   return EncodeEsp32Command(&cmd, buffer, size);
 }
 
-size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
-                               uint8_t *buffer, size_t size) {
+size_t EncodeIrrigationCommand(const IrrigationCommand* irrigation_cmd,
+                               uint8_t* buffer, size_t size) {
   Esp32Command cmd = Esp32Command_init_default;
 
   cmd.which_command = Esp32Command_irrigation_command_tag;
@@ -332,7 +332,7 @@ size_t EncodeIrrigationCommand(const IrrigationCommand *irrigation_cmd,
   return EncodeEsp32Command(&cmd, buffer, size);
 }
 
-size_t EncodePowerCommand(const PowerCommand *power_cmd, uint8_t *buffer,
+size_t EncodePowerCommand(const PowerCommand* power_cmd, uint8_t* buffer,
                           size_t size) {
   Esp32Command cmd = Esp32Command_init_default;
 
@@ -344,7 +344,7 @@ size_t EncodePowerCommand(const PowerCommand *power_cmd, uint8_t *buffer,
   return EncodeEsp32Command(&cmd, buffer, size);
 }
 
-size_t EncodeEsp32Command(const Esp32Command *cmd, uint8_t *buffer,
+size_t EncodeEsp32Command(const Esp32Command* cmd, uint8_t* buffer,
                           size_t size) {
   // create output stream
   pb_ostream_t ostream = pb_ostream_from_buffer(buffer, size);
@@ -358,7 +358,7 @@ size_t EncodeEsp32Command(const Esp32Command *cmd, uint8_t *buffer,
   return ostream.bytes_written;
 }
 
-size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer) {
+size_t EncodeUserConfiguration(UserConfiguration* config, uint8_t* buffer) {
   // create output stream
   pb_ostream_t ostream = pb_ostream_from_buffer(buffer, UserConfiguration_size);
 
@@ -372,16 +372,16 @@ size_t EncodeUserConfiguration(UserConfiguration *config, uint8_t *buffer) {
   return ostream.bytes_written;
 }
 
-int DecodeUserConfiguration(const uint8_t *data, const size_t len,
-                            UserConfiguration *config) {
+int DecodeUserConfiguration(const uint8_t* data, const size_t len,
+                            UserConfiguration* config) {
   // Create a protobuf input stream from the data buffer
   pb_istream_t istream = pb_istream_from_buffer(data, len);
 
   // Decode the UserConfiguration message and check if successful
   bool status = pb_decode(&istream, UserConfiguration_fields, config);
   if (!status) {
-    return -1; // Return -1 if there was a decoding error
+    return -1;  // Return -1 if there was a decoding error
   }
 
-  return 0; // Return 0 on success
+  return 0;  // Return 0 on success
 }
