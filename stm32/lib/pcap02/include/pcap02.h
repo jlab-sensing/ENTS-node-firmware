@@ -8,6 +8,10 @@
 #include "pcap02_standard.h"
 #include "stm32_systime.h"
 
+extern volatile uint32_t INTN_Counter;
+
+#define PCAP02_REFERENCE_CAPACITOR_PF 47
+
 // Interrupt for PCAP02 INTN pin, which signals result ready
 #define PCAP02_INTN_Pin GPIO_PIN_10
 #define PCAP02_INTN_GPIO_Port GPIOA
@@ -106,6 +110,7 @@ typedef union {
 // High level functions
 void pcap02_init(void);
 void pcap02_gpio_init(void);
+void pcap02_start_conversion(void);
 size_t pcap02_measure_capacitance(pcap02_result_t *result);
 size_t pcap02_measure(uint8_t *data, SysTime_t ts);
 

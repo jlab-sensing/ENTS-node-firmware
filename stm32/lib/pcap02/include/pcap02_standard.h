@@ -24,20 +24,19 @@
 #define PCAP02_STANDARD_FIRMWARE_VERSION_OFFSET 4008
 #define PCAP02_STANDARD_FIRMWARE_VERSION_LENGTH 3
 
-extern uint8_t pcap02_standard_firmware[];
+extern const uint8_t pcap02_standard_firmware[];
 
-extern uint8_t pcap02_standard_firmware_version[];
+extern const uint8_t pcap02_standard_firmware_version[];
 
 // Note: Register 77 (RUNBIT) is included here.
 extern uint8_t pcap02_standard_config_registers[];
 
-// The standard firmware's result registers store the output as 3.21 unsigned
-// fixed point numbers. Note: RES0 is a regular integer for debugging. See
-// Section 5.5.1 "Result Registers" of the datasheet.
+// The standard firmware's result registers RES1 - RES7 store the output as
+// 3.21 unsigned fixed point numbers. See Section 5.5.1 "Result Registers" of
+// the datasheet.
 #define PCAP02_STANDARD_FIRMWARE_RESULT_FIXED_BITS 3
 #define PCAP02_STANDARD_FIRMWARE_RESULT_FRACTIONAL_BITS 21
 
-// typedef __attribute__((__packed__)) union
 typedef union {
   uint8_t byte[3];
   uint32_t word : 24;
@@ -46,5 +45,8 @@ typedef union {
     uint32_t fixed : PCAP02_STANDARD_FIRMWARE_RESULT_FIXED_BITS;
   };
 } pcap02_result_t;
+
+// Converts a 3.21 unsigned fixed point number to a float.
+float fixed_to_float(pcap02_result_t *res);
 
 #endif

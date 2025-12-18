@@ -5,7 +5,7 @@
 // 95 rows * 16 bytes + 4 bytes = 1524 bytes
 // Can be further truncated by splitting the main program from the included subroutines,
 // which would reduce programming by 9 rows * 16 bytes + 5 bytes = 149 bytes, approximately 10%.
-uint8_t pcap02_standard_firmware[] = {
+const uint8_t pcap02_standard_firmware[] = {
     0x00, 0x00, 0x00, 0x7A, 0xC0, 0xCF, 0xFF, 0xF0, 0xD2, 0x43, 0x7A, 0xD0, 0x34, 0x72, 0x62, 0x63, // Start of main program.
     0x00, 0x65, 0x7A, 0xC4, 0xD1, 0x43, 0x7A, 0xD0, 0x33, 0xAB, 0x5E, 0x42, 0x5C, 0x48, 0xB0, 0x01,
     0x20, 0x68, 0xB1, 0x02, 0x78, 0x20, 0x60, 0xB2, 0x01, 0x20, 0x68, 0xB3, 0x1B, 0x7A, 0xC2, 0xD1,
@@ -104,23 +104,27 @@ uint8_t pcap02_standard_firmware[] = {
     0x13, 0xAA, 0xFA, 0x02 // firmware end, last byte at +1524 (+0x5F4)
 };
 
-uint8_t pcap02_standard_firmware_version[] = {
+const uint8_t pcap02_standard_firmware_version[] = {
     0x02, // 02
     0x01, // FWT_Standard
     0x03  // FWG_Capacitance
 };
 
 // Note: Register 77 (RUNBIT) is included here.
+// Default configuration, with minor changes:
+// Single floating (PC0 PC1 reference) R10 |= 0x01
+// Single conversion (pin triggered) R24 = 0bXXXX_00XX
+// R17-R19 CONV_TIME 0 (default 2000, R17 0xD0, R18 0x07, R19 0x00)
 uint8_t pcap02_standard_config_registers[] = {
     0x0F, 0x00, 0x01, // Register  0,  1,  2
     0x94, 0x80, 0x05, // Register  3,  4,  5
     0x01, 0x04, 0xA8, // Register  6,  7,  8
-    0x00, 0x10, 0x00, // Register  9, 10, 11
+    0x00, 0x11, 0x00, // Register  9, 10, 11
     0x0F, 0x01, 0x00, // Register 12, 13, 14
-    0x00, 0x00, 0xD0, // Register 15, 16, 17
-    0x07, 0x00, 0x00, // Register 18, 19, 20
+    0x00, 0x00, 0x00, // Register 15, 16, 17
+    0x00, 0x00, 0x00, // Register 18, 19, 20
     0x00, 0x00, 0x02, // Register 21, 22, 23
-    0x08, 0x01, 0x00, // Register 24, 25, 26
+    0x00, 0x01, 0x00, // Register 24, 25, 26
     0x02, 0x40, 0x05, // Register 27, 28, 29
     0x01, 0x00, 0x00, // Register 30, 31, 32
     0x00, 0x43, 0x05, // Register 33, 34, 35
@@ -139,3 +143,7 @@ uint8_t pcap02_standard_config_registers[] = {
     0x00, 0x28, 0x01, // Register 72, 73, 74
     0x00, 0x00, 0x01  // Register 75, 76, 77
 };
+
+float fixed_to_float(pcap02_result_t *res) {
+  return (res->fixed + res->fractional / ((float)(1 << 21)));
+}

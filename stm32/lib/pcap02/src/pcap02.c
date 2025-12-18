@@ -8,8 +8,8 @@
 static HAL_StatusTypeDef ret = HAL_OK;
 static volatile uint16_t dev_addr = PCAP02_I2C_ADDRESS;
 
-volatile uint32_t My_INTN_Counter = 0;
-volatile uint8_t My_INTN_State = 1;
+volatile uint32_t INTN_Counter = 0;
+volatile uint8_t INTN_State = GPIO_PIN_SET;
 
 // Private Function Definitions
 uint32_t test_sram_write_byte(uint8_t txData, uint16_t location);
@@ -116,29 +116,6 @@ void pcap02_init(void) {
   APP_LOG(TS_OFF, VLEVEL_H, "Initialize.\r\n");
   ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_INITIALIZE);
   if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
-
-  // 6. Start measurement (CDC Start conversion)
-  APP_LOG(TS_OFF, VLEVEL_H, "CDC Start Conversion.\r\n");
-  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_CDC_START_CONVERSION);
-  if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
-
-  // 7. Read status registers 0x24 25 26 (decimal 36 37 38)
-  APP_LOG(
-      TS_OFF, VLEVEL_H,
-      "Reading status register. (After runbit=1 and final initialization)\r\n");
-  ret = I2C_Config_Access(
-      dev_addr, PCAP02_OPCODE_RESULT_READ, PCAP02_READ_REGISTERS_STATUS_OFFSET,
-      status_register.byte,
-      PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
-  if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
-  pcap02_print_status_register(status_register);
-
-  // 8. ‘h40 03 00 00 00; Read Res1, addresses 3, 4, 5. Res1 is expected to be
-  //                      in the range of 2,000,000 or ’h2000XX if the two
-  //                      capacitors are of same size. Res1 has the format of a
-  //                      fixed point number with 3 integer digits and 21
-  //                      fractional digits. So, dividing the 2,000,000 by 2^21
-  //                      gives a factor of about 1 for the ratio C1/C0.
 }
 
 void pcap02_gpio_init(void) {
@@ -149,13 +126,32 @@ void pcap02_gpio_init(void) {
 
   /*Configure GPIO pin : INTN_Pin */
   GPIO_InitStruct.Pin = PCAP02_INTN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(PCAP02_INTN_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(PCAP02_INTN_EXTI_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(PCAP02_INTN_EXTI_IRQn);
+}
+
+void pcap02_start_conversion(void) {
+  // 6. Start measurement (CDC Start conversion)
+  APP_LOG(TS_OFF, VLEVEL_H, "CDC Start Conversion.\r\n");
+  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_CDC_START_CONVERSION);
+  if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  // 7. Read status registers 0x24 25 26 (decimal 36 37 38)
+  // APP_LOG(
+  //     TS_OFF, VLEVEL_H,
+  //     "Reading status register. (After runbit=1 and final
+  //     initialization)\r\n");
+  // ret = I2C_Config_Access(
+  //     dev_addr, PCAP02_OPCODE_RESULT_READ,
+  //     PCAP02_READ_REGISTERS_STATUS_OFFSET, status_register.byte,
+  //     PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
+  // if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+  // pcap02_print_status_register(status_register);
 }
 
 /**
@@ -768,13 +764,21 @@ uint32_t test_sram_write_memory_access(uint8_t txData[], uint8_t rxData[],
 }
 
 size_t pcap02_measure_capacitance(pcap02_result_t *result) {
+  // 8. ‘h40 03 00 00 00; Read Res1, addresses 3, 4, 5. Res1 is expected to be
+  //                      in the range of 2,000,000 or ’h2000XX if the two
+  //                      capacitors are of same size. Res1 has the format of a
+  //                      fixed point number with 3 integer digits and 21
+  //                      fractional digits. So, dividing the 2,000,000 by 2^21
+  //                      gives a factor of about 1 for the ratio C1/C0.
+
   // Read result register after INTN = 0
   // Note: Approximately 82 ms or 83 ms between prints.
-  if (My_INTN_State == 0) {
+  if (INTN_State == GPIO_PIN_RESET) {
+    INTN_State = GPIO_PIN_SET;
     // APP_LOG(
     //     TS_OFF, VLEVEL_H,
     //     "[reading %lu @ tick %lu] Read Result on RES1 (ratio of C1 /
-    //     C0)\r\n", My_INTN_Counter, HAL_GetTick());
+    //     C0)\r\n", INTN_Counter, HAL_GetTick());
     // MyRawRES0 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x00);
     // MyRawRES1 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x04);
     result->word = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ,
@@ -806,8 +810,9 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts) {
   const UserConfiguration *cfg = UserConfigGet();
 
   // encode measurement
-  size_t data_len = EncodePCAP02Measurement(ts.Seconds, cfg->logger_id,
-                                            cfg->cell_id, result.word, data);
+  size_t data_len = EncodePCAP02Measurement(
+      ts.Seconds, cfg->logger_id, cfg->cell_id,
+      PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_float(&result), data);
 
   return data_len;
 }
@@ -819,10 +824,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   // Note: It takes about 1us after INTN
 
   if (GPIO_Pin == PCAP02_INTN_Pin) {
-    My_INTN_State = (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
-                     GPIO_PIN_SET); /* low active */
-    if (My_INTN_State == 0) {
-      My_INTN_Counter += 1;
+    INTN_State = (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
+                  GPIO_PIN_SET); /* low active */
+    if (INTN_State == GPIO_PIN_RESET) {
+      INTN_Counter += 1;
     }
   }
 }
