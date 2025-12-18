@@ -8,8 +8,6 @@
 #include "pcap02_standard.h"
 #include "stm32_systime.h"
 
-extern volatile uint32_t INTN_Counter;
-
 #define PCAP02_REFERENCE_CAPACITOR_PF 47
 
 // Interrupt for PCAP02 INTN pin, which signals result ready

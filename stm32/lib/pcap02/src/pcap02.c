@@ -8,8 +8,8 @@
 static HAL_StatusTypeDef ret = HAL_OK;
 static volatile uint16_t dev_addr = PCAP02_I2C_ADDRESS;
 
-volatile uint32_t INTN_Counter = 0;
-volatile uint8_t INTN_State = GPIO_PIN_SET;
+static volatile uint32_t INTN_Counter = 0;
+static volatile uint8_t INTN_State = GPIO_PIN_SET;
 
 // Private Function Definitions
 uint32_t test_sram_write_byte(uint8_t txData, uint16_t location);
