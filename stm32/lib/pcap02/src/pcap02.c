@@ -17,7 +17,6 @@ uint32_t test_sram_write_memory_access(uint8_t txData[], uint8_t rxData[],
                                        uint16_t location, uint32_t length);
 
 void pcap02_init(void) {
-  pcap02_read_register_status_t status_register;
   uint8_t runbit;
 
   /* runbit = 0x00;
@@ -98,12 +97,7 @@ void pcap02_init(void) {
   // APP_LOG(TS_OFF, VLEVEL_H,
   //         "Reading status register. (Before runbit=1 and final "
   //         "initialization)\r\n");
-  // ret = I2C_Config_Access(
-  //     dev_addr, PCAP02_OPCODE_RESULT_READ,
-  //     PCAP02_READ_REGISTERS_STATUS_OFFSET, status_register.byte,
-  //     PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
-  // if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
-  // pcap02_print_status_register(status_register);
+  // pcap02_print_status_register();
 
   // 4. Set configuration register 77 to RUNBIT = 1
   APP_LOG(TS_OFF, VLEVEL_H, "Setting runbit to 1.\r\n");
@@ -146,12 +140,7 @@ void pcap02_start_conversion(void) {
   //     TS_OFF, VLEVEL_H,
   //     "Reading status register. (After runbit=1 and final
   //     initialization)\r\n");
-  // ret = I2C_Config_Access(
-  //     dev_addr, PCAP02_OPCODE_RESULT_READ,
-  //     PCAP02_READ_REGISTERS_STATUS_OFFSET, status_register.byte,
-  //     PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
-  // if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
-  // pcap02_print_status_register(status_register);
+  // pcap02_print_status_register();
 }
 
 /**
@@ -164,7 +153,7 @@ void pcap02_start_conversion(void) {
  * @retval (uint16_t) Number of byte-errors detected during post-write
  * verification of firmware.
  */
-uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
+uint16_t pcap02_sram_write_firmware(const uint8_t *firmware, uint16_t offset_bytes,
                                     uint16_t length_bytes) {
   // uint8_t txDataLong[4096];
   uint8_t rxDataLong[4096] = {0};
@@ -223,14 +212,21 @@ uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
 
 /**
  * @brief  Print contents of the 24-bit status register.
- * @note   This function does not send any commands to read from the PCAP02.
- *         The input `status` must first be loaded with the contents of the
- * status register.
- * @param  status (pcap02_read_register_status_t) Union with bit fields for the
- * status register.
+ * @note   This function reads and prints the status register from the PCAP02.
+ *
  * @retval (void)
  */
-void pcap02_print_status_register(pcap02_read_register_status_t status) {
+void pcap02_print_status_register(void) {
+  pcap02_read_register_status_t status;
+
+  ret = I2C_Config_Access(
+      dev_addr, PCAP02_OPCODE_RESULT_READ, PCAP02_READ_REGISTERS_STATUS_OFFSET,
+      status.byte,
+      PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
+  if (ret)
+    APP_LOG(TS_OFF, VLEVEL_H,
+            "\t\tpcap02_print_status_register: ret (HAL) %d\r\n", ret);
+
   APP_LOG(TS_OFF, VLEVEL_H, "0x%02X%02X%02X\r\n", status.byte[0],
           status.byte[1], status.byte[2]);
 
@@ -788,7 +784,7 @@ size_t pcap02_measure_capacitance(pcap02_result_t *result) {
     //         "\tbytes: 0x%02X%02X%02X\r\n\t24-bit: 0x%06X\r\n\tfixed: "
     //         "%01d\r\n\tfractional (raw): %d\r\n\tfloat RATIO: %f\r\n",
     //         RES1.byte[2], RES1.byte[1], RES1.byte[0], RES1.word,
-    //         RES1.fixed, RES1.fractional, fixed_to_float(RES1));
+    //         RES1.fixed, RES1.fractional, fixed_to_double(RES1));
 
     // Post Processing
     // MyRatioRES0 = (float)MyRawRES0 / 134217728; // = 2^27

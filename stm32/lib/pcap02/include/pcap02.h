@@ -114,9 +114,9 @@ void pcap02_start_conversion(void);
 size_t pcap02_measure_capacitance(pcap02_result_t *result);
 size_t pcap02_measure(uint8_t *data, SysTime_t ts);
 
-uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
+uint16_t pcap02_sram_write_firmware(const uint8_t *firmware, uint16_t offset_bytes,
                                     uint16_t length_bytes);
-void pcap02_print_status_register(pcap02_read_register_status_t status);
+void pcap02_print_status_register(void);
 
 // Low level I2C functions
 void I2C_Sweep_DevAddr(uint8_t from_addr, uint8_t to_addr, uint8_t *addr_array);

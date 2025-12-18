@@ -81,9 +81,9 @@ int main(void) {
     //         "\tC1        : %f pF\r\n",
     //         result.byte[2], result.byte[1], result.byte[0], result.word,
     //         result.fixed, result.fractional, (1 << 21),
-    //         result.fractional / ((float)(1 << 21)), fixed_to_float(&result),
-    //         PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_float(&result));
-    APP_LOG(TS_OFF, VLEVEL_M, "%d: %lf\r\n", conv, fixed_to_float(&result));
+    //         result.fractional / ((float)(1 << 21)), fixed_to_double(&result),
+    //         PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&result));
+    APP_LOG(TS_OFF, VLEVEL_M, "%d: %lf\r\n", conv, fixed_to_double(&result));
     conv++;
     HAL_Delay(100);
   }
