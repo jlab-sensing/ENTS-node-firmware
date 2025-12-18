@@ -763,6 +763,7 @@ uint32_t test_sram_write_memory_access(uint8_t txData[], uint8_t rxData[],
   return 0;
 }
 
+// Call pcap02_start_conversion before this function.
 size_t pcap02_measure_capacitance(pcap02_result_t *result) {
   // 8. ‘h40 03 00 00 00; Read Res1, addresses 3, 4, 5. Res1 is expected to be
   //                      in the range of 2,000,000 or ’h2000XX if the two
@@ -800,19 +801,21 @@ size_t pcap02_measure_capacitance(pcap02_result_t *result) {
   }
   return 1;
 }
+
 size_t pcap02_measure(uint8_t *data, SysTime_t ts) {
-  // read sensor
   pcap02_result_t result;
-  if (pcap02_measure_capacitance(&result) != 0) {
-    return -1;
-  }
+
+  // read sensor
+  pcap02_start_conversion();
+  // Wait for the conversion to resolve (< 4 ms?)
+  while (pcap02_measure_capacitance(&result) != 0);
 
   const UserConfiguration *cfg = UserConfigGet();
 
   // encode measurement
   size_t data_len = EncodePCAP02Measurement(
       ts.Seconds, cfg->logger_id, cfg->cell_id,
-      PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_float(&result), data);
+      PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&result), data);
 
   return data_len;
 }

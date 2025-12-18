@@ -47,6 +47,6 @@ typedef union {
 } pcap02_result_t;
 
 // Converts a 3.21 unsigned fixed point number to a float.
-float fixed_to_float(pcap02_result_t *res);
+double fixed_to_double(pcap02_result_t *res);
 
 #endif

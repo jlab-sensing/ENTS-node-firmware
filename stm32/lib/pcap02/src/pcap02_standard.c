@@ -112,8 +112,8 @@ const uint8_t pcap02_standard_firmware_version[] = {
 
 // Note: Register 77 (RUNBIT) is included here.
 // Default configuration, with minor changes:
-// Single floating (PC0 PC1 reference) R10 |= 0x01
-// Single conversion (pin triggered) R24 = 0bXXXX_00XX
+// Single floating (PC0 PC1 reference) R10 |= 0x01 (default single grounded)
+// Single conversion (by opcode) R24 = 0bXXXX_00XX (default continuous)
 // R17-R19 CONV_TIME 0 (default 2000, R17 0xD0, R18 0x07, R19 0x00)
 uint8_t pcap02_standard_config_registers[] = {
     0x0F, 0x00, 0x01, // Register  0,  1,  2
@@ -144,6 +144,6 @@ uint8_t pcap02_standard_config_registers[] = {
     0x00, 0x00, 0x01  // Register 75, 76, 77
 };
 
-float fixed_to_float(pcap02_result_t *res) {
-  return (res->fixed + res->fractional / ((float)(1 << 21)));
+double fixed_to_double(pcap02_result_t *res) {
+  return (res->fixed + res->fractional / ((double)(1 << 21)));
 }

@@ -83,7 +83,7 @@ int main(void) {
     //         result.fixed, result.fractional, (1 << 21),
     //         result.fractional / ((float)(1 << 21)), fixed_to_float(&result),
     //         PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_float(&result));
-    APP_LOG(TS_OFF, VLEVEL_M, "%d: %f\r\n", conv, fixed_to_float(&result));
+    APP_LOG(TS_OFF, VLEVEL_M, "%d: %lf\r\n", conv, fixed_to_float(&result));
     conv++;
     HAL_Delay(100);
   }
