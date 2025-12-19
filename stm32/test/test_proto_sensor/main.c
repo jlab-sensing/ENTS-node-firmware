@@ -97,7 +97,6 @@ void TestTranscodeRepeatedSensorMeasurements(void) {
     in->meta.ts = 123 + i;
     in->meta.logger_id = 456 + i;
     in->meta.cell_id = 789 + i;
-
     in->type = SensorType_NONE;
 
     in->which_value = SensorMeasurement_unsigned_int_tag;
@@ -194,6 +193,118 @@ void TestEncodeDoubleMeasurement(void) {
 }
 
 
+void TestRepeatedSensorResponses(void) {
+  SensorStatus status = SENSOR_OK;
+
+  // prepare responses
+  RepeatedSensorResponses responses = RepeatedSensorResponses_init_zero;
+  responses.responses_count = 2;
+
+  responses.responses[0].idx = 1;
+  responses.responses[0].error = SensorError_OK;
+
+  responses.responses[1].idx = 2;
+  responses.responses[1].error = SensorError_DECODE;
+
+  // encode
+  uint8_t buffer[256];
+  size_t buffer_len = sizeof(buffer);
+
+  status = EncodeRepeatedSensorResponses(responses, responses.responses_count,
+      buffer, &buffer_len);
+  
+  TEST_ASSERT_EQUAL(SENSOR_OK, status);
+  TEST_ASSERT_GREATER_THAN(0, buffer_len);
+
+  // decode
+  RepeatedSensorResponses decoded = RepeatedSensorResponses_init_zero;
+
+  status = DecodeRepeatedSensorReponses(buffer, buffer_len, &decoded);
+  
+  TEST_ASSERT_EQUAL(SENSOR_OK, status);
+  TEST_ASSERT_EQUAL(2, decoded.responses_count);
+
+  TEST_ASSERT_EQUAL(responses.responses[0].idx, decoded.responses[0].idx);
+  TEST_ASSERT_EQUAL(responses.responses[0].error, decoded.responses[0].error);
+
+  TEST_ASSERT_EQUAL(responses.responses[1].idx, decoded.responses[1].idx);
+  TEST_ASSERT_EQUAL(responses.responses[1].error, decoded.responses[1].error);
+}
+
+
+void TestCheckSensorResponse(void) {
+  SensorStatus status = SENSOR_OK;
+  SensorResponse resp = SensorResponse_init_zero;
+    
+  // Top level error (success)
+
+  resp.idx = 0;
+  resp.error = SensorError_OK;
+  status = CheckSensorResponse(&resp);
+  TEST_ASSERT_EQUAL(SENSOR_OK, status);
+
+  // Top level error (failure)
+  
+  resp.idx = 0;
+  resp.error = SensorError_GENERAL;
+  status = CheckSensorResponse(&resp);
+  TEST_ASSERT_EQUAL(SENSOR_REUPLOAD, status);
+
+
+  // Individual measurement (success)
+  
+  resp.idx = 1;
+  resp.error = SensorError_OK;
+  status = CheckSensorResponse(&resp);
+  TEST_ASSERT_EQUAL(SENSOR_OK, status);
+
+  // Individual measurement (format)
+  resp.idx = 2;
+  resp.error = SensorError_LOGGER;
+  status = CheckSensorResponse(&resp);
+  TEST_ASSERT_EQUAL(SENSOR_FORMAT, status);
+
+
+  // Individual measurement (reupload)
+  resp.idx = 3;
+  resp.error = SensorError_INVALID;
+  status = CheckSensorResponse(&resp);
+  TEST_ASSERT_EQUAL(SENSOR_REUPLOAD, status);
+}
+
+
+void TestRepeatedSensorMeasurementsSize(void) {
+    SensorStatus status = SENSOR_OK;
+    
+    Metadata meta = Metadata_init_zero;
+    meta.ts = 1000;
+    meta.logger_id = 2000;
+    meta.cell_id = 3000;
+    
+    SensorMeasurement in_array[5] = {};
+    size_t len = 5;
+    
+    for (int i = 0; i < len; i++) {
+        SensorMeasurement* in = &in_array[i];
+    
+        in->has_meta = true;
+        in->meta.ts = 123 + i;
+        in->meta.logger_id = 456 + i;
+        in->meta.cell_id = 789 + i;
+        in->type = SensorType_NONE;
+    
+        in->which_value = SensorMeasurement_unsigned_int_tag;
+        in->value.unsigned_int = 98765430ULL + i;
+    }
+    
+    size_t size = 0;
+    status = RepeatedSensorMeasurementsSize(meta, in_array, len, &size);
+    TEST_ASSERT_EQUAL(SENSOR_OK, status);
+    TEST_ASSERT_GREATER_THAN(0, size);
+}
+
+
+
 /**
  * @brief Entry point for protobuf test
  * @retval int
@@ -221,6 +332,9 @@ int main(void) {
   RUN_TEST(TestEncodeUint64Measurement);
   RUN_TEST(TestEncodeInt64Measurement);
   RUN_TEST(TestEncodeDoubleMeasurement);
+  RUN_TEST(TestRepeatedSensorResponses);
+  RUN_TEST(TestCheckSensorResponse);
+  RUN_TEST(TestRepeatedSensorMeasurementsSize);
 
   UNITY_END();
 }

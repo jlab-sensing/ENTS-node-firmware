@@ -79,6 +79,12 @@ message SensorResponse {
   SensorError error = 2;
 }
 
+
+message RepeatedSensorResponses {
+  repeated SensorResponse responses = 1;
+}
+
+
 message SensorMeasurement {
   /** Metadata for the measurement */
   Metadata meta = 1;

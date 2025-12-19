@@ -12,6 +12,9 @@ PB_BIND(Metadata, Metadata, AUTO)
 PB_BIND(SensorResponse, SensorResponse, AUTO)
 
 
+PB_BIND(RepeatedSensorResponses, RepeatedSensorResponses, AUTO)
+
+
 PB_BIND(SensorMeasurement, SensorMeasurement, AUTO)
 
 

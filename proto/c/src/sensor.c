@@ -18,6 +18,37 @@ bool MetadataEqual(Metadata* left, Metadata* right) {
     return true;
 }
 
+
+SensorStatus FormatRepeatedSensorMeasurements(
+        Metadata meta, const SensorMeasurement meas[], size_t count,
+        RepeatedSensorMeasurements* out) {
+    
+    // check count doesn't exceed max count
+    size_t max_count = sizeof(out->measurements) / sizeof(out->measurements[0]);
+    if (count > max_count) {
+        return SENSOR_OUT_OF_BOUNDS;
+    }
+
+    //*out = RepeatedSensorMeasurements_init_zero;
+
+    // handle metadata
+    if (MetadataEqual(&meta, &METADATA_NONE)) {
+        out->has_meta = false;
+    } else {
+        out->has_meta = true;
+        out->meta = meta;
+    }
+
+    // copy measurements
+    out->measurements_count = count;
+    for (size_t i = 0; i < count; i++) {
+        out->measurements[i] = meas[i];
+    }
+
+    return SENSOR_OK;
+}
+
+
 SensorStatus EncodeSensorMeasurement(const SensorMeasurement *meas, uint8_t *buffer, size_t *size) {
     // create output stream
     pb_ostream_t ostream = pb_ostream_from_buffer(buffer, *size);
@@ -38,25 +69,11 @@ SensorStatus EncodeRepeatedSensorMeasurements(Metadata meta, const SensorMeasure
 
     RepeatedSensorMeasurements rep_meas = RepeatedSensorMeasurements_init_zero;
 
-    size_t max_count = sizeof(rep_meas.measurements) / sizeof(rep_meas.measurements[0]);
-   
-    // check count doesn't exceed max count
-    if (count > max_count) {
-        return SENSOR_OUT_OF_BOUNDS;
-    }
-
-    // handle metadata
-    if (MetadataEqual(&meta, &METADATA_NONE)) {
-        rep_meas.has_meta = false;
-    } else {
-        rep_meas.has_meta = true;
-        rep_meas.meta = meta;
-    }
-
-    // copy measurements
-    rep_meas.measurements_count = count;
-    for (size_t i = 0; i < count; i++) {
-        rep_meas.measurements[i] = meas[i];
+    // format into repeated structure
+    SensorStatus sensor_status = FormatRepeatedSensorMeasurements(
+        meta, meas, count, &rep_meas);
+    if (sensor_status != SENSOR_OK) {
+        return sensor_status;
     }
 
     // encode
@@ -67,6 +84,31 @@ SensorStatus EncodeRepeatedSensorMeasurements(Metadata meta, const SensorMeasure
     }
 
     *size = ostream.bytes_written;
+    return SENSOR_OK;
+}
+
+
+SensorStatus RepeatedSensorMeasurementsSize(Metadata meta, const SensorMeasurement meas[], 
+        size_t count, size_t *size) {
+
+    RepeatedSensorMeasurements rep_meas = RepeatedSensorMeasurements_init_zero;
+
+    // format into repeated structure
+    SensorStatus sensor_status = FormatRepeatedSensorMeasurements(
+        meta, meas, count, &rep_meas);
+    if (sensor_status != SENSOR_OK) {
+        return sensor_status;
+    }
+
+    // get size
+    bool status = pb_get_encoded_size(
+            size,
+            RepeatedSensorMeasurements_fields,
+            &rep_meas);
+    if (!status) {
+        return SENSOR_ERROR;
+    }
+
     return SENSOR_OK;
 }
 
@@ -132,6 +174,63 @@ SensorStatus DecodeRepeatedSensorMeasurements(const uint8_t* data, const size_t 
     bool status = pb_decode(&istream, RepeatedSensorMeasurements_fields, measurements);
     if (!status) {
         return SENSOR_ERROR;
+    }
+
+    return SENSOR_OK;
+}
+
+
+
+
+
+SensorStatus EncodeRepeatedSensorResponses(const RepeatedSensorResponses responses,
+    size_t count, uint8_t* buffer, size_t* size) {
+
+    pb_ostream_t ostream = pb_ostream_from_buffer(buffer, *size);
+    bool status = pb_encode(&ostream, RepeatedSensorResponses_fields, &responses);
+    if (!status) {
+        return SENSOR_ERROR;
+    }
+
+    *size = ostream.bytes_written;
+    return SENSOR_OK;
+}
+
+
+
+
+SensorStatus DecodeRepeatedSensorReponses(const uint8_t* data, const size_t len,
+                             RepeatedSensorResponses* resp) {
+    pb_istream_t istream = pb_istream_from_buffer(data, len);
+    bool status = pb_decode(&istream, RepeatedSensorResponses_fields, resp);
+    if (!status) {
+        return SENSOR_ERROR;
+    }
+
+    return SENSOR_OK;
+}
+
+SensorStatus CheckSensorResponse(const SensorResponse* resp) {
+    // Handle an overall error for repeated sensor measurement 
+    if (resp->idx == 0) {
+        switch (resp->error) {
+            case SensorError_OK:
+                return SENSOR_OK;
+            default:
+                return SENSOR_REUPLOAD;
+        }
+    // Otherwise handle on individual measurement
+    } else {
+        switch (resp->error) {
+            case SensorError_OK:
+                return SENSOR_OK;
+            case SensorError_LOGGER:
+            case SensorError_CELL:
+            case SensorError_UNSUPPORTED:
+                return SENSOR_FORMAT;
+            default:
+                return SENSOR_REUPLOAD;
+        }
     }
 
     return SENSOR_OK;

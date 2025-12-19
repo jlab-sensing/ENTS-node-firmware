@@ -1,1 +1,2 @@
 RepeatedSensorMeasurements.measurements max_count: 16
+RepeatedSensorResponses.responses max_count: 16
