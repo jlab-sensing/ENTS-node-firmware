@@ -8,6 +8,7 @@ from ents.proto.sensor import (
     decode_sensor_measurement,
     decode_repeated_sensor_measurements,
     update_repeated_metadata,
+    get_sensor_data,
 )
 
 class TestProtoSensor(unittest.TestCase):
@@ -19,13 +20,13 @@ class TestProtoSensor(unittest.TestCase):
         # encode
 
         meas_in = {
-            "metadata": {
+            "meta": {
                 "ts": 123,
-                "logger_id": 456,
-                "cell_id": 789,
+                "loggerId": 456,
+                "cellId": 789,
             },
-            "type": POWER_VOLTAGE,
-            "unsigned_int": 100,
+            "type": "POWER_VOLTAGE",
+            "unsignedInt": 100,
         }
 
         serialized = encode_sensor_measurement(meas_in)
@@ -40,68 +41,89 @@ class TestProtoSensor(unittest.TestCase):
         """Tests encoding/decoding of RepeatedSensorMeasurement."""
 
         meas_in = {
-            "metadata": {
+            "meta": {
                 "ts": 123,
-                "logger_id": 456,
-                "cell_id": 789,
+                "loggerId": 456,
+                "cellId": 789,
             },
 
             "measurements": [
                 {
-                    "metadata": {
+                    "meta": {
                         "ts": 124,
-                        "logger_id": 457,
-                        "cell_id": 790,
+                        "loggerId": 457,
+                        "cellId": 790,
                     },
-                    "type": POWER_VOLTAGE,
-                    "unsigned_int": 100,
+                    "type": "POWER_VOLTAGE",
+                    "unsignedInt": 100,
                 },
                 {
-                    "metadata": {
+                    "meta": {
                         "ts": 125,
-                        "logger_id": 458,
-                        "cell_id": 791,
+                        "loggerId": 458,
+                        "cellId": 791,
                     },
-                    "type": POWER_CURRENT,
-                    "signed_int": -100,
+                    "type": "POWER_CURRENT",
+                    "signedInt": -100,
                 },
             ]
         }
+        
+        meas_expected = [
+                {
+                    "meta": {
+                        "ts": 124,
+                        "loggerId": 457,
+                        "cellId": 790,
+                    },
+                    "type": "POWER_VOLTAGE",
+                    "unsignedInt": 100,
+                },
+                {
+                    "meta": {
+                        "ts": 125,
+                        "loggerId": 458,
+                        "cellId": 791,
+                    },
+                    "type": "POWER_CURRENT",
+                    "signedInt": -100,
+                },
+            ]
 
         serialized = encode_repeated_sensor_measurements(meas_in)
 
         meas_out = decode_repeated_sensor_measurements(serialized)
 
-        self.assertEqual(meas_in, meas_out)
+        self.assertEqual(meas_expected, meas_out)
 
     def test_update_repeated_metadata_no_change(self):
         """Tests when no change should occur in the measurement."""
-        
+
         meas_in = {
-            "metadata": {
+            "meta": {
                 "ts": 123,
-                "logger_id": 456,
-                "cell_id": 789,
+                "loggerId": 456,
+                "cellId": 789,
             },
 
             "measurements": [
                 {
-                    "metadata": {
+                    "meta": {
                         "ts": 124,
-                        "logger_id": 457,
-                        "cell_id": 790,
+                        "loggerId": 457,
+                        "cellId": 790,
                     },
-                    "type": POWER_VOLTAGE,
-                    "unsigned_int": 100,
+                    "type": "POWER_VOLTAGE",
+                    "unsignedInt": 100,
                 },
                 {
-                    "metadata": {
+                    "meta": {
                         "ts": 125,
-                        "logger_id": 458,
-                        "cell_id": 791,
+                        "loggerId": 458,
+                        "cellId": 791,
                     },
-                    "type": POWER_CURRENT,
-                    "signed_int": -100,
+                    "type": "POWER_CURRENT",
+                    "signedInt": -100,
                 },
             ]
         }
@@ -114,63 +136,77 @@ class TestProtoSensor(unittest.TestCase):
         """Tests the typical case of updating repeated measurement metadata."""
         
         meas_in = {
-            "metadata": {
+            "meta": {
                 "ts": 123,
-                "logger_id": 456,
-                "cell_id": 789,
+                "loggerId": 456,
+                "cellId": 789,
             },
 
             "measurements": [
                 {
-                    "type": POWER_VOLTAGE,
-                    "unsigned_int": 100,
+                    "type": "POWER_VOLTAGE",
+                    "unsignedInt": 100,
                 },
                 {
-                    "metadata": {
+                    "meta": {
                         "ts": 125,
-                        "logger_id": 458,
-                        "cell_id": 791,
+                        "loggerId": 458,
+                        "cellId": 791,
                     },
-                    "type": POWER_CURRENT,
-                    "signed_int": -100,
+                    "type": "POWER_CURRENT",
+                    "signedInt": -100,
                 },
             ]
         }
 
         meas_out = update_repeated_metadata(meas_in)
 
-        self.assertIn("metadata", meas_out["measurements"][0])
-        self.assertEqual(meas_out["measurements"][0]["metadata"],
-                         meas_in["metadata"])
+        self.assertIn("meta", meas_out["measurements"][0])
+        self.assertEqual(meas_out["measurements"][0]["meta"],
+                         meas_in["meta"])
 
-def test_update_repeated_metadata_value_error(self):
-        """Tests ValueError when repeated is missing metadata."""
+    def test_update_repeated_metadata_value_error(self):
+            """Tests ValueError when repeated is missing metadata."""
 
-        meas_in = {
-            "measurements": [
-                {
-                    "metadata": {
-                        "ts": 124,
-                        "logger_id": 457,
-                        "cell_id": 790,
+            meas_in = {
+                "measurements": [
+                    {
+                        "meta": {
+                            "ts": 124,
+                            "loggerId": 457,
+                            "cellId": 790,
+                        },
+                        "type": "POWER_VOLTAGE",
+                        "unsignedInt": 100,
                     },
-                    "type": POWER_VOLTAGE,
-                    "unsigned_int": 100,
-                },
-                {
-                    "metadata": {
-                        "ts": 125,
-                        "logger_id": 458,
-                        "cell_id": 791,
+                    {
+                        "meta": {
+                            "ts": 125,
+                            "loggerId": 458,
+                            "cellId": 791,
+                        },
+                        "type": "POWER_CURRENT",
+                        "signedInt": -100,
                     },
-                    "type": POWER_CURRENT,
-                    "signed_int": -100,
-                },
-            ]
+                ]
+            }
+
+            with self.assertRaises(ValueError):
+                _ = update_repeated_metadata(meas_in)
+
+    def test_get_sensor_data(self):
+        """Tests get_sensor_data function."""
+
+        meas_type = "POWER_VOLTAGE"
+
+        sensor_data = get_sensor_data(meas_type)
+
+        expected_data = {
+            "name": "Voltage",
+            "unit": "mV",
         }
 
-        with self.assertRaises(ValueError):
-            meas_out = update_repeated_metadata(meas_in)
+        self.assertEqual(sensor_data, expected_data)
 
 if __name__ == "__main__":
     unittest.main()
