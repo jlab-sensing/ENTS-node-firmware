@@ -130,11 +130,11 @@ int main(void) {
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
-    if ((sensor == EnabledSensor_Voltage) || (sensor == EnabledSensor_Current)) {
+    if (sensor == EnabledSensor_Voltage) {
       #ifdef DEFAULT
       ADC_init();
-      SensorsAdd(ADC_measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "ADC Enabled!\n");
+      SensorsAdd(ADC_measureVoltage);
+      APP_LOG(TS_OFF, VLEVEL_M, "Voltage Enabled!\n");
       #endif
 
       #ifdef USE_FLOW_METER_SENSOR
@@ -155,6 +155,15 @@ int main(void) {
       APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Sensor Enabled!\n");
       #endif
 
+      #ifdef USE_PHYTOS31_SENSOR
+
+
+      #endif
+    }
+    if (sensor == EnabledSensor_Current) {
+      ADC_init();
+      SensorsAdd(ADC_measureVoltage);
+      APP_LOG(TS_OFF, VLEVEL_M, "Current Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
       APP_LOG(TS_OFF, VLEVEL_M, "Teros12 Enabled!\n");

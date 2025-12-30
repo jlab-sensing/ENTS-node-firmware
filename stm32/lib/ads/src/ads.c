@@ -15,6 +15,7 @@
 #include <stm32wlxx_hal_gpio.h>
 
 #include "userConfig.h"
+#include "sensor.h"
 
 /** i2c address */
 static const uint8_t addr = 0x40;
@@ -220,25 +221,51 @@ HAL_StatusTypeDef probeADS12(void) {
   return ret;
 }
 
-size_t ADC_measure(uint8_t *data, SysTime_t ts) {
-  // read power
-  int32_t adc_voltage = ADC_readVoltage();
-  int32_t adc_current = ADC_readCurrent();
 
-  const UserConfiguration *cfg = UserConfigGet();
+size_t ADC_measureVoltage(uint8_t *data, SysTime_t ts, uint32_t idx) {
+    double voltage = ADC_readVoltage();
 
-  // encode measurement
-  #ifndef DELTA_ENCODING
-  size_t data_len = EncodePowerMeasurement(
-      ts.Seconds, cfg->logger_id, cfg->cell_id, adc_voltage, adc_current, data);
-  #else
-  size_t data_len = EncodePowerDeltaMeasurement(
-      ts.Seconds, cfg->logger_id, cfg->cell_id, (uint32_t)adc_voltage, (uint32_t)adc_current, data);
-  #endif /* DELTA_ENCODING */
+    const UserConfiguration *cfg = UserConfigGet();
 
-  // return number of bytes in serialized measurement
-  return data_len;
+    Metadata meta = Metadata_init_zero;
+    meta.ts = ts.Seconds;
+    meta.logger_id = cfg->logger_id;
+    meta.cell_id = cfg->cell_id;
+
+    size_t data_len = 0;
+
+    SensorStatus status = SENSOR_OK;
+    status = EncodeDoubleMeasurement(meta, voltage, SensorType_POWER_VOLTAGE, data, &data_len);
+    if (status != SENSOR_OK) {
+        return -1;
+    }
+
+    return data_len;
 }
+
+
+size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx) {
+    double voltage = ADC_readCurrent();
+
+    const UserConfiguration *cfg = UserConfigGet();
+
+    Metadata meta = Metadata_init_zero;
+    meta.ts = ts.Seconds;
+    meta.logger_id = cfg->logger_id;
+    meta.cell_id = cfg->cell_id;
+
+    size_t data_len = 0;
+
+    SensorStatus status = SENSOR_OK;
+    status = EncodeDoubleMeasurement(meta, voltage, SensorType_POWER_CURRENT, data, &data_len);
+    if (status != SENSOR_OK) {
+        return -1;
+    }
+
+    return data_len;
+}
+
+
 
 void PowerOn(void) {
   // set high

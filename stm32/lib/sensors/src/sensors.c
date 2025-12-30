@@ -50,6 +50,9 @@ static UTIL_TIMER_Object_t MeasureTimer;
 
 static uint32_t measure_period = 0;
 
+/** Measurement index counter */
+static uint32_t meas_idx = 1;
+
 /**
  * @brief Measures sensors and adds to tx buffer
  *
@@ -116,7 +119,7 @@ void SensorsMeasure(void) {
   // loop over callbacks
   for (int i = 0; i < callback_arr_len; i++) {
     // call measurement function
-    buffer_len = callback_arr[i](buffer, ts);
+    buffer_len = callback_arr[i](buffer, ts, meas_idx++);
 
     if (buffer_len == ((size_t)-1)) {
       APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");

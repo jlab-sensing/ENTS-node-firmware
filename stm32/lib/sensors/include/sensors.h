@@ -62,7 +62,7 @@ extern "C" {
  *
  * @return Number of bytes in data
  */
-typedef size_t (*SensorsPrototypeMeasure)(uint8_t *data, SysTime_t ts);
+typedef size_t (*SensorsPrototypeMeasure)(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 /**
  * @brief Registers the measurement task with the sequencer
