@@ -113,7 +113,7 @@ SensorStatus RepeatedSensorMeasurementsSize(Metadata meta, const SensorMeasureme
 }
 
 
-SensorStatus EncodeUint64Measurement(Metadata meta,  uint64_t value, SensorType type,
+SensorStatus EncodeUint32Measurement(Metadata meta,  uint32_t value, SensorType type,
                              uint8_t* buffer, size_t* size) {
     SensorMeasurement meas = SensorMeasurement_init_zero;
  
@@ -128,7 +128,7 @@ SensorStatus EncodeUint64Measurement(Metadata meta,  uint64_t value, SensorType 
     return EncodeSensorMeasurement(&meas, buffer, size);
 }
 
-SensorStatus EncodeInt64Measurement(Metadata meta, int64_t value, SensorType type,
+SensorStatus EncodeInt32Measurement(Metadata meta, int32_t value, SensorType type,
                             uint8_t* buffer, size_t* size) {
     SensorMeasurement meas = SensorMeasurement_init_zero;
 

@@ -165,7 +165,7 @@ double ADC_readVoltage(void) {
   reg_data.bits.vref = 1;
 
   // 0x01 is single shot 0x03 is continuous
-  ret = ADC_configure(0x01);
+  ret = Configure(reg_data);
   if (ret != HAL_OK) {
     return -1;  // Return -1 on error
   }

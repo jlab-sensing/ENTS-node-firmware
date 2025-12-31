@@ -134,19 +134,25 @@ void SensorsMeasure(void) {
     }
     APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
 
-#ifdef SAVE_TO_MICROSD
-    ControllerMicroSDSave(buffer, buffer_len);
-#endif
-
-    // add to tx buffer
-    FramStatus status = FramPut(buffer, buffer_len);
-    if (status == FRAM_BUFFER_FULL) {
-      APP_LOG(TS_ON, VLEVEL_M, "Error: TX Buffer full!\r\n");
-    } else if (status != FRAM_OK) {
-      APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
-    }
+    SensorsAddMeasurement(buffer, buffer_len);
   }
 }
+
+
+void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
+#ifdef SAVE_TO_MICROSD
+  ControllerMicroSDSave(buffer, buffer_len);
+#endif
+
+  // add to tx buffer
+  FramStatus status = FramPut(buffer, buffer_len);
+  if (status == FRAM_BUFFER_FULL) {
+    APP_LOG(TS_ON, VLEVEL_M, "Error: TX Buffer full!\r\n");
+  } else if (status != FRAM_OK) {
+    APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
+  }
+}
+
 
 size_t SensorsMeasureTest(uint8_t *data) {
   uint8_t static_data[] = {0xa,  0xc,  0x8,  0xc8, 0x1,  0x10, 0xc8, 0x1,  0x18,

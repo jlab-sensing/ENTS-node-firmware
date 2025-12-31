@@ -348,6 +348,9 @@ void UserConfigPrintAny(const UserConfiguration *config) {
       case 5:
         sensor_name = "SEN0257";
         break;
+      default:
+        sensor_name = "Unknown Sensor";
+        break;
     }
     APP_PRINTF("Enabled Sensor %d: %s\r\n", i + 1, sensor_name);
   }

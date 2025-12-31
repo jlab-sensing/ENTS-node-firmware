@@ -162,7 +162,7 @@ int main(void) {
     }
     if (sensor == EnabledSensor_Current) {
       ADC_init();
-      SensorsAdd(ADC_measureVoltage);
+      SensorsAdd(ADC_measureCurrent);
       APP_LOG(TS_OFF, VLEVEL_M, "Current Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {

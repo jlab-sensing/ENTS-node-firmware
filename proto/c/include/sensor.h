@@ -94,7 +94,7 @@ SensorStatus EncodeRepeatedSensorMeasurements(Metadata meta, const SensorMeasure
  * 
  * @return SENSOR_SUCCESS on success, SENSOR_ERROR on failure.
  */
-SensorStatus EncodeUint64Measurement(Metadata meta, uint64_t value, SensorType type,
+SensorStatus EncodeUint32Measurement(Metadata meta, uint32_t value, SensorType type,
                              uint8_t* buffer, size_t* size);
 
 /**
@@ -109,7 +109,7 @@ SensorStatus EncodeUint64Measurement(Metadata meta, uint64_t value, SensorType t
  * 
  * @return SENSOR_SUCCESS on success, SENSOR_ERROR on failure.
  */
-SensorStatus EncodeInt64Measurement(Metadata meta, int64_t value, SensorType type,
+SensorStatus EncodeInt32Measurement(Metadata meta, int32_t value, SensorType type,
                             uint8_t* buffer, size_t* size);
 
 /**

@@ -20,6 +20,9 @@
 #include "stm32wlxx_hal_def.h"
 #include "transcoder.h"
 #include "usart.h"
+#include "sensor.h"
+#include "sensors.h"
+#include "userConfig.h"
 
 #define FLOW_AVG_COUNT 5
 
@@ -96,9 +99,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   }
 }
 
-size_t WatFlow_measure(uint8_t* data) {
+size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   // get timestamp
-  SysTime_t ts = SysTimeGet();
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
   YFS210CMeasurement flowMeas = {};
 
@@ -106,13 +108,29 @@ size_t WatFlow_measure(uint8_t* data) {
     flowMeas = FlowGetMeasurment();
   }
 
+
+
   /// read measurement
   flowMeas.flow = last_flow_lpm;
   const UserConfiguration* cfg = UserConfigGet();
+  
+  
+  // metadata
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
 
   // encode measurement
-  size_t data_len = EncodeWaterFlowMeasurement(
-      ts.Seconds, cfg->logger_id, cfg->cell_id, flowMeas.flow, data);
+  size_t data_len = 0;
+  SensorStatus status = SENSOR_OK;
+
+
+  status = EncodeDoubleMeasurement(
+      meta, flowMeas.flow, SensorType_YFS210C_FLOW, data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
 
   // return number of bytes in serialized measurement
   return data_len;

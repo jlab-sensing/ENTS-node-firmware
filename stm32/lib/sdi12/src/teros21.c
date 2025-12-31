@@ -1,6 +1,8 @@
 #include "teros21.h"
 
 #include "userConfig.h"
+#include "sensor.h"
+#include "sensors.h"
 
 SDI12Status Teros21ParseMeasurement(const char *buffer, Teros21Data *data) {
   char addr = 0;
@@ -45,7 +47,7 @@ SDI12Status Teros21GetMeasurement(char addr, Teros21Data *data) {
   return status;
 }
 
-size_t Teros21Measure(uint8_t *data, SysTime_t ts) {
+size_t Teros21Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Teros21Data sens_data = {};
   SDI12Status status = Teros21GetMeasurement('0', &sens_data);
   if (status != SDI12_OK) {
@@ -53,10 +55,30 @@ size_t Teros21Measure(uint8_t *data, SysTime_t ts) {
   }
 
   const UserConfiguration *cfg = UserConfigGet();
+  
+  // metadata
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
 
-  size_t data_len =
-      EncodeTeros21Measurement(ts.Seconds, cfg->logger_id, cfg->cell_id,
-                               sens_data.matric_pot, sens_data.temp, data);
+  size_t data_len = 0;
+  SensorStatus sen_status = SENSOR_OK;
+
+  // matric potential
+  sen_status = EncodeDoubleMeasurement(
+      meta, sens_data.matric_pot, SensorType_TEROS21_MATRIC_POT, data, &data_len);
+  if (sen_status != SENSOR_OK) {
+    return -1;
+  }
+  SensorsAddMeasurement(data, data_len);
+
+  // temperature
+  sen_status = EncodeDoubleMeasurement(
+      meta, sens_data.temp,  SensorType_TEROS21_TEMP, data, &data_len);
+  if (sen_status != SENSOR_OK) {
+    return -1;
+  }
 
   return data_len;
 }
