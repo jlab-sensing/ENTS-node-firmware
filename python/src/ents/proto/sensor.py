@@ -7,6 +7,7 @@ from .sensor_pb2 import (
     SensorMeasurement,
     RepeatedSensorMeasurements,
     SensorType,
+    RepeatedSensorResponses,
 )
 
 def parse_sensor_measurement(data: bytes) -> list:
@@ -262,7 +263,7 @@ def decode_repeated_sensor_measurements(data: bytes) -> list[dict]:
     for meas in rep_meas.measurements:
         # set meta from repeated measurement if available
         if not meas.HasField("meta"):
-            meas.meta = rep_meas.meta
+            meas.meta.CopyFrom(rep_meas.meta)
 
         parsed_meas = MessageToDict(meas)
 
@@ -293,3 +294,60 @@ def update_repeated_metadata(meas: dict) -> dict:
             m["meta"] = meas["meta"]
 
     return meas
+
+
+def encode_sensor_response(resp_dict: dict) -> bytes:
+    """Encodes a sensor response message.
+
+    {
+        responses: [
+            {
+                status: int,
+                message: str,
+            },
+            ...
+        ]
+    }
+
+    Args:
+        resp_dict: Sensor response dictionary.
+
+    Returns:
+        Byte array of encoded SensorResponse message.
+    """
+
+    resp = RepeatedSensorResponses()
+    ParseDict(resp_dict, resp)
+
+    return resp.SerializeToString()
+
+
+def decode_sensor_response(data: bytes) -> dict:
+    """Decodes a sensor response message.
+
+    {
+        responses: [
+            {
+                status: int,
+                message: str,
+            },
+            ...
+        ]
+    }
+
+    Args:
+        data: Byte array of SensorResponse message.
+
+    Returns:
+        Decoded sensor response dictionary.
+    """
+
+    resp = RepeatedSensorResponses()
+    resp.ParseFromString(data)
+
+    parsed_resp = MessageToDict(resp)
+
+    return parsed_resp
+
+
+    pass

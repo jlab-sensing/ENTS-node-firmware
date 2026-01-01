@@ -29,6 +29,13 @@ from .proto.encode import (
 from .proto.decode import decode_measurement, decode_response
 from .proto.esp32 import encode_esp32command, decode_esp32command
 
+from .proto.sensor import (
+    encode_repeated_sensor_measurements,
+    decode_repeated_sensor_measurements,
+    encode_sensor_response,
+    decode_sensor_response,
+)
+
 from .simulator.node import NodeSimulator
 
 
@@ -37,15 +44,62 @@ def entry():
 
     parser = argparse.ArgumentParser()
 
-    subparsers = parser.add_subparsers(help="Ents Utilities")
+    subparsers = parser.add_subparsers(help="Ents Utilities", required=True)
 
     create_encode_parser(subparsers)
+    create_encode_generic_parser(subparsers)
     create_decode_parser(subparsers)
+    create_decode_generic_parser(subparsers)
     create_calib_parser(subparsers)
     create_sim_parser(subparsers)
+    create_sim_generic_parser(subparsers)
 
     args = parser.parse_args()
     args.func(args)
+
+
+def create_sim_generic_parser(subparsers):
+    """Creates the generic simulation subparser
+
+    Args:
+        subparsers: Reference to subparser group
+    Returns:
+        Reference to new subparser
+    """
+
+    sim_p = subparsers.add_parser("sim_generic", help="Simluate generic sensor uploads")
+    sim_p.add_argument(
+        "--url",
+        required=True,
+        type=str,
+        help="URL of the dirtviz instance (default: http://localhost:8000)",
+    )
+    sim_p.add_argument(
+        "--mode",
+        required=True,
+        choices=["batch", "stream"],
+        type=str,
+        help="Upload mode",
+    )
+    sim_p.add_argument(
+        "--sensor",
+        required=True,
+        type=str,
+        nargs="+",
+        help="Type of sensor to simulate",
+    )
+    sim_p.add_argument("--min", type=float, default=-1., help="Minimum sensor value (default: -1.0)")
+    sim_p.add_argument("--max", type=float, default=1., help="Maximum sensor value (default: 1.0)")
+    sim_p.add_argument("--cell", required=True, type=int, help="Cell Id")
+    sim_p.add_argument("--logger", required=True, type=int, help="Logger Id")
+    sim_p.add_argument("--start", type=str, help="Start date")
+    sim_p.add_argument("--end", type=str, help="End date")
+    sim_p.add_argument(
+        "--freq", default=10.0, type=float, help="Frequency of uploads (default: 10s)"
+    )
+    sim_p.set_defaults(func=simulate_generic)
+
+    return sim_p
 
 
 def create_sim_parser(subparsers):
@@ -90,6 +144,49 @@ def create_sim_parser(subparsers):
     return sim_p
 
 
+def simulate_generic(args):
+    simulation = NodeSimulator(
+        cell=args.cell,
+        logger=args.logger,
+        sensors=args.sensor,
+        _min=args.min,
+        _max=args.max,
+    )
+
+    if args.mode == "batch":
+        if (args.start is None) or (args.end is None):
+            raise ValueError("Start and end date must be provided for batch mode.")
+
+        # format dates
+        curr_dt = datetime.fromisoformat(args.start)
+        end_dt = datetime.fromisoformat(args.end)
+
+        # create list of measurements
+        while curr_dt <= end_dt:
+            ts = int(curr_dt.timestamp())
+            simulation.measure(ts)
+            curr_dt += timedelta(seconds=args.freq)
+
+        # send measurements
+        while simulation.send_next(args.url):
+            print(simulation)
+
+        print("Done!")
+
+    elif args.mode == "stream":
+        print("Use CTRL+C to stop the simulation")
+        try:
+            while True:
+                dt = datetime.now()
+                ts = int(dt.timestamp())
+                simulation.measure(ts)
+                while simulation.send_next(args.url):
+                    print(simulation)
+                time.sleep(args.freq)
+        except KeyboardInterrupt as _:
+            print("Stopping simulation")
+
+
 def simulate(args):
     simulation = NodeSimulator(
         cell=args.cell,
@@ -131,6 +228,8 @@ def simulate(args):
             print("Stopping simulation")
 
 
+
+
 def create_calib_parser(subparsers):
     """Creates the calibration subparser
 
@@ -169,6 +268,134 @@ def create_calib_parser(subparsers):
     return calib_p
 
 
+def create_encode_generic_parser(subparsers):
+    """Create generic encode command subparser
+
+    Args:
+        subparsers: Reference to subparser group
+
+    Returns:
+        Reference to new subparser
+    """
+
+    encode_parser = subparsers.add_parser(
+        "encode_generic", help="Encode generic data"
+    )
+
+    print_format = encode_parser.add_mutually_exclusive_group()
+    print_format.add_argument(
+        "--hex", action="store_true", help="Print as hex values (default)"
+    )
+    print_format.add_argument(
+        "--raw", action="store_true", help="Print raw bytes object"
+    )
+    print_format.add_argument(
+        "--c", action="store_true", help="Print bytes for copying to c"
+    )
+
+    encode_subparsers = encode_parser.add_subparsers(title="Message type",
+                                                     dest="type",
+                                                     required=True)
+
+    # sensor measurement
+    measurement_parser = encode_subparsers.add_parser(
+        "meas", help='Proto "Measurement" message'
+    )
+    measurement_parser.add_argument("--ts", type=int, help="Unix epoch timestamp")
+    measurement_parser.add_argument("--cell", type=int, help="Cell Id")
+    measurement_parser.add_argument("--logger", type=int, help="Logger Id")
+    measurement_parser.add_argument("--idx", type=int, default=1, help="Upload index")
+    measurement_parser.add_argument(
+        "--sensor",
+        nargs=2,
+        metavar=("type", "value"),
+        action="append",
+        required=True,
+        help="Specify as: --sensor <type> <value>",
+    )
+    measurement_parser.set_defaults(func=handle_encode_generic_measurement)
+
+    # response
+    response_parser = encode_subparsers.add_parser(
+        "resp", help='Proto "Response" message'
+    )
+    response_parser.add_argument(
+        "--resp",
+        nargs=2,
+        metavar=("idx", "status"),
+        action="append",
+        required=True,
+        help="Specify as: --resp <idx> <status>",
+    )
+    response_parser.set_defaults(func=handle_encode_generic_response)
+
+    return encode_parser
+
+
+def parse_number(s: str) -> tuple:
+    try:
+        i = int(s)
+        if i >= 0:
+            return i, 'unsignedInt'
+        return i, 'signedInt'
+    except ValueError:
+        pass
+
+    try:
+        return float(s), 'decimal'
+    except ValueError:
+        pass
+
+    raise ValueError(f"Invalid numeric value: {s}")
+
+
+def handle_encode_generic_measurement(args):
+    """Take arguments and encode a repeated senosr measurement message"""
+
+    meas = {
+        "meta": {
+            "ts": args.ts,
+            "cellId": args.cell,
+            "loggerId": args.logger,
+        },
+
+        "measurements": [],
+    }
+
+    for s in args.sensor:
+        val, val_type = parse_number(s[1])
+        meas["measurements"].append(
+            {
+                "type": s[0],
+                val_type: val,
+                "idx": args.idx,
+            }
+        )
+        args.idx += 1
+
+    data = encode_repeated_sensor_measurements(meas)
+    print_data(args, data)
+
+def handle_encode_generic_response(args):
+    """Takes arguments and encode a sensor response message"""
+
+    resp = {
+        "responses": [],
+    }
+
+    for r in args.resp:
+        idx = int(r[0])
+        status = r[1]
+        resp["responses"].append(
+            {
+                "uploadIndex": idx,
+                "status": status,
+            }
+        )
+
+    data = encode_sensor_response(resp)
+    print_data(args, data)
+
 def create_encode_parser(subparsers):
     """Create encode command subparser
 
@@ -192,14 +419,19 @@ def create_encode_parser(subparsers):
         "--c", action="store_true", help="Print bytes for copying to c"
     )
 
-    encode_subparsers = encode_parser.add_subparsers(title="Message type", dest="type")
+    encode_subparsers = encode_parser.add_subparsers(
+        title="Message type",
+        dest="type",
+        required=True,
+    )
 
     def create_measurement_parser(encode_subparsers):
         measurement_parser = encode_subparsers.add_parser(
             "measurement", help='Proto "Measurement" message'
         )
         measurement_subparser = measurement_parser.add_subparsers(
-            title="Measurement type"
+            title="Measurement type",
+            required=True,
         )
 
         # metadata
@@ -246,7 +478,9 @@ def create_encode_parser(subparsers):
             "esp32command", help='Proto "Esp32Command" message'
         )
         esp32command_subparser = esp32command_parser.add_subparsers(
-            title="type", help="PageCommand"
+            title="type",
+            help="PageCommand",
+            required=True,
         )
 
         test_parser = esp32command_subparser.add_parser("test", help="TestCommand")
@@ -383,6 +617,55 @@ def print_bytes_c(data: bytes) -> str:
     print(f"size_t data_len = {len(hex_str)};")
 
 
+def create_decode_generic_parser(subparsers):
+    """Create generic decode command parser
+
+    Args:
+        subparsers: Reference to subparser group
+
+    Returns:
+        Reference to new subparser
+    """
+
+    decode_parser = subparsers.add_parser("decode_generic", help="Decode generic data")
+
+    decode_subparsers = decode_parser.add_subparsers(
+        title="Message type",
+        dest="type",
+        required=True,
+    )
+
+    decode_parser.add_argument(
+        "data", type=str, help="Protobuf serialized data in hex format"
+    )
+
+    # sensor measurement
+    measurement_parser = decode_subparsers.add_parser(
+        "meas", help='Proto "Measurement" message'
+    )
+    measurement_parser.set_defaults(func=handle_decode_generic_measurement)
+
+    # response
+    response_parser = decode_subparsers.add_parser(
+        "resp", help='Proto "Response" message'
+    )
+    response_parser.set_defaults(func=handle_decode_generic_response)
+
+    return decode_parser
+
+
+def handle_decode_generic_measurement(args):
+    data = bytes.fromhex(args.data)
+    vals = decode_repeated_sensor_measurements(data)
+    print(vals)
+
+
+def handle_decode_generic_response(args):
+    data = bytes.fromhex(args.data)
+    vals = decode_sensor_response(data)
+    print(vals)
+
+
 def create_decode_parser(subparsers):
     """Create decode command parser
 
@@ -395,7 +678,11 @@ def create_decode_parser(subparsers):
 
     decode_parser = subparsers.add_parser("decode", help="Decode data")
 
-    decode_subparsers = decode_parser.add_subparsers(title="Message type", dest="type")
+    decode_subparsers = decode_parser.add_subparsers(
+        title="Message type",
+        dest="type",
+        required=True,
+    )
 
     # measurement
     measurement_parser = decode_subparsers.add_parser(
