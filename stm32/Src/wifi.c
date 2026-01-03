@@ -32,6 +32,8 @@
 #include "user_config.h"
 #include "wifi.h"
 
+#include "payload.h"
+
 /**
  * @brief Timer for uploads
  *
@@ -147,16 +149,14 @@ void Upload(void) {
   size_t buffer_len = 0;
   uint8_t buffer[buffer_size];
 
-  // get buffer data
-  FramStatus status = FramGet(buffer, &buffer_len);
-  if (status != FRAM_OK) {
-    if (status == FRAM_BUFFER_EMPTY) {
-      APP_LOG(TS_OFF, VLEVEL_M, "Buffer empty!\r\n")
-    } else {
-      APP_LOG(TS_OFF, VLEVEL_M,
-              "Error getting data from fram buffer. FramStatus = %d\r\n",
-              status);
-    }
+  // get payload (pegged at 512)
+  PayloadStatus payload_status = PAYLOAD_OK;
+  payload_status = FormatPayload(512, buffer, &buffer_len);
+  if (payload_status == PAYLOAD_ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error formatting payload\r\n");
+    return;
+  } else if (payload_status == PAYLOAD_NO_DATA) {
+    APP_LOG(TS_OFF, VLEVEL_M, "No data to send\r\n");
     return;
   }
 
