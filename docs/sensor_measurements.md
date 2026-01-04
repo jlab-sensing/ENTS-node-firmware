@@ -12,6 +12,15 @@ Another example is when multiple SDI-12 sensors are connected to the same device
 The metadata is an all-or-nothing field. You cannot store just timestamp in the repeated measurement message and store additional metadata in the individual measurement messages. Metadata of the individual measurements will superceed the repeated measurement metadata if it is present.
 
 
+### Versioning
+
+There are two version of the sensor measurement protocol. Version 1 is the original version that uses individual messages for each sensor measurement. Version 2 is described above.
+
+When uploading over LoRaWAN `fport` is used to indicate which version of the protocol is being used. `fport=1` indicates version 1 and `fport=2` indicates version 2.
+
+When uploading over WiFi a header is used to indicate the version of the protocol. The header `SensorVersion: 1` indicates version 1 and `SensorVersion: 2` indicates version 2. If the hedaer is not specificed then the fallback should be version 1.
+
+
 ### Contributing
 
 Adding support for a new sensor to the protocol involves (1) updating sensors list in protobuf definitions, (2) implementing drivers for the sensor, and (3) updating decoding logic in the python module.

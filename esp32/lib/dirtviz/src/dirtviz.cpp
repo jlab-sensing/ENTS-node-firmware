@@ -82,6 +82,7 @@ unsigned int Dirtviz::SendMeasurement(const uint8_t *meas, size_t meas_len) {
   headers << "Content-Type: application/octet-stream" << "\r\n";
   headers << "Content-Length: " << meas_len << "\r\n";
   headers << "Connection: close" << "\r\n";
+  headers << "SensorVersion: 2" << "\r\n"
   headers << "\r\n";
 
   // copy stream to string
