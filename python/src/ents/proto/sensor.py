@@ -27,7 +27,9 @@ def parse_sensor_measurement(data: bytes) -> list:
 
     meas = decode_repeated_sensor_measurements(data)
     meas = update_repeated_metadata(meas)
-    meas = get_sensor_data(meas)
+    for m in meas["measurements"]:
+        sensor_data = get_sensor_data(m["type"])
+        m.update(sensor_data)
 
     return meas
 
@@ -119,87 +121,6 @@ def get_sensor_data(meas_type: int) -> dict:
             "unit": "L/min",
         },
     }
-    
-    #SENSOR_DATA = {
-    #    "POWER_VOLTAGE": {
-    #        "name": "Voltage",
-    #        "unit": "mV",
-    #    },
-    #    "POWER_CURRENT": {
-    #        "name": "Current",
-    #        "unit": "uA",
-    #    },
-
-    #    "TEROS12_VWC": {
-    #        "name": "Volumetric Water Content",
-    #        "unit": "%",
-    #    },
-    #    "TEROS12_TEMP": {
-    #        "name": "Temperature",
-    #        "unit": "C",
-    #    },
-    #    "TEROS12_EC": {
-    #        "name": "Electrical Conductivity",
-    #        "unit": "uS/cm",
-    #    },
-
-    #    "PHYTOS31_VOLTAGE": {
-    #        "name": "Voltage",
-    #        "unit": "mV",
-    #    },
-    #    "PHYTOS31_LEAF_WETNESS": {
-    #        "name": "Leaf Wetness",
-    #        "unit": "%",
-    #    },
-
-    #    "BME280_PRESSURE": {
-    #        "name": "Pressure",
-    #        "unit": "kPa",
-    #    },
-    #    "BME280_TEMP": {
-    #        "name": "Temperature",
-    #        "unit": "C",
-    #    },
-    #    "BME280_HUMIDITY": {
-    #        "name": "Humidity",
-    #        "unit": "%",
-    #    },
-
-    #    "TEROS21_MATRIC_POT": {
-    #        "name": "Matric Potential",
-    #        "unit": "kPa",
-    #    },
-    #    "TEROS21_TEMP": {
-    #        "name": "Temperature",
-    #        "unit": "C",
-    #    },
-
-    #    "SEN0308_VOLTAGE": {
-    #        "name": "Voltage",
-    #        "unit": "mV",
-    #    },
-    #    "SEN0308_HUMIDITY": {
-    #        "name": "Humidity",
-    #        "unit": "%",
-    #    },
-
-    #    "SEN0257_VOLTAGE": {
-    #        "name": "Voltage",
-    #        "unit": "mV",
-    #    },
-    #    "SEN0257_PRESSURE": {
-    #        "name": "Pressure",
-    #        "unit": "kPa",
-    #    },
-
-    #    "YFS210C_FLOW": {
-    #        "name": "Flow Rate",
-    #        "unit": "L/min",
-    #    },
-    #}
-
-
-
 
     meta = SENSOR_DATA[SensorType.Value(meas_type)]
     return meta
@@ -245,7 +166,7 @@ def decode_sensor_measurement(data: bytes) -> dict:
     return parsed_meas
 
 
-def decode_repeated_sensor_measurements(data: bytes) -> list[dict]:
+def decode_repeated_sensor_measurements(data: bytes) -> dict:
     """Decodes repeated sensor measurements
 
     Args:
@@ -257,6 +178,7 @@ def decode_repeated_sensor_measurements(data: bytes) -> list[dict]:
 
     rep_meas = RepeatedSensorMeasurements()
     rep_meas.ParseFromString(data)
+    return MessageToDict(rep_meas)
 
     parsed_meas_list : list[dict] = []
 
@@ -286,12 +208,16 @@ def update_repeated_metadata(meas: dict) -> dict:
         Updated sensor measurement dictionary.
     """
 
+    # if top level meta does not exist, ensure all measurements have meta
     if "meta" not in meas:
-        raise ValueError("Repeated measurement missing metadata field.")
-
-    for m in meas["measurements"]:
-        if "meta" not in m:
-            m["meta"] = meas["meta"]
+        for m in meas["measurements"]:
+            if "meta" not in m:
+                raise ValueError("Repeated measurement missing metadata field.")
+    # otherwise populate missing measurement meta from top level
+    else:
+        for m in meas["measurements"]:
+            if "meta" not in m:
+                m["meta"] = meas["meta"]
 
     return meas
 
@@ -348,6 +274,3 @@ def decode_sensor_response(data: bytes) -> dict:
     parsed_resp = MessageToDict(resp)
 
     return parsed_resp
-
-
-    pass

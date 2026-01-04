@@ -40,16 +40,14 @@ typedef enum _PayloadStatus {
  * buffer as a RepeatedSensorMeasurements protobuf message. The number of bytes
  * written is returned in size.
  *
- * @param max_size Maximum size of the output buffer.
  * @param buffer Pointer to the output buffer.
- * @param size Pointer to the size of the output buffer. On success, updated to
- * the number of bytes written.
+ * @param size Size of the output buffer.
+ * @param length Pointer to the length of the formatted payload.
  *
  * @return PAYLOAD_OK on success, PAYLOAD_NO_DATA if no data is available,
  * PAYLOAD_ERROR on failure.
  */
-PayloadStatus FormatPayload(uint8_t max_size, uint8_t* buffer,
-    uint8_t* size);
+PayloadStatus FormatPayload(uint8_t* buffer, size_t size, size_t* length);
 
 
 #ifdef __cplusplus

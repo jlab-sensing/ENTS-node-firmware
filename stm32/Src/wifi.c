@@ -151,7 +151,7 @@ void Upload(void) {
 
   // get payload (pegged at 512)
   PayloadStatus payload_status = PAYLOAD_OK;
-  payload_status = FormatPayload(512, buffer, &buffer_len);
+  payload_status = FormatPayload(buffer, buffer_size, &buffer_len);
   if (payload_status == PAYLOAD_ERROR) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error formatting payload\r\n");
     return;

@@ -25,27 +25,20 @@
 #include "stm32_timer.h"
 #include "utilities_def.h"
 #include "app_version.h"
-#include "lorawan_version.h"
-#include "subghz_phy_version.h"
 #include "lora_info.h"
 #include "LmHandler.h"
 #include "adc_if.h"
-#include "CayenneLpp.h"
-#include "sys_sensors.h"
 #include "flash_if.h"
 
 /* USER CODE BEGIN Includes */
 #include "LmhpClockSync.h"
 
-#include "sdi12.h"
-#include "rtc.h"
 #include "sensors.h"
 #include "userConfig.h"
 #include "status_led.h"
 #include "user_config.h"
 
 #include "lora_size.h"
-#include "sensor.h"
 #include "payload.h"
 
 #include <time.h>
@@ -502,12 +495,12 @@ static void SendTxData(void)
   uint8_t max_payload_size = lorawan_max_payload(region, dr);
 
   PayloadStatus payload_status = PAYLOAD_OK;
-  payload_status = FormatPayload(max_payload_size, AppData.Buffer, &AppData.BufferSize);
+  payload_status = FormatPayload(AppData.Buffer, max_payload_size, (size_t*) &AppData.BufferSize);
   if (payload_status == PAYLOAD_ERROR) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Error formatting payload\r\n");
+    APP_LOG(TS_ON, VLEVEL_M, "Error formatting payload\r\n");
     return;
   } else if (payload_status == PAYLOAD_NO_DATA) {
-    APP_LOG(TS_OFF, VLEVEL_M, "No data to send\r\n");
+    APP_LOG(TS_ON, VLEVEL_M, "No data to send\r\n");
     return;
   }
 
@@ -561,6 +554,8 @@ static void SendTxData(void)
   }
 
   StatusLedOff();
+
+  APP_LOG(TS_ON, VLEVEL_M, "Sleeping until next upload\r\n");
   /* USER CODE END SendTxData_1 */
 }
 

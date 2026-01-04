@@ -74,13 +74,13 @@ SensorStatus EncodeSensorMeasurement(const SensorMeasurement* meas,
  * @param meas Array of SensorMeasurements to encode.
  * @param count Number of measurements in the array.
  * @param buffer Pointer to the output buffer.
- * @param size Pointer to the size of the output buffer. On success, updated to
- * the number of bytes written.
+ * @param size Size of buffer.
+ * @param length Pointer to the length of the output buffer.
  *
  * @return SENSOR_SUCCESS on success, SENSOR_ERROR on failure.
  */
 SensorStatus EncodeRepeatedSensorMeasurements(Metadata meta, const SensorMeasurement meas[],
-    size_t count, uint8_t* buffer, size_t* size);
+    size_t count, uint8_t* buffer, size_t size, size_t* length);
 
 /**
  * @brief Encodes a uint64_t sensor measurement into a buffer.

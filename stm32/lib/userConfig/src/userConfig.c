@@ -34,8 +34,8 @@ const static UserConfiguration testConfig = {
     .cell_id = 200,
     .Upload_method = Uploadmethod_WiFi,
     .Upload_interval = 10,
-    .enabled_sensors_count = 1,
-    .enabled_sensors = {EnabledSensor_Voltage},
+    .enabled_sensors_count = 2,
+    .enabled_sensors = {EnabledSensor_Voltage, EnabledSensor_Current},
     // calibration values are taken from 2.2.3-033
     .Voltage_Slope = -0.00039326,
     .Voltage_Offset = 4.92916378e-05,

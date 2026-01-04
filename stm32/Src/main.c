@@ -19,9 +19,6 @@
 #include "main.h"
 
 #include <stdbool.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 // peripherials
 #include "app_lorawan.h"
@@ -34,6 +31,7 @@
 #include "controller/controller.h"
 #include "controller/wifi.h"
 #include "controller/wifi_userconfig.h"
+#include "controller/power.h"
 #include "phytos31.h"
 #include "sensors.h"
 #include "status_led.h"

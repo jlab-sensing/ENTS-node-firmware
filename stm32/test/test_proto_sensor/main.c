@@ -78,7 +78,7 @@ void TestTranscodeSensorMeasurement(void) {
 void TestTranscodeRepeatedSensorMeasurements(void) {
   SensorStatus status = SENSOR_OK;
   uint8_t buffer[512];
-  size_t buffer_len = sizeof(buffer);
+  size_t buffer_len = 0;
 
 
   // encode
@@ -103,7 +103,7 @@ void TestTranscodeRepeatedSensorMeasurements(void) {
     in->value.unsigned_int = 9876543210ULL + i;
   }
 
-  status = EncodeRepeatedSensorMeasurements(meta, in_array, len, buffer, &buffer_len);
+  status = EncodeRepeatedSensorMeasurements(meta, in_array, len, buffer, sizeof(buffer), &buffer_len);
   TEST_ASSERT_EQUAL(SENSOR_OK, status);
   TEST_ASSERT_GREATER_THAN(0, buffer_len);
 
@@ -132,7 +132,7 @@ void TestTranscodeRepeatedSensorMeasurements(void) {
   }
 }
 
-void TestEncodeUint64Measurement(void) {
+void TestEncodeUint32Measurement(void) {
   SensorStatus status = SENSOR_OK;
 
   Metadata meta = Metadata_init_zero;
@@ -144,7 +144,7 @@ void TestEncodeUint64Measurement(void) {
 
   uint8_t buffer[256];
   size_t buffer_len = sizeof(buffer);
-  status = EncodeUint64Measurement(meta, value, SensorType_POWER_VOLTAGE, 
+  status = EncodeUint32Measurement(meta, value, SensorType_POWER_VOLTAGE, 
                               buffer, &buffer_len);
 
   TEST_ASSERT_EQUAL(SENSOR_OK, status);
@@ -152,7 +152,7 @@ void TestEncodeUint64Measurement(void) {
 }
 
 
-void TestEncodeInt64Measurement(void) {
+void TestEncodeInt32Measurement(void) {
   SensorStatus status = SENSOR_OK;
 
   Metadata meta = Metadata_init_zero;
@@ -164,7 +164,7 @@ void TestEncodeInt64Measurement(void) {
 
   uint8_t buffer[256];
   size_t buffer_len = sizeof(buffer);
-  status = EncodeInt64Measurement(meta, value, SensorType_POWER_VOLTAGE, 
+  status = EncodeInt32Measurement(meta, value, SensorType_POWER_VOLTAGE, 
                               buffer, &buffer_len);
 
   TEST_ASSERT_EQUAL(SENSOR_OK, status);
@@ -329,8 +329,8 @@ int main(void) {
 
   RUN_TEST(TestTranscodeSensorMeasurement);
   RUN_TEST(TestTranscodeRepeatedSensorMeasurements);
-  RUN_TEST(TestEncodeUint64Measurement);
-  RUN_TEST(TestEncodeInt64Measurement);
+  RUN_TEST(TestEncodeUint32Measurement);
+  RUN_TEST(TestEncodeInt32Measurement);
   RUN_TEST(TestEncodeDoubleMeasurement);
   RUN_TEST(TestRepeatedSensorResponses);
   RUN_TEST(TestCheckSensorResponse);

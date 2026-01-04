@@ -188,6 +188,30 @@ FramStatus FramPeek(size_t idx, uint8_t *data, uint8_t *len) {
     return status;
   }
 
+  // Read data from FRAM circular buffer
+  // if the data must wraparound, then make two reads
+  if (temp_read_addr + *len > (FRAM_BUFFER_END + 1)) {
+    // read up to the buffer end
+    size_t len_first_half = (FRAM_BUFFER_END + 1) - temp_read_addr;
+    status = FramRead(temp_read_addr, len_first_half, data);
+    if (status != FRAM_OK) {
+      return status;
+    }
+    update_addr(&temp_read_addr, len_first_half);
+    // read from the buffer start
+    status = FramRead(temp_read_addr, *len - len_first_half, data + len_first_half);
+    if (status != FRAM_OK) {
+      return status;
+    }
+    update_addr(&temp_read_addr, *len - len_first_half);
+  } else {
+    status = FramRead(temp_read_addr, *len, data);
+    if (status != FRAM_OK) {
+      return status;
+    }
+    update_addr(&temp_read_addr, *len);
+  }
+
   return FRAM_OK;
 }
 

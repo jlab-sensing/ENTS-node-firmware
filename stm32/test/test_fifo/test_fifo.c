@@ -418,6 +418,8 @@ int main(void) {
   RUN_TEST(test_FramGet_Sequential_BufferFull);
   RUN_TEST(test_FramBuffer_Wraparound);
   RUN_TEST(test_LoadSaveBufferState);
+  RUN_TEST(test_FramPeek);
+  RUN_TEST(test_FramDrop);
   UNITY_END();
   /* USER CODE END 3 */
 }

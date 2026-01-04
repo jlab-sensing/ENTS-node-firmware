@@ -51,7 +51,7 @@ SensorStatus FormatRepeatedSensorMeasurements(
 
 SensorStatus EncodeSensorMeasurement(const SensorMeasurement *meas, uint8_t *buffer, size_t *size) {
     // create output stream
-    pb_ostream_t ostream = pb_ostream_from_buffer(buffer, *size);
+    pb_ostream_t ostream = pb_ostream_from_buffer(buffer, 256);
     // encode message and check rc
     bool status = pb_encode(&ostream, SensorMeasurement_fields, meas);
     if (!status) {
@@ -65,7 +65,7 @@ SensorStatus EncodeSensorMeasurement(const SensorMeasurement *meas, uint8_t *buf
 
 
 SensorStatus EncodeRepeatedSensorMeasurements(Metadata meta, const SensorMeasurement meas[],
-    size_t count, uint8_t* buffer, size_t* size) {
+    size_t count, uint8_t* buffer, size_t size, size_t* length) {
 
     RepeatedSensorMeasurements rep_meas = RepeatedSensorMeasurements_init_zero;
 
@@ -77,13 +77,13 @@ SensorStatus EncodeRepeatedSensorMeasurements(Metadata meta, const SensorMeasure
     }
 
     // encode
-    pb_ostream_t ostream = pb_ostream_from_buffer(buffer, *size);
+    pb_ostream_t ostream = pb_ostream_from_buffer(buffer, size);
     bool status = pb_encode(&ostream, RepeatedSensorMeasurements_fields, &rep_meas);
     if (!status) {
         return SENSOR_ERROR;
     }
 
-    *size = ostream.bytes_written;
+    *length = ostream.bytes_written;
     return SENSOR_OK;
 }
 
