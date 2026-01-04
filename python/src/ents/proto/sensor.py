@@ -1,4 +1,13 @@
-"""Module for sensor measurements"""
+"""Module for sensor measurements
+
+Encode/decoding functions are wrappers around the protobuf messages. These take
+in the json dictionary format of the messages and return serialized byte
+arrays.
+
+Format/parse functions implement the protocol for repeated sensor measurements.
+These take in a list of measurements and automatically optimize repeated
+metadata fields.
+"""
 
 
 from google.protobuf.json_format import MessageToDict, ParseDict
@@ -33,6 +42,27 @@ def parse_sensor_measurement(data: bytes) -> list:
 
     return meas
 
+def format_sensor_measurement(meas: list) -> bytes:
+    """Formats a sensor measurement dictionary into a serialized byte array.
+
+    Function does the following:
+        1. Uses top level metadata for duplicate measurement metadata fields
+        2. Encodes the dictionary into a serialized byte array
+
+    Args:
+        meas: Dictionary of sensor measurement.
+
+    Returns:
+        Byte array of serialized message.
+    """
+
+    # TODO Implement optimization of repeated metadata fields
+    meas_dict = {
+        "measurements": meas,
+    }
+
+    data = encode_repeated_sensor_measurements(meas_dict)
+    return data
 
 def get_sensor_data(meas_type: int) -> dict:
     """Gets sensor data information.
@@ -180,19 +210,6 @@ def decode_repeated_sensor_measurements(data: bytes) -> dict:
     rep_meas.ParseFromString(data)
     return MessageToDict(rep_meas)
 
-    parsed_meas_list : list[dict] = []
-
-    for meas in rep_meas.measurements:
-        # set meta from repeated measurement if available
-        if not meas.HasField("meta"):
-            meas.meta.CopyFrom(rep_meas.meta)
-
-        parsed_meas = MessageToDict(meas)
-
-        parsed_meas_list.append(parsed_meas)
-
-    return parsed_meas_list
-
 
 def update_repeated_metadata(meas: dict) -> dict:
     """Ensures every measurements has metadata field set.
@@ -218,6 +235,7 @@ def update_repeated_metadata(meas: dict) -> dict:
         for m in meas["measurements"]:
             if "meta" not in m:
                 m["meta"] = meas["meta"]
+        del meas["meta"]
 
     return meas
 

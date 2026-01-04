@@ -68,8 +68,14 @@ class TestProtoSensor(unittest.TestCase):
                 },
             ]
         }
-        
-        meas_expected = [
+
+        meas_expected = {
+                "meta": {
+                    "ts": 123,
+                    "loggerId": 456,
+                    "cellId": 789,
+                },
+            "measurements": [
                 {
                     "meta": {
                         "ts": 124,
@@ -88,7 +94,7 @@ class TestProtoSensor(unittest.TestCase):
                     "type": "POWER_CURRENT",
                     "signedInt": -100,
                 },
-            ]
+            ]}
 
         serialized = encode_repeated_sensor_measurements(meas_in)
 
@@ -134,7 +140,14 @@ class TestProtoSensor(unittest.TestCase):
 
     def test_update_repeated_metadata_ok(self):
         """Tests the typical case of updating repeated measurement metadata."""
-        
+      
+        # top level metadata for comparison
+        top_meta = {
+            "ts": 123,
+            "loggerId": 456,
+            "cellId": 789,
+        }
+
         meas_in = {
             "meta": {
                 "ts": 123,
@@ -163,10 +176,11 @@ class TestProtoSensor(unittest.TestCase):
 
         self.assertIn("meta", meas_out["measurements"][0])
         self.assertEqual(meas_out["measurements"][0]["meta"],
-                         meas_in["meta"])
+                         top_meta)
 
     def test_update_repeated_metadata_value_error(self):
-            """Tests ValueError when repeated is missing metadata."""
+            """Tests ValueError when single repeated measurement is missing
+            metadata and there is no top level metadata to pull from."""
 
             meas_in = {
                 "measurements": [
@@ -180,11 +194,6 @@ class TestProtoSensor(unittest.TestCase):
                         "unsignedInt": 100,
                     },
                     {
-                        "meta": {
-                            "ts": 125,
-                            "loggerId": 458,
-                            "cellId": 791,
-                        },
                         "type": "POWER_CURRENT",
                         "signedInt": -100,
                     },
