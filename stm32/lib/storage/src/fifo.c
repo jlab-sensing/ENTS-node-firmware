@@ -199,7 +199,8 @@ FramStatus FramPeek(size_t idx, uint8_t *data, uint8_t *len) {
     }
     update_addr(&temp_read_addr, len_first_half);
     // read from the buffer start
-    status = FramRead(temp_read_addr, *len - len_first_half, data + len_first_half);
+    status =
+        FramRead(temp_read_addr, *len - len_first_half, data + len_first_half);
     if (status != FRAM_OK) {
       return status;
     }

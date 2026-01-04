@@ -16,9 +16,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "transcoder.h"
 #include "sensor.h"
 #include "sensors.h"
+#include "transcoder.h"
 #include "userConfig.h"
 
 // Measured when the sensor is at atmospheric pressure (not submerged)
@@ -44,28 +44,28 @@ size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   /// read voltage
   waterPressMeas = PressureGetMeasurment();
   const UserConfiguration* cfg = UserConfigGet();
-  
+
   // metadata
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
   meta.cell_id = cfg->cell_id;
 
-
   size_t data_len = 0;
   SensorStatus status = SENSOR_OK;
 
   // voltage
-  status = EncodeDoubleMeasurement(
-      meta, waterPressMeas.voltage, SensorType_SEN0257_VOLTAGE, data, &data_len);
+  status = EncodeDoubleMeasurement(meta, waterPressMeas.voltage,
+                                   SensorType_SEN0257_VOLTAGE, data, &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
 
   // pressure
-  status = EncodeDoubleMeasurement(
-      meta, waterPressMeas.pressure, SensorType_SEN0257_PRESSURE, data, &data_len);
+  status =
+      EncodeDoubleMeasurement(meta, waterPressMeas.pressure,
+                              SensorType_SEN0257_PRESSURE, data, &data_len);
 
   // return number of bytes in serialized measurement
   return data_len;

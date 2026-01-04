@@ -182,8 +182,9 @@ class NodeSimulatorGeneric:
 
     latency: list[float] = []
 
-    def __init__(self, cell: int, logger: int, sensors: list[str], _min=-1,
-                 _max=1, fn=sin):
+    def __init__(
+        self, cell: int, logger: int, sensors: list[str], _min=-1, _max=1, fn=sin
+    ):
         """Initializes the simulation class.
 
         Args:
@@ -263,7 +264,6 @@ class NodeSimulatorGeneric:
                 "loggerId": self.logger,
                 "cellId": self.cell,
             },
-
             "measurements": [],
         }
 
@@ -280,4 +280,3 @@ class NodeSimulatorGeneric:
 
         serialized = encode_repeated_sensor_measurements(meas)
         self.measurement_buffer.append(serialized)
-

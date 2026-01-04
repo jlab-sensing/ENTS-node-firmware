@@ -17,11 +17,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "sensor.h"
+#include "sensors.h"
 #include "stm32wlxx_hal_def.h"
 #include "transcoder.h"
 #include "usart.h"
-#include "sensor.h"
-#include "sensors.h"
 #include "userConfig.h"
 
 #define FLOW_AVG_COUNT 5
@@ -108,13 +108,10 @@ size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
     flowMeas = FlowGetMeasurment();
   }
 
-
-
   /// read measurement
   flowMeas.flow = last_flow_lpm;
   const UserConfiguration* cfg = UserConfigGet();
-  
-  
+
   // metadata
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
@@ -125,9 +122,8 @@ size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   size_t data_len = 0;
   SensorStatus status = SENSOR_OK;
 
-
-  status = EncodeDoubleMeasurement(
-      meta, flowMeas.flow, SensorType_YFS210C_FLOW, data, &data_len);
+  status = EncodeDoubleMeasurement(meta, flowMeas.flow, SensorType_YFS210C_FLOW,
+                                   data, &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }

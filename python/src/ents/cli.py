@@ -88,8 +88,12 @@ def create_sim_generic_parser(subparsers):
         nargs="+",
         help="Type of sensor to simulate",
     )
-    sim_p.add_argument("--min", type=float, default=-1., help="Minimum sensor value (default: -1.0)")
-    sim_p.add_argument("--max", type=float, default=1., help="Maximum sensor value (default: 1.0)")
+    sim_p.add_argument(
+        "--min", type=float, default=-1.0, help="Minimum sensor value (default: -1.0)"
+    )
+    sim_p.add_argument(
+        "--max", type=float, default=1.0, help="Maximum sensor value (default: 1.0)"
+    )
     sim_p.add_argument("--cell", required=True, type=int, help="Cell Id")
     sim_p.add_argument("--logger", required=True, type=int, help="Logger Id")
     sim_p.add_argument("--start", type=str, help="Start date")
@@ -228,8 +232,6 @@ def simulate(args):
             print("Stopping simulation")
 
 
-
-
 def create_calib_parser(subparsers):
     """Creates the calibration subparser
 
@@ -278,9 +280,7 @@ def create_encode_generic_parser(subparsers):
         Reference to new subparser
     """
 
-    encode_parser = subparsers.add_parser(
-        "encode_generic", help="Encode generic data"
-    )
+    encode_parser = subparsers.add_parser("encode_generic", help="Encode generic data")
 
     print_format = encode_parser.add_mutually_exclusive_group()
     print_format.add_argument(
@@ -293,9 +293,9 @@ def create_encode_generic_parser(subparsers):
         "--c", action="store_true", help="Print bytes for copying to c"
     )
 
-    encode_subparsers = encode_parser.add_subparsers(title="Message type",
-                                                     dest="type",
-                                                     required=True)
+    encode_subparsers = encode_parser.add_subparsers(
+        title="Message type", dest="type", required=True
+    )
 
     # sensor measurement
     measurement_parser = encode_subparsers.add_parser(
@@ -336,13 +336,13 @@ def parse_number(s: str) -> tuple:
     try:
         i = int(s)
         if i >= 0:
-            return i, 'unsignedInt'
-        return i, 'signedInt'
+            return i, "unsignedInt"
+        return i, "signedInt"
     except ValueError:
         pass
 
     try:
-        return float(s), 'decimal'
+        return float(s), "decimal"
     except ValueError:
         pass
 
@@ -358,7 +358,6 @@ def handle_encode_generic_measurement(args):
             "cellId": args.cell,
             "loggerId": args.logger,
         },
-
         "measurements": [],
     }
 
@@ -375,6 +374,7 @@ def handle_encode_generic_measurement(args):
 
     data = encode_repeated_sensor_measurements(meas)
     print_data(args, data)
+
 
 def handle_encode_generic_response(args):
     """Takes arguments and encode a sensor response message"""
@@ -395,6 +395,7 @@ def handle_encode_generic_response(args):
 
     data = encode_sensor_response(resp)
     print_data(args, data)
+
 
 def create_encode_parser(subparsers):
     """Create encode command subparser

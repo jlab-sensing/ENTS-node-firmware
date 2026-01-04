@@ -1,6 +1,7 @@
 /**
  * @file dict.h
- * @brief Provides abstraction for dictionary operations in compression algorithims
+ * @brief Provides abstraction for dictionary operations in compression
+ * algorithims
  *
  * Assumes the messages passed have already been serailized via protobuf
  *
@@ -15,15 +16,16 @@
 extern "C" {
 #endif
 
-#include "uthash.h"
 #include <stdlib.h>
 #include <string.h>
 
+#include "uthash.h"
+
 // Dictionary entry structure
 typedef struct {
-    char key[256];  // Key (string phrase)
-    int value;      // Associated value (index)
-    UT_hash_handle hh;
+  char key[256];  // Key (string phrase)
+  int value;      // Associated value (index)
+  UT_hash_handle hh;
 } DictEntry;
 
 // Function declarations
@@ -39,7 +41,7 @@ void dict_init();
 ******************************************************************************
 * @brief    Add an entry to dict
 *
-* @param    const char *key, 
+* @param    const char *key,
 * @param    int value
 ******************************************************************************
 */
@@ -49,7 +51,7 @@ void dict_add(const char *key, int value);
 ******************************************************************************
 * @brief    search the dict by key
 *
-* @param    const char *key, 
+* @param    const char *key,
 * @return    int value
 ******************************************************************************
 */
@@ -66,4 +68,4 @@ void dict_free();
 }
 #endif
 
-#endif // LIB_COMPRESS_INCLUDE_DICT_H
+#endif  // LIB_COMPRESS_INCLUDE_DICT_H

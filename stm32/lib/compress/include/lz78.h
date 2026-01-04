@@ -31,9 +31,6 @@ extern "C" {
 */
 void LZ78_encode(const uint8_t *data, size_t length);
 
-
-
-
 #ifdef __cplusplus
 }
 #endif

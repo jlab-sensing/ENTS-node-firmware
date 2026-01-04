@@ -69,8 +69,9 @@ size_t EncodePowerMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
  * @param buffer Buffer to store serialized measurement
  * @return Number of bytes in @p buffer
  */
-size_t EncodePowerDeltaMeasurement(uint32_t ts, uint32_t logger_id, uint32_t cell_id,
-    uint32_t voltage, uint32_t current, uint8_t *buffer);
+size_t EncodePowerDeltaMeasurement(uint32_t ts, uint32_t logger_id,
+                                   uint32_t cell_id, uint32_t voltage,
+                                   uint32_t current, uint8_t* buffer);
 
 /**
  * @brief Encodes a Teros12 measurement

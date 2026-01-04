@@ -40,7 +40,7 @@ enum SensorType {
   /** Sen0257 measurements */
   SEN0257_VOLTAGE = 16;
   SEN0257_PRESSURE = 17;
-  
+
   /** YFS210C measurements */
   YFS210C_FLOW = 18;
 }
@@ -71,7 +71,6 @@ message Metadata {
   uint32 ts = 3;
 }
 
-
 message SensorResponse {
   // Index of measurements
   uint32 idx = 1;
@@ -80,11 +79,9 @@ message SensorResponse {
   SensorError error = 2;
 }
 
-
 message RepeatedSensorResponses {
   repeated SensorResponse responses = 1;
 }
-
 
 message SensorMeasurement {
   /** Metadata for the measurement */
@@ -94,7 +91,7 @@ message SensorMeasurement {
   SensorType type = 2;
 
   oneof value {
-    uint32 unsigned_int = 3; 
+    uint32 unsigned_int = 3;
     int32 signed_int = 4;
     double decimal = 5;
   }

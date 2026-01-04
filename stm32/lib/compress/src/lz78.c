@@ -10,8 +10,7 @@
 
 #include "include\lz78.h"
 
-void LZ78_encode(const uint8_t *data, size_t length){
-    for(int i = 0; i < length; i++){
-
-    }
+void LZ78_encode(const uint8_t *data, size_t length) {
+  for (int i = 0; i < length; i++) {
+  }
 }

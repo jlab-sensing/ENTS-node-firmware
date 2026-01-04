@@ -50,7 +50,7 @@ message CurrentDeltaMeasurement {
 }
 
 /** Voltage measurement */
-message VoltageMeasurement {  
+message VoltageMeasurement {
   double voltage = 1;
 }
 
@@ -60,8 +60,8 @@ message CurrentMeasurement {
 }
 
 /**
- * Power deltas measurement message. Voltage and current deltas can be digitially combined to
- * obtain power.
+ * Power deltas measurement message. Voltage and current deltas can be
+ * digitially combined to obtain power.
  *
  * @deprecated Use individual voltage and current delta measurements instead.
  *
@@ -74,7 +74,7 @@ message PowerDeltaEntry {
   uint32 current_delta = 3;
 }
 
-/** 
+/**
  * Stores power measurements for delta encoding
  *
  * @deprecated Use individual voltage and current delta measurements instead.

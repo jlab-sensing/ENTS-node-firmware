@@ -120,14 +120,14 @@ void SensorsMeasure(void) {
   for (int i = 0; i < callback_arr_len; i++) {
     // call measurement function
     buffer_len = callback_arr[i](buffer, ts, meas_idx++);
-    
+
     APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
 
     if (buffer_len == ((size_t)-1)) {
       APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");
       return;
     }
-    
+
     APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
 
@@ -139,7 +139,6 @@ void SensorsMeasure(void) {
     SensorsAddMeasurement(buffer, buffer_len);
   }
 }
-
 
 void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
 #ifdef SAVE_TO_MICROSD
@@ -154,7 +153,6 @@ void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
     APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
   }
 }
-
 
 size_t SensorsMeasureTest(uint8_t *data) {
   uint8_t static_data[] = {0xa,  0xc,  0x8,  0xc8, 0x1,  0x10, 0xc8, 0x1,  0x18,

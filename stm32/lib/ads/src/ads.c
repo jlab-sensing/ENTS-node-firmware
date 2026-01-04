@@ -14,8 +14,8 @@
 
 #include <stm32wlxx_hal_gpio.h>
 
-#include "userConfig.h"
 #include "sensor.h"
+#include "userConfig.h"
 
 /** i2c address */
 static const uint8_t addr = 0x40;
@@ -39,7 +39,7 @@ static const uint8_t cmd_wreg = 0x40;
 // #define CALIBRATION
 #define DELTA_ENCODING
 int32_t previous_voltage_reading = 0;
-int32_t previous_current_reading = 0; 
+int32_t previous_current_reading = 0;
 
 // default sane calibration
 static double voltage_calibration_m = 0.0;
@@ -221,51 +221,49 @@ HAL_StatusTypeDef probeADS12(void) {
   return ret;
 }
 
-
 size_t ADC_measureVoltage(uint8_t *data, SysTime_t ts, uint32_t idx) {
-    double voltage = ADC_readVoltage();
+  double voltage = ADC_readVoltage();
 
-    const UserConfiguration *cfg = UserConfigGet();
+  const UserConfiguration *cfg = UserConfigGet();
 
-    Metadata meta = Metadata_init_zero;
-    meta.ts = ts.Seconds;
-    meta.logger_id = cfg->logger_id;
-    meta.cell_id = cfg->cell_id;
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
 
-    size_t data_len = 0;
+  size_t data_len = 0;
 
-    SensorStatus status = SENSOR_OK;
-    status = EncodeDoubleMeasurement(meta, voltage, SensorType_POWER_VOLTAGE, data, &data_len);
-    if (status != SENSOR_OK) {
-        return -1;
-    }
+  SensorStatus status = SENSOR_OK;
+  status = EncodeDoubleMeasurement(meta, voltage, SensorType_POWER_VOLTAGE,
+                                   data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
 
-    return data_len;
+  return data_len;
 }
-
 
 size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx) {
-    double voltage = ADC_readCurrent();
+  double voltage = ADC_readCurrent();
 
-    const UserConfiguration *cfg = UserConfigGet();
+  const UserConfiguration *cfg = UserConfigGet();
 
-    Metadata meta = Metadata_init_zero;
-    meta.ts = ts.Seconds;
-    meta.logger_id = cfg->logger_id;
-    meta.cell_id = cfg->cell_id;
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
 
-    size_t data_len = 0;
+  size_t data_len = 0;
 
-    SensorStatus status = SENSOR_OK;
-    status = EncodeDoubleMeasurement(meta, voltage, SensorType_POWER_CURRENT, data, &data_len);
-    if (status != SENSOR_OK) {
-        return -1;
-    }
+  SensorStatus status = SENSOR_OK;
+  status = EncodeDoubleMeasurement(meta, voltage, SensorType_POWER_CURRENT,
+                                   data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
 
-    return data_len;
+  return data_len;
 }
-
-
 
 void PowerOn(void) {
   // set high

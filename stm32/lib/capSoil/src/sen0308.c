@@ -17,9 +17,9 @@
 #include <string.h>
 
 #include "adc.h"
-#include "transcoder.h"
 #include "sensor.h"
 #include "sensors.h"
+#include "transcoder.h"
 #include "userConfig.h"
 
 // Calibration Values
@@ -61,14 +61,12 @@ size_t SEN0308_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   size_t data_len = 0;
   SensorStatus sen_status = SENSOR_OK;
 
-
   sen_status = EncodeDoubleMeasurement(
       meta, capSoil.voltage, SensorType_SEN0308_VOLTAGE, data, &data_len);
   if (sen_status != SENSOR_OK) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
-
 
   sen_status = EncodeDoubleMeasurement(
       meta, capSoil.humidity, SensorType_SEN0308_HUMIDITY, data, &data_len);

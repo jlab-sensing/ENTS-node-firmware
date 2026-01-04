@@ -2,8 +2,8 @@
 
 #include "communication.h"
 #include "solenoid.h"
-#include "transcoder.h"
 #include "sys_app.h"
+#include "transcoder.h"
 
 extern unsigned int g_controller_i2c_timeout;
 
@@ -66,7 +66,8 @@ IrrigationCommand_State ControllerIrrigationCheck(void) {
       break;
   }
 
-  APP_LOG(TS_OFF, VLEVEL_M, "Received state: %s (%d)\n", state_name, resp.state);
+  APP_LOG(TS_OFF, VLEVEL_M, "Received state: %s (%d)\n", state_name,
+          resp.state);
 
   // Control solenoid based on the received state
   switch (resp.state) {

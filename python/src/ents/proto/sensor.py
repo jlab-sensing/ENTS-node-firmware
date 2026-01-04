@@ -9,7 +9,6 @@ These take in a list of measurements and automatically optimize repeated
 metadata fields.
 """
 
-
 from google.protobuf.json_format import MessageToDict, ParseDict
 
 from .sensor_pb2 import (
@@ -18,6 +17,7 @@ from .sensor_pb2 import (
     SensorType,
     RepeatedSensorResponses,
 )
+
 
 def parse_sensor_measurement(data: bytes) -> list:
     """Parses a sensor measurement into a usable dictionary.
@@ -42,6 +42,7 @@ def parse_sensor_measurement(data: bytes) -> list:
 
     return meas
 
+
 def format_sensor_measurement(meas: list) -> bytes:
     """Formats a sensor measurement dictionary into a serialized byte array.
 
@@ -64,6 +65,7 @@ def format_sensor_measurement(meas: list) -> bytes:
     data = encode_repeated_sensor_measurements(meas_dict)
     return data
 
+
 def get_sensor_data(meas_type: int) -> dict:
     """Gets sensor data information.
 
@@ -83,7 +85,6 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Current",
             "unit": "uA",
         },
-
         SensorType.TEROS12_VWC: {
             "name": "Volumetric Water Content",
             "unit": "%",
@@ -96,7 +97,6 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Electrical Conductivity",
             "unit": "uS/cm",
         },
-
         SensorType.PHYTOS31_VOLTAGE: {
             "name": "Voltage",
             "unit": "mV",
@@ -105,7 +105,6 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Leaf Wetness",
             "unit": "%",
         },
-
         SensorType.BME280_PRESSURE: {
             "name": "Pressure",
             "unit": "kPa",
@@ -118,7 +117,6 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Humidity",
             "unit": "%",
         },
-
         SensorType.TEROS21_MATRIC_POT: {
             "name": "Matric Potential",
             "unit": "kPa",
@@ -127,7 +125,6 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Temperature",
             "unit": "C",
         },
-
         SensorType.SEN0308_VOLTAGE: {
             "name": "Voltage",
             "unit": "mV",
@@ -136,7 +133,6 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Humidity",
             "unit": "%",
         },
-
         SensorType.SEN0257_VOLTAGE: {
             "name": "Voltage",
             "unit": "mV",
@@ -145,7 +141,6 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Pressure",
             "unit": "kPa",
         },
-
         SensorType.YFS210C_FLOW: {
             "name": "Flow Rate",
             "unit": "L/min",
@@ -161,6 +156,7 @@ def encode_sensor_measurement(meas_dict: dict) -> bytes:
     ParseDict(meas_dict, meas)
 
     return meas.SerializeToString()
+
 
 def encode_repeated_sensor_measurements(meas_dict: dict) -> bytes:
     """Encodes a SensorMeasurement message

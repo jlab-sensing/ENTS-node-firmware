@@ -1,8 +1,8 @@
 #include "teros12.h"
 
-#include "userConfig.h"
 #include "sensor.h"
 #include "sensors.h"
+#include "userConfig.h"
 
 SDI12Status Teros12ParseMeasurement(const char *buffer, Teros12Data *data) {
   // parse string and check number of characters parsed
@@ -65,13 +65,12 @@ size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   SensorStatus sen_status = SENSOR_OK;
 
   // vwc
-  sen_status = EncodeDoubleMeasurement(
-      meta, sens_data.vwc, SensorType_TEROS12_VWC, data, &data_len);
+  sen_status = EncodeDoubleMeasurement(meta, sens_data.vwc,
+                                       SensorType_TEROS12_VWC, data, &data_len);
   if (sen_status != SENSOR_OK) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
-
 
   // vwc_adj
   sen_status = EncodeDoubleMeasurement(
@@ -89,10 +88,9 @@ size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   }
   SensorsAddMeasurement(data, data_len);
 
-
   // ec
-  sen_status = EncodeUint32Measurement(
-      meta, sens_data.ec, SensorType_TEROS12_EC, data, &data_len);
+  sen_status = EncodeUint32Measurement(meta, sens_data.ec,
+                                       SensorType_TEROS12_EC, data, &data_len);
   if (sen_status != SENSOR_OK) {
     return -1;
   }
