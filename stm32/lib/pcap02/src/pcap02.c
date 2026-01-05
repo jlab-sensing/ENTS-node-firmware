@@ -2,10 +2,9 @@
 
 #include "board.h"
 #include "i2c.h"
-#include "userConfig.h"
-
 #include "sensor.h"
 #include "sensors.h"
+#include "userConfig.h"
 
 // Private Globals
 static HAL_StatusTypeDef ret = HAL_OK;
@@ -824,7 +823,8 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   // encode measuremnet
   size_t data_len = 0;
   double cap = PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&result);
-  SensorStatus status = EncodeDoubleMeasurement(meta, cap, SensorType_PCAP02_CAPACITANCE, data, &data_len);
+  SensorStatus status = EncodeDoubleMeasurement(
+      meta, cap, SensorType_PCAP02_CAPACITANCE, data, &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }
