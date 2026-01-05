@@ -37,7 +37,9 @@ typedef enum _SensorType {
     SensorType_SEN0257_VOLTAGE = 16,
     SensorType_SEN0257_PRESSURE = 17,
     /* * YFS210C measurements */
-    SensorType_YFS210C_FLOW = 18
+    SensorType_YFS210C_FLOW = 18,
+    /* * PCAP02 measurements */
+    SensorType_PCAP02_CAPACITANCE = 19
 } SensorType;
 
 typedef enum _SensorError {
@@ -113,8 +115,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _SensorType_MIN SensorType_NONE
-#define _SensorType_MAX SensorType_YFS210C_FLOW
-#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_YFS210C_FLOW+1))
+#define _SensorType_MAX SensorType_PCAP02_CAPACITANCE
+#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_PCAP02_CAPACITANCE+1))
 
 #define _SensorError_MIN SensorError_OK
 #define _SensorError_MAX SensorError_DECODE

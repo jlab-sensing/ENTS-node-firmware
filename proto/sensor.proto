@@ -43,6 +43,9 @@ enum SensorType {
 
   /** YFS210C measurements */
   YFS210C_FLOW = 18;
+
+  /** PCAP02 measurements */
+  PCAP02_CAPACITANCE = 19;
 }
 
 enum SensorError {

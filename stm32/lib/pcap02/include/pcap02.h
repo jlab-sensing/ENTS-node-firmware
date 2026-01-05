@@ -112,7 +112,7 @@ void pcap02_init(void);
 void pcap02_gpio_init(void);
 void pcap02_start_conversion(void);
 size_t pcap02_measure_capacitance(pcap02_result_t *result);
-size_t pcap02_measure(uint8_t *data, SysTime_t ts);
+size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
                                     uint16_t length_bytes);

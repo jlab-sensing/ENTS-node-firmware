@@ -4,6 +4,9 @@
 #include "i2c.h"
 #include "userConfig.h"
 
+#include "sensor.h"
+#include "sensors.h"
+
 // Private Globals
 static HAL_StatusTypeDef ret = HAL_OK;
 static volatile uint16_t dev_addr = PCAP02_I2C_ADDRESS;
@@ -802,7 +805,7 @@ size_t pcap02_measure_capacitance(pcap02_result_t *result) {
   return 1;
 }
 
-size_t pcap02_measure(uint8_t *data, SysTime_t ts) {
+size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   pcap02_result_t result;
 
   // read sensor
@@ -812,10 +815,19 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts) {
 
   const UserConfiguration *cfg = UserConfigGet();
 
-  // encode measurement
-  size_t data_len = EncodePCAP02Measurement(
-      ts.Seconds, cfg->logger_id, cfg->cell_id,
-      PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&result), data);
+  // metadata
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
+
+  // encode measuremnet
+  size_t data_len = 0;
+  double cap = PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&result);
+  SensorStatus status = EncodeDoubleMeasurement(meta, cap, SensorType_PCAP02_CAPACITANCE, data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
 
   return data_len;
 }
