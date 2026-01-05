@@ -121,7 +121,7 @@ int main(void) {
     status = HAL_UART_Receive(
         &huart1, (uint8_t *)controller_input, 1,
         HAL_MAX_DELAY);  // On every other iteration, send the encoded
-                         // measurment in response to the '0' command
+                         // measurement in response to the '0' command
     if (status != HAL_OK) {
       continue;
     }

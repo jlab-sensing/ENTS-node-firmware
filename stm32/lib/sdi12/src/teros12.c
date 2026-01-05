@@ -26,8 +26,8 @@ SDI12Status Teros12GetMeasurement(char addr, Teros12Data *data) {
 
   // get measurement string
   // Measured 130ms experimentally, set to 200 ms to be safe
-  SDI12_Measure_TypeDef measurment_info;
-  status = SDI12GetMeasurment((uint8_t)addr, &measurment_info, buffer, 1000);
+  SDI12_Measure_TypeDef measurement_info;
+  status = SDI12GetMeasurement((uint8_t)addr, &measurement_info, buffer, 1000);
   if (status != SDI12_OK) {
     return status;
   }

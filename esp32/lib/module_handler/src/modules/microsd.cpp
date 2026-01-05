@@ -152,6 +152,29 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
                     .matric_pot,
                 cmd.command.microsd_command.data.meas.measurement.teros21.temp);
             break;
+          case Measurement_sen0308_tag:
+            Log.verbose(",%lf,%lf",
+                        cmd.command.microsd_command.data.meas.measurement
+                            .sen0308.voltage,
+                        cmd.command.microsd_command.data.meas.measurement
+                            .sen0308.humidity);
+            break;
+          case Measurement_sen0257_tag:
+            Log.verbose(",%lf,%lf",
+                        cmd.command.microsd_command.data.meas.measurement
+                            .sen0257.voltage,
+                        cmd.command.microsd_command.data.meas.measurement
+                            .sen0257.pressure);
+            break;
+          case Measurement_yfs210c_tag:
+            Log.verbose(
+                ",%lf",
+                cmd.command.microsd_command.data.meas.measurement.yfs210c.flow);
+            break;
+          case Measurement_pcap02_tag:
+            Log.verbose(",%lf", cmd.command.microsd_command.data.meas
+                                    .measurement.pcap02.capacitance);
+            break;
           case Measurement_meta_tag:
             Log.verbose(
                 "meta tag: %d\r\n",
@@ -202,10 +225,13 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
                 cmd.command.microsd_command.data.meas.measurement.teros12.ec,
                 cmd.command.microsd_command.data.meas.measurement.teros12.temp);
             break;
-          // case Measurement_phytos31_tag:
-          //   dataFile.printf(",%lf,%lf", meas.measurement.phytos31.voltage,
-          //                   meas.measurement.phytos31.leaf_wetness);
-          //   break;
+          case Measurement_phytos31_tag:
+            dataFile.printf(",%lf,%lf",
+                            cmd.command.microsd_command.data.meas.measurement
+                                .phytos31.voltage,
+                            cmd.command.microsd_command.data.meas.measurement
+                                .phytos31.leaf_wetness);
+            break;
           case Measurement_bme280_tag:
             dataFile.printf(",%u,%d,%u",
                             cmd.command.microsd_command.data.meas.measurement
@@ -221,6 +247,29 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
                 cmd.command.microsd_command.data.meas.measurement.teros21
                     .matric_pot,
                 cmd.command.microsd_command.data.meas.measurement.teros21.temp);
+            break;
+          case Measurement_sen0308_tag:
+            dataFile.printf(",%lf,%lf",
+                            cmd.command.microsd_command.data.meas.measurement
+                                .sen0308.voltage,
+                            cmd.command.microsd_command.data.meas.measurement
+                                .sen0308.humidity);
+            break;
+          case Measurement_sen0257_tag:
+            dataFile.printf(",%lf,%lf",
+                            cmd.command.microsd_command.data.meas.measurement
+                                .sen0257.voltage,
+                            cmd.command.microsd_command.data.meas.measurement
+                                .sen0257.pressure);
+            break;
+          case Measurement_yfs210c_tag:
+            dataFile.printf(
+                ",%lf",
+                cmd.command.microsd_command.data.meas.measurement.yfs210c.flow);
+            break;
+          case Measurement_pcap02_tag:
+            dataFile.printf(",%lf", cmd.command.microsd_command.data.meas
+                                        .measurement.pcap02.capacitance);
             break;
           default:
             Log.error("Unrecognized measurement type: %d\r\n",
@@ -291,8 +340,9 @@ void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
         userConfigFile.printf("enabled_sensors_count=%d\r\n",
                               uc.enabled_sensors_count);
 
-        char enabled_sensors_s[][8] = {"Voltage", "Current", "Teros12",
-                                       "Teros21", "BME280"};
+        char enabled_sensors_s[][9] = {
+            "Voltage",  "Current", "Teros12", "Teros21", "BME280",
+            "Phytos31", "SEN0308", "SEN0257", "YFS210C", "PCAP02"};
         for (int i = 0; i < uc.enabled_sensors_count; i++) {
           userConfigFile.printf("enabled_sensors[%d]=%d (%s)\r\n", i,
                                 uc.enabled_sensors[i], enabled_sensors_s[i]);
@@ -330,14 +380,29 @@ void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
                 dataFile.printf(",voltage,current");
                 break;
               case EnabledSensor_Teros12:
-                dataFile.printf(",vwc_teros12,ec_teros12,temp_teros12");
+                dataFile.printf(",vwc_Teros12,ec_Teros12,temp_Teros12");
                 break;
               case EnabledSensor_Teros21:
-                dataFile.printf(",matricpotential_teros21,temp_teros21");
+                dataFile.printf(",matricpotential_Teros21,temp_Teros21");
                 break;
               case EnabledSensor_BME280:
                 dataFile.printf(
-                    ",pressure_bme280,temperature_bme280,humidity_bme280");
+                    ",pressure_BME280,temperature_BME280,humidity_BME280");
+                break;
+              case EnabledSensor_Phytos31:
+                dataFile.printf(",voltage_Phytos31,leaf_wetness_Phytos31");
+                break;
+              case EnabledSensor_SEN0308:
+                dataFile.printf(",voltage_SEN0308,humidity_SEN0308");
+                break;
+              case EnabledSensor_SEN0257:
+                dataFile.printf(",voltage_SEN0257,pressure_SEN0257");
+                break;
+              case EnabledSensor_YFS210C:
+                dataFile.printf(",flow_YFS210C");
+                break;
+              case EnabledSensor_PCAP02:
+                dataFile.printf(",capacitance_PCAP02");
                 break;
               default:
                 dataFile.printf(",ERROR Unknown sensor type");

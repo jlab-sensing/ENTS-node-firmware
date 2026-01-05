@@ -30,12 +30,12 @@ void test_SDI12_SendCommand_success(void) {
 
 void test_SDI12_Read_success(void) { TEST_IGNORE(); }
 
-void test_SDI12_GetMeasurment_success(void) {
+void test_SDI12_GetMeasurement_success(void) {
   SDI12Status status;
   uint8_t addr = '0';
-  SDI12_Measure_TypeDef measurment_info;
+  SDI12_Measure_TypeDef measurement_info;
   char buffer[20];
-  status = SDI12GetMeasurment(addr, &measurment_info, buffer, 1000);
+  status = SDI12GetMeasurement(addr, &measurement_info, buffer, 1000);
 
   TEST_ASSERT_EQUAL(SDI12_OK, status);
 }
@@ -72,7 +72,7 @@ int main(void) {
 
   UNITY_BEGIN();
   RUN_TEST(test_SDI12_SendCommand_success);
-  RUN_TEST(test_SDI12_GetMeasurment_success);
+  RUN_TEST(test_SDI12_GetMeasurement_success);
   UNITY_END();
   /* USER CODE END 3 */
 }

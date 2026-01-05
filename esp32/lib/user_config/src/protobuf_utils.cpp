@@ -45,6 +45,24 @@ void printDecodedConfig(const UserConfiguration *pb_config) {
       case EnabledSensor_BME280:
         Serial.print("BME280");
         break;
+      case EnabledSensor_Phytos31:
+        Serial.print("Phytos31");
+        break;
+      case EnabledSensor_SEN0308:
+        Serial.print("SEN0308");
+        break;
+      case EnabledSensor_SEN0257:
+        Serial.print("SEN0257");
+        break;
+      case EnabledSensor_YFS210C:
+        Serial.print("YFS210C");
+        break;
+      case EnabledSensor_PCAP02:
+        Serial.print("PCAP02");
+        break;
+      default:
+        Serial.print("Unrecognized sensor type");
+        break;
     }
   }
   Serial.println();

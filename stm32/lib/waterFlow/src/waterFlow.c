@@ -62,7 +62,7 @@ void FlowInit() {
   lastTime = currentTime;
 }
 
-YFS210CMeasurement FlowGetMeasurment() {
+YFS210CMeasurement FlowGetMeasurement() {
   // get time
   currentTime = SysTimeGet();
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
@@ -105,7 +105,7 @@ size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   YFS210CMeasurement flowMeas = {};
 
   if (diff.SubSeconds >= 100) {  // If more than 0.1 seconds has passed
-    flowMeas = FlowGetMeasurment();
+    flowMeas = FlowGetMeasurement();
   }
 
   /// read measurement

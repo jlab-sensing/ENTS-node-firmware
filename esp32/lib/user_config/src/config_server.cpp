@@ -88,10 +88,17 @@ void handleSave() {
   strncpy(config.WiFi_SSID, wifi_ssid.c_str(), sizeof(config.WiFi_SSID));
 
   // copy password
-  String wifi_password = server.arg("wifi_password");
-  wifi_password.trim();
-  strncpy(config.WiFi_Password, wifi_password.c_str(),
-          sizeof(config.WiFi_Password));
+  bool use_previous_password = server.hasArg("use_previous_password");
+  if (use_previous_password) {
+    const UserConfiguration &config_old = getConfig();
+    strncpy(config.WiFi_Password, config_old.WiFi_Password,
+            sizeof(config.WiFi_Password));
+  } else {
+    String wifi_password = server.arg("wifi_password");
+    wifi_password.trim();
+    strncpy(config.WiFi_Password, wifi_password.c_str(),
+            sizeof(config.WiFi_Password));
+  }
 
   // copy url
   String api_endpoint_url = server.arg("api_endpoint_url");
@@ -129,6 +136,36 @@ void handleSave() {
   if (bme280_enabled) {
     config.enabled_sensors[config.enabled_sensors_count++] =
         EnabledSensor_BME280;
+  }
+
+  bool Phytos31_enabled = server.hasArg("Phytos31_enabled");
+  if (Phytos31_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
+        EnabledSensor_Phytos31;
+  }
+
+  bool SEN0308_enabled = server.hasArg("SEN0308_enabled");
+  if (SEN0308_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
+        EnabledSensor_SEN0308;
+  }
+
+  bool SEN0257_enabled = server.hasArg("SEN0257_enabled");
+  if (SEN0257_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
+        EnabledSensor_SEN0257;
+  }
+
+  bool YFS210C_enabled = server.hasArg("YFS210C_enabled");
+  if (YFS210C_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
+        EnabledSensor_YFS210C;
+  }
+
+  bool PCAP02_enabled = server.hasArg("PCAP02_enabled");
+  if (PCAP02_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
+        EnabledSensor_PCAP02;
   }
 
   config.Voltage_Slope =

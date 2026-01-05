@@ -142,7 +142,7 @@ message BME280Measurement {
   uint32 humidity = 3;
 }
 
-/* Capactive Soil Moisture Sensor */
+/* Capacitive Soil Moisture Sensor */
 message SEN0308Measurement {
   // voltage
   double voltage = 1;
@@ -158,10 +158,16 @@ message SEN0257Measurement {
   double pressure = 2;
 }
 
-/* Water Flow Sensor  */
+/* Water Flow Sensor */
 message YFS210CMeasurement {
   // flow
   double flow = 1;
+}
+
+/* Capacitance Sensor */
+message PCAP02Measurement {
+  // capacitance
+  double capacitance = 1;
 }
 
 /* Top level measurement message */
@@ -179,6 +185,7 @@ message Measurement {
     SEN0308Measurement sen0308 = 7;
     SEN0257Measurement sen0257 = 8;
     YFS210CMeasurement yfs210c = 9;
+    PCAP02Measurement pcap02 = 10;
   }
 }
 
@@ -425,6 +432,11 @@ enum EnabledSensor {
   Teros12 = 2;
   Teros21 = 3;
   BME280 = 4;
+  Phytos31 = 5;
+  SEN0308 = 6;
+  SEN0257 = 7;
+  YFS210C = 8;
+  PCAP02 = 9;
 }
 
 enum Uploadmethod {

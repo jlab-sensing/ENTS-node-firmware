@@ -63,12 +63,12 @@ int main(void) {
   // NOTE Must be a 18 char buffer
   char buffer[18] = {};
   uint8_t addr = '0';
-  SDI12_Measure_TypeDef measurment_info;
+  SDI12_Measure_TypeDef measurement_info;
   // HAL_StatusTypeDef returnCode;
 
   // Infinite loop
   while (1) {
-    SDI12GetMeasurment(addr, &measurment_info, buffer, 3000);
+    SDI12GetMeasurement(addr, &measurement_info, buffer, 3000);
     APP_PRINTF("test: %s\n", buffer);
     HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), 100);
 
@@ -83,7 +83,7 @@ int main(void) {
     */
 
     /*
-    if (SDI12GetMeasurment(addr, &measurment_info,  buffer, 3000) == HAL_OK){
+    if (SDI12GetMeasurement(addr, &measurement_info,  buffer, 3000) == HAL_OK){
       HAL_UART_Transmit(&huart1, (const uint8_t *) success, 7, 100);
       HAL_UART_Transmit(&huart1, buffer, 18, 100);
     } else {

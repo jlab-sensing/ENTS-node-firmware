@@ -31,7 +31,7 @@ const double intervals = (air_value - wet_value) / 3;
 
 void CapSoilInit() { ADC_init(); }
 
-SEN0308Measurement SEN0308GetMeasurment() {
+SEN0308Measurement SEN0308GetMeasurement() {
   SEN0308Measurement capSoil;
 
   capSoil.voltage = ADC_readVoltage();
@@ -48,7 +48,7 @@ size_t SEN0308_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   SEN0308Measurement capSoil;
 
   // read voltage
-  capSoil = SEN0308GetMeasurment();
+  capSoil = SEN0308GetMeasurement();
   const UserConfiguration* cfg = UserConfigGet();
 
   // metadata

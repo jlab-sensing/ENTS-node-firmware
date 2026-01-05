@@ -128,7 +128,7 @@ int main(void) {
 
   char output[50];
 
-  YFS210CMeasurement measurment;
+  YFS210CMeasurement measurement;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -139,9 +139,9 @@ int main(void) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    measurment = FlowGetMeasurment();
+    measurement = FlowGetMeasurement();
     reading_len =
-        snprintf(output, sizeof(output), "Flow: %.4f \r\n", measurment.flow);
+        snprintf(output, sizeof(output), "Flow: %.4f \r\n", measurement.flow);
 
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);

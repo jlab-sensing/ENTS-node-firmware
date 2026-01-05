@@ -23,7 +23,7 @@ static const uint16_t SERVICE_REQUEST_SIZE = 3;
 static const uint16_t MEASURMENT_DATA_SIZE = 30;
 static const uint16_t SEND_COMMAND_TIMEOUT = 1000;
 
-/* Helper function to parse the sensor's response to a get measurment command*/
+/* Helper function to parse the sensor's response to a get measurement command*/
 SDI12Status ParseMeasurementResponse(const char *responseBuffer, char addr,
                                      SDI12_Measure_TypeDef *measurement_info);
 
@@ -95,9 +95,10 @@ SDI12Status ParseServiceRequest(const char *requestBuffer, char addr) {
   }
 }
 
-SDI12Status SDI12GetMeasurment(uint8_t addr,
-                               SDI12_Measure_TypeDef *measurment_info,
-                               char *measurment_data, uint16_t timeoutMillis) {
+SDI12Status SDI12GetMeasurement(uint8_t addr,
+                                SDI12_Measure_TypeDef *measurement_info,
+                                char *measurement_data,
+                                uint16_t timeoutMillis) {
   // Command to request measurement ("0!\r\n" for example)
   char reqMeas[4];
 
@@ -110,11 +111,11 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
   // Sends the measurement request and recieves the immediate response
   //
 
-  // Construct a command to request a measurment
+  // Construct a command to request a measurement
   uint8_t size = snprintf(reqMeas, sizeof(reqMeas), "%cM!", addr);
 
   char meas_resp_buffer[REQUEST_MEASURMENT_RESPONSE_SIZE];
-  // Request a measurment and read the response
+  // Request a measurement and read the response
   SDI12SendCommand(reqMeas, size);
   ret = SDI12ReadData(meas_resp_buffer, REQUEST_MEASURMENT_RESPONSE_SIZE,
                       timeoutMillis);
@@ -125,7 +126,7 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
   // Check if the addresses match from the response above.
   // The response from a teros is the same every
   // time so we're going to leave it for now
-  ret = ParseMeasurementResponse(meas_resp_buffer, addr, measurment_info);
+  ret = ParseMeasurementResponse(meas_resp_buffer, addr, measurement_info);
 
   if (ret != SDI12_OK) {
     return ret;
@@ -135,10 +136,10 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
   size = snprintf(sendData, sizeof(sendData), "%cD0!", addr);
 
   // optimization
-  if (measurment_info->Time == 0) {  // If data is ready now
+  if (measurement_info->Time == 0) {  // If data is ready now
     SDI12SendCommand(sendData, size);
-    // hard coded for a teros measurment response size
-    ret = SDI12ReadData(measurment_data, MEASURMENT_DATA_SIZE, timeoutMillis);
+    // hard coded for a teros measurement response size
+    ret = SDI12ReadData(measurement_data, MEASURMENT_DATA_SIZE, timeoutMillis);
     return ret;
   }
 
@@ -156,7 +157,7 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
   }
 
   // make sure the service request is correct
-  ret = ParseServiceRequest(service_request_resp, measurment_info->Address);
+  ret = ParseServiceRequest(service_request_resp, measurement_info->Address);
   if (ret != SDI12_OK) {
     return ret;
   }
@@ -166,11 +167,11 @@ SDI12Status SDI12GetMeasurment(uint8_t addr,
   //
 
   SDI12SendCommand(sendData, size);
-  ret = SDI12ReadData(measurment_data, MEASURMENT_DATA_SIZE, timeoutMillis);
+  ret = SDI12ReadData(measurement_data, MEASURMENT_DATA_SIZE, timeoutMillis);
 
   if ((ret == SDI12_OK) || (ret == SDI12_TIMEOUT_ON_READ)) {
     // remove trailing characters after \r\n
-    char *end = strstr(measurment_data, "\r\n");
+    char *end = strstr(measurement_data, "\r\n");
 
     if (!end) {
       return SDI12_ERROR;

@@ -42,11 +42,11 @@ void SolenoidInit(void);
 
 /**
  ******************************************************************************
- * @brief    Returns both the raw voltage value and a calibrated measurment
+ * @brief    Returns both the raw voltage value and a calibrated measurement
  *           from a water Flow sensor.
  *
  * @param    void
- * @return   measurments
+ * @return   measurements
  ******************************************************************************
  */
 void SolenoidOpen(void);

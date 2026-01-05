@@ -40,7 +40,7 @@ extern "C" {
 typedef struct {
   double phytos31_raw;
   double phytos31_calibrated;
-} phytos_measurments;
+} phytos_measurements;
 
 /**
 ******************************************************************************
@@ -54,14 +54,14 @@ HAL_StatusTypeDef Phytos31Init(void);
 
 /**
 ******************************************************************************
-* @brief    Returns both the raw voltage value and a calibrated measurment
+* @brief    Returns both the raw voltage value and a calibrated measurement
 *           from a PHYTOS31 sensor.
 *
 * @param    void
-* @return   phytos_measurments
+* @return   phytos_measurements
 ******************************************************************************
 */
-phytos_measurments Phytos31GetMeasurment(void);
+phytos_measurements Phytos31GetMeasurement(void);
 
 /**
  * @brief Read PHYTOS31 sensor and serialize measurement
@@ -76,7 +76,7 @@ phytos_measurments Phytos31GetMeasurment(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t Phytos31_measure(uint8_t *data);
+size_t Phytos31_measure(uint8_t *data, SysTime_t ts);
 
 /**
  * @}
