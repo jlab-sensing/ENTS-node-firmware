@@ -4,6 +4,40 @@
 #include "pb_encode.h"
 
 
+/**
+ * @brief Compares two Metadata structures for equality.
+ *
+ * @param left Pointer to the first Metadata structure.
+ * @param right Pointer to the second Metadata structure.
+ *
+ * @return true if equal, false otherwise.
+ */
+bool MetadataEqual(Metadata* left, Metadata* right);
+
+/**
+ * @brief Optimizes repeated sensor measurements for size.
+ *
+ * Places duplicate metadata fields into the top level "meta" field.
+ *
+ * @param meas Pointer to the RepeatedSensorMeasurements to optimize.
+ *
+ * @returns The number of duplicate metadata removed.
+ */
+unsigned int Format(RepeatedSensorMeasurements* meas);
+
+
+
+/**
+ * @brief Parses repeated sensor measurements to add metadata back to
+ * individual measurements.
+ *
+ * @param meas Pointer to the RepeatedSensorMeasurements to parse.
+ *
+ * @return SENSOR_OK on success, SENSOR_ERROR on failure.
+ */
+SensorStatus Parse(RepeatedSensorMeasurements* meas);
+
+
 bool MetadataEqual(Metadata* left, Metadata* right) {
     if (left->ts != right->ts) {
         return false;
@@ -19,6 +53,77 @@ bool MetadataEqual(Metadata* left, Metadata* right) {
 }
 
 
+unsigned int Format(RepeatedSensorMeasurements* meas) {    
+    unsigned int most_count = 1;
+
+    // find the most repeated metadata 
+    for (int first = 0; first < meas->measurements_count; first++) {
+        unsigned int current_count = 1;
+        for (int second = 0; second < meas->measurements_count; second++) {
+           
+
+            // skip over yourself
+            if (first == second) {
+                continue;
+            }
+
+            // check for duplicates
+            Metadata* first_meta = &meas->measurements[first].meta;
+            Metadata* second_meta = &meas->measurements[second].meta;
+            if (MetadataEqual(first_meta, second_meta)) {
+                current_count++;
+            }
+        }
+
+        // update if there are more duplicates
+        if (current_count > most_count) {
+            most_count = current_count;
+            meas->meta = meas->measurements[first].meta;
+        }
+    }
+
+    // return early if there is no duplicates
+    if (most_count < 2) {
+        return 1;
+    }
+
+
+    // enable top level metadata and delete duplicates
+    meas->has_meta = true;
+    for (int i = 0; i < meas->measurements_count; i++) {
+        Metadata* current_meta = &meas->measurements[i].meta;
+        if (MetadataEqual(&meas->meta, current_meta)) {
+            meas->measurements[i].has_meta = false;
+        }
+    }
+
+    return most_count;
+}
+
+
+
+SensorStatus Parse(RepeatedSensorMeasurements* meas) {
+    // if no top level metadata, check each measurements has metadata
+    if (!meas->has_meta) {
+        for (size_t i = 0; i < meas->measurements_count; i++) {
+            if (!meas->measurements[i].has_meta) {
+                return SENSOR_ERROR;
+            }
+        }
+    } else {
+        // add top level metadata to measurements missing it
+        for (size_t i = 0; i < meas->measurements_count; i++) {
+            if (!meas->measurements[i].has_meta) {
+                meas->measurements[i].meta = meas->meta;
+                meas->measurements[i].has_meta = true;
+            }
+        }
+    }
+
+    return SENSOR_OK;
+}
+
+
 SensorStatus FormatRepeatedSensorMeasurements(
         Metadata meta, const SensorMeasurement meas[], size_t count,
         RepeatedSensorMeasurements* out) {
@@ -29,21 +134,16 @@ SensorStatus FormatRepeatedSensorMeasurements(
         return SENSOR_OUT_OF_BOUNDS;
     }
 
+    // cannot reset a pointer directly, just hoping this works
     //*out = RepeatedSensorMeasurements_init_zero;
-
-    // handle metadata
-    if (MetadataEqual(&meta, &METADATA_NONE)) {
-        out->has_meta = false;
-    } else {
-        out->has_meta = true;
-        out->meta = meta;
-    }
 
     // copy measurements
     out->measurements_count = count;
     for (size_t i = 0; i < count; i++) {
         out->measurements[i] = meas[i];
     }
+
+    Format(out);
 
     return SENSOR_OK;
 }
@@ -176,7 +276,7 @@ SensorStatus DecodeRepeatedSensorMeasurements(const uint8_t* data, const size_t 
         return SENSOR_ERROR;
     }
 
-    return SENSOR_OK;
+    return Parse(measurements);
 }
 
 

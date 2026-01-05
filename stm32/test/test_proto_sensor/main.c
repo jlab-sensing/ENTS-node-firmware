@@ -125,6 +125,61 @@ void TestTranscodeRepeatedSensorMeasurements(void) {
   }
 }
 
+void TestRepeatedSensorMeasurementsOptimize(void) {
+  SensorStatus status = SENSOR_OK;
+  uint8_t buffer[512];
+  size_t buffer_len = 0;
+
+  // encode
+  SensorMeasurement in_array[10] = {};
+  size_t len = 10;
+
+  Metadata meta = Metadata_init_zero;
+  // meta.ts = 1000;
+  // meta.logger_id = 2000;
+  // meta.cell_id = 3000;
+
+  for (int i = 0; i < len; i++) {
+    SensorMeasurement* in = &in_array[i];
+
+    in->has_meta = true;
+    in->meta.ts = 123;
+    in->meta.logger_id = 456;
+    in->meta.cell_id = 789;
+    in->type = SensorType_NONE;
+
+    in->which_value = SensorMeasurement_unsigned_int_tag;
+    in->value.unsigned_int = 9876543210ULL + i;
+  }
+
+  status = EncodeRepeatedSensorMeasurements(meta, in_array, len, buffer,
+                                            sizeof(buffer), &buffer_len);
+  TEST_ASSERT_EQUAL(SENSOR_OK, status);
+  TEST_ASSERT_GREATER_THAN(0, buffer_len);
+
+  // decode
+  RepeatedSensorMeasurements rep_out = RepeatedSensorMeasurements_init_zero;
+
+  status = DecodeRepeatedSensorMeasurements(buffer, buffer_len, &rep_out);
+
+  TEST_ASSERT_EQUAL(SENSOR_OK, status);
+  TEST_ASSERT_EQUAL(10, rep_out.measurements_count);
+
+  for (int i = 0; i < 10; i++) {
+    SensorMeasurement* in = &in_array[i];
+    SensorMeasurement* out = &rep_out.measurements[i];
+
+    // check values
+    TEST_ASSERT_EQUAL(in->has_meta, out->has_meta);
+    TEST_ASSERT_EQUAL(in->meta.ts, out->meta.ts);
+    TEST_ASSERT_EQUAL(in->meta.logger_id, out->meta.logger_id);
+    TEST_ASSERT_EQUAL(in->meta.cell_id, out->meta.cell_id);
+    TEST_ASSERT_EQUAL(in->type, out->type);
+    TEST_ASSERT_EQUAL(in->which_value, out->which_value);
+    TEST_ASSERT_EQUAL(in->value.unsigned_int, out->value.unsigned_int);
+  }
+}
+
 void TestEncodeUint32Measurement(void) {
   SensorStatus status = SENSOR_OK;
 
@@ -312,6 +367,7 @@ int main(void) {
 
   RUN_TEST(TestTranscodeSensorMeasurement);
   RUN_TEST(TestTranscodeRepeatedSensorMeasurements);
+  RUN_TEST(TestRepeatedSensorMeasurementsOptimize);
   RUN_TEST(TestEncodeUint32Measurement);
   RUN_TEST(TestEncodeInt32Measurement);
   RUN_TEST(TestEncodeDoubleMeasurement);

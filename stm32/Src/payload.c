@@ -64,4 +64,6 @@ PayloadStatus FormatPayload(uint8_t* buffer, size_t size, size_t* length) {
   for (int i = 0; i < meas_count; i++) {
     FramDrop();
   }
+
+  return PAYLOAD_OK;
 }
