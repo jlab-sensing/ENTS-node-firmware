@@ -225,6 +225,26 @@ size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
                                   uint8_t* buffer);
 
 /**
+ * @brief Encodes a PCAP02 measurement
+ *
+ * The timestamp is not able to encode timezones and is references from UTC+0.
+ * The serialized data is stored in @p buffer with the number of bytes written
+ * being returned by the function. A return value of -1 indicates an error in
+ * encoding.
+ *
+ * @param ts Timestamp
+ * @param logger_id Logger Id
+ * @param cell_id Cell Id
+ * @param voltage Raw voltage reading
+ * @param capacitance Capacitance
+ * @param buffer Buffer to store serialized measurement
+ * @return Number of bytes in @p buffer
+ */
+size_t EncodePCAP02Measurement(uint32_t ts, uint32_t logger_id,
+                               uint32_t cell_id, double capacitance,
+                               uint8_t* buffer);
+
+/**
  * @brief Decodes a measurement
  *
  * Use meas.which_measurement to determine the type of sensor data.

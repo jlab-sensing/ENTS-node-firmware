@@ -31,8 +31,16 @@ extern "C" {
 
 /* definitions to be provided to "sequencer" utility */
 #include "stm32_mem.h"
+
+#include "sys_conf.h"
+#if defined (APP_LOG_ENABLE_FLOAT) && (APP_LOG_ENABLE_FLOAT == 1)
+#include <stdio.h>
+#elif defined (APP_LOG_ENABLE_FLOAT) && (APP_LOG_ENABLE_FLOAT == 0)
 /* definition and callback for tiny_vsnprintf */
 #include "stm32_tiny_vsnprintf.h"
+#else
+#error "APP_LOG_ENABLE_FLOAT not defined or out of range <0,1>"
+#endif
 
 /* enum number of task and priority*/
 #include "utilities_def.h"
@@ -159,8 +167,13 @@ extern "C" {
 #define UTIL_ADV_TRACE_TMP_MAX_TIMESTMAP_SIZE      (15U)                                 /*!< default trace timestamp size */
 #define UTIL_ADV_TRACE_FIFO_SIZE                   (1024U)                               /*!< default trace fifo size */
 #define UTIL_ADV_TRACE_MEMSET8( dest, value, size) UTIL_MEM_set_8((dest),(value),(size)) /*!< memset utilities interface to trace feature */
+#if defined (APP_LOG_ENABLE_FLOAT) && (APP_LOG_ENABLE_FLOAT == 1)
+#define UTIL_ADV_TRACE_VSNPRINTF(...)              vsnprintf(__VA_ARGS__)
+#elif defined (APP_LOG_ENABLE_FLOAT) && (APP_LOG_ENABLE_FLOAT == 0)
 #define UTIL_ADV_TRACE_VSNPRINTF(...)              tiny_vsnprintf_like(__VA_ARGS__)      /*!< vsnprintf utilities interface to trace feature */
-
+#else
+#error "APP_LOG_ENABLE_FLOAT not defined or out of range <0,1>"
+#endif
 /* USER CODE BEGIN EM */
 
 /* USER CODE END EM */

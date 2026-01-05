@@ -92,7 +92,7 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
 
-    measurement = SEN0308GetMeasurment();
+    measurement = SEN0308GetMeasurement();
     reading_len = snprintf(output, sizeof(output), "Soil Humidity: %.3f%%\r\n",
                            measurement.humidity);
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,

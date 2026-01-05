@@ -187,6 +187,23 @@ size_t EncodeWaterFlowMeasurement(uint32_t ts, uint32_t logger_id,
   return EncodeMeasurement(&meas, buffer);
 }
 
+size_t EncodePCAP02Measurement(uint32_t ts, uint32_t logger_id,
+                               uint32_t cell_id, double capacitance,
+                               uint8_t* buffer) {
+  Measurement meas = Measurement_init_zero;
+
+  meas.has_meta = true;
+
+  meas.meta.ts = ts;
+  meas.meta.logger_id = logger_id;
+  meas.meta.cell_id = cell_id;
+
+  meas.which_measurement = Measurement_pcap02_tag;
+  meas.measurement.pcap02.capacitance = capacitance;
+
+  return EncodeMeasurement(&meas, buffer);
+}
+
 Response_ResponseType DecodeResponse(const uint8_t* data, const size_t len) {
   Response resp;
 

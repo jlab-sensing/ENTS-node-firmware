@@ -20,7 +20,6 @@ extern "C" {
 
 #include "i2c.h"
 #include "stm32_systime.h"
-#include "timestamp.h"
 #include "transcoder.h"
 #include "usart.h"
 
@@ -98,7 +97,7 @@ HAL_StatusTypeDef ADC_probe(void);
 
 /**
 ******************************************************************************
-* @brief    This function encodes the ADS1219 power measurments into protobuf
+* @brief    This function encodes the ADS1219 power measurements into protobuf
 *
 * @param    *data
 * @return   size_t

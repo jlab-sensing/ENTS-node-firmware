@@ -39,6 +39,7 @@
 #include "status_led.h"
 #include "teros12.h"
 #include "teros21.h"
+#include "pcap02.h"
 #include "userConfig.h"
 #include "wifi.h"
 #include "waterPressure.h"
@@ -160,16 +161,40 @@ int main(void) {
       APP_LOG(TS_OFF, VLEVEL_M, "Teros12 Enabled!\n");
       SensorsAdd(Teros12Measure);
     }
+    if (sensor == EnabledSensor_Teros21) {
+      SensorsAdd(Teros21Measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Teros21 Enabled!\n");
+    }
     if (sensor == EnabledSensor_BME280) {
       BME280Init();
       SensorsAdd(BME280Measure);
       APP_LOG(TS_OFF, VLEVEL_M, "BME280 Enabled!\n");
     }
-    if (sensor == EnabledSensor_Teros21) {
-      SensorsAdd(Teros21Measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "Teros21 Enabled!\n");
+    // if (sensor == EnabledSensor_Phytos31) {
+    //   Phytos31Init();
+    //   SensorsAdd(Phytos31_measure);
+    //   APP_LOG(TS_OFF, VLEVEL_M, "Phytos31 Enabled!\n");
+    // }
+    // if (sensor == EnabledSensor_SEN0308) {
+    //   CapSoilInit();
+    //   SensorsAdd(SEN0308_measure);
+    //   APP_LOG(TS_OFF, VLEVEL_M, "SEN0308 Cap Soil Sensor Enabled!\n");
+    // }
+    // if (sensor == EnabledSensor_SEN0257) {
+    //   PressureInit();
+    //   SensorsAdd(WatPress_measure);
+    //   APP_LOG(TS_OFF, VLEVEL_M, "SEN0257 Water Pressure Sensor Enabled!\n");
+    // }
+    // if (sensor == EnabledSensor_YFS210C) {
+    //   FlowInit();
+    //   SensorsAdd(WatFlow_measure);
+    //   APP_LOG(TS_OFF, VLEVEL_M, "YFS210C Flow Meter Enabled!\n");
+    // }
+    if (sensor == EnabledSensor_PCAP02) {
+      pcap02_init();
+      SensorsAdd(pcap02_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "PCAP02 Enabled!\n");
     }
-    // TODO add phytos31 support
     // TODO add support for dummy sensor
   }
 
@@ -209,7 +234,7 @@ void FlowBackgroundTask(void) {
   
   // Update flow measurement every 100ms
   if (current_time - last_check >= 100) {
-    FlowGetMeasurment(); // This updates the internal state
+    FlowGetMeasurement(); // This updates the internal state
     last_check = current_time;
   }
 }

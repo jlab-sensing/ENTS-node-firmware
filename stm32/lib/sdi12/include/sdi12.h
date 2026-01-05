@@ -50,7 +50,7 @@ typedef enum {
   SDI12_PARSING_ERROR = -3,
 } SDI12Status;
 
-/* The returned values from a SDI12 get measurment command*/
+/* The returned values from a SDI12 get measurement command*/
 typedef struct {
   char Address;
   uint16_t Time;
@@ -93,19 +93,19 @@ SDI12Status SDI12ReadData(char *buffer, uint16_t bufferSize,
 
 /**
 ******************************************************************************
-* @brief    This is a function to read a measurment from a particular sensor.
+* @brief    This is a function to read a measurement from a particular sensor.
 *
 * @param    char const addr, the device address
-* @param    SDI12_Measure_TypeDef, a custom struct to store the measurment
-*information returned from start measurment
-* @param    char* the measurment data returned
+* @param    SDI12_Measure_TypeDef, a custom struct to store the measurement
+*information returned from start measurement
+* @param    char* the measurement data returned
 * @param    uint16_t timeoutMillis time out in milliseconds
 * @return   SDI12Status
 ******************************************************************************
 */
-SDI12Status SDI12GetMeasurment(uint8_t addr,
-                               SDI12_Measure_TypeDef *measurment_info,
-                               char *measurment_data, uint16_t timeoutMillis);
+SDI12Status SDI12GetMeasurement(uint8_t addr,
+                                SDI12_Measure_TypeDef *measurement_info,
+                                char *measurement_data, uint16_t timeoutMillis);
 
 /**
  * @brief Get the address of the current SDI-12 sensor.

@@ -85,20 +85,35 @@ int main(void) {
     for (int i = 0; i < config->enabled_sensors_count; i++) {
       const char *sensor_name;
       switch (config->enabled_sensors[i]) {
-        case 0:
+        case EnabledSensor_Voltage:
           sensor_name = "Voltage";
           break;
-        case 1:
+        case EnabledSensor_Current:
           sensor_name = "Current";
           break;
-        case 2:
+        case EnabledSensor_Teros12:
           sensor_name = "Teros12";
           break;
-        case 3:
+        case EnabledSensor_Teros21:
           sensor_name = "Teros21";
           break;
-        case 4:
+        case EnabledSensor_BME280:
           sensor_name = "BME280";
+          break;
+        case EnabledSensor_Phytos31:
+          sensor_name = "Phytos31";
+          break;
+        case EnabledSensor_SEN0308:
+          sensor_name = "SEN0308";
+          break;
+        case EnabledSensor_SEN0257:
+          sensor_name = "SEN0257";
+          break;
+        case EnabledSensor_YFS210C:
+          sensor_name = "YFS210C";
+          break;
+        case EnabledSensor_PCAP02:
+          sensor_name = "PCAP02";
           break;
       }
       sprintf(uart_buf, "Enabled Sensor %d: %s\r\n", i + 1, sensor_name);

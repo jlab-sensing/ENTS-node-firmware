@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
+#include <stdarg.h>
 #include "platform.h"
 #include "sys_app.h"
 #include "adc_if.h"
@@ -264,7 +265,7 @@ static void TimestampNow(uint8_t *buff, uint16_t *size)
 
   /* USER CODE END TimestampNow_1 */
   SysTime_t curtime = SysTimeGet();
-  tiny_snprintf_like((char *)buff, MAX_TS_SIZE, "%ds%03d:", curtime.Seconds, curtime.SubSeconds);
+  tiny_vsnprintf_like((char *)buff, MAX_TS_SIZE, "%ds%03d:", curtime.Seconds, curtime.SubSeconds);
   *size = strlen((char *)buff);
   /* USER CODE BEGIN TimestampNow_2 */
 

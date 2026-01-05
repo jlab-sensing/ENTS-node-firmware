@@ -55,6 +55,11 @@ extern "C" {
 #define APP_LOG_ENABLED                      1
 
 /**
+  * @brief Substitute float-enabled vsnprintf() in place of tiny_vsnprintf_like()
+  */
+#define APP_LOG_ENABLE_FLOAT                 1
+
+/**
   * @brief Activate monitoring (probes) of some internal RF signals for debug purpose
   */
 #define DEBUG_SUBGHZSPI_MONITORING_ENABLED   0

@@ -82,7 +82,7 @@ int main(void) {
   // UTIL_TIMER_Init();
 
   char output[20];
-  phytos_measurments measurment;
+  phytos_measurements measurement;
   size_t reading_len;
 
   /* USER CODE END 2 */
@@ -94,9 +94,9 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
 
-    measurment = Phytos31GetMeasurment();
+    measurement = Phytos31GetMeasurement();
     reading_len = snprintf(output, sizeof(output), "Phytos Raw: %f\r\n",
-                           measurment.phytos31_raw);
+                           measurement.phytos31_raw);
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
     // for (int i = 0; i < 10000; i++){

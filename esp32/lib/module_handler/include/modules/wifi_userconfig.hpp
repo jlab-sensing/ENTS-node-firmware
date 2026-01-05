@@ -43,7 +43,7 @@ class ModuleUserConfig : public Module {
   void updateWebConfig(const UserConfiguration *pb_config);
 
   /**
-   * @brief Send configuration to the setm32
+   * @brief Send configuration to the stm32
    *
    * @param cmd The command data.
    *

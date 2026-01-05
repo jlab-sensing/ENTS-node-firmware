@@ -35,14 +35,14 @@ HAL_StatusTypeDef PressureInit(void);
 
 /**
  ******************************************************************************
- * @brief    Returns both the raw voltage value and a calibrated measurment
+ * @brief    Returns both the raw voltage value and a calibrated measurement
  *           from a water pressure sensor.
  *
  * @param    void
- * @return   measurments
+ * @return   measurements
  ******************************************************************************
  */
-SEN0257Measurement PressureGetMeasurment(void);
+SEN0257Measurement PressureGetMeasurement(void);
 
 /**
  * @brief Read water pressure sensor and serialize measurement
@@ -56,7 +56,7 @@ SEN0257Measurement PressureGetMeasurment(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatPress_measure(uint8_t *data);
+size_t WatPress_measure(uint8_t *data, SysTime_t ts);
 
 #ifdef __cplusplus
 }
