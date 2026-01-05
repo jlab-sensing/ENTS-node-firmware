@@ -10,17 +10,24 @@ firmware versions for a hardware version.
 
 ## [Unreleased]
 
+### Added
+
+- Support for pcap2 sensor [#297](i297)
+
 ### Updated
 
 - Esp32 enters a deep sleep state when idle [#150](i150)
-- Upload interval for LoRaWAN
+- Upload interval for LoRaWAN [#254](i254)
+- Updated WiFi user config interface missing sensors [#297](i297)
 
 ### Fixed
 
 - Updated clock configuration [#268](i268)
 
 [i150]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/150
+[i254]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/254
 [i268]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/268
+[i297]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/297
 
 ## [2.3.4] - 2025-08-20
 
