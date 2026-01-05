@@ -153,6 +153,92 @@ FramStatus FramGet(uint8_t *data, uint8_t *len) {
   return FRAM_OK;
 }
 
+FramStatus FramPeek(size_t idx, uint8_t *data, uint8_t *len) {
+  // Check if buffer is empty
+  if (buffer_len == 0) {
+    return FRAM_BUFFER_EMPTY;
+  }
+  if (idx >= buffer_len) {
+    return FRAM_OUT_OF_RANGE;
+  }
+
+  FramStatus status = FRAM_OK;
+  uint16_t temp_read_addr = read_addr;
+
+  // advance to idx
+  for (size_t i = 0; i < idx; i++) {
+    uint8_t temp_len;
+    status = FramRead(temp_read_addr, 1, &temp_len);
+    if (status != FRAM_OK) {
+      return status;
+    }
+    update_addr(&temp_read_addr, 1 + temp_len);
+  }
+
+  // read length
+  status = FramRead(temp_read_addr, 1, len);
+  if (status != FRAM_OK) {
+    return status;
+  }
+  update_addr(&temp_read_addr, 1);
+
+  // read data
+  status = FramRead(temp_read_addr, *len, data);
+  if (status != FRAM_OK) {
+    return status;
+  }
+
+  // Read data from FRAM circular buffer
+  // if the data must wraparound, then make two reads
+  if (temp_read_addr + *len > (FRAM_BUFFER_END + 1)) {
+    // read up to the buffer end
+    size_t len_first_half = (FRAM_BUFFER_END + 1) - temp_read_addr;
+    status = FramRead(temp_read_addr, len_first_half, data);
+    if (status != FRAM_OK) {
+      return status;
+    }
+    update_addr(&temp_read_addr, len_first_half);
+    // read from the buffer start
+    status =
+        FramRead(temp_read_addr, *len - len_first_half, data + len_first_half);
+    if (status != FRAM_OK) {
+      return status;
+    }
+    update_addr(&temp_read_addr, *len - len_first_half);
+  } else {
+    status = FramRead(temp_read_addr, *len, data);
+    if (status != FRAM_OK) {
+      return status;
+    }
+    update_addr(&temp_read_addr, *len);
+  }
+
+  return FRAM_OK;
+}
+
+FramStatus FramDrop(void) {
+  // Check if buffer is empty
+  if (buffer_len == 0) {
+    return FRAM_BUFFER_EMPTY;
+  }
+
+  FramStatus status;
+  uint8_t len;
+
+  // read length
+  status = FramRead(read_addr, 1, &len);
+  if (status != FRAM_OK) {
+    return status;
+  }
+  update_addr(&read_addr, 1 + len);
+
+  // Decrement buffer length
+  --buffer_len;
+
+  FramSaveBufferState(read_addr, write_addr, buffer_len);
+  return FRAM_OK;
+}
+
 uint16_t FramBufferLen(void) { return buffer_len; }
 
 FramStatus FramBufferClear(void) {

@@ -11,350 +11,424 @@
 
 /* Enum definitions */
 typedef enum _EnabledSensor {
-  EnabledSensor_Voltage = 0,
-  EnabledSensor_Current = 1,
-  EnabledSensor_Teros12 = 2,
-  EnabledSensor_Teros21 = 3,
-  EnabledSensor_BME280 = 4,
-  EnabledSensor_Phytos31 = 5,
-  EnabledSensor_SEN0308 = 6,
-  EnabledSensor_SEN0257 = 7,
-  EnabledSensor_YFS210C = 8,
-  EnabledSensor_PCAP02 = 9
+    EnabledSensor_Voltage = 0,
+    EnabledSensor_Current = 1,
+    EnabledSensor_Teros12 = 2,
+    EnabledSensor_Teros21 = 3,
+    EnabledSensor_BME280 = 4,
+    EnabledSensor_Phytos31 = 5,
+    EnabledSensor_SEN0308 = 6,
+    EnabledSensor_SEN0257 = 7,
+    EnabledSensor_YFS210C = 8,
+    EnabledSensor_PCAP02 = 9
 } EnabledSensor;
 
 typedef enum _Uploadmethod {
-  Uploadmethod_LoRa = 0,
-  Uploadmethod_WiFi = 1
+    Uploadmethod_LoRa = 0,
+    Uploadmethod_WiFi = 1
 } Uploadmethod;
 
 /* Response codes from server */
 typedef enum _Response_ResponseType {
-  /* Data was successfully uploaded */
-  Response_ResponseType_SUCCESS = 0,
-  /* General Error */
-  Response_ResponseType_ERROR = 1
+    /* Data was successfully uploaded */
+    Response_ResponseType_SUCCESS = 0,
+    /* General Error */
+    Response_ResponseType_ERROR = 1
 } Response_ResponseType;
 
 /* Type of request */
 typedef enum _PageCommand_RequestType {
-  PageCommand_RequestType_OPEN = 0,
-  PageCommand_RequestType_CLOSE = 1,
-  PageCommand_RequestType_READ = 2,
-  PageCommand_RequestType_WRITE = 3
+    PageCommand_RequestType_OPEN = 0,
+    PageCommand_RequestType_CLOSE = 1,
+    PageCommand_RequestType_READ = 2,
+    PageCommand_RequestType_WRITE = 3
 } PageCommand_RequestType;
 
 typedef enum _TestCommand_ChangeState {
-  /* Data is received by the module */
-  TestCommand_ChangeState_RECEIVE = 0,
-  /* Data is received by the module indicating data for subsequent request */
-  TestCommand_ChangeState_RECEIVE_REQUEST = 1,
-  /* Data is sent my the module */
-  TestCommand_ChangeState_REQUEST = 2
+    /* Data is received by the module */
+    TestCommand_ChangeState_RECEIVE = 0,
+    /* Data is received by the module indicating data for subsequent request */
+    TestCommand_ChangeState_RECEIVE_REQUEST = 1,
+    /* Data is sent my the module */
+    TestCommand_ChangeState_REQUEST = 2
 } TestCommand_ChangeState;
 
 typedef enum _WiFiCommand_Type {
-  /* Connect to WiFi network */
-  WiFiCommand_Type_CONNECT = 0,
-  /* Post data to endpoint */
-  WiFiCommand_Type_POST = 1,
-  /* Check HTTP code and response from POST */
-  WiFiCommand_Type_CHECK = 2,
-  /* Timesync request */
-  WiFiCommand_Type_TIME = 3,
-  /* Disconnect from WiFi network */
-  WiFiCommand_Type_DISCONNECT = 4,
-  /* Get WiFi status */
-  WiFiCommand_Type_CHECK_WIFI = 5,
-  /* Check connectivity to API */
-  WiFiCommand_Type_CHECK_API = 6,
-  /* Force NTP sync */
-  WiFiCommand_Type_NTP_SYNC = 7,
-  /* Host a WiFi network */
-  WiFiCommand_Type_HOST = 8,
-  /* Stop hosting a WiFi network */
-  WiFiCommand_Type_STOP_HOST = 9,
-  /* Get host info */
-  WiFiCommand_Type_HOST_INFO = 10
+    /* Connect to WiFi network */
+    WiFiCommand_Type_CONNECT = 0,
+    /* Post data to endpoint */
+    WiFiCommand_Type_POST = 1,
+    /* Check HTTP code and response from POST */
+    WiFiCommand_Type_CHECK = 2,
+    /* Timesync request */
+    WiFiCommand_Type_TIME = 3,
+    /* Disconnect from WiFi network */
+    WiFiCommand_Type_DISCONNECT = 4,
+    /* Get WiFi status */
+    WiFiCommand_Type_CHECK_WIFI = 5,
+    /* Check connectivity to API */
+    WiFiCommand_Type_CHECK_API = 6,
+    /* Force NTP sync */
+    WiFiCommand_Type_NTP_SYNC = 7,
+    /* Host a WiFi network */
+    WiFiCommand_Type_HOST = 8,
+    /* Stop hosting a WiFi network */
+    WiFiCommand_Type_STOP_HOST = 9,
+    /* Get host info */
+    WiFiCommand_Type_HOST_INFO = 10
 } WiFiCommand_Type;
 
 typedef enum _UserConfigCommand_RequestType {
-  /* controller requests config from target */
-  UserConfigCommand_RequestType_REQUEST_CONFIG = 0,
-  /* controller sends config to target */
-  UserConfigCommand_RequestType_RESPONSE_CONFIG = 1,
-  /* starts the user config webserver */
-  UserConfigCommand_RequestType_START = 2
+    /* controller requests config from target */
+    UserConfigCommand_RequestType_REQUEST_CONFIG = 0,
+    /* controller sends config to target */
+    UserConfigCommand_RequestType_RESPONSE_CONFIG = 1,
+    /* starts the user config webserver */
+    UserConfigCommand_RequestType_START = 2
 } UserConfigCommand_RequestType;
 
 typedef enum _MicroSDCommand_Type {
-  /* Decode and save data to a CSV file on the microSD card */
-  MicroSDCommand_Type_SAVE = 0,
-  /* Send UserConfig for CSV header creation */
-  MicroSDCommand_Type_USERCONFIG = 1
+    /* Decode and save data to a CSV file on the microSD card */
+    MicroSDCommand_Type_SAVE = 0,
+    /* Send UserConfig for CSV header creation */
+    MicroSDCommand_Type_USERCONFIG = 1
 } MicroSDCommand_Type;
 
 typedef enum _MicroSDCommand_ReturnCode {
-  MicroSDCommand_ReturnCode_SUCCESS = 0,
-  MicroSDCommand_ReturnCode_ERROR_GENERAL = 1,
-  MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED = 2,
-  MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE = 3,
-  MicroSDCommand_ReturnCode_ERROR_PAYLOAD_NOT_DECODED = 4,
-  MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED = 5
+    MicroSDCommand_ReturnCode_SUCCESS = 0,
+    MicroSDCommand_ReturnCode_ERROR_GENERAL = 1,
+    MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED = 2,
+    MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE = 3,
+    MicroSDCommand_ReturnCode_ERROR_PAYLOAD_NOT_DECODED = 4,
+    MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED = 5
 } MicroSDCommand_ReturnCode;
 
 typedef enum _IrrigationCommand_Type {
-  IrrigationCommand_Type_CHECK = 0
+    IrrigationCommand_Type_CHECK = 0
 } IrrigationCommand_Type;
 
 typedef enum _IrrigationCommand_State {
-  /* needs to be opened to prevent open defined twice */
-  IrrigationCommand_State_OPEN = 0,
-  IrrigationCommand_State_CLOSE = 1
+    /* needs to be opened to prevent open defined twice */
+    IrrigationCommand_State_OPEN = 0,
+    IrrigationCommand_State_CLOSE = 1
 } IrrigationCommand_State;
 
 typedef enum _PowerCommand_Type {
-  /* Put the device to sleep */
-  PowerCommand_Type_SLEEP = 0,
-  /* Check functionality after wakeup */
-  PowerCommand_Type_WAKEUP = 1
+    /* Put the device to sleep */
+    PowerCommand_Type_SLEEP = 0,
+    /* Check functionality after wakeup */
+    PowerCommand_Type_WAKEUP = 1
 } PowerCommand_Type;
 
 /* copied from idf library */
 typedef enum _PowerCommand_WakeupReason {
-  PowerCommand_WakeupReason_POWER_WAKEUP_EXT0 = 0,
-  PowerCommand_WakeupReason_POWER_WAKEUP_EXT1 = 1,
-  PowerCommand_WakeupReason_POWER_WAKEUP_TIMER = 2,
-  PowerCommand_WakeupReason_POWER_WAKEUP_TOUCHPAD = 3,
-  PowerCommand_WakeupReason_POWER_WAKEUP_ULP = 4,
-  PowerCommand_WakeupReason_POWER_WAKEUP_GPIO = 5,
-  PowerCommand_WakeupReason_POWER_WAKEUP_UART = 6,
-  PowerCommand_WakeupReason_POWER_WAKEUP_WIFI = 7,
-  PowerCommand_WakeupReason_POWER_WAKEUP_COCPU = 8,
-  PowerCommand_WakeupReason_POWER_WAKEUP_COCPU_TRAP_TRIG = 9,
-  PowerCommand_WakeupReason_POWER_WAKEUP_BT = 10
+    PowerCommand_WakeupReason_POWER_WAKEUP_EXT0 = 0,
+    PowerCommand_WakeupReason_POWER_WAKEUP_EXT1 = 1,
+    PowerCommand_WakeupReason_POWER_WAKEUP_TIMER = 2,
+    PowerCommand_WakeupReason_POWER_WAKEUP_TOUCHPAD = 3,
+    PowerCommand_WakeupReason_POWER_WAKEUP_ULP = 4,
+    PowerCommand_WakeupReason_POWER_WAKEUP_GPIO = 5,
+    PowerCommand_WakeupReason_POWER_WAKEUP_UART = 6,
+    PowerCommand_WakeupReason_POWER_WAKEUP_WIFI = 7,
+    PowerCommand_WakeupReason_POWER_WAKEUP_COCPU = 8,
+    PowerCommand_WakeupReason_POWER_WAKEUP_COCPU_TRAP_TRIG = 9,
+    PowerCommand_WakeupReason_POWER_WAKEUP_BT = 10
 } PowerCommand_WakeupReason;
 
 /* Struct definitions */
 /* Data shared between all measurement messages */
 typedef struct _MeasurementMetadata {
-  /* id of the cell measured */
-  uint32_t cell_id;
-  /* id of the logging device */
-  uint32_t logger_id;
-  /* timestamp of the measurement */
-  uint32_t ts;
+    /* id of the cell measured */
+    uint32_t cell_id;
+    /* id of the logging device */
+    uint32_t logger_id;
+    /* timestamp of the measurement */
+    uint32_t ts;
 } MeasurementMetadata;
 
-/* Power measurement message. Voltage and current can be digitially combined to
- obtain power. */
+/* *
+ Power measurement message. Voltage and current can be digitially combined to
+ obtain power.
+
+ @deprecated Use individual voltage and current measurements instead.
+
+ @see VoltageMeasurement
+ @see CurrentMeasurement */
 typedef struct _PowerMeasurement {
-  /* voltage */
-  double voltage;
-  /* current */
-  double current;
+    /* voltage */
+    double voltage;
+    /* current */
+    double current;
 } PowerMeasurement;
+
+/* * Voltage measurement with support for delta encoding */
+typedef struct _VoltageDeltaMeasurement {
+    uint32_t voltage;
+} VoltageDeltaMeasurement;
+
+/* * Current measurement with support for delta encoding */
+typedef struct _CurrentDeltaMeasurement {
+    uint32_t current;
+} CurrentDeltaMeasurement;
+
+/* * Voltage measurement */
+typedef struct _VoltageMeasurement {
+    double voltage;
+} VoltageMeasurement;
+
+/* * Current measurement */
+typedef struct _CurrentMeasurement {
+    double current;
+} CurrentMeasurement;
+
+/* *
+ Power deltas measurement message. Voltage and current deltas can be
+ digitially combined to obtain power.
+
+ @deprecated Use individual voltage and current delta measurements instead.
+
+ @see VoltageDeltaMeasurement
+ @see CurrentDeltaMeasurement */
+typedef struct _PowerDeltaEntry {
+    uint32_t ts;
+    uint32_t voltage_delta;
+    uint32_t current_delta;
+} PowerDeltaEntry;
+
+/* *
+ Stores power measurements for delta encoding
+
+ @deprecated Use individual voltage and current delta measurements instead.
+
+ @see VoltageDeltaMeasurement
+ @see CurrentDeltaMeasurement */
+typedef struct _PowerMeasurementDelta {
+    /* voltage */
+    uint32_t voltage_delta;
+    /* current */
+    uint32_t current_delta;
+} PowerMeasurementDelta;
+
+/* *
+ Repeated delta power measurements.
+
+ @deprecated Use RepeatedMeasurements instead.
+
+ @see VoltageDeltaMeasurement
+ @see CurrentDeltaMeasurement */
+typedef struct _RepeatedPowerDeltas {
+    /* Shared metadata */
+    uint32_t logger_id;
+    uint32_t cell_id;
+    /* Repeating entries */
+    pb_callback_t entries;
+} RepeatedPowerDeltas;
 
 /* Teros12 measurement message */
 typedef struct _Teros12Measurement {
-  /* raw volumetric water content */
-  double vwc_raw;
-  /* calibrated volumetric water content */
-  double vwc_adj;
-  /* temperature in celcious */
-  double temp;
-  /* electrical conductivity */
-  uint32_t ec;
+    /* raw volumetric water content */
+    double vwc_raw;
+    /* calibrated volumetric water content */
+    double vwc_adj;
+    /* temperature in celcious */
+    double temp;
+    /* electrical conductivity */
+    uint32_t ec;
 } Teros12Measurement;
 
 typedef struct _Teros21Measurement {
-  /* Matric potential of soil in kPa */
-  double matric_pot;
-  /* temperature in celcius */
-  double temp;
+    /* Matric potential of soil in kPa */
+    double matric_pot;
+    /* temperature in celcius */
+    double temp;
 } Teros21Measurement;
 
 /* Phytos measurement */
 typedef struct _Phytos31Measurement {
-  /* raw adc voltage */
-  double voltage;
-  /* calibrated leaf wetness */
-  double leaf_wetness;
+    /* raw adc voltage */
+    double voltage;
+    /* calibrated leaf wetness */
+    double leaf_wetness;
 } Phytos31Measurement;
 
 typedef struct _BME280Measurement {
-  /* pressure */
-  uint32_t pressure;
-  /* temperature */
-  int32_t temperature;
-  /* humidity */
-  uint32_t humidity;
+    /* pressure */
+    uint32_t pressure;
+    /* temperature */
+    int32_t temperature;
+    /* humidity */
+    uint32_t humidity;
 } BME280Measurement;
 
 /* Capacitive Soil Moisture Sensor */
 typedef struct _SEN0308Measurement {
-  /* voltage */
-  double voltage;
-  /* humidity */
-  double humidity;
+    /* voltage */
+    double voltage;
+    /* humidity */
+    double humidity;
 } SEN0308Measurement;
 
 /* Water Pressure Sensor */
 typedef struct _SEN0257Measurement {
-  /* voltage */
-  double voltage;
-  /* pressure */
-  double pressure;
+    /* voltage */
+    double voltage;
+    /* pressure */
+    double pressure;
 } SEN0257Measurement;
 
 /* Water Flow Sensor */
 typedef struct _YFS210CMeasurement {
-  /* flow */
-  double flow;
+    /* flow */
+    double flow;
 } YFS210CMeasurement;
 
 /* Capacitance Sensor */
 typedef struct _PCAP02Measurement {
-  /* capacitance */
-  double capacitance;
+    /* capacitance */
+    double capacitance;
 } PCAP02Measurement;
 
 /* Top level measurement message */
 typedef struct _Measurement {
-  /* Metadata */
-  bool has_meta;
-  MeasurementMetadata meta;
-  pb_size_t which_measurement;
-  union {
-    PowerMeasurement power;
-    Teros12Measurement teros12;
-    Phytos31Measurement phytos31;
-    BME280Measurement bme280;
-    Teros21Measurement teros21;
-    SEN0308Measurement sen0308;
-    SEN0257Measurement sen0257;
-    YFS210CMeasurement yfs210c;
-    PCAP02Measurement pcap02;
-  } measurement;
+    /* Metadata */
+    bool has_meta;
+    MeasurementMetadata meta;
+    pb_size_t which_measurement;
+    union {
+        PowerMeasurement power;
+        Teros12Measurement teros12;
+        Phytos31Measurement phytos31;
+        BME280Measurement bme280;
+        Teros21Measurement teros21;
+        SEN0308Measurement sen0308;
+        SEN0257Measurement sen0257;
+        YFS210CMeasurement yfs210c;
+        PCAP02Measurement pcap02;
+    } measurement;
 } Measurement;
 
 /* Acknowledge Packet */
 typedef struct _Response {
-  /* Response from server */
-  Response_ResponseType resp;
+    /* Response from server */
+    Response_ResponseType resp;
 } Response;
 
 typedef struct _PageCommand {
-  /* File request type */
-  PageCommand_RequestType file_request;
-  /* Integer for file descriptor */
-  uint32_t file_descriptor;
-  /* Block size of read/write */
-  uint32_t block_size;
-  /* Number of bytes */
-  uint32_t num_bytes;
+    /* File request type */
+    PageCommand_RequestType file_request;
+    /* Integer for file descriptor */
+    uint32_t file_descriptor;
+    /* Block size of read/write */
+    uint32_t block_size;
+    /* Number of bytes */
+    uint32_t num_bytes;
 } PageCommand;
 
 typedef struct _TestCommand {
-  /* State to put module into */
-  TestCommand_ChangeState state;
-  /* Data field for test command data */
-  int32_t data;
+    /* State to put module into */
+    TestCommand_ChangeState state;
+    /* Data field for test command data */
+    int32_t data;
 } TestCommand;
 
 typedef PB_BYTES_ARRAY_T(222) WiFiCommand_resp_t;
 typedef struct _WiFiCommand {
-  /* Command type */
-  WiFiCommand_Type type;
-  /* WiFI SSID */
-  char ssid[33];
-  /* WiFi Password */
-  char passwd[65];
-  /* Endpoint url */
-  char url[257];
-  /* Return code */
-  uint32_t rc;
-  /* Timestamp n unix epochs */
-  uint32_t ts;
-  /* binary data response */
-  WiFiCommand_resp_t resp;
-  /* Port */
-  uint32_t port;
-  /* MAC address */
-  char mac[18];
-  /* Number of connected devices */
-  uint32_t clients;
+    /* Command type */
+    WiFiCommand_Type type;
+    /* WiFI SSID */
+    char ssid[33];
+    /* WiFi Password */
+    char passwd[65];
+    /* Endpoint url */
+    char url[257];
+    /* Return code */
+    uint32_t rc;
+    /* Timestamp n unix epochs */
+    uint32_t ts;
+    /* binary data response */
+    WiFiCommand_resp_t resp;
+    /* Port */
+    uint32_t port;
+    /* MAC address */
+    char mac[18];
+    /* Number of connected devices */
+    uint32_t clients;
 } WiFiCommand;
 
 typedef struct _IrrigationCommand {
-  IrrigationCommand_Type type;
-  IrrigationCommand_State state;
+    IrrigationCommand_Type type;
+    IrrigationCommand_State state;
 } IrrigationCommand;
 
 typedef struct _PowerCommand {
-  PowerCommand_Type type;
-  PowerCommand_WakeupReason reason;
-  uint32_t boot_count;
+    PowerCommand_Type type;
+    PowerCommand_WakeupReason reason;
+    uint32_t boot_count;
 } PowerCommand;
 
 typedef struct _UserConfiguration {
-  /* ********* Upload Settings ********* */
-  uint32_t logger_id;         /* id of the logging device */
-  uint32_t cell_id;           /* id of the cell measured */
-  Uploadmethod Upload_method; /* indicates whether LoRa or WiFi is used */
-  uint32_t Upload_interval;   /* upload time in seconds */
-  /* ********* Measurement Settings ********* */
-  pb_size_t enabled_sensors_count;
-  EnabledSensor enabled_sensors[5]; /* List of enabled sensors */
-  double Voltage_Slope;             /* Calibration slope for voltage */
-  double Voltage_Offset;            /* Calibration offset for voltage */
-  double Current_Slope;             /* Calibration slope for current */
-  double Current_Offset;            /* Calibration offset for current */
-  /* ********* WiFi Settings ********* */
-  char WiFi_SSID[33];
-  char WiFi_Password[65];
-  char API_Endpoint_URL[65];
-  /* Deprecated
-Embedded into the endpoint URL */
-  uint32_t API_Endpoint_Port;
+    /* ********* Upload Settings ********* */
+    uint32_t logger_id; /* id of the logging device */
+    uint32_t cell_id; /* id of the cell measured */
+    Uploadmethod Upload_method; /* indicates whether LoRa or WiFi is used */
+    uint32_t Upload_interval; /* upload time in seconds */
+    /* ********* Measurement Settings ********* */
+    pb_size_t enabled_sensors_count;
+    EnabledSensor enabled_sensors[5]; /* List of enabled sensors */
+    double Voltage_Slope; /* Calibration slope for voltage */
+    double Voltage_Offset; /* Calibration offset for voltage */
+    double Current_Slope; /* Calibration slope for current */
+    double Current_Offset; /* Calibration offset for current */
+    /* ********* WiFi Settings ********* */
+    char WiFi_SSID[33];
+    char WiFi_Password[65];
+    char API_Endpoint_URL[65];
+    /* Deprecated
+ Embedded into the endpoint URL */
+    uint32_t API_Endpoint_Port;
 } UserConfiguration;
 
 typedef struct _UserConfigCommand {
-  /* type of command */
-  UserConfigCommand_RequestType type;
-  /* configuration data */
-  bool has_config_data;
-  UserConfiguration config_data;
+    /* type of command */
+    UserConfigCommand_RequestType type;
+    /* configuration data */
+    bool has_config_data;
+    UserConfiguration config_data;
 } UserConfigCommand;
 
 typedef struct _MicroSDCommand {
-  /* Command type */
-  MicroSDCommand_Type type;
-  /* Filename */
-  char filename[256];
-  /* Return code */
-  MicroSDCommand_ReturnCode rc;
-  pb_size_t which_data;
-  union {
-    /* measurement to be saved */
-    Measurement meas;
-    /* userConfig to be saved */
-    UserConfiguration uc;
-  } data;
+    /* Command type */
+    MicroSDCommand_Type type;
+    /* Filename */
+    char filename[256];
+    /* Return code */
+    MicroSDCommand_ReturnCode rc;
+    pb_size_t which_data;
+    union {
+        /* measurement to be saved */
+        Measurement meas;
+        /* userConfig to be saved */
+        UserConfiguration uc;
+    } data;
 } MicroSDCommand;
 
 typedef struct _Esp32Command {
-  pb_size_t which_command;
-  union {
-    PageCommand page_command;
-    TestCommand test_command;
-    WiFiCommand wifi_command;
-    MicroSDCommand microsd_command;
-    IrrigationCommand irrigation_command;
-    UserConfigCommand user_config_command;
-    PowerCommand power_command;
-  } command;
+    pb_size_t which_command;
+    union {
+        PageCommand page_command;
+        TestCommand test_command;
+        WiFiCommand wifi_command;
+        MicroSDCommand microsd_command;
+        IrrigationCommand irrigation_command;
+        UserConfigCommand user_config_command;
+        PowerCommand power_command;
+    } command;
 } Esp32Command;
+
+typedef struct _adcValue {
+    uint32_t adc;
+} adcValue;
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -363,72 +437,76 @@ extern "C" {
 /* Helper constants for enums */
 #define _EnabledSensor_MIN EnabledSensor_Voltage
 #define _EnabledSensor_MAX EnabledSensor_PCAP02
-#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_PCAP02 + 1))
+#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_PCAP02+1))
 
 #define _Uploadmethod_MIN Uploadmethod_LoRa
 #define _Uploadmethod_MAX Uploadmethod_WiFi
-#define _Uploadmethod_ARRAYSIZE ((Uploadmethod)(Uploadmethod_WiFi + 1))
+#define _Uploadmethod_ARRAYSIZE ((Uploadmethod)(Uploadmethod_WiFi+1))
 
 #define _Response_ResponseType_MIN Response_ResponseType_SUCCESS
 #define _Response_ResponseType_MAX Response_ResponseType_ERROR
-#define _Response_ResponseType_ARRAYSIZE                                       \
-  ((Response_ResponseType)(Response_ResponseType_ERROR + 1))
+#define _Response_ResponseType_ARRAYSIZE ((Response_ResponseType)(Response_ResponseType_ERROR+1))
 
 #define _PageCommand_RequestType_MIN PageCommand_RequestType_OPEN
 #define _PageCommand_RequestType_MAX PageCommand_RequestType_WRITE
-#define _PageCommand_RequestType_ARRAYSIZE                                     \
-  ((PageCommand_RequestType)(PageCommand_RequestType_WRITE + 1))
+#define _PageCommand_RequestType_ARRAYSIZE ((PageCommand_RequestType)(PageCommand_RequestType_WRITE+1))
 
 #define _TestCommand_ChangeState_MIN TestCommand_ChangeState_RECEIVE
 #define _TestCommand_ChangeState_MAX TestCommand_ChangeState_REQUEST
-#define _TestCommand_ChangeState_ARRAYSIZE                                     \
-  ((TestCommand_ChangeState)(TestCommand_ChangeState_REQUEST + 1))
+#define _TestCommand_ChangeState_ARRAYSIZE ((TestCommand_ChangeState)(TestCommand_ChangeState_REQUEST+1))
 
 #define _WiFiCommand_Type_MIN WiFiCommand_Type_CONNECT
 #define _WiFiCommand_Type_MAX WiFiCommand_Type_HOST_INFO
-#define _WiFiCommand_Type_ARRAYSIZE                                            \
-  ((WiFiCommand_Type)(WiFiCommand_Type_HOST_INFO + 1))
+#define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_HOST_INFO+1))
 
-#define _UserConfigCommand_RequestType_MIN                                     \
-  UserConfigCommand_RequestType_REQUEST_CONFIG
+#define _UserConfigCommand_RequestType_MIN UserConfigCommand_RequestType_REQUEST_CONFIG
 #define _UserConfigCommand_RequestType_MAX UserConfigCommand_RequestType_START
-#define _UserConfigCommand_RequestType_ARRAYSIZE                               \
-  ((UserConfigCommand_RequestType)(UserConfigCommand_RequestType_START + 1))
+#define _UserConfigCommand_RequestType_ARRAYSIZE ((UserConfigCommand_RequestType)(UserConfigCommand_RequestType_START+1))
 
 #define _MicroSDCommand_Type_MIN MicroSDCommand_Type_SAVE
 #define _MicroSDCommand_Type_MAX MicroSDCommand_Type_USERCONFIG
-#define _MicroSDCommand_Type_ARRAYSIZE                                         \
-  ((MicroSDCommand_Type)(MicroSDCommand_Type_USERCONFIG + 1))
+#define _MicroSDCommand_Type_ARRAYSIZE ((MicroSDCommand_Type)(MicroSDCommand_Type_USERCONFIG+1))
 
 #define _MicroSDCommand_ReturnCode_MIN MicroSDCommand_ReturnCode_SUCCESS
-#define _MicroSDCommand_ReturnCode_MAX                                         \
-  MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED
-#define _MicroSDCommand_ReturnCode_ARRAYSIZE                                     \
-  ((MicroSDCommand_ReturnCode)(MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED + \
-                               1))
+#define _MicroSDCommand_ReturnCode_MAX MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED
+#define _MicroSDCommand_ReturnCode_ARRAYSIZE ((MicroSDCommand_ReturnCode)(MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED+1))
 
 #define _IrrigationCommand_Type_MIN IrrigationCommand_Type_CHECK
 #define _IrrigationCommand_Type_MAX IrrigationCommand_Type_CHECK
-#define _IrrigationCommand_Type_ARRAYSIZE                                      \
-  ((IrrigationCommand_Type)(IrrigationCommand_Type_CHECK + 1))
+#define _IrrigationCommand_Type_ARRAYSIZE ((IrrigationCommand_Type)(IrrigationCommand_Type_CHECK+1))
 
 #define _IrrigationCommand_State_MIN IrrigationCommand_State_OPEN
 #define _IrrigationCommand_State_MAX IrrigationCommand_State_CLOSE
-#define _IrrigationCommand_State_ARRAYSIZE                                     \
-  ((IrrigationCommand_State)(IrrigationCommand_State_CLOSE + 1))
+#define _IrrigationCommand_State_ARRAYSIZE ((IrrigationCommand_State)(IrrigationCommand_State_CLOSE+1))
 
 #define _PowerCommand_Type_MIN PowerCommand_Type_SLEEP
 #define _PowerCommand_Type_MAX PowerCommand_Type_WAKEUP
-#define _PowerCommand_Type_ARRAYSIZE                                           \
-  ((PowerCommand_Type)(PowerCommand_Type_WAKEUP + 1))
+#define _PowerCommand_Type_ARRAYSIZE ((PowerCommand_Type)(PowerCommand_Type_WAKEUP+1))
 
-#define _PowerCommand_WakeupReason_MIN                                         \
-  PowerCommand_WakeupReason_POWER_WAKEUP_EXT0
+#define _PowerCommand_WakeupReason_MIN PowerCommand_WakeupReason_POWER_WAKEUP_EXT0
 #define _PowerCommand_WakeupReason_MAX PowerCommand_WakeupReason_POWER_WAKEUP_BT
-#define _PowerCommand_WakeupReason_ARRAYSIZE                                   \
-  ((PowerCommand_WakeupReason)(PowerCommand_WakeupReason_POWER_WAKEUP_BT + 1))
+#define _PowerCommand_WakeupReason_ARRAYSIZE ((PowerCommand_WakeupReason)(PowerCommand_WakeupReason_POWER_WAKEUP_BT+1))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #define Response_resp_ENUMTYPE Response_ResponseType
+
 
 #define PageCommand_file_request_ENUMTYPE PageCommand_RequestType
 
@@ -450,270 +528,279 @@ extern "C" {
 #define UserConfiguration_Upload_method_ENUMTYPE Uploadmethod
 #define UserConfiguration_enabled_sensors_ENUMTYPE EnabledSensor
 
+
+
 /* Initializer values for message structs */
-#define MeasurementMetadata_init_default {0, 0, 0}
-#define PowerMeasurement_init_default {0, 0}
-#define Teros12Measurement_init_default {0, 0, 0, 0}
-#define Teros21Measurement_init_default {0, 0}
-#define Phytos31Measurement_init_default {0, 0}
-#define BME280Measurement_init_default {0, 0, 0}
-#define SEN0308Measurement_init_default {0, 0}
-#define SEN0257Measurement_init_default {0, 0}
-#define YFS210CMeasurement_init_default {0}
-#define PCAP02Measurement_init_default {0}
-#define Measurement_init_default                                               \
-  {                                                                            \
-    false, MeasurementMetadata_init_default, 0, {                              \
-      PowerMeasurement_init_default                                            \
-    }                                                                          \
-  }
-#define Response_init_default {_Response_ResponseType_MIN}
-#define Esp32Command_init_default                                              \
-  {                                                                            \
-    0, { PageCommand_init_default }                                            \
-  }
-#define PageCommand_init_default {_PageCommand_RequestType_MIN, 0, 0, 0}
-#define TestCommand_init_default {_TestCommand_ChangeState_MIN, 0}
-#define WiFiCommand_init_default                                               \
-  {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, "", 0}
-#define UserConfigCommand_init_default                                         \
-  {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_default}
-#define MicroSDCommand_init_default                                            \
-  {                                                                            \
-    _MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {         \
-      Measurement_init_default                                                 \
-    }                                                                          \
-  }
-#define IrrigationCommand_init_default                                         \
-  {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
-#define PowerCommand_init_default                                              \
-  {_PowerCommand_Type_MIN, _PowerCommand_WakeupReason_MIN, 0}
-#define UserConfiguration_init_default                                         \
-  {0,                                                                          \
-   0,                                                                          \
-   _Uploadmethod_MIN,                                                          \
-   0,                                                                          \
-   0,                                                                          \
-   {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN,                \
-    _EnabledSensor_MIN, _EnabledSensor_MIN},                                   \
-   0,                                                                          \
-   0,                                                                          \
-   0,                                                                          \
-   0,                                                                          \
-   "",                                                                         \
-   "",                                                                         \
-   "",                                                                         \
-   0}
-#define MeasurementMetadata_init_zero {0, 0, 0}
-#define PowerMeasurement_init_zero {0, 0}
-#define Teros12Measurement_init_zero {0, 0, 0, 0}
-#define Teros21Measurement_init_zero {0, 0}
-#define Phytos31Measurement_init_zero {0, 0}
-#define BME280Measurement_init_zero {0, 0, 0}
-#define SEN0308Measurement_init_zero {0, 0}
-#define SEN0257Measurement_init_zero {0, 0}
-#define YFS210CMeasurement_init_zero {0}
-#define PCAP02Measurement_init_zero {0}
-#define Measurement_init_zero                                                  \
-  {                                                                            \
-    false, MeasurementMetadata_init_zero, 0, { PowerMeasurement_init_zero }    \
-  }
-#define Response_init_zero {_Response_ResponseType_MIN}
-#define Esp32Command_init_zero                                                 \
-  {                                                                            \
-    0, { PageCommand_init_zero }                                               \
-  }
-#define PageCommand_init_zero {_PageCommand_RequestType_MIN, 0, 0, 0}
-#define TestCommand_init_zero {_TestCommand_ChangeState_MIN, 0}
-#define WiFiCommand_init_zero                                                  \
-  {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, "", 0}
-#define UserConfigCommand_init_zero                                            \
-  {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_zero}
-#define MicroSDCommand_init_zero                                               \
-  {                                                                            \
-    _MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {         \
-      Measurement_init_zero                                                    \
-    }                                                                          \
-  }
-#define IrrigationCommand_init_zero                                            \
-  {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
-#define PowerCommand_init_zero                                                 \
-  {_PowerCommand_Type_MIN, _PowerCommand_WakeupReason_MIN, 0}
-#define UserConfiguration_init_zero                                            \
-  {0,                                                                          \
-   0,                                                                          \
-   _Uploadmethod_MIN,                                                          \
-   0,                                                                          \
-   0,                                                                          \
-   {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN,                \
-    _EnabledSensor_MIN, _EnabledSensor_MIN},                                   \
-   0,                                                                          \
-   0,                                                                          \
-   0,                                                                          \
-   0,                                                                          \
-   "",                                                                         \
-   "",                                                                         \
-   "",                                                                         \
-   0}
+#define MeasurementMetadata_init_default         {0, 0, 0}
+#define PowerMeasurement_init_default            {0, 0}
+#define VoltageDeltaMeasurement_init_default     {0}
+#define CurrentDeltaMeasurement_init_default     {0}
+#define VoltageMeasurement_init_default          {0}
+#define CurrentMeasurement_init_default          {0}
+#define PowerDeltaEntry_init_default             {0, 0, 0}
+#define PowerMeasurementDelta_init_default       {0, 0}
+#define RepeatedPowerDeltas_init_default         {0, 0, {{NULL}, NULL}}
+#define Teros12Measurement_init_default          {0, 0, 0, 0}
+#define Teros21Measurement_init_default          {0, 0}
+#define Phytos31Measurement_init_default         {0, 0}
+#define BME280Measurement_init_default           {0, 0, 0}
+#define SEN0308Measurement_init_default          {0, 0}
+#define SEN0257Measurement_init_default          {0, 0}
+#define YFS210CMeasurement_init_default          {0}
+#define PCAP02Measurement_init_default           {0}
+#define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
+#define Response_init_default                    {_Response_ResponseType_MIN}
+#define Esp32Command_init_default                {0, {PageCommand_init_default}}
+#define PageCommand_init_default                 {_PageCommand_RequestType_MIN, 0, 0, 0}
+#define TestCommand_init_default                 {_TestCommand_ChangeState_MIN, 0}
+#define WiFiCommand_init_default                 {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, "", 0}
+#define UserConfigCommand_init_default           {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_default}
+#define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_default}}
+#define IrrigationCommand_init_default           {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
+#define PowerCommand_init_default                {_PowerCommand_Type_MIN, _PowerCommand_WakeupReason_MIN, 0}
+#define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
+#define adcValue_init_default                    {0}
+#define MeasurementMetadata_init_zero            {0, 0, 0}
+#define PowerMeasurement_init_zero               {0, 0}
+#define VoltageDeltaMeasurement_init_zero        {0}
+#define CurrentDeltaMeasurement_init_zero        {0}
+#define VoltageMeasurement_init_zero             {0}
+#define CurrentMeasurement_init_zero             {0}
+#define PowerDeltaEntry_init_zero                {0, 0, 0}
+#define PowerMeasurementDelta_init_zero          {0, 0}
+#define RepeatedPowerDeltas_init_zero            {0, 0, {{NULL}, NULL}}
+#define Teros12Measurement_init_zero             {0, 0, 0, 0}
+#define Teros21Measurement_init_zero             {0, 0}
+#define Phytos31Measurement_init_zero            {0, 0}
+#define BME280Measurement_init_zero              {0, 0, 0}
+#define SEN0308Measurement_init_zero             {0, 0}
+#define SEN0257Measurement_init_zero             {0, 0}
+#define YFS210CMeasurement_init_zero             {0}
+#define PCAP02Measurement_init_zero              {0}
+#define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
+#define Response_init_zero                       {_Response_ResponseType_MIN}
+#define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
+#define PageCommand_init_zero                    {_PageCommand_RequestType_MIN, 0, 0, 0}
+#define TestCommand_init_zero                    {_TestCommand_ChangeState_MIN, 0}
+#define WiFiCommand_init_zero                    {_WiFiCommand_Type_MIN, "", "", "", 0, 0, {0, {0}}, 0, "", 0}
+#define UserConfigCommand_init_zero              {_UserConfigCommand_RequestType_MIN, false, UserConfiguration_init_zero}
+#define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_zero}}
+#define IrrigationCommand_init_zero              {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
+#define PowerCommand_init_zero                   {_PowerCommand_Type_MIN, _PowerCommand_WakeupReason_MIN, 0}
+#define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
+#define adcValue_init_zero                       {0}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define MeasurementMetadata_cell_id_tag 1
-#define MeasurementMetadata_logger_id_tag 2
-#define MeasurementMetadata_ts_tag 3
-#define PowerMeasurement_voltage_tag 2
-#define PowerMeasurement_current_tag 3
-#define Teros12Measurement_vwc_raw_tag 2
-#define Teros12Measurement_vwc_adj_tag 3
-#define Teros12Measurement_temp_tag 4
-#define Teros12Measurement_ec_tag 5
-#define Teros21Measurement_matric_pot_tag 1
-#define Teros21Measurement_temp_tag 2
-#define Phytos31Measurement_voltage_tag 1
-#define Phytos31Measurement_leaf_wetness_tag 2
-#define BME280Measurement_pressure_tag 1
-#define BME280Measurement_temperature_tag 2
-#define BME280Measurement_humidity_tag 3
-#define SEN0308Measurement_voltage_tag 1
-#define SEN0308Measurement_humidity_tag 2
-#define SEN0257Measurement_voltage_tag 1
-#define SEN0257Measurement_pressure_tag 2
-#define YFS210CMeasurement_flow_tag 1
-#define PCAP02Measurement_capacitance_tag 1
-#define Measurement_meta_tag 1
-#define Measurement_power_tag 2
-#define Measurement_teros12_tag 3
-#define Measurement_phytos31_tag 4
-#define Measurement_bme280_tag 5
-#define Measurement_teros21_tag 6
-#define Measurement_sen0308_tag 7
-#define Measurement_sen0257_tag 8
-#define Measurement_yfs210c_tag 9
-#define Measurement_pcap02_tag 10
-#define Response_resp_tag 1
-#define PageCommand_file_request_tag 1
-#define PageCommand_file_descriptor_tag 2
-#define PageCommand_block_size_tag 3
-#define PageCommand_num_bytes_tag 4
-#define TestCommand_state_tag 1
-#define TestCommand_data_tag 2
-#define WiFiCommand_type_tag 1
-#define WiFiCommand_ssid_tag 2
-#define WiFiCommand_passwd_tag 3
-#define WiFiCommand_url_tag 4
-#define WiFiCommand_rc_tag 5
-#define WiFiCommand_ts_tag 6
-#define WiFiCommand_resp_tag 7
-#define WiFiCommand_port_tag 8
-#define WiFiCommand_mac_tag 9
-#define WiFiCommand_clients_tag 10
-#define IrrigationCommand_type_tag 1
-#define IrrigationCommand_state_tag 2
-#define PowerCommand_type_tag 1
-#define PowerCommand_reason_tag 2
-#define PowerCommand_boot_count_tag 3
-#define UserConfiguration_logger_id_tag 1
-#define UserConfiguration_cell_id_tag 2
-#define UserConfiguration_Upload_method_tag 3
-#define UserConfiguration_Upload_interval_tag 4
-#define UserConfiguration_enabled_sensors_tag 5
-#define UserConfiguration_Voltage_Slope_tag 6
-#define UserConfiguration_Voltage_Offset_tag 7
-#define UserConfiguration_Current_Slope_tag 8
-#define UserConfiguration_Current_Offset_tag 9
-#define UserConfiguration_WiFi_SSID_tag 10
-#define UserConfiguration_WiFi_Password_tag 11
-#define UserConfiguration_API_Endpoint_URL_tag 12
-#define UserConfiguration_API_Endpoint_Port_tag 13
-#define UserConfigCommand_type_tag 1
-#define UserConfigCommand_config_data_tag 2
-#define MicroSDCommand_type_tag 1
-#define MicroSDCommand_filename_tag 2
-#define MicroSDCommand_rc_tag 3
-#define MicroSDCommand_meas_tag 4
-#define MicroSDCommand_uc_tag 5
-#define Esp32Command_page_command_tag 1
-#define Esp32Command_test_command_tag 2
-#define Esp32Command_wifi_command_tag 3
-#define Esp32Command_microsd_command_tag 4
-#define Esp32Command_irrigation_command_tag 5
-#define Esp32Command_user_config_command_tag 6
-#define Esp32Command_power_command_tag 7
+#define MeasurementMetadata_cell_id_tag          1
+#define MeasurementMetadata_logger_id_tag        2
+#define MeasurementMetadata_ts_tag               3
+#define PowerMeasurement_voltage_tag             2
+#define PowerMeasurement_current_tag             3
+#define VoltageDeltaMeasurement_voltage_tag      1
+#define CurrentDeltaMeasurement_current_tag      1
+#define VoltageMeasurement_voltage_tag           1
+#define CurrentMeasurement_current_tag           1
+#define PowerDeltaEntry_ts_tag                   1
+#define PowerDeltaEntry_voltage_delta_tag        2
+#define PowerDeltaEntry_current_delta_tag        3
+#define PowerMeasurementDelta_voltage_delta_tag  2
+#define PowerMeasurementDelta_current_delta_tag  3
+#define RepeatedPowerDeltas_logger_id_tag        1
+#define RepeatedPowerDeltas_cell_id_tag          2
+#define RepeatedPowerDeltas_entries_tag          3
+#define Teros12Measurement_vwc_raw_tag           2
+#define Teros12Measurement_vwc_adj_tag           3
+#define Teros12Measurement_temp_tag              4
+#define Teros12Measurement_ec_tag                5
+#define Teros21Measurement_matric_pot_tag        1
+#define Teros21Measurement_temp_tag              2
+#define Phytos31Measurement_voltage_tag          1
+#define Phytos31Measurement_leaf_wetness_tag     2
+#define BME280Measurement_pressure_tag           1
+#define BME280Measurement_temperature_tag        2
+#define BME280Measurement_humidity_tag           3
+#define SEN0308Measurement_voltage_tag           1
+#define SEN0308Measurement_humidity_tag          2
+#define SEN0257Measurement_voltage_tag           1
+#define SEN0257Measurement_pressure_tag          2
+#define YFS210CMeasurement_flow_tag              1
+#define PCAP02Measurement_capacitance_tag        1
+#define Measurement_meta_tag                     1
+#define Measurement_power_tag                    2
+#define Measurement_teros12_tag                  3
+#define Measurement_phytos31_tag                 4
+#define Measurement_bme280_tag                   5
+#define Measurement_teros21_tag                  6
+#define Measurement_sen0308_tag                  7
+#define Measurement_sen0257_tag                  8
+#define Measurement_yfs210c_tag                  9
+#define Measurement_pcap02_tag                   10
+#define Response_resp_tag                        1
+#define PageCommand_file_request_tag             1
+#define PageCommand_file_descriptor_tag          2
+#define PageCommand_block_size_tag               3
+#define PageCommand_num_bytes_tag                4
+#define TestCommand_state_tag                    1
+#define TestCommand_data_tag                     2
+#define WiFiCommand_type_tag                     1
+#define WiFiCommand_ssid_tag                     2
+#define WiFiCommand_passwd_tag                   3
+#define WiFiCommand_url_tag                      4
+#define WiFiCommand_rc_tag                       5
+#define WiFiCommand_ts_tag                       6
+#define WiFiCommand_resp_tag                     7
+#define WiFiCommand_port_tag                     8
+#define WiFiCommand_mac_tag                      9
+#define WiFiCommand_clients_tag                  10
+#define IrrigationCommand_type_tag               1
+#define IrrigationCommand_state_tag              2
+#define PowerCommand_type_tag                    1
+#define PowerCommand_reason_tag                  2
+#define PowerCommand_boot_count_tag              3
+#define UserConfiguration_logger_id_tag          1
+#define UserConfiguration_cell_id_tag            2
+#define UserConfiguration_Upload_method_tag      3
+#define UserConfiguration_Upload_interval_tag    4
+#define UserConfiguration_enabled_sensors_tag    5
+#define UserConfiguration_Voltage_Slope_tag      6
+#define UserConfiguration_Voltage_Offset_tag     7
+#define UserConfiguration_Current_Slope_tag      8
+#define UserConfiguration_Current_Offset_tag     9
+#define UserConfiguration_WiFi_SSID_tag          10
+#define UserConfiguration_WiFi_Password_tag      11
+#define UserConfiguration_API_Endpoint_URL_tag   12
+#define UserConfiguration_API_Endpoint_Port_tag  13
+#define UserConfigCommand_type_tag               1
+#define UserConfigCommand_config_data_tag        2
+#define MicroSDCommand_type_tag                  1
+#define MicroSDCommand_filename_tag              2
+#define MicroSDCommand_rc_tag                    3
+#define MicroSDCommand_meas_tag                  4
+#define MicroSDCommand_uc_tag                    5
+#define Esp32Command_page_command_tag            1
+#define Esp32Command_test_command_tag            2
+#define Esp32Command_wifi_command_tag            3
+#define Esp32Command_microsd_command_tag         4
+#define Esp32Command_irrigation_command_tag      5
+#define Esp32Command_user_config_command_tag     6
+#define Esp32Command_power_command_tag           7
+#define adcValue_adc_tag                         1
 
 /* Struct field encoding specification for nanopb */
-#define MeasurementMetadata_FIELDLIST(X, a)                                    \
-  X(a, STATIC, SINGULAR, UINT32, cell_id, 1)                                   \
-  X(a, STATIC, SINGULAR, UINT32, logger_id, 2)                                 \
-  X(a, STATIC, SINGULAR, UINT32, ts, 3)
+#define MeasurementMetadata_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   cell_id,           1) \
+X(a, STATIC,   SINGULAR, UINT32,   logger_id,         2) \
+X(a, STATIC,   SINGULAR, UINT32,   ts,                3)
 #define MeasurementMetadata_CALLBACK NULL
 #define MeasurementMetadata_DEFAULT NULL
 
-#define PowerMeasurement_FIELDLIST(X, a)                                       \
-  X(a, STATIC, SINGULAR, DOUBLE, voltage, 2)                                   \
-  X(a, STATIC, SINGULAR, DOUBLE, current, 3)
+#define PowerMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           2) \
+X(a, STATIC,   SINGULAR, DOUBLE,   current,           3)
 #define PowerMeasurement_CALLBACK NULL
 #define PowerMeasurement_DEFAULT NULL
 
-#define Teros12Measurement_FIELDLIST(X, a)                                     \
-  X(a, STATIC, SINGULAR, DOUBLE, vwc_raw, 2)                                   \
-  X(a, STATIC, SINGULAR, DOUBLE, vwc_adj, 3)                                   \
-  X(a, STATIC, SINGULAR, DOUBLE, temp, 4)                                      \
-  X(a, STATIC, SINGULAR, UINT32, ec, 5)
+#define VoltageDeltaMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   voltage,           1)
+#define VoltageDeltaMeasurement_CALLBACK NULL
+#define VoltageDeltaMeasurement_DEFAULT NULL
+
+#define CurrentDeltaMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   current,           1)
+#define CurrentDeltaMeasurement_CALLBACK NULL
+#define CurrentDeltaMeasurement_DEFAULT NULL
+
+#define VoltageMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1)
+#define VoltageMeasurement_CALLBACK NULL
+#define VoltageMeasurement_DEFAULT NULL
+
+#define CurrentMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   current,           1)
+#define CurrentMeasurement_CALLBACK NULL
+#define CurrentMeasurement_DEFAULT NULL
+
+#define PowerDeltaEntry_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   ts,                1) \
+X(a, STATIC,   SINGULAR, UINT32,   voltage_delta,     2) \
+X(a, STATIC,   SINGULAR, UINT32,   current_delta,     3)
+#define PowerDeltaEntry_CALLBACK NULL
+#define PowerDeltaEntry_DEFAULT NULL
+
+#define PowerMeasurementDelta_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   voltage_delta,     2) \
+X(a, STATIC,   SINGULAR, UINT32,   current_delta,     3)
+#define PowerMeasurementDelta_CALLBACK NULL
+#define PowerMeasurementDelta_DEFAULT NULL
+
+#define RepeatedPowerDeltas_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   logger_id,         1) \
+X(a, STATIC,   SINGULAR, UINT32,   cell_id,           2) \
+X(a, CALLBACK, REPEATED, MESSAGE,  entries,           3)
+#define RepeatedPowerDeltas_CALLBACK pb_default_field_callback
+#define RepeatedPowerDeltas_DEFAULT NULL
+#define RepeatedPowerDeltas_entries_MSGTYPE PowerDeltaEntry
+
+#define Teros12Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   vwc_raw,           2) \
+X(a, STATIC,   SINGULAR, DOUBLE,   vwc_adj,           3) \
+X(a, STATIC,   SINGULAR, DOUBLE,   temp,              4) \
+X(a, STATIC,   SINGULAR, UINT32,   ec,                5)
 #define Teros12Measurement_CALLBACK NULL
 #define Teros12Measurement_DEFAULT NULL
 
-#define Teros21Measurement_FIELDLIST(X, a)                                     \
-  X(a, STATIC, SINGULAR, DOUBLE, matric_pot, 1)                                \
-  X(a, STATIC, SINGULAR, DOUBLE, temp, 2)
+#define Teros21Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   matric_pot,        1) \
+X(a, STATIC,   SINGULAR, DOUBLE,   temp,              2)
 #define Teros21Measurement_CALLBACK NULL
 #define Teros21Measurement_DEFAULT NULL
 
-#define Phytos31Measurement_FIELDLIST(X, a)                                    \
-  X(a, STATIC, SINGULAR, DOUBLE, voltage, 1)                                   \
-  X(a, STATIC, SINGULAR, DOUBLE, leaf_wetness, 2)
+#define Phytos31Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
+X(a, STATIC,   SINGULAR, DOUBLE,   leaf_wetness,      2)
 #define Phytos31Measurement_CALLBACK NULL
 #define Phytos31Measurement_DEFAULT NULL
 
-#define BME280Measurement_FIELDLIST(X, a)                                      \
-  X(a, STATIC, SINGULAR, UINT32, pressure, 1)                                  \
-  X(a, STATIC, SINGULAR, INT32, temperature, 2)                                \
-  X(a, STATIC, SINGULAR, UINT32, humidity, 3)
+#define BME280Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   pressure,          1) \
+X(a, STATIC,   SINGULAR, INT32,    temperature,       2) \
+X(a, STATIC,   SINGULAR, UINT32,   humidity,          3)
 #define BME280Measurement_CALLBACK NULL
 #define BME280Measurement_DEFAULT NULL
 
-#define SEN0308Measurement_FIELDLIST(X, a)                                     \
-  X(a, STATIC, SINGULAR, DOUBLE, voltage, 1)                                   \
-  X(a, STATIC, SINGULAR, DOUBLE, humidity, 2)
+#define SEN0308Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
+X(a, STATIC,   SINGULAR, DOUBLE,   humidity,          2)
 #define SEN0308Measurement_CALLBACK NULL
 #define SEN0308Measurement_DEFAULT NULL
 
-#define SEN0257Measurement_FIELDLIST(X, a)                                     \
-  X(a, STATIC, SINGULAR, DOUBLE, voltage, 1)                                   \
-  X(a, STATIC, SINGULAR, DOUBLE, pressure, 2)
+#define SEN0257Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1) \
+X(a, STATIC,   SINGULAR, DOUBLE,   pressure,          2)
 #define SEN0257Measurement_CALLBACK NULL
 #define SEN0257Measurement_DEFAULT NULL
 
-#define YFS210CMeasurement_FIELDLIST(X, a)                                     \
-  X(a, STATIC, SINGULAR, DOUBLE, flow, 1)
+#define YFS210CMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   flow,              1)
 #define YFS210CMeasurement_CALLBACK NULL
 #define YFS210CMeasurement_DEFAULT NULL
 
-#define PCAP02Measurement_FIELDLIST(X, a)                                      \
-  X(a, STATIC, SINGULAR, DOUBLE, capacitance, 1)
+#define PCAP02Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   capacitance,       1)
 #define PCAP02Measurement_CALLBACK NULL
 #define PCAP02Measurement_DEFAULT NULL
 
-#define Measurement_FIELDLIST(X, a)                                            \
-  X(a, STATIC, OPTIONAL, MESSAGE, meta, 1)                                     \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, power, measurement.power), 2)     \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, teros12, measurement.teros12), 3) \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, phytos31, measurement.phytos31),  \
-    4)                                                                         \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, bme280, measurement.bme280), 5)   \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, teros21, measurement.teros21), 6) \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, sen0308, measurement.sen0308), 7) \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, sen0257, measurement.sen0257), 8) \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, yfs210c, measurement.yfs210c), 9) \
-  X(a, STATIC, ONEOF, MESSAGE, (measurement, pcap02, measurement.pcap02), 10)
+#define Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power,measurement.power),   2) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros12,measurement.teros12),   3) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,phytos31,measurement.phytos31),   4) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,bme280,measurement.bme280),   5) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   6) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0308,measurement.sen0308),   7) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   9) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -727,25 +814,19 @@ extern "C" {
 #define Measurement_measurement_yfs210c_MSGTYPE YFS210CMeasurement
 #define Measurement_measurement_pcap02_MSGTYPE PCAP02Measurement
 
-#define Response_FIELDLIST(X, a) X(a, STATIC, SINGULAR, UENUM, resp, 1)
+#define Response_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
 #define Response_CALLBACK NULL
 #define Response_DEFAULT NULL
 
-#define Esp32Command_FIELDLIST(X, a)                                           \
-  X(a, STATIC, ONEOF, MESSAGE, (command, page_command, command.page_command),  \
-    1)                                                                         \
-  X(a, STATIC, ONEOF, MESSAGE, (command, test_command, command.test_command),  \
-    2)                                                                         \
-  X(a, STATIC, ONEOF, MESSAGE, (command, wifi_command, command.wifi_command),  \
-    3)                                                                         \
-  X(a, STATIC, ONEOF, MESSAGE,                                                 \
-    (command, microsd_command, command.microsd_command), 4)                    \
-  X(a, STATIC, ONEOF, MESSAGE,                                                 \
-    (command, irrigation_command, command.irrigation_command), 5)              \
-  X(a, STATIC, ONEOF, MESSAGE,                                                 \
-    (command, user_config_command, command.user_config_command), 6)            \
-  X(a, STATIC, ONEOF, MESSAGE,                                                 \
-    (command, power_command, command.power_command), 7)
+#define Esp32Command_FIELDLIST(X, a) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,page_command,command.page_command),   1) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,test_command,command.test_command),   2) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,wifi_command,command.wifi_command),   3) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,microsd_command,command.microsd_command),   4) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,irrigation_command,command.irrigation_command),   5) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,user_config_command,command.user_config_command),   6) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (command,power_command,command.power_command),   7)
 #define Esp32Command_CALLBACK NULL
 #define Esp32Command_DEFAULT NULL
 #define Esp32Command_command_page_command_MSGTYPE PageCommand
@@ -756,84 +837,96 @@ extern "C" {
 #define Esp32Command_command_user_config_command_MSGTYPE UserConfigCommand
 #define Esp32Command_command_power_command_MSGTYPE PowerCommand
 
-#define PageCommand_FIELDLIST(X, a)                                            \
-  X(a, STATIC, SINGULAR, UENUM, file_request, 1)                               \
-  X(a, STATIC, SINGULAR, UINT32, file_descriptor, 2)                           \
-  X(a, STATIC, SINGULAR, UINT32, block_size, 3)                                \
-  X(a, STATIC, SINGULAR, UINT32, num_bytes, 4)
+#define PageCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    file_request,      1) \
+X(a, STATIC,   SINGULAR, UINT32,   file_descriptor,   2) \
+X(a, STATIC,   SINGULAR, UINT32,   block_size,        3) \
+X(a, STATIC,   SINGULAR, UINT32,   num_bytes,         4)
 #define PageCommand_CALLBACK NULL
 #define PageCommand_DEFAULT NULL
 
-#define TestCommand_FIELDLIST(X, a)                                            \
-  X(a, STATIC, SINGULAR, UENUM, state, 1)                                      \
-  X(a, STATIC, SINGULAR, INT32, data, 2)
+#define TestCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    state,             1) \
+X(a, STATIC,   SINGULAR, INT32,    data,              2)
 #define TestCommand_CALLBACK NULL
 #define TestCommand_DEFAULT NULL
 
-#define WiFiCommand_FIELDLIST(X, a)                                            \
-  X(a, STATIC, SINGULAR, UENUM, type, 1)                                       \
-  X(a, STATIC, SINGULAR, STRING, ssid, 2)                                      \
-  X(a, STATIC, SINGULAR, STRING, passwd, 3)                                    \
-  X(a, STATIC, SINGULAR, STRING, url, 4)                                       \
-  X(a, STATIC, SINGULAR, UINT32, rc, 5)                                        \
-  X(a, STATIC, SINGULAR, UINT32, ts, 6)                                        \
-  X(a, STATIC, SINGULAR, BYTES, resp, 7)                                       \
-  X(a, STATIC, SINGULAR, UINT32, port, 8)                                      \
-  X(a, STATIC, SINGULAR, STRING, mac, 9)                                       \
-  X(a, STATIC, SINGULAR, UINT32, clients, 10)
+#define WiFiCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
+X(a, STATIC,   SINGULAR, STRING,   ssid,              2) \
+X(a, STATIC,   SINGULAR, STRING,   passwd,            3) \
+X(a, STATIC,   SINGULAR, STRING,   url,               4) \
+X(a, STATIC,   SINGULAR, UINT32,   rc,                5) \
+X(a, STATIC,   SINGULAR, UINT32,   ts,                6) \
+X(a, STATIC,   SINGULAR, BYTES,    resp,              7) \
+X(a, STATIC,   SINGULAR, UINT32,   port,              8) \
+X(a, STATIC,   SINGULAR, STRING,   mac,               9) \
+X(a, STATIC,   SINGULAR, UINT32,   clients,          10)
 #define WiFiCommand_CALLBACK NULL
 #define WiFiCommand_DEFAULT NULL
 
-#define UserConfigCommand_FIELDLIST(X, a)                                      \
-  X(a, STATIC, SINGULAR, UENUM, type, 1)                                       \
-  X(a, STATIC, OPTIONAL, MESSAGE, config_data, 2)
+#define UserConfigCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  config_data,       2)
 #define UserConfigCommand_CALLBACK NULL
 #define UserConfigCommand_DEFAULT NULL
 #define UserConfigCommand_config_data_MSGTYPE UserConfiguration
 
-#define MicroSDCommand_FIELDLIST(X, a)                                         \
-  X(a, STATIC, SINGULAR, UENUM, type, 1)                                       \
-  X(a, STATIC, SINGULAR, STRING, filename, 2)                                  \
-  X(a, STATIC, SINGULAR, UENUM, rc, 3)                                         \
-  X(a, STATIC, ONEOF, MESSAGE, (data, meas, data.meas), 4)                     \
-  X(a, STATIC, ONEOF, MESSAGE, (data, uc, data.uc), 5)
+#define MicroSDCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
+X(a, STATIC,   SINGULAR, STRING,   filename,          2) \
+X(a, STATIC,   SINGULAR, UENUM,    rc,                3) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (data,meas,data.meas),   4) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (data,uc,data.uc),   5)
 #define MicroSDCommand_CALLBACK NULL
 #define MicroSDCommand_DEFAULT NULL
 #define MicroSDCommand_data_meas_MSGTYPE Measurement
 #define MicroSDCommand_data_uc_MSGTYPE UserConfiguration
 
-#define IrrigationCommand_FIELDLIST(X, a)                                      \
-  X(a, STATIC, SINGULAR, UENUM, type, 1)                                       \
-  X(a, STATIC, SINGULAR, UENUM, state, 2)
+#define IrrigationCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
+X(a, STATIC,   SINGULAR, UENUM,    state,             2)
 #define IrrigationCommand_CALLBACK NULL
 #define IrrigationCommand_DEFAULT NULL
 
-#define PowerCommand_FIELDLIST(X, a)                                           \
-  X(a, STATIC, SINGULAR, UENUM, type, 1)                                       \
-  X(a, STATIC, SINGULAR, UENUM, reason, 2)                                     \
-  X(a, STATIC, SINGULAR, UINT32, boot_count, 3)
+#define PowerCommand_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
+X(a, STATIC,   SINGULAR, UENUM,    reason,            2) \
+X(a, STATIC,   SINGULAR, UINT32,   boot_count,        3)
 #define PowerCommand_CALLBACK NULL
 #define PowerCommand_DEFAULT NULL
 
-#define UserConfiguration_FIELDLIST(X, a)                                      \
-  X(a, STATIC, SINGULAR, UINT32, logger_id, 1)                                 \
-  X(a, STATIC, SINGULAR, UINT32, cell_id, 2)                                   \
-  X(a, STATIC, SINGULAR, UENUM, Upload_method, 3)                              \
-  X(a, STATIC, SINGULAR, UINT32, Upload_interval, 4)                           \
-  X(a, STATIC, REPEATED, UENUM, enabled_sensors, 5)                            \
-  X(a, STATIC, SINGULAR, DOUBLE, Voltage_Slope, 6)                             \
-  X(a, STATIC, SINGULAR, DOUBLE, Voltage_Offset, 7)                            \
-  X(a, STATIC, SINGULAR, DOUBLE, Current_Slope, 8)                             \
-  X(a, STATIC, SINGULAR, DOUBLE, Current_Offset, 9)                            \
-  X(a, STATIC, SINGULAR, STRING, WiFi_SSID, 10)                                \
-  X(a, STATIC, SINGULAR, STRING, WiFi_Password, 11)                            \
-  X(a, STATIC, SINGULAR, STRING, API_Endpoint_URL, 12)                         \
-  X(a, STATIC, SINGULAR, UINT32, API_Endpoint_Port, 13)
+#define UserConfiguration_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   logger_id,         1) \
+X(a, STATIC,   SINGULAR, UINT32,   cell_id,           2) \
+X(a, STATIC,   SINGULAR, UENUM,    Upload_method,     3) \
+X(a, STATIC,   SINGULAR, UINT32,   Upload_interval,   4) \
+X(a, STATIC,   REPEATED, UENUM,    enabled_sensors,   5) \
+X(a, STATIC,   SINGULAR, DOUBLE,   Voltage_Slope,     6) \
+X(a, STATIC,   SINGULAR, DOUBLE,   Voltage_Offset,    7) \
+X(a, STATIC,   SINGULAR, DOUBLE,   Current_Slope,     8) \
+X(a, STATIC,   SINGULAR, DOUBLE,   Current_Offset,    9) \
+X(a, STATIC,   SINGULAR, STRING,   WiFi_SSID,        10) \
+X(a, STATIC,   SINGULAR, STRING,   WiFi_Password,    11) \
+X(a, STATIC,   SINGULAR, STRING,   API_Endpoint_URL,  12) \
+X(a, STATIC,   SINGULAR, UINT32,   API_Endpoint_Port,  13)
 #define UserConfiguration_CALLBACK NULL
 #define UserConfiguration_DEFAULT NULL
 
+#define adcValue_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   adc,               1)
+#define adcValue_CALLBACK NULL
+#define adcValue_DEFAULT NULL
+
 extern const pb_msgdesc_t MeasurementMetadata_msg;
 extern const pb_msgdesc_t PowerMeasurement_msg;
+extern const pb_msgdesc_t VoltageDeltaMeasurement_msg;
+extern const pb_msgdesc_t CurrentDeltaMeasurement_msg;
+extern const pb_msgdesc_t VoltageMeasurement_msg;
+extern const pb_msgdesc_t CurrentMeasurement_msg;
+extern const pb_msgdesc_t PowerDeltaEntry_msg;
+extern const pb_msgdesc_t PowerMeasurementDelta_msg;
+extern const pb_msgdesc_t RepeatedPowerDeltas_msg;
 extern const pb_msgdesc_t Teros12Measurement_msg;
 extern const pb_msgdesc_t Teros21Measurement_msg;
 extern const pb_msgdesc_t Phytos31Measurement_msg;
@@ -853,10 +946,18 @@ extern const pb_msgdesc_t MicroSDCommand_msg;
 extern const pb_msgdesc_t IrrigationCommand_msg;
 extern const pb_msgdesc_t PowerCommand_msg;
 extern const pb_msgdesc_t UserConfiguration_msg;
+extern const pb_msgdesc_t adcValue_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define MeasurementMetadata_fields &MeasurementMetadata_msg
 #define PowerMeasurement_fields &PowerMeasurement_msg
+#define VoltageDeltaMeasurement_fields &VoltageDeltaMeasurement_msg
+#define CurrentDeltaMeasurement_fields &CurrentDeltaMeasurement_msg
+#define VoltageMeasurement_fields &VoltageMeasurement_msg
+#define CurrentMeasurement_fields &CurrentMeasurement_msg
+#define PowerDeltaEntry_fields &PowerDeltaEntry_msg
+#define PowerMeasurementDelta_fields &PowerMeasurementDelta_msg
+#define RepeatedPowerDeltas_fields &RepeatedPowerDeltas_msg
 #define Teros12Measurement_fields &Teros12Measurement_msg
 #define Teros21Measurement_fields &Teros21Measurement_msg
 #define Phytos31Measurement_fields &Phytos31Measurement_msg
@@ -876,30 +977,39 @@ extern const pb_msgdesc_t UserConfiguration_msg;
 #define IrrigationCommand_fields &IrrigationCommand_msg
 #define PowerCommand_fields &PowerCommand_msg
 #define UserConfiguration_fields &UserConfiguration_msg
+#define adcValue_fields &adcValue_msg
 
 /* Maximum encoded size of messages (where known) */
-#define BME280Measurement_size 23
-#define Esp32Command_size 632
-#define IrrigationCommand_size 4
-#define MeasurementMetadata_size 18
-#define Measurement_size 55
-#define MicroSDCommand_size 503
-#define PCAP02Measurement_size 9
-#define PageCommand_size 20
-#define Phytos31Measurement_size 18
-#define PowerCommand_size 10
-#define PowerMeasurement_size 18
-#define Response_size 2
-#define SEN0257Measurement_size 18
-#define SEN0308Measurement_size 18
-#define SOIL_POWER_SENSOR_PB_H_MAX_SIZE Esp32Command_size
-#define Teros12Measurement_size 33
-#define Teros21Measurement_size 18
-#define TestCommand_size 13
-#define UserConfigCommand_size 243
-#define UserConfiguration_size 238
-#define WiFiCommand_size 629
-#define YFS210CMeasurement_size 9
+/* RepeatedPowerDeltas_size depends on runtime parameters */
+#define BME280Measurement_size                   23
+#define CurrentDeltaMeasurement_size             6
+#define CurrentMeasurement_size                  9
+#define Esp32Command_size                        632
+#define IrrigationCommand_size                   4
+#define MeasurementMetadata_size                 18
+#define Measurement_size                         55
+#define MicroSDCommand_size                      503
+#define PCAP02Measurement_size                   9
+#define PageCommand_size                         20
+#define Phytos31Measurement_size                 18
+#define PowerCommand_size                        10
+#define PowerDeltaEntry_size                     18
+#define PowerMeasurementDelta_size               12
+#define PowerMeasurement_size                    18
+#define Response_size                            2
+#define SEN0257Measurement_size                  18
+#define SEN0308Measurement_size                  18
+#define SOIL_POWER_SENSOR_PB_H_MAX_SIZE          Esp32Command_size
+#define Teros12Measurement_size                  33
+#define Teros21Measurement_size                  18
+#define TestCommand_size                         13
+#define UserConfigCommand_size                   243
+#define UserConfiguration_size                   238
+#define VoltageDeltaMeasurement_size             6
+#define VoltageMeasurement_size                  9
+#define WiFiCommand_size                         629
+#define YFS210CMeasurement_size                  9
+#define adcValue_size                            6
 
 #ifdef __cplusplus
 } /* extern "C" */

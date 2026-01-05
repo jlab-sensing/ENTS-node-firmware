@@ -23,13 +23,87 @@ message MeasurementMetadata {
   uint32 ts = 3;
 }
 
-/* Power measurement message. Voltage and current can be digitially combined to
- * obtain power. */
+/**
+ * Power measurement message. Voltage and current can be digitially combined to
+ * obtain power.
+ *
+ * @deprecated Use individual voltage and current measurements instead.
+ *
+ * @see VoltageMeasurement
+ * @see CurrentMeasurement
+ */
 message PowerMeasurement {
   // voltage
   double voltage = 2;
   // current
   double current = 3;
+}
+
+/** Voltage measurement with support for delta encoding */
+message VoltageDeltaMeasurement {
+  uint32 voltage = 1;
+}
+
+/** Current measurement with support for delta encoding */
+message CurrentDeltaMeasurement {
+  uint32 current = 1;
+}
+
+/** Voltage measurement */
+message VoltageMeasurement {
+  double voltage = 1;
+}
+
+/** Current measurement */
+message CurrentMeasurement {
+  double current = 1;
+}
+
+/**
+ * Power deltas measurement message. Voltage and current deltas can be
+ * digitially combined to obtain power.
+ *
+ * @deprecated Use individual voltage and current delta measurements instead.
+ *
+ * @see VoltageDeltaMeasurement
+ * @see CurrentDeltaMeasurement
+ */
+message PowerDeltaEntry {
+  uint32 ts = 1;
+  uint32 voltage_delta = 2;
+  uint32 current_delta = 3;
+}
+
+/**
+ * Stores power measurements for delta encoding
+ *
+ * @deprecated Use individual voltage and current delta measurements instead.
+ *
+ * @see VoltageDeltaMeasurement
+ * @see CurrentDeltaMeasurement
+ */
+message PowerMeasurementDelta {
+  // voltage
+  uint32 voltage_delta = 2;
+  // current
+  uint32 current_delta = 3;
+}
+
+/**
+ * Repeated delta power measurements.
+ *
+ * @deprecated Use RepeatedMeasurements instead.
+ *
+ * @see VoltageDeltaMeasurement
+ * @see CurrentDeltaMeasurement
+ */
+message RepeatedPowerDeltas {
+  // Shared metadata
+  uint32 logger_id = 1;
+  uint32 cell_id = 2;
+
+  // Repeating entries
+  repeated PowerDeltaEntry entries = 3;
 }
 
 /* Teros12 measurement message */
@@ -346,6 +420,10 @@ message UserConfiguration {
   // Deprecated
   // Embedded into the endpoint URL
   uint32 API_Endpoint_Port = 13;
+}
+
+message adcValue {
+  uint32 adc = 1;
 }
 
 enum EnabledSensor {

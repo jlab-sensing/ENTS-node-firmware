@@ -94,6 +94,28 @@ FramStatus FramPut(const uint8_t *data, size_t num_bytes);
 FramStatus FramGet(uint8_t *data, uint8_t *len);
 
 /**
+ * @brief Peeks at the next measurement in the buffer without removing it
+ *
+ * Alternative to FramGet when the data is needed but should remain in the
+ * buffer. Index starts at the read pointer.
+ *
+ * @param idx Index of the measurement to peek
+ * @param data Array to be read into
+ * @param len Length of data
+ * @return See FramStatus
+ */
+FramStatus FramPeek(size_t idx, uint8_t *data, uint8_t *len);
+
+/**
+ * @brief Drops the next measurement in the buffer
+ *
+ * Alternative to FramGet when the data is not needed.
+ *
+ * @return See FramStatus
+ */
+FramStatus FramDrop(void);
+
+/**
  * @brief Get the current number of measurements stored in the buffer
  *
  * @return Number of measurements

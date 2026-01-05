@@ -50,6 +50,9 @@ static UTIL_TIMER_Object_t MeasureTimer;
 
 static uint32_t measure_period = 0;
 
+/** Measurement index counter */
+static uint32_t meas_idx = 1;
+
 /**
  * @brief Measures sensors and adds to tx buffer
  *
@@ -116,32 +119,38 @@ void SensorsMeasure(void) {
   // loop over callbacks
   for (int i = 0; i < callback_arr_len; i++) {
     // call measurement function
-    buffer_len = callback_arr[i](buffer, ts);
+    buffer_len = callback_arr[i](buffer, ts, meas_idx++);
+
+    APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
 
     if (buffer_len == ((size_t)-1)) {
       APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");
       return;
     }
 
-    APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
     APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
+
     for (int j = 0; j < buffer_len; j++) {
       APP_LOG(TS_OFF, VLEVEL_M, "%x", buffer[j]);
     }
     APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
 
+    SensorsAddMeasurement(buffer, buffer_len);
+  }
+}
+
+void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
 #ifdef SAVE_TO_MICROSD
-    ControllerMicroSDSave(buffer, buffer_len);
+  ControllerMicroSDSave(buffer, buffer_len);
 #endif
 
-    // add to tx buffer
-    FramStatus status = FramPut(buffer, buffer_len);
-    if (status == FRAM_BUFFER_FULL) {
-      APP_LOG(TS_ON, VLEVEL_M, "Error: TX Buffer full!\r\n");
-    } else if (status != FRAM_OK) {
-      APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
-    }
+  // add to tx buffer
+  FramStatus status = FramPut(buffer, buffer_len);
+  if (status == FRAM_BUFFER_FULL) {
+    APP_LOG(TS_ON, VLEVEL_M, "Error: TX Buffer full!\r\n");
+  } else if (status != FRAM_OK) {
+    APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
   }
 }
 

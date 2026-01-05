@@ -74,7 +74,7 @@ SDI12Status Teros12GetMeasurement(char addr, Teros12Data *data);
  * @see SensorsPrototypeMeasure
  *
  */
-size_t Teros12Measure(uint8_t *data, SysTime_t ts);
+size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 /**
  * @}

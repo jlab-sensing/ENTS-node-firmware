@@ -19,7 +19,7 @@ extern "C" {
 /**
  * @brief Starts the user config webserver
  */
-void UserConfigStart();
+void UserConfigStart(unsigned int timeout);
 
 /**
  * @brief Stops the user config webserver after timeout.

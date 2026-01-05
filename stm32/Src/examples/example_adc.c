@@ -74,7 +74,7 @@ int main(void) {
     snprintf(current_str, sizeof(current_str), "%f", current_reading);
     APP_PRINTF("Current: %s\r\n", current_str);
 
-    HAL_Delay(1000);
+    HAL_Delay(5000);
   }
   /* USER CODE END 3 */
 }

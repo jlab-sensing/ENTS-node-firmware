@@ -58,12 +58,14 @@ SDI12Status Teros21GetMeasurement(char addr, Teros21Data *data);
  * measurement.
  *
  * @param data Buffer to store measurement
+ * @param ts Timestamp of measurement
+ * @param idx Index of measurement
  * @return Length of measurement
  *
  * @see SensorsPrototypeMeasure
  *
  */
-size_t Teros21Measure(uint8_t *data, SysTime_t ts);
+size_t Teros21Measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 /**
  * @}

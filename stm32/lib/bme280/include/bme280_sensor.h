@@ -77,11 +77,13 @@ BME280Status BME280MeasureAll(BME280Data *data);
  * measurement.
  * 
  * @param data Buffer to store measurement
+ * @param ts System time of measurement
+ * @param idx Sensor index
  * @return Length of measurement
  * 
  * @see SensorsPrototypeMeasure
  */
-size_t BME280Measure(uint8_t *data, SysTime_t ts);
+size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 #ifdef __cplusplus
 }
