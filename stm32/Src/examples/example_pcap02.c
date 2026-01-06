@@ -63,15 +63,13 @@ int main(void) {
   // The default onboard capacitors on the evaluation plugin module are 47 pF.
   // The measureable capacitance at RES1 (PC2 PC3) is 0 pF to 8*47 pF = 376 pF.
 
-  pcap02_result_t result = {0};
+  pcap02_result_t res1 = {0}, res2 = {0}, res3 = {0};
 
   uint32_t conv = 1;
+  double res1_double, res2_double, res3_double;
 
   while (1) {
-    // Send CDC_Start_Conversion opcode
-    pcap02_start_conversion();
-    // Wait for the conversion to resolve (< 4 ms?)
-    while (pcap02_measure_capacitance(&result) != 0);
+    pcap02_measure_capacitance(&res1, &res2, &res3);
     // Evaluate the conversion
     // APP_LOG(TS_OFF, VLEVEL_M,
     //         "0x%02X%02X%02X (0x%06X)\r\n"
@@ -83,7 +81,14 @@ int main(void) {
     //         result.fixed, result.fractional, (1 << 21),
     //         result.fractional / ((float)(1 << 21)), fixed_to_double(&result),
     //         PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&result));
-    APP_LOG(TS_OFF, VLEVEL_M, "%d: %lf\r\n", conv, fixed_to_double(&result));
+    res1_double = fixed_to_double(&res1);
+    res2_double = fixed_to_double(&res2);
+    res3_double = fixed_to_double(&res3);
+    APP_LOG(TS_OFF, VLEVEL_M,
+            "%d (47pF): C1/C0 = %lf, %lf pF, C2/C0 = %lf, %lf pF, C3/C0 = %lf, "
+            "%lf pF\r\n",
+            conv, res1_double, res1_double * 47, res2_double, res2_double * 47,
+            res3_double, res3_double * 47);
     conv++;
     HAL_Delay(100);
   }

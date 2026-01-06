@@ -108,8 +108,7 @@ typedef union {
 // High level functions
 void pcap02_init(void);
 void pcap02_gpio_init(void);
-void pcap02_start_conversion(void);
-size_t pcap02_measure_capacitance(pcap02_result_t *result);
+void pcap02_measure_capacitance(pcap02_result_t *Res1, pcap02_result_t *Res2, pcap02_result_t *Res3);
 size_t pcap02_measure(uint8_t *data, SysTime_t ts);
 
 uint16_t pcap02_sram_write_firmware(const uint8_t *firmware, uint16_t offset_bytes,
