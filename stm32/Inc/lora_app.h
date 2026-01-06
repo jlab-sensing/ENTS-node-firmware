@@ -132,9 +132,14 @@ extern "C" {
 
 /*!
  * LoRaWAN User application port
+ *
+ * Port 1 is used for original measurement format.
+ * Port 2 is used for a new generic measurement format.
+ *
  * @note do not use 224. It is reserved for certification
  */
 #define LORAWAN_SPS_MEAS_PORT                       1
+#define LORAWAN_SPS_MEAS_GENERIC_PORT               2
 
 /* USER CODE END EC */
 

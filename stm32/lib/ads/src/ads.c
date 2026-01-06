@@ -14,6 +14,7 @@
 
 #include <stm32wlxx_hal_gpio.h>
 
+#include "sensor.h"
 #include "userConfig.h"
 
 /** i2c address */
@@ -36,6 +37,9 @@ static const uint8_t cmd_rreg = 0x20;
 static const uint8_t cmd_wreg = 0x40;
 
 // #define CALIBRATION
+#define DELTA_ENCODING
+int32_t previous_voltage_reading = 0;
+int32_t previous_current_reading = 0;
 
 // default sane calibration
 static double voltage_calibration_m = 0.0;
@@ -160,15 +164,15 @@ double ADC_readVoltage(void) {
   ConfigReg reg_data = {0};
   reg_data.bits.vref = 1;
 
-  // 0x21 is single shot and 0x23 is continuos
-  ret = Configure(reg_data);  // configure to read current
+  // 0x01 is single shot 0x03 is continuous
+  ret = Configure(reg_data);
   if (ret != HAL_OK) {
-    return -1;
+    return -1;  // Return -1 on error
   }
 
   ret = Measure(&raw);
   if (ret != HAL_OK) {
-    return -1;
+    return -1;  // Return -1 on error
   }
 
 #ifdef CALIBRATION
@@ -194,12 +198,12 @@ double ADC_readCurrent(void) {
   // 0x21 is single shot and 0x23 is continuos
   ret = Configure(reg_data);  // configure to read current
   if (ret != HAL_OK) {
-    return -1;
+    return -1;  // Return -1 on error
   }
 
   ret = Measure(&raw);
   if (ret != HAL_OK) {
-    return -1;
+    return -1;  // Return -1 on error
   }
 
 #ifdef CALIBRATION
@@ -217,18 +221,47 @@ HAL_StatusTypeDef probeADS12(void) {
   return ret;
 }
 
-size_t ADC_measure(uint8_t *data, SysTime_t ts) {
-  // read power
-  double adc_voltage = ADC_readVoltage();
-  double adc_current = ADC_readCurrent();
+size_t ADC_measureVoltage(uint8_t *data, SysTime_t ts, uint32_t idx) {
+  double voltage = ADC_readVoltage();
 
   const UserConfiguration *cfg = UserConfigGet();
 
-  // encode measurement
-  size_t data_len = EncodePowerMeasurement(
-      ts.Seconds, cfg->logger_id, cfg->cell_id, adc_voltage, adc_current, data);
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
 
-  // return number of bytes in serialized measurement
+  size_t data_len = 0;
+
+  SensorStatus status = SENSOR_OK;
+  status = EncodeDoubleMeasurement(meta, voltage, SensorType_POWER_VOLTAGE,
+                                   data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
+
+  return data_len;
+}
+
+size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx) {
+  double voltage = ADC_readCurrent();
+
+  const UserConfiguration *cfg = UserConfigGet();
+
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
+
+  size_t data_len = 0;
+
+  SensorStatus status = SENSOR_OK;
+  status = EncodeDoubleMeasurement(meta, voltage, SensorType_POWER_CURRENT,
+                                   data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
+
   return data_len;
 }
 

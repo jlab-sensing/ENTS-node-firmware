@@ -87,7 +87,7 @@ uint32_t ControllerMicroSDUserConfig(UserConfiguration *uc,
   // Ex. If input filename is "data.csv", sent filename is
   // "/<timestamp>_data.csv" Userconfig will be written to
   // "/<timestamp>_data.csv.userconfig"
-  snprintf(microsd_cmd.filename, sizeof(microsd_cmd.filename), "/%d_%s",
+  snprintf(microsd_cmd.filename, sizeof(microsd_cmd.filename), "/%ld_%s",
            SysTimeGet().Seconds, filename);
 
   APP_LOG(TS_OFF, VLEVEL_M, "filename sent to ESP32: %s\r\n",

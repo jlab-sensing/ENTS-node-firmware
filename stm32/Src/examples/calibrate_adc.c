@@ -28,8 +28,10 @@
 #include "dma.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "pb_encode.h"
 #include "rtc.h"
 #include "sdi12.h"
+#include "sensor.h"
 #include "stm32_systime.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
@@ -85,7 +87,6 @@ int main(void) {
   char check_input[7];
   char check_result[4];
   char size_proto_string[4];
-  uint8_t encoded_measurement[256];
   int size_check = snprintf(check_result, sizeof(check_result), "ok\n");
   // status for HAL_UART_* functions
   HAL_StatusTypeDef status = HAL_OK;
@@ -128,12 +129,30 @@ int main(void) {
     // check command input
     if (controller_input[0] == '0') {
       SysTime_t ts = SysTimeGet();
-      size_t measurement_size = ADC_measure(
-          encoded_measurement, ts);  // Read the measurement, and store it's
-                                     // size in measurement_size (size int 64)
-      if (measurement_size == -1) {
+
+      double voltage = ADC_readVoltage();
+      double current = ADC_readCurrent();
+
+      RepeatedSensorMeasurements measurements = {};
+      measurements.measurements_count = 2;
+
+      measurements.measurements[0].type = SensorType_POWER_VOLTAGE;
+      measurements.measurements[0].which_value = SensorMeasurement_decimal_tag;
+      measurements.measurements[0].value.decimal = voltage;
+
+      measurements.measurements[1].type = SensorType_POWER_CURRENT;
+      measurements.measurements[1].which_value = SensorMeasurement_decimal_tag;
+      measurements.measurements[1].value.decimal = current;
+
+      uint8_t encoded_measurement[256];
+      pb_ostream_t ostream = pb_ostream_from_buffer(
+          encoded_measurement, sizeof(encoded_measurement));
+      bool status =
+          pb_encode(&ostream, RepeatedSensorMeasurements_fields, &measurements);
+      if (!status) {
         continue;
       }
+      size_t measurement_size = ostream.bytes_written;
 
       // send length
       status = HAL_UART_Transmit(&huart1, (uint8_t *)&measurement_size, 1,

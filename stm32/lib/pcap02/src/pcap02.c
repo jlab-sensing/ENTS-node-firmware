@@ -2,6 +2,8 @@
 
 #include "board.h"
 #include "i2c.h"
+#include "sensor.h"
+#include "sensors.h"
 #include "userConfig.h"
 
 // Private Globals
@@ -809,7 +811,7 @@ void pcap02_measure_capacitance(pcap02_result_t *Res1, pcap02_result_t *Res2,
   // HAL_Delay(50); // used for debugging
 }
 
-size_t pcap02_measure(uint8_t *data, SysTime_t ts) {
+size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   pcap02_result_t res1 = {0}, res2 = {0}, res3 = {0};
 
   // Note: res2 and res3 are unused. Only res1 (C1/C0) is uploaded.
@@ -817,10 +819,20 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts) {
 
   const UserConfiguration *cfg = UserConfigGet();
 
-  // encode measurement
-  size_t data_len = EncodePCAP02Measurement(
-      ts.Seconds, cfg->logger_id, cfg->cell_id,
-      PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&res1), data);
+  // metadata
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
+
+  // encode measuremnet
+  size_t data_len = 0;
+  double cap = PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&res1);
+  SensorStatus status = EncodeDoubleMeasurement(
+      meta, cap, SensorType_PCAP02_CAPACITANCE, data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
 
   return data_len;
 }

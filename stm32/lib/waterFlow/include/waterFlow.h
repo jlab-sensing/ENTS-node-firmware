@@ -56,7 +56,7 @@ YFS210CMeasurement FlowGetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatFlow_measure(uint8_t *data, SysTime_t ts);
+size_t WatFlow_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 #ifdef __cplusplus
 }

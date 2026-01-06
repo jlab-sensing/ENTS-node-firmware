@@ -43,67 +43,63 @@ extern "C" {
  */
 
 /**
-******************************************************************************
-* @brief    This function starts up the ADS1219
-*
-*           This function is a wrapper for the STM32 HAl I2C library. The
-*ADS1219 uses I2C the I2C communication protocol. This function configures then
-*ADS1219 for single read mode. Note: the ADS1219 requires a minimum of 500us
-*when it is powered on.
-*
-* @param    void
-* @return   HAL_StatusTypeDef
-******************************************************************************
-*/
+ * @brief    This function starts up the ADS1219
+ *
+ *           This function is a wrapper for the STM32 HAl I2C library. The
+ *ADS1219 uses I2C the I2C communication protocol. This function configures then
+ *ADS1219 for single read mode. Note: the ADS1219 requires a minimum of 500us
+ *when it is powered on.
+ *
+ * @param    void
+ * @return   HAL_StatusTypeDef
+ */
 HAL_StatusTypeDef ADC_init(void);
 
 /**
-******************************************************************************
-* @brief    This function reads the current ADC voltage value.
-*
-*           This function is a wrapper for the STM32 HAl I2C library. The
-*ADS1219 uses I2C the I2C communication protocol. This version simply chops the
-*noisy bits.
-*
-* @param    void
-* @return   double, current ADC reading in microvolts
-******************************************************************************
-*/
+ * @brief    This function reads the current ADC voltage value.
+ *
+ *           This function is a wrapper for the STM32 HAl I2C library. The
+ *ADS1219 uses I2C the I2C communication protocol. This version simply chops the
+ *noisy bits.
+ *
+ * @param    void
+ * @return   double, current ADC reading in microvolts
+ */
 double ADC_readVoltage(void);
 
 /**
-******************************************************************************
-* @brief    This function reads the current ADC ampere value.
-*
-*           This function is a wrapper for the STM32 HAl I2C library. The
-*ADS1219 uses I2C the I2C communication protocol. This version simply chops the
-*noisy bits.
-*
-* @param    void
-* @return   double, current ADC reading in microamps
-******************************************************************************
-*/
+ * @brief    This function reads the current ADC ampere value.
+ *
+ *           This function is a wrapper for the STM32 HAl I2C library. The
+ *ADS1219 uses I2C the I2C communication protocol. This version simply chops the
+ *noisy bits.
+ *
+ * @param    void
+ * @return   int32_t, current ADC reading in microamps
+ */
 double ADC_readCurrent(void);
 
 /**
-******************************************************************************
-* @brief    This function probes the ADS12 to see if it is responsive.
-*
-* @param    void
-* @return   HAL_StatusTypeDef
-*******************************************f***********************************
-*/
+ * @brief    This function probes the ADS12 to see if it is responsive.
+ *
+ * @param    void
+ * @return   HAL_StatusTypeDef
+ */
 HAL_StatusTypeDef ADC_probe(void);
 
 /**
-******************************************************************************
-* @brief    This function encodes the ADS1219 power measurements into protobuf
-*
-* @param    *data
-* @return   size_t
-*******************************************f***********************************
-*/
-size_t ADC_measure(uint8_t *data, SysTime_t ts);
+ * @brief Measures the voltage channel.
+ *
+ * @see SensorsPrototypeMeasure
+ */
+size_t ADC_measureVoltage(uint8_t *data, SysTime_t ts, uint32_t idx);
+
+/**
+ * @brief Measures the voltage channel.
+ *
+ * @see SensorsPrototypeMeasure
+ */
+size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 /**
  * @}

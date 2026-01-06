@@ -63,7 +63,7 @@ SEN0308Measurement SEN0308GetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t SEN0308_measure(uint8_t *data, SysTime_t ts);
+size_t SEN0308_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 #ifdef __cplusplus
 }

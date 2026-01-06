@@ -56,7 +56,7 @@ SEN0257Measurement PressureGetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatPress_measure(uint8_t *data, SysTime_t ts);
+size_t WatPress_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 #ifdef __cplusplus
 }

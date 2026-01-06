@@ -25,24 +25,21 @@
 #include "stm32_timer.h"
 #include "utilities_def.h"
 #include "app_version.h"
-#include "lorawan_version.h"
-#include "subghz_phy_version.h"
 #include "lora_info.h"
 #include "LmHandler.h"
 #include "adc_if.h"
-#include "CayenneLpp.h"
-#include "sys_sensors.h"
 #include "flash_if.h"
 
 /* USER CODE BEGIN Includes */
 #include "LmhpClockSync.h"
 
-#include "sdi12.h"
-#include "rtc.h"
 #include "sensors.h"
 #include "userConfig.h"
 #include "status_led.h"
 #include "user_config.h"
+
+#include "lora_size.h"
+#include "payload.h"
 
 #include <time.h>
 /* USER CODE END Includes */
@@ -466,6 +463,7 @@ static void SendTxData(void)
     }
     else {
       APP_LOG(TS_OFF, VLEVEL_M, "Could not sync clock, retrying on next tx\r\n");
+      clock_synced = true;
     }
     // otherwise return
     return;
@@ -488,22 +486,50 @@ static void SendTxData(void)
   uint8_t battery_level = GetBatteryLevel();
   uint16_t temperature = SYS_GetTemperatureLevel();
 
-  size_t size = 0;
-  FramStatus status = FramGet(AppData.Buffer, &size);
-  if (status != FRAM_OK)
-  {
-    APP_LOG(TS_OFF, VLEVEL_M,
-            "Error getting data from fram buffer. FramStatus = %d", status);
+
+  // Get max LoRaWAN payload size
+  LoRaMacRegion_t region = 0;
+  LmHandlerGetActiveRegion(&region);
+  int8_t dr = 0;
+  LmHandlerGetTxDatarate(&dr);
+  uint8_t max_payload_size = lorawan_max_payload(region, dr);
+
+  PayloadStatus payload_status = PAYLOAD_OK;
+  payload_status = FormatPayload(AppData.Buffer, max_payload_size, (size_t*) &AppData.BufferSize);
+  if (payload_status == PAYLOAD_ERROR) {
+    APP_LOG(TS_ON, VLEVEL_M, "Error formatting payload\r\n");
     return;
-  }
-  if (size > LORAWAN_APP_DATA_BUFFER_MAX_SIZE)
-  {
-    APP_LOG(TS_OFF, VLEVEL_M, "Data size exceeds buffer size\r\n");
+  } else if (payload_status == PAYLOAD_NO_DATA) {
+    APP_LOG(TS_ON, VLEVEL_M, "No data to send\r\n");
     return;
-  } else {
-    AppData.BufferSize = (uint8_t) size;
   }
 
+
+  // Old code for measurements
+  //FramStatus status = FramGet(AppData.Buffer, &AppData.BufferSize);
+  //if (status != FRAM_OK)
+  //{
+  //  APP_LOG(TS_OFF, VLEVEL_M,
+  //          "Error getting data from fram buffer. FramStatus = %d", status);
+  //  return;
+  //}
+
+  // NOTE: Old code from Steve packet compression
+  //size_t size = 0;
+  //FramStatus status = FramGet(AppData.Buffer, &size);
+  //if (status != FRAM_OK)
+  //{
+  //  APP_LOG(TS_OFF, VLEVEL_M,
+  //          "Error getting data from fram buffer. FramStatus = %d", status);
+  //  return;
+  //}
+  //if (size > LORAWAN_APP_DATA_BUFFER_MAX_SIZE)
+  //{
+  //  APP_LOG(TS_OFF, VLEVEL_M, "Data size exceeds buffer size\r\n");
+  //  return;
+  //} else {
+  //  AppData.BufferSize = (uint8_t) size;
+  //}
 
   APP_LOG(TS_ON, VLEVEL_M, "Payload: ");
   for (int i = 0; i < AppData.BufferSize; i++)
@@ -513,18 +539,23 @@ static void SendTxData(void)
   APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
   APP_LOG(TS_ON, VLEVEL_M, "%d\r\n", AppData.BufferSize);
 
-  AppData.Port = LORAWAN_SPS_MEAS_PORT;
+  AppData.Port = LORAWAN_SPS_MEAS_GENERIC_PORT;
 
-  if (LORAMAC_HANDLER_SUCCESS == LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false))
+  LmHandlerErrorStatus_t lmstatus;
+  lmstatus = LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false);
+  if (lmstatus == LORAMAC_HANDLER_SUCCESS)
   {
     APP_LOG(TS_ON, VLEVEL_L, "SEND REQUEST\r\n");
   }
   else
   {
     APP_LOG(TS_OFF, VLEVEL_M, "Could not send request\r\n");
+    APP_LOG(TS_OFF, VLEVEL_M, "LmHandlerSend status = %d\r\n", lmstatus);
   }
 
   StatusLedOff();
+
+  APP_LOG(TS_ON, VLEVEL_M, "Sleeping until next upload\r\n");
   /* USER CODE END SendTxData_1 */
 }
 

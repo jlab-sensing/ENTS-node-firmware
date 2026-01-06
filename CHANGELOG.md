@@ -8,7 +8,7 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
-## [Unreleased]
+## [2.3.5] - 2026-01-04
 
 ### Added
 
@@ -19,6 +19,7 @@ firmware versions for a hardware version.
 - Esp32 enters a deep sleep state when idle [#150](i150)
 - Upload interval for LoRaWAN [#254](i254)
 - Updated WiFi user config interface missing sensors [#297](i297)
+- Sensor encoding updates [#292](i292)
 
 ### Fixed
 
@@ -27,6 +28,7 @@ firmware versions for a hardware version.
 [i150]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/150
 [i254]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/254
 [i268]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/268
+[292]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/292
 [i297]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/297
 
 ## [2.3.4] - 2025-08-20

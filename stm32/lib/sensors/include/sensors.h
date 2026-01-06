@@ -62,7 +62,8 @@ extern "C" {
  *
  * @return Number of bytes in data
  */
-typedef size_t (*SensorsPrototypeMeasure)(uint8_t *data, SysTime_t ts);
+typedef size_t (*SensorsPrototypeMeasure)(uint8_t *data, SysTime_t ts,
+                                          uint32_t idx);
 
 /**
  * @brief Registers the measurement task with the sequencer
@@ -90,6 +91,18 @@ void SensorsStop(void);
  * @return Index of callback in internal array, -1 indicates an error
  */
 int SensorsAdd(SensorsPrototypeMeasure cb);
+
+/**
+ * @brief Manually add a measurement to the upload queue.
+ *
+ * Can be used within a callback function registered with SensorsAdd to add
+ * additional measurements. For example the Teros12 sensors measures three
+ * separate phenomena that requires separate measurement encodings.
+ *
+ * @param data Serialized measurement data.
+ * @param data_len Length of serialized measurement data.
+ */
+void SensorsAddMeasurement(uint8_t *data, size_t data_len);
 
 /**
  * @brief Function for adding static test measurements

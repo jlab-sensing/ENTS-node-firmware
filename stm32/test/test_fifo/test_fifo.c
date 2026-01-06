@@ -313,6 +313,66 @@ void test_LoadSaveBufferState(void) {
   }
 }
 
+void test_FramPeek(void) {
+  // Clear the buffer and check initial state
+  FramStatus status = FramBufferClear();
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+
+  // Add some data
+  const uint8_t test_data[] = {0xDE, 0xAD, 0xBE, 0xEF};
+  for (int i = 0; i < 5; i++) {
+    status = FramPut(test_data, sizeof(test_data));
+    TEST_ASSERT_EQUAL(FRAM_OK, status);
+  }
+
+  // Peek at each measurement without removing them
+  uint8_t retrieved_data[sizeof(test_data)];
+  uint8_t retrieved_len;
+  for (int i = 0; i < 5; i++) {
+    status = FramPeek(i, retrieved_data, &retrieved_len);
+    TEST_ASSERT_EQUAL(FRAM_OK, status);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(test_data, retrieved_data, sizeof(test_data));
+  }
+
+  // Ensure buffer length remains unchanged
+  TEST_ASSERT_EQUAL(5, FramBufferLen());
+}
+
+void test_FramDrop(void) {
+  // Clear the buffer and check initial state
+  FramStatus status = FramBufferClear();
+  TEST_ASSERT_EQUAL(FRAM_OK, status);
+
+  // Add some data
+  const uint8_t test_data[] = {0xAA, 0xBB, 0xCC};
+  for (int i = 0; i < 5; i++) {
+    status = FramPut(test_data, sizeof(test_data));
+    TEST_ASSERT_EQUAL(FRAM_OK, status);
+  }
+
+  // Drop two measurements
+  for (int i = 0; i < 2; i++) {
+    status = FramDrop();
+    TEST_ASSERT_EQUAL(FRAM_OK, status);
+  }
+
+  // Check remaining buffer length
+  TEST_ASSERT_EQUAL(3, FramBufferLen());
+
+  // Retrieve remaining data and verify correctness
+  uint8_t retrieved_data[sizeof(test_data)];
+  uint8_t retrieved_len;
+  for (int i = 0; i < 3; i++) {
+    status = FramGet(retrieved_data, &retrieved_len);
+    TEST_ASSERT_EQUAL(FRAM_OK, status);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(test_data, retrieved_data, sizeof(test_data));
+  }
+
+  // Attempt to drop from an empty buffer
+  status = FramDrop();
+  TEST_ASSERT_EQUAL(FRAM_BUFFER_EMPTY, status);
+}
+
 /**
  * @brief  The application entry point.
  * @retval int
@@ -358,6 +418,8 @@ int main(void) {
   RUN_TEST(test_FramGet_Sequential_BufferFull);
   RUN_TEST(test_FramBuffer_Wraparound);
   RUN_TEST(test_LoadSaveBufferState);
+  RUN_TEST(test_FramPeek);
+  RUN_TEST(test_FramDrop);
   UNITY_END();
   /* USER CODE END 3 */
 }

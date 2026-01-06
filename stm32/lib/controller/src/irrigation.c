@@ -2,6 +2,7 @@
 
 #include "communication.h"
 #include "solenoid.h"
+#include "sys_app.h"
 #include "transcoder.h"
 
 extern unsigned int g_controller_i2c_timeout;
@@ -43,12 +44,12 @@ IrrigationCommand_State ControllerIrrigationCheck(void) {
 
   IrrigationCommand resp = IrrigationCommand_init_zero;
 
-  printf("Requesting state from ESP32...\n");
+  APP_LOG(TS_OFF, VLEVEL_M, "Requesting state from ESP32...\n");
 
   if (IrrigationCommandTransaction(&irrigation_cmd, &resp) !=
       CONTROLLER_SUCCESS) {
-    printf("ERROR: Communication with ESP32 failed!\n");
-    return;
+    APP_LOG(TS_OFF, VLEVEL_M, "ERROR: Communication with ESP32 failed!\n");
+    return IrrigationCommand_State_OPEN;
   }
 
   // Add verbose output
@@ -65,20 +66,21 @@ IrrigationCommand_State ControllerIrrigationCheck(void) {
       break;
   }
 
-  printf("Received state: %s (%d)\n", state_name, resp.state);
+  APP_LOG(TS_OFF, VLEVEL_M, "Received state: %s (%d)\n", state_name,
+          resp.state);
 
   // Control solenoid based on the received state
   switch (resp.state) {
     case IrrigationCommand_State_OPEN:
-      printf("ACTION: Opening solenoid\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "ACTION: Opening solenoid\n");
       SolenoidOpen();
       break;
     case IrrigationCommand_State_CLOSE:
-      printf("ACTION: Closing solenoid\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "ACTION: Closing solenoid\n");
       SolenoidClose();
       break;
     default:
-      printf("ACTION: Unknown state, no action taken\n");
+      APP_LOG(TS_OFF, VLEVEL_M, "ACTION: Unknown state, no action taken\n");
       break;
   }
 

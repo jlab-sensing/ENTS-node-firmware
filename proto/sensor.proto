@@ -1,0 +1,115 @@
+/**
+ * @brief Implements generic sensor data serialization
+ *
+ * @author John Madden <jmadden173@pm.me>
+ * @date 2025-06-13
+ */
+
+syntax = "proto3";
+
+enum SensorType {
+  NONE = 0;
+
+  /** Onboard power measurements */
+  POWER_VOLTAGE = 1;
+  POWER_CURRENT = 2;
+
+  /** Teros12 measurements */
+  TEROS12_VWC = 3;
+  TEROS12_VWC_ADJ = 4;
+  TEROS12_TEMP = 5;
+  TEROS12_EC = 6;
+
+  /** Phytos31 measurements */
+  PHYTOS31_VOLTAGE = 7;
+  PHYTOS31_LEAF_WETNESS = 8;
+
+  /** Bme280 measurements */
+  BME280_PRESSURE = 9;
+  BME280_TEMP = 10;
+  BME280_HUMIDITY = 11;
+
+  /** Teros21 measurements */
+  TEROS21_MATRIC_POT = 12;
+  TEROS21_TEMP = 13;
+
+  /** Sen0308 measurements */
+  SEN0308_VOLTAGE = 14;
+  SEN0308_HUMIDITY = 15;
+
+  /** Sen0257 measurements */
+  SEN0257_VOLTAGE = 16;
+  SEN0257_PRESSURE = 17;
+
+  /** YFS210C measurements */
+  YFS210C_FLOW = 18;
+
+  /** PCAP02 measurements */
+  PCAP02_CAPACITANCE = 19;
+}
+
+enum SensorError {
+  // No error
+  OK = 0;
+  // General error for all other errors
+  GENERAL = 1;
+  // Logger id not found
+  LOGGER = 2;
+  // Cell id not found
+  CELL = 3;
+  // Sensor type not recognized
+  UNSUPPORTED = 4;
+  // Invalid format of message
+  INVALID = 5;
+  // Decode error
+  DECODE = 6;
+}
+
+message Metadata {
+  // id of the cell measured
+  uint32 cell_id = 1;
+  // id of the logging device
+  uint32 logger_id = 2;
+  // timestamp of the measurement
+  uint32 ts = 3;
+}
+
+message SensorResponse {
+  // Index of measurements
+  uint32 idx = 1;
+
+  // Error code
+  SensorError error = 2;
+}
+
+message RepeatedSensorResponses {
+  repeated SensorResponse responses = 1;
+}
+
+message SensorMeasurement {
+  /** Metadata for the measurement */
+  Metadata meta = 1;
+
+  /** Type of sensor measurement */
+  SensorType type = 2;
+
+  oneof value {
+    uint32 unsigned_int = 3;
+    int32 signed_int = 4;
+    double decimal = 5;
+  }
+
+  /** Index of the measurement */
+  uint32 idx = 6;
+}
+
+message RepeatedSensorMeasurements {
+  /** Metadata for all measurements */
+  Metadata meta = 1;
+
+  /** Type of sensor measurements */
+  SensorType type = 2;
+
+  /** List of sensor measurements */
+  repeated SensorMeasurement measurements = 3;
+}
