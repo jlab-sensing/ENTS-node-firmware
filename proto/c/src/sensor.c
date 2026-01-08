@@ -251,6 +251,7 @@ SensorStatus EncodeDoubleMeasurement(Metadata meta, double value, SensorType typ
 
     meas.type = type;
     meas.which_value = SensorMeasurement_decimal_tag;
+    meas.value.decimal = value;
 
     return EncodeSensorMeasurement(&meas, buffer, size);
 }

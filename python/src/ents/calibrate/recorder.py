@@ -16,7 +16,7 @@ import socket
 import serial
 from typing import Tuple
 from tqdm import tqdm
-from ..proto import decode_measurement
+from ..proto.sensor import decode_repeated_sensor_measurements
 
 
 class SerialController:
@@ -116,10 +116,10 @@ class SoilPowerSensorController(SerialController):
 
         reply = self.ser.read(resp_len)  # read said measurment
 
-        meas_dict = decode_measurement(reply)  # decode using protobuf
+        meas_dict = decode_repeated_sensor_measurements(reply)  # decode using protobuf
 
-        voltage_value = meas_dict["data"]["voltage"]
-        current_value = meas_dict["data"]["current"]
+        voltage_value = meas_dict["measurements"][0]["decimal"]
+        current_value = meas_dict["measurements"][1]["decimal"]
 
         return float(voltage_value), float(current_value)
 
