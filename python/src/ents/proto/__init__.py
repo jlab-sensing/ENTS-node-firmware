@@ -18,10 +18,6 @@ from .esp32 import (
     decode_esp32command,
 )
 
-from .sensor import (
-    decode_repeated_sensor_measurements,
-)
-
 __all__ = [
     "encode_response",
     "encode_power_measurement",

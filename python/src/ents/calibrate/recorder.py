@@ -16,7 +16,7 @@ import socket
 import serial
 from typing import Tuple
 from tqdm import tqdm
-from ..proto import decode_repeated_sensor_measurements
+from ..proto.sensor import decode_repeated_sensor_measurements
 
 
 class SerialController:
