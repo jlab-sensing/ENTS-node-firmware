@@ -8,6 +8,29 @@ The following is a list of steps that should be complated on a newly assembled b
 - [ ] Flash the `release` firmware to the esp32. (See [esp32/README.md](esp32/README.md) for instructions)
 - [ ] Calibrate the analog measurement channels. (See TBD for instructions)
 
+# Brief
+1. Soldering
+2. STM32 bootloader, CubeProg option bytes AA
+3. STM32 unit tests: `pio test -e tests --upload-port XXX --test-port YYY`
+    - Start, hang, disconnect, reconnect, re-run
+4. Calibrate ADC: `pio run -e calibrate_adc -t upload --upload-port XXX && ents calib YYY IP:5025`
+    - Save slopes and intercepts for voltage and current.
+```
+(SMU+) --+----- [V+]
+         R      [V-]
+         +----- [I+]
+                [I-]
+(SMU-) -------- [GND]
+```
+5. Firmware:
+    - ESP32: bootloader and `pio run -e release -t uploadfs --upload-port ZZZ`
+    - ESP32: bootloader and `pio run -e release -t upload --upload-port ZZZ`
+        - Save join MAC in build log
+    - STM32: `pio run -e stm32 -t upload -t monitor --upload-port XXX --monitor-port YYY`
+        - Save LoRaWAN keys "######" and (optional ESP32 AP MAC)
+6. Register logger
+7. Create cell
+8. Wifi userConfig: `ents-unconfigured` default pw `ilovedirt`, go to http://192.168.4.1, submit and STM32 RESET
 
 # Detailed Setup Guide
 
@@ -109,16 +132,6 @@ The following is a list of steps that should be complated on a newly assembled b
         - (Same as previous step) Connect the STLINK to the D2 JTAG header located near the J4 3pos screw terminal for SDI-12, then connect the STLINK to your computer.
         - (Same as previous step) Use a USB cable to connect the Wio-E5 to your computer.
         - Use a USB to TTL adapter to connect the ESP32 (via the J3 header's GND, TX, and RX pins) to your computer. Be sure to connect your TTL adapter's TX pin to the ESP32's RX pin and vice versa.
-    - STM32 terminal: `pio run -e stm32 -t upload -t monitor --upload-port <COMx> --monitor-port <COMy>`
-        - Replace `<COMx>` and `<COMy>` with the port for the STLINK and the Wio-E5 respectively.
-        - Use `pio device list` to list the connected devices.
-            - The device with STLINK in the description should be used for the upload port.
-            - The device with CP2102 in the description should be used for the monitor port. Note: If your USB to TTL adapter also uses the CP2102 chip, be sure to correctly identify and select the port corresponding to the Wio-E5.
-        - The monitor port can be closed with CTRL+C. Additionally, the monitor port can be opened independently of the `upload` command: `pio device monitor -b 115200 -p <COMy>`
-        - Example: `pio run -e stm32 -t upload -t monitor --upload-port COM9 --monitor-port COM10`
-    - Save the Wio-E5's LoRaWAN information, which is prepended by `######`. You will need the AppEUI/JoinEUI, DevEUI, and AppKey.
-        - NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI, JoinEUI (AppEUI), and AppKey.
-        - The ENTS board's default configuration is to use LoRa communication. In order to print out the LoRaWAN information, the board must be configured to transmit via LoRa, not wifi. 
     - On the ESP32, enter the bootloader by pressing the ESP32's buttons in the following sequence:
         - Press and hold the blue RST button.
         - Press and hold the blue BOOT button.
@@ -126,14 +139,22 @@ The following is a list of steps that should be complated on a newly assembled b
         - Release the blue BOOT button.
     - ESP32 terminal:
         - `pio run -e release -t uploadfs --upload-port <COMx>`
-        - `pio run -e release -t upload -t monitor --upload-port <COMx> --monitor-port <COMx>`
+        - Enter the bootloader again, then: `pio run -e release -t upload --upload-port <COMx>`
         - Replace `<COMx>` with the port for the USB to TTL adapter.
         - Use `pio device list` to list the connected devices.
-            - The device corresponding to your USB to TTL adapter should be used for both the upload port and the monitor port.
-        - The monitor port can be closed with CTRL+C. Additionally, the monitor port can be opened independently of the `upload` command: `pio device monitor -b 115200 -p <COMx>`
-        - Example: `pio run -e release -t upload -t monitor --upload-port COM7 --monitor-port COM7`
-    - NOTE FOR UCSC: Save the ESP32's wifi MAC. The wifi MAC is made available near the tail end of the upload log, as well as by viewing the serial output from the device. The wifi MAC is required to whitelist the device on the UCSC-Devices wifi network.
-        - Note that the wifi AP MAC is not the same as the wifi MAC. You must register the regular wifi MAC, not the AP MAC. The access point MAC can be useful for distinguishing between boards if you are setting up multiple new boards at the same time (as they will all broadcast with the same SSID `ents-unconfigured` for unconfigured boards).
+            - The device corresponding to your USB to TTL adapter should be used for both the upload port and the (not necessary for this step) monitor port.
+    - NOTE FOR UCSC: Save the ESP32's wifi MAC. The wifi MAC is made available near the tail end of the ESP32's build log, after it connects to the ESP32 but before it begins writing the firmware. The wifi MAC is required to whitelist the device on the UCSC-Devices wifi network.
+        - Note that the wifi AP MAC is not the same as the wifi MAC. You must register the regular wifi MAC, not the AP MAC. The access point MAC can be useful for distinguishing between boards if you are setting up multiple new boards at the same time (as they will all broadcast with the same SSID `ents-unconfigured` for unconfigured boards). The AP MAC is sent over serial by the STM32 as well as by the ESP32 monitor on bootup.
+    - STM32 terminal: `pio run -e stm32 -t upload -t monitor --upload-port <COMx> --monitor-port <COMy>`
+        - Replace `<COMx>` and `<COMy>` with the port for the STLINK and the Wio-E5 respectively.
+        - Use `pio device list` to list the connected devices.
+            - The device with STLINK in the description should be used for the upload port.
+            - The device with CP2102 in the description should be used for the monitor port. Note: If your USB to TTL adapter also uses the CP2102 chip, be sure to correctly identify and select the port corresponding to the Wio-E5.
+        - The monitor port can be closed with CTRL+C. Additionally, the monitor port can be opened independently of the `upload` command: `pio device monitor -b 115200 -p <COMy>`
+        - Example: `pio run -e stm32 -t upload -t monitor --upload-port COM9 --monitor-port COM10`
+    - Save the Wio-E5's LoRaWAN information, which is prepended by `######`. You will need the AppEUI/JoinEUI, DevEUI, and AppKey. Only the last 4 bytes of the DevEUI (i.e. DevAddr) should vary between boards.
+        - NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI, JoinEUI (AppEUI), and AppKey.
+        - The ENTS board's default configuration is to use LoRa communication. In order to print out the LoRaWAN information, the board must be configured to transmit via LoRa, not wifi.
     - Restart both the STM32 and the ESP32. First press and release the blue RST button near the ESP32, then press and release the Wio-E5's RST button.
 
 6. Register the logger on DirtViz (which performs The Things Network registration to enable LoRaWAN communication).
@@ -189,7 +210,7 @@ The following is a list of steps that should be complated on a newly assembled b
     - Input the values into the userConfig interface:
         - Logger ID: Enter the logger ID that you registered on DirtViz. You can find it on your profile's Loggers page: https://dirtviz.jlab.ucsc.edu/profile/loggers
         - Cell ID: Enter the cell ID that you created on DirtViz. You can find it on your profile's Cells page: https://dirtviz.jlab.ucsc.edu/profile/cells
-        - Upload method: Using LoRa requires a LoRaWAN gateway. To get started more easily, wifi is recommended.
+        - Upload method: Using LoRa requires a LoRaWAN gateway such as the [Sentrius RG191](https://www.ezurio.com/part/rg191). To get started more easily, wifi is recommended.
         - Upload Interval: The upload interval should not be less than 10 seconds.
         - Select the sensors
             - Selecting voltage will also take current measurements in addition to taking voltage measurements. Therefore, do not select current.
@@ -202,13 +223,13 @@ The following is a list of steps that should be complated on a newly assembled b
             - API Endpoint URL: `http://dirtviz.jlab.ucsc.edu/api/sensor/`
                 - ~~NOTE: Do not include any trailing spaces after the URL!~~ This has been fixed as part of the input validation.
             - ~~API Port: 443~~ If your endpoint's port is not 80, you can append it to the end of your URL: http://yourendpointhere.com/api/sensor/:12345
-    - Press the submit button and follow the prompt to press the white RST button on the Wio-E5.
-    - To verify that the userConfig was saved successfully, you can use a serial monitor to examine the Wio-E5's output upon startup.
+    - IMPORTANT: Press the submit button and follow the prompt to press the white RST button on the Wio-E5. The userConfig is not saved until you restart only the Wio-E5!
+    - To verify that the userConfig was saved successfully, you can use a serial monitor to examine the Wio-E5's output upon startup: `pio device monitor -b 115200 -p <COMy>`
     - ~~Use the STM32 terminal from the previous step, which has a Python virtual environment activated and the `ents` Python package installed.~~
         - ~~ALTERNATIVE: To install the local repo's package, use `pip install -e python[gui]`~~
     - ~~You may need to install PyQt5, which is available as a python package (`pip install PyQt5`) or sometimes as a system package (e.g. `sudo apt-get install python3-pyqt5`)~~
     - ~~STM32 terminal: Launch the userConfig interface with `ents-gui`~~
-        - You may disconnect the power cable and set up the board and cell, then reconnect the power cable. To obtain voltage and current readings, follow the connection guide used during the calibration step, but use the MFC's leads in place of the SMU's leads as shown below. `R` may be a 2 kOhm or 2.2 kOhm resistor. The resistor may be omitted (thus disconnecting `[I+]`) to keep the MFC in open circuit configuration.
+    - You may disconnect the power cable and set up the board and cell, then reconnect the power cable. To obtain voltage and current readings, follow the connection guide used during the calibration step, but use the MFC's leads in place of the SMU's leads as shown below. `R` may be a 2 kOhm or 2.2 kOhm resistor. The resistor may be omitted (thus disconnecting `[I+]`) to keep the MFC in open circuit configuration.
 ```
 (MFC+) --+----- [V+]
          R      [V-]
