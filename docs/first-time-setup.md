@@ -70,7 +70,7 @@ The following is a list of steps that should be complated on a newly assembled b
     - Prerequisites:
         - (Same as previous step) Open a PlatformIO terminal in the `stm32/` folder.
             - Create a Python virtual environment (in the root level of the repo): `python -m venv ../.venv`
-            - Activate the Python virtual environment: `source ../.venv/bin/activate` (Linux) or `..\.venv\bin\activate.bat` (Windows)
+            - Activate the Python virtual environment: `source ../.venv/bin/activate` (Linux) or `..\.venv\Scripts\activate.bat` (Windows)
             - Install the ENTS Python package: `pip install ents`
                 - ALTERNATIVE: `pip install -e python` can be used to install the repository's local files as a package. If changes are made to the calibration control code (ex. adjust current sweep range), then use this alternate method.
         - (Same as previous step) Connect the STLINK to the D2 JTAG header located near the J4 3pos screw terminal for SDI-12, then connect the STLINK to your computer.
