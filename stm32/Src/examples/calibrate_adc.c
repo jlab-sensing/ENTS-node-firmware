@@ -133,7 +133,7 @@ int main(void) {
       double voltage = ADC_readVoltage();
       double current = ADC_readCurrent();
 
-      RepeatedSensorMeasurements measurements = {};
+      RepeatedSensorMeasurements measurements = RepeatedSensorMeasurements_init_zero;
       measurements.measurements_count = 2;
 
       measurements.measurements[0].type = SensorType_POWER_VOLTAGE;
