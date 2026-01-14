@@ -22,6 +22,7 @@
 #include "adc_if.h"
 #include "sys_app.h"
 #include "board.h"
+#include <string.h> // memcpy
 
 /* USER CODE BEGIN Includes */
 

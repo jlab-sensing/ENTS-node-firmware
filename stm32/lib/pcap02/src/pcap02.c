@@ -10,8 +10,8 @@
 static HAL_StatusTypeDef ret = HAL_OK;
 static volatile uint16_t dev_addr = PCAP02_I2C_ADDRESS;
 
-volatile uint32_t INTN_Counter = 0;
-volatile uint8_t INTN_State = GPIO_PIN_SET;
+static volatile uint32_t INTN_Counter = 0;
+static volatile uint8_t INTN_State = GPIO_PIN_SET;
 
 // Private Function Definitions
 uint32_t test_sram_write_byte(uint8_t txData, uint16_t location);
@@ -19,7 +19,6 @@ uint32_t test_sram_write_memory_access(uint8_t txData[], uint8_t rxData[],
                                        uint16_t location, uint32_t length);
 
 void pcap02_init(void) {
-  pcap02_read_register_status_t status_register;
   uint8_t runbit;
 
   /* runbit = 0x00;
@@ -100,12 +99,7 @@ void pcap02_init(void) {
   // APP_LOG(TS_OFF, VLEVEL_H,
   //         "Reading status register. (Before runbit=1 and final "
   //         "initialization)\r\n");
-  // ret = I2C_Config_Access(
-  //     dev_addr, PCAP02_OPCODE_RESULT_READ,
-  //     PCAP02_READ_REGISTERS_STATUS_OFFSET, status_register.byte,
-  //     PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
-  // if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
-  // pcap02_print_status_register(status_register);
+  // pcap02_print_status_register();
 
   // 4. Set configuration register 77 to RUNBIT = 1
   APP_LOG(TS_OFF, VLEVEL_H, "Setting runbit to 1.\r\n");
@@ -137,25 +131,6 @@ void pcap02_gpio_init(void) {
   HAL_NVIC_EnableIRQ(PCAP02_INTN_EXTI_IRQn);
 }
 
-void pcap02_start_conversion(void) {
-  // 6. Start measurement (CDC Start conversion)
-  APP_LOG(TS_OFF, VLEVEL_H, "CDC Start Conversion.\r\n");
-  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_CDC_START_CONVERSION);
-  if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
-
-  // 7. Read status registers 0x24 25 26 (decimal 36 37 38)
-  // APP_LOG(
-  //     TS_OFF, VLEVEL_H,
-  //     "Reading status register. (After runbit=1 and final
-  //     initialization)\r\n");
-  // ret = I2C_Config_Access(
-  //     dev_addr, PCAP02_OPCODE_RESULT_READ,
-  //     PCAP02_READ_REGISTERS_STATUS_OFFSET, status_register.byte,
-  //     PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
-  // if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
-  // pcap02_print_status_register(status_register);
-}
-
 /**
  * @brief  Write firmware to SRAM.
  * @param  firmware (uint8_t*) Pointer to byte array containing firmware.
@@ -166,7 +141,8 @@ void pcap02_start_conversion(void) {
  * @retval (uint16_t) Number of byte-errors detected during post-write
  * verification of firmware.
  */
-uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
+uint16_t pcap02_sram_write_firmware(const uint8_t *firmware,
+                                    uint16_t offset_bytes,
                                     uint16_t length_bytes) {
   // uint8_t txDataLong[4096];
   uint8_t rxDataLong[4096] = {0};
@@ -225,14 +201,21 @@ uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
 
 /**
  * @brief  Print contents of the 24-bit status register.
- * @note   This function does not send any commands to read from the PCAP02.
- *         The input `status` must first be loaded with the contents of the
- * status register.
- * @param  status (pcap02_read_register_status_t) Union with bit fields for the
- * status register.
+ * @note   This function reads and prints the status register from the PCAP02.
+ *
  * @retval (void)
  */
-void pcap02_print_status_register(pcap02_read_register_status_t status) {
+void pcap02_print_status_register(void) {
+  pcap02_read_register_status_t status;
+
+  ret = I2C_Config_Access(
+      dev_addr, PCAP02_OPCODE_RESULT_READ, PCAP02_READ_REGISTERS_STATUS_OFFSET,
+      status.byte,
+      PCAP02_READ_REGISTERS_REG_LENGTH_BYTES);  // Read status register
+  if (ret)
+    APP_LOG(TS_OFF, VLEVEL_H,
+            "\t\tpcap02_print_status_register: ret (HAL) %d\r\n", ret);
+
   APP_LOG(TS_OFF, VLEVEL_H, "0x%02X%02X%02X\r\n", status.byte[0],
           status.byte[1], status.byte[2]);
 
@@ -765,8 +748,26 @@ uint32_t test_sram_write_memory_access(uint8_t txData[], uint8_t rxData[],
   return 0;
 }
 
-// Call pcap02_start_conversion before this function.
-size_t pcap02_measure_capacitance(pcap02_result_t *result) {
+// This function initiates a conversion and then reads the Read Registers 3-5,
+// 6-8, and 9-11, which correspond to Res1 (C1/C0), Res2 (C2/C0), Res3 (C3/C0).
+// This function is designed to work with the (modified) standard firmware
+// configuration registers provided in `pcap02_standard.c`, which sets the
+// device to single floating measurements (single-shot).
+// This function will block until the result registers are read (~4 ms).
+void pcap02_measure_capacitance(pcap02_result_t *Res1, pcap02_result_t *Res2,
+                                pcap02_result_t *Res3) {
+  // 6. Start measurement (CDC Start conversion)
+  APP_LOG(TS_OFF, VLEVEL_H, "CDC Start Conversion.\r\n");
+  ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_CDC_START_CONVERSION);
+  if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+  // 7. Read status registers 0x24 25 26 (decimal 36 37 38)
+  // APP_LOG(
+  //     TS_OFF, VLEVEL_H,
+  //     "Reading status register. (After runbit=1 and final
+  //     initialization)\r\n");
+  // pcap02_print_status_register();
+
   // 8. ‘h40 03 00 00 00; Read Res1, addresses 3, 4, 5. Res1 is expected to be
   //                      in the range of 2,000,000 or ’h2000XX if the two
   //                      capacitors are of same size. Res1 has the format of a
@@ -776,41 +777,45 @@ size_t pcap02_measure_capacitance(pcap02_result_t *result) {
 
   // Read result register after INTN = 0
   // Note: Approximately 82 ms or 83 ms between prints.
-  if (INTN_State == GPIO_PIN_RESET) {
-    INTN_State = GPIO_PIN_SET;
-    // APP_LOG(
-    //     TS_OFF, VLEVEL_H,
-    //     "[reading %lu @ tick %lu] Read Result on RES1 (ratio of C1 /
-    //     C0)\r\n", INTN_Counter, HAL_GetTick());
-    // MyRawRES0 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x00);
-    // MyRawRES1 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x04);
-    result->word = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ,
-                                   PCAP02_READ_REGISTERS_RES1_OFFSET);
-    // APP_LOG(TS_OFF, VLEVEL_H,
-    //         "\tbytes: 0x%02X%02X%02X\r\n\t24-bit: 0x%06X\r\n\tfixed: "
-    //         "%01d\r\n\tfractional (raw): %d\r\n\tfloat RATIO: %f\r\n",
-    //         RES1.byte[2], RES1.byte[1], RES1.byte[0], RES1.word,
-    //         RES1.fixed, RES1.fractional, fixed_to_float(RES1));
 
-    // Post Processing
-    // MyRatioRES0 = (float)MyRawRES0 / 134217728; // = 2^27
-    // MyRatioRES1 = (float)MyRawRES1 / 134217728; // = 2^27
+  // Wait for the interrupt pin to go low.
+  while (INTN_State != GPIO_PIN_RESET);
 
-    // APP_LOG(TS_OFF, VLEVEL_H,"\r\nRES0: raw %ld ratio %f\r\nRES1: raw %ld
-    // ratio %f\r\n", MyRawRES0, MyRatioRES0, MyRawRES1, MyRatioRES1);
-    // HAL_Delay(50); // used for debugging
-    return 0;
-  }
-  return 1;
+  // Reset flag.
+  INTN_State = GPIO_PIN_SET;
+
+  // APP_LOG(
+  //     TS_OFF, VLEVEL_H,
+  //     "[reading %lu @ tick %lu] Read Result on RES1 (ratio of C1 /
+  //     C0)\r\n", INTN_Counter, HAL_GetTick());
+  // MyRawRES0 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x00);
+  // MyRawRES1 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x04);
+  Res1->word = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ,
+                               PCAP02_READ_REGISTERS_RES1_OFFSET);
+  Res2->word = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ,
+                               PCAP02_READ_REGISTERS_RES2_OFFSET);
+  Res3->word = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ,
+                               PCAP02_READ_REGISTERS_RES3_OFFSET);
+  // APP_LOG(TS_OFF, VLEVEL_H,
+  //         "\tbytes: 0x%02X%02X%02X\r\n\t24-bit: 0x%06X\r\n\tfixed: "
+  //         "%01d\r\n\tfractional (raw): %d\r\n\tfloat RATIO: %f\r\n",
+  //         RES1.byte[2], RES1.byte[1], RES1.byte[0], RES1.word,
+  //         RES1.fixed, RES1.fractional, fixed_to_double(RES1));
+
+  // Post Processing
+  // MyRatioRES0 = (float)MyRawRES0 / 134217728; // = 2^27
+  // MyRatioRES1 = (float)MyRawRES1 / 134217728; // = 2^27
+
+  // APP_LOG(TS_OFF, VLEVEL_H,"\r\nRES0: raw %ld ratio %f\r\nRES1: raw %ld
+  // ratio %f\r\n", MyRawRES0, MyRatioRES0, MyRawRES1, MyRatioRES1);
+  // HAL_Delay(50); // used for debugging
 }
 
 size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
-  pcap02_result_t result;
+  pcap02_result_t res1 = {0}, res2 = {0}, res3 = {0};
 
-  // read sensor
-  pcap02_start_conversion();
-  // Wait for the conversion to resolve (< 4 ms?)
-  while (pcap02_measure_capacitance(&result) != 0);
+  // Note: res2 and res3 are unused. Only res1 (C1/C0) is uploaded.
+  pcap02_measure_capacitance(&res1, &res2, &res3);
 
   const UserConfiguration *cfg = UserConfigGet();
 
@@ -822,7 +827,7 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
 
   // encode measuremnet
   size_t data_len = 0;
-  double cap = PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&result);
+  double cap = PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&res1);
   SensorStatus status = EncodeDoubleMeasurement(
       meta, cap, SensorType_PCAP02_CAPACITANCE, data, &data_len);
   if (status != SENSOR_OK) {
