@@ -172,6 +172,8 @@ class NodeSimulatorGeneric:
     measurements: list[bytes] = []
     # all responses
     responses: list[str] = []
+    # all requests in format (headers, body)
+    requests: list[tuple[str, str]] = []
 
     # metrics for uploads
     metrics: dict[str, int] = {
@@ -233,14 +235,18 @@ class NodeSimulatorGeneric:
 
         # get next measurement
         try:
-            meas = self.measurements.pop()
+            meas = self.measurement_buffer.pop()
         except IndexError as _:
             return False
 
-        headers = {"Content-Type": "application/octet-stream"}
+        headers = {
+            "Content-Type": "application/octet-stream",
+            "SensorVersion": "2",
+        }
         result = requests.post(url, data=meas, headers=headers)
 
         # store result
+        self.requests.append((result.request.headers, result.request.body))
         self.responses.append(result.text)
         self.metrics["total_requests"] += 1
         if result.status_code == 200:
@@ -279,4 +285,36 @@ class NodeSimulatorGeneric:
             )
 
         serialized = encode_repeated_sensor_measurements(meas)
+        self.measurements.append(serialized)
         self.measurement_buffer.append(serialized)
+
+    def last_measurement(self) -> bytes:
+        """Gets the last encoded measurement.
+
+
+        Returns:
+            Last encoded measurement.
+        """
+
+        return self.measurements[-1]
+
+    def last_request(self) -> str:
+        """Gets the last sent request.
+
+        Returns:
+            Formatted headers and body.
+        """
+
+        headers = self.requests[-1][0]
+        body = self.requests[-1][1]
+        request_str = f"{headers}\n\n{body}"
+        return request_str
+
+    def last_response(self) -> str:
+        """Gets the last response.
+
+        Returns:
+            Response from server.
+        """
+
+        return self.responses[-1]
