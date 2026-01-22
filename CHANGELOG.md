@@ -8,6 +8,14 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
+## [Unreleased]
+
+- Add python interface to dirtviz [#279](i279)
+
+
+
+[i279]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/279
+
 ## [2.3.5] - 2026-01-04
 
 ### Added
