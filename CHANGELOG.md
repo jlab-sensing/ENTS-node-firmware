@@ -10,11 +10,16 @@ firmware versions for a hardware version.
 
 ## [Unreleased]
 
+### Added
+
 - Add python interface to dirtviz [#279](i279)
 
+### Fixed
 
+- Desktop calibration utility encoding [#300][i300]
 
 [i279]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/279
+[i300]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/300
 
 ## [2.3.5] - 2026-01-04
 
@@ -36,7 +41,7 @@ firmware versions for a hardware version.
 [i150]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/150
 [i254]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/254
 [i268]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/268
-[292]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/292
+[i292]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/292
 [i297]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/297
 
 ## [2.3.4] - 2025-08-20
