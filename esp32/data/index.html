@@ -178,80 +178,163 @@
 
     <h1>ENTS Configuration</h1>
 
+    <details id="top_help">
+      <summary>For help information, click on any text which has the symbol shown the to left of this sentence. </summary>
+      <p>Expanded help information will be shown below.</p>
+    </details>
+
+    <details id="identity_info">
+      <summary>ENTS Identity Information</summary>
+      <label for="ESP32_Information">ESP32</label>
+      <code>
+      ESP32 STA MAC: <code id="ESP32_STA_MAC">Failed to load</code><br />
+      ESP32 AP MAC: <code id="ESP32_AP_MAC">Failed to load</code><br />
+      ESP32 AP SSID: <code id="ESP32_AP_SSID">Failed to load</code><br />
+      </code>
+      <label for="STM32_Information">STM32</label>
+      <code id="STM32_Information">
+      ###### AppKey: <code id="STM32_AppKey">Failed to load</code><br />
+      ###### NwkKey: <code id="STM32_NwkKey">Failed to load</code><br />
+      ###### AppSKey: <code id="STM32_AppSKey">Failed to load</code><br />
+      ###### NwkSKey: <code id="STM32_NwkSKey">Failed to load</code><br />
+      ###### DevEUI: <code id="STM32_DevEUI">Failed to load</code><br />
+      ###### AppEUI: <code id="STM32_AppEUI">Failed to load</code><br />
+      ###### DevAddr: <code id="STM32_DevAddr">Failed to load</code>
+      </code>
+    </details>
+    <hr>
     <form id="configForm" novalidate>
 
-      <div class="group">
+      <div class="group" id="uploadSettings">
         <h2>Upload Settings</h2>
-        <label for="logger_id">Logger ID:</label>
+        <label for="logger_id">
+          <details>
+            <summary>Logger ID</summary>
+            <p>In order to successfully upload data to your endpoint, you must provide a valid logger ID so that your
+              endpoint can identify the source of the data being uploaded. You can register a logger and obtain a logger
+              ID by logging in to your endpoint, navigating to your profile's "Loggers" page, and creating a logger. The
+              "ENTS Identity Information" provided at the top of this ENTS Configuration form can be used for the
+              DevEUI, JoinEUI, and AppKey.</p>
+          </details>
+        </label>
         <input type="number" id="logger_id" name="logger_id" min="0" placeholder="Enter Logger ID (positive integer)">
 
-        <label for="cell_id">Cell ID:</label>
+        <label for="cell_id">
+          <details>
+            <summary>Cell ID</summary>
+            <p>The cell ID specifies which cell on your endpoint that the uploaded data belongs to. You can create a
+              cell and obtain a cell ID by logging in to your endpoint, navigating to your profile's "Cells" page, and
+              creating a cell.</p>
+            <p>To determine the cell ID of a previously created cell, you can either (1) check your profile's "Cells"
+              page if you are the owner of the cell or (2) open the cell on your endpoint's data visualization dashboard
+              and identify the cell ID located in the URL.</p>
+            <p>Multiple loggers may upload to the same cell ID.</p>
+          </details>
+        </label>
         <input type="number" id="cell_id" name="cell_id" min="0" placeholder="Enter Cell ID (positive integer)">
 
-        <label for="upload_method">Upload Method:</label>
+        <label for="upload_method">
+          <details>
+            <summary>Upload Method</summary>
+            <p>WiFi is recommended for short range indoor (lab) environments.</p>
+            <p>LoRa is recommended for long range outdoor (field) environments. LoRa requires a nearby LoRaWAN gateway,
+              such as the <a href="https://www.ezurio.com/part/rg191">Sentrius RG191</a>.</p>
+          </details>
+        </label>
         <select id="upload_method" name="upload_method">
           <option value="WiFi">WiFi</option>
           <option value="LoRa">LoRa</option>
         </select>
 
-        <label for="upload_interval">Upload Interval (seconds):</label>
+        <label for="upload_interval">
+          <details>
+            <summary>Upload Interval (seconds)</summary>
+            <p>Sensor measurements and data uploads will occur every interval you set here.</p>
+            <p>The minimum recommended interval is 10 seconds.</p>
+          </details>
+        </label>
         <input type="number" id="upload_interval" name="upload_interval" min="10"
           placeholder="Enter upload interval in seconds">
       </div>
 
-      <div class="group">
+      <div class="group" id="measurementSettings">
         <h2>Measurement Settings</h2>
+        <details>
+          <summary>Selecting Sensors</summary>
+          <p>When selecting sensors, certain sensors are incompatible with each other due to conflicting pin usage.</p>
+          <p>The PCAP02 should not be enabled with the YFS210C. (GPIO A10 is used as an external interrupt by both
+            sensors.)</p>
+          <p>The SEN0308 should not be enabled with either Voltage or Current. (SEN0308 outputs an analog voltage which
+            is read by the onboard ADC.)</p>
+        </details>
         <div class="checkbox-group">
           <div class="checkbox-row">
-            <input type="checkbox" id="voltage_enabled" name="voltage_enabled" checked>
+            <input type="checkbox" id="voltage_enabled" name="voltage_enabled">
             <label for="voltage_enabled">Voltage</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="current_enabled" name="current_enabled" checked>
+            <input type="checkbox" id="current_enabled" name="current_enabled">
             <label for="current_enabled">Current</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="teros12_enabled" name="teros12_enabled" checked>
+            <input type="checkbox" id="teros12_enabled" name="teros12_enabled">
             <label for="teros12_enabled">Teros12</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="teros21_enabled" name="teros21_enabled" checked>
+            <input type="checkbox" id="teros21_enabled" name="teros21_enabled">
             <label for="teros21_enabled">Teros21</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="bme280_enabled" name="bme280_enabled" checked>
+            <input type="checkbox" id="bme280_enabled" name="bme280_enabled">
             <label for="bme280_enabled">BME280</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="Phytos31_enabled" name="Phytos31_enabled" checked>
+            <input type="checkbox" id="Phytos31_enabled" name="Phytos31_enabled">
             <label for="Phytos31_enabled">Phytos31</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="SEN0308_enabled" name="SEN0308_enabled" checked>
+            <input type="checkbox" id="SEN0308_enabled" name="SEN0308_enabled">
             <label for="SEN0308_enabled">SEN0308</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="SEN0257_enabled" name="SEN0257_enabled" checked>
+            <input type="checkbox" id="SEN0257_enabled" name="SEN0257_enabled">
             <label for="SEN0257_enabled">SEN0257</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="YFS210C_enabled" name="YFS210C_enabled" checked>
+            <input type="checkbox" id="YFS210C_enabled" name="YFS210C_enabled">
             <label for="YFS210C_enabled">YFS210C</label>
           </div>
 
           <div class="checkbox-row">
-            <input type="checkbox" id="PCAP02_enabled" name="PCAP02_enabled" checked>
+            <input type="checkbox" id="PCAP02_enabled" name="PCAP02_enabled">
             <label for="PCAP02_enabled">PCAP02</label>
           </div>
         </div>
+
+        <details>
+          <summary>Voltage and Current Calibration</summary>
+          <p>For best effect, use the calibration values obtained during the analog to digital converter (ADC)
+            calibration process: <a
+              href="https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/docs/first-time-setup.md">https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/docs/first-time-setup.md</a>
+          </p>
+          <p>You may leave these values blank (or 1, 0, 1, 0 to configure the ADC to output its raw measurements when
+            enabled) if you do not intend on using the onboard ADC to take voltage and current readings.</p>
+          <p>Values may be entered in scientific notation (e.g. 1.23e-5).</p>
+          <p>If you only need a ballpark reading, then you may use these typical calibration values (Vm, Vb, Im, Ib):
+          </p>
+          <p>-0.00039358</p>
+          <p>-0.00566470</p>
+          <p>-1.18688004e-10</p>
+          <p>3.94985336e-5</p>
+        </details>
 
         <label for="calibration_v_slope">Calibration V Slope:</label>
         <input type="text" id="calibration_v_slope" name="calibration_v_slope"
@@ -272,16 +355,40 @@
 
       <div class="group" id="wifiSettings">
         <h2>WiFi Settings</h2>
-        <label for="wifi_ssid">WiFi SSID:</label>
+
+        <label for="wifi_ssid">
+          <details>
+            <summary>WiFi SSID</summary>
+            <p>Name of the WiFi network for the ENTS board to connect to.</p>
+          </details>
+        </label>
         <input type="text" id="wifi_ssid" name="wifi_ssid" placeholder="Enter WiFi SSID">
-        <label for="wifi_password">WiFi Password:</label>
+        <label for="wifi_password">
+          <details>
+            <summary>WiFi Password</summary>
+            <p>Password for the WiFi network. Leave blank if no password. Check the "Use previous password" box to reuse
+              the last entered password.</p>
+          </details>
+        </label>
         <div class="checkbox-row">
-          <input type="checkbox" id="use_previous_password" name="use_previous_password" checked>
-          <label for="use_previous_password">Use previous password</label>
+          <input type="checkbox" id="use_previous_password" name="use_previous_password"
+            onmousedown="this.form.wifi_password.disabled=!this.checked">
+          <label for="use_previous_password"
+            onmousedown="this.form.wifi_password.disabled=!use_previous_password.checked">Use previous password</label>
         </div>
         <input type="password" id="wifi_password" name="wifi_password" placeholder="Enter WiFi Password">
 
-        <label for="api_endpoint_url">API Endpoint URL:</label>
+        <label for="api_endpoint_url">
+          <details>
+            <summary>API Endpoint URL</summary>
+            <p>Address that the ENTS board will send data to. This is typically:
+              <em>http://your-ents-backend-instance-here.com/api/sensor/</em>
+            </p>
+            <p>If your endpoint uses a non-standard port, append it to the end of the URL:
+              <em>http://your-ents-backend-instance-here.com/api/sensor/:12345</em>
+            </p>
+          </details>
+        </label>
         <input type="url" id="api_endpoint_url" name="api_endpoint_url" placeholder="http:// or https://"
           value="http://dirtviz.jlab.ucsc.edu/api/sensor/">
       </div>
@@ -407,12 +514,6 @@
             "PCAP02": "PCAP02_enabled"
           };
 
-          // Clear all first
-          Object.values(sensorMap).forEach(id => {
-            const cb = document.getElementById(id);
-            if (cb) cb.checked = false;
-          });
-
           // Enable those in config
           if (Array.isArray(config.enabled_sensors)) {
             config.enabled_sensors.forEach(sensorName => {
@@ -430,9 +531,45 @@
         }
       }
 
-      // Modify onload to also fetch config
+      // Populate fields from /identity
+      async function loadIdentity() {
+        try {
+          const response = await fetch('/identity');
+          if (!response.ok) throw new Error("Failed to fetch identity");
+
+          const identity = await response.json();
+
+          // Fill standard fields
+          const fields = [
+            "ESP32_STA_MAC",
+            "ESP32_AP_MAC",
+            "ESP32_AP_SSID",
+            "STM32_AppKey",
+            "STM32_NwkKey",
+            "STM32_AppSKey",
+            "STM32_NwkSKey",
+            "STM32_DevEUI",
+            "STM32_AppEUI",
+            "STM32_DevAddr"
+          ];
+
+          fields.forEach(key => {
+            const field = document.getElementById(key);
+            if (field && identity[key] !== undefined) {
+              field.textContent = identity[key];
+            }
+          });
+
+        } catch (err) {
+          console.error("Error loading identity:", err);
+          showError("Could not load identity from device.");
+        }
+      }
+
+      // Modify onload to also fetch config and identity
       window.onload = function () {
         loadConfig();
+        loadIdentity();
       };
     </script>
   </div>

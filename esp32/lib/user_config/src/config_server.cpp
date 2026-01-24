@@ -33,6 +33,13 @@ void handleSave();
 void handleConfig();
 
 /**
+ * @brief Get the ESP32 STA MAC, ESP32 AP MAC, and STM32 device address (DevEUI)
+ *
+ * Returns the identity information as text
+ */
+void handleIdentity();
+
+/**
  * @brief Prints debug information for http queries.
  *
  * Must be called within the web server request handler to log the query.
@@ -204,6 +211,40 @@ void handleConfig() {
   server.send(200, "application/json", json);
 }
 
+void handleIdentity() {
+  printQuery();
+
+  String json = "{";
+  json += "\"ESP32_STA_MAC\":\"" + String(WiFi.macAddress()) + "\",";
+  json += "\"ESP32_AP_MAC\":\"" + String(WiFi.softAPmacAddress()) + "\",";
+  json += "\"ESP32_AP_SSID\":\"" + String(WiFi.softAPSSID()) + "\",";
+
+  // String STM32_devAddr = WiFi.softAPSSID().substring(5);
+  // String STM32_devAddr = (String) WiFi.softAPSSID()[{5,}];
+  // The last 8 characters of the AP SSID represent the 4 byte STM32 device
+  // address in hex
+  String STM32_devAddr = WiFi.softAPSSID().substring(5, 7) + ":" +
+                         WiFi.softAPSSID().substring(7, 9) + ":" +
+                         WiFi.softAPSSID().substring(9, 11) + ":" +
+                         WiFi.softAPSSID().substring(11, 13);
+
+  json += "\"STM32_AppKey\":\"" +
+          String("2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C") + "\",";
+  json += "\"STM32_NwkKey\":\"" +
+          String("2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C") + "\",";
+  json += "\"STM32_AppSKey\":\"" +
+          String("2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C") + "\",";
+  json += "\"STM32_NwkSKey\":\"" +
+          String("2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C") + "\",";
+  json +=
+      "\"STM32_DevEUI\":\"" + String("00:80:E1:15:") + STM32_devAddr + "\",";
+  json += "\"STM32_AppEUI\":\"" + String("01:01:01:01:01:01:01:01") + "\",";
+  json += "\"STM32_DevAddr\":\"" + String(STM32_devAddr) + "\"";
+  json += "}";
+
+  server.send(200, "application/json", json);
+}
+
 void setupServer() {
   // start server once
   bool started = false;
@@ -211,6 +252,7 @@ void setupServer() {
     server.serveStatic("/", LittleFS, "/index.html");
     server.on("/save", HTTP_POST, handleSave);
     server.on("/config", HTTP_GET, handleConfig);
+    server.on("/identity", HTTP_GET, handleIdentity);
     server.begin();
 
     started = true;
