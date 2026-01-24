@@ -219,8 +219,6 @@ void handleIdentity() {
   json += "\"ESP32_AP_MAC\":\"" + String(WiFi.softAPmacAddress()) + "\",";
   json += "\"ESP32_AP_SSID\":\"" + String(WiFi.softAPSSID()) + "\",";
 
-  // String STM32_devAddr = WiFi.softAPSSID().substring(5);
-  // String STM32_devAddr = (String) WiFi.softAPSSID()[{5,}];
   // The last 8 characters of the AP SSID represent the 4 byte STM32 device
   // address in hex
   String STM32_devAddr = WiFi.softAPSSID().substring(5, 7) + ":" +
