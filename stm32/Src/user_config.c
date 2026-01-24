@@ -24,27 +24,23 @@ void UserConfigStart(unsigned int timeout) {
   // constant password for AP
   const char pass[] = "ilovedirt";
 
-  
+
   // Reload user config from FRAM 
   UserConfigStatus status_load = UserConfigLoad();
 
-  // get the current user config
-  // NOTE needed to configure teh AP ssid
-  const UserConfiguration* cfg = UserConfigGet();
-
   // start user config interface
-  if (status_load != USERCONFIG_OK) {
-    strncpy(ssid, "ents-unconfigured", sizeof(ssid));
-  } else {
+  if (status_load == USERCONFIG_OK) {
     // print current user config
     APP_LOG(TS_OFF, VLEVEL_M, "\nCurrent user configuration:\n");
     APP_LOG(TS_OFF, VLEVEL_M, "---------------------------\n");
     UserConfigPrint();
     APP_LOG(TS_OFF, VLEVEL_M, "\n");
-
-    // set ssid to logger id
-    snprintf(ssid, sizeof(ssid), "ents-%d", (int) cfg->logger_id);
   }
+  
+  uint32_t devAddr = 0;
+  GetDevAddr(&devAddr);
+  snprintf(ssid, sizeof(ssid), "ents-%08X", devAddr);
+  
   ControllerWiFiHost(ssid, pass);
   ControllerUserConfigStart();
 
