@@ -140,7 +140,7 @@ void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
     APP_LOG(TS_OFF, VLEVEL_M, "%02X", buffer[j]);
   }
   APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
-  
+
 #ifdef SAVE_TO_MICROSD
   ControllerMicroSDSave(buffer, buffer_len);
 #endif
