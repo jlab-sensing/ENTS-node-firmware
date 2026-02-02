@@ -149,6 +149,10 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Flow Rate",
             "unit": "L/min",
         },
+        SensorType.PCAP02_CAPACITANCE: {
+            "name": "Capacitance Ratio",
+            "unit": "pF/pF",
+        },
     }
 
     meta = SENSOR_DATA[SensorType.Value(meas_type)]
