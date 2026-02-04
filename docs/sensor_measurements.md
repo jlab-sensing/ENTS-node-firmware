@@ -39,6 +39,18 @@ enum SensorType {
   ...
 ```
 
+#### Publishing the Release
+
+1. Update [changelog](https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/CHANGELOG.md) (what changed & links to issues and PRs). In this step, the changelog should be labeled as "Unreleased".
+2. Merge the PR.
+3. Update version numbers: Python package in [pyproject.toml](https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/python/pyproject.toml#L7), Doxygen [Doxyfile](https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/doxygen/Doxyfile#L51), protobuf platformIO [library.json](https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/proto/c/library.json#L3), and update the [changelog](https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/CHANGELOG.md) from unreleased to the current date.
+4. Commit the changes with a message describing the version bump.
+5. `git tag <version_number>`
+6. `git push`
+7. `git push --tags`
+8. Wait for the Python action to run. This will automatically create a GitHub release for you.
+9. Copy over the changelog to the newly created release on GitHub.
+10. Check the [ents Python package](https://pypi.org/project/ents/) to see if it updated correctly. The [Release History](https://pypi.org/project/ents/#history) tab should show you the updated version and corrected timestamp.
 
 #### Implementation
 
