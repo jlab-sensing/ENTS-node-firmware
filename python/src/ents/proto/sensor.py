@@ -86,6 +86,10 @@ def get_sensor_data(meas_type: int) -> dict:
             "unit": "uA",
         },
         SensorType.TEROS12_VWC: {
+            "name": "Volumetric Water Content (Raw)",
+            "unit": "raw",
+        },
+        SensorType.TEROS12_VWC_ADJ: {
             "name": "Volumetric Water Content",
             "unit": "%",
         },
@@ -144,6 +148,10 @@ def get_sensor_data(meas_type: int) -> dict:
         SensorType.YFS210C_FLOW: {
             "name": "Flow Rate",
             "unit": "L/min",
+        },
+        SensorType.PCAP02_CAPACITANCE: {
+            "name": "Capacitance Ratio",
+            "unit": "pF/pF",
         },
     }
 

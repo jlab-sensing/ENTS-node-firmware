@@ -8,6 +8,16 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
+## [2.3.7] - 2026-02-03
+
+### Added
+
+- Added documentation on publishing new releases.
+
+### Fixed
+
+- Fixed python library to distinguish between raw TEROS12 VWC readings and adjusted TEROS12 VWC readings. [ents-backend#610](https://github.com/jlab-sensing/ENTS-backend/issues/610)
+
 ## [2.3.6] - 2026-01-22
 
 ### Added
