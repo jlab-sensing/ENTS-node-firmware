@@ -82,12 +82,7 @@ size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   if (sen_status != SENSOR_OK) {
     return -1;
   }
-
-  // vwc_adj disabled to avoid KeyError on backend when decoding.
-  // TEROS12_VWC_ADJ does not yet exist.
-  // https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/python/src/ents/proto/sensor.py
-
-  // SensorsAddMeasurement(data, data_len);
+  SensorsAddMeasurement(data, data_len);
 
   // temp
   sen_status = EncodeDoubleMeasurement(
