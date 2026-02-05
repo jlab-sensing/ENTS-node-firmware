@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ents"
-version = "2.3.5"
+version = "2.3.7"
 authors = [
   { name="John Madden", email="jmadden173@pm.me" },
 ]
@@ -17,7 +17,7 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  'protobuf==6.33.2',
+  'protobuf==6.33.4',
   'matplotlib',
   'pandas',
   'pyserial',

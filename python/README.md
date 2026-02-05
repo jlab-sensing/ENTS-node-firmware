@@ -8,14 +8,14 @@ The soil power sensor protobuf protocol is implemented as a Python package that 
 Use the following to install the `ents` package with gui via `pip`:
 
 ```bash
-pip install ents[gui]
+pip install ents
 ```
 
 You can also install the package from source with the following:
 
 ```bash
 # install package
-pip install .[gui]
+pip install .
 ```
 
 If you are planning to develop the package we recommend you install the package
@@ -25,114 +25,68 @@ reinstall it.
 
 ```bash
 # install development dependencies
-pip install -e .[gui,dev]
+pip install -e .[dev]
 ```
 
-## Usage
-
-The following example code demonstrates decoding the measurement message and encoding a response.
-
-```python
-from ents import encode, decode
-
-# get data encoded by the soil power sensor
-data = ...
-
-meas_dict = decode(data)
-
-# process data
-...
-
-# send response
-resp_str = encode(success=True)
-```
-
-The formatting of the dictionary depends on the type of measurement sent. The key `type` is included on all measurement types and can be used to determine the type of message. See the source `*.proto` files to get the full list of types to get the full list of types and keys. A list is provided in [Message Types](#message-types). The Python protobuf API uses camel case when naming keys. The key `ts` is in ISO 8601 format as a string.
-
-## Message Types
-
-Type `power`
-```python
-meas_dict = {
-  "type": "power",
-  "loggerId": ...,
-  "cellId": ...,
-  "ts": ...,
-  "data": {
-    "voltage": ...,
-    "current": ...
-  },
-  "data_type": {
-    "voltage": float,
-    "voltage": float
-  }
-}
-```
-
-Type `teros12`
-```python
-meas_dict = {
-  "type": "teros12",
-  "loggerId": ...,
-  "cellId": ...,
-  "ts": ...,
-  "data": {
-    "vwcRaw": ...,
-    "vwcAdj": ...,
-    "temp": ...,
-    "ec": ...
-  },
-  "data_type": {
-    "vwcRaw": float,
-    "vwcAdj": float,
-    "temp": float,
-    "ec": int
-  }
-}
-```
-
-Type `bme280` with `raw=True` (default)
-```python
-meas_dict = {
-  "type": "bme280",
-  "loggerId": ...,
-  "cellId": ...,
-  "ts": ...,
-  "data": {
-    "pressure": ...,
-    "temperature": ...,
-    "humidity": ...,
-  },
-  "data_type": {
-    "pressure": int,
-    "temperature": int,
-    "humidity": int, 
-  }
-}
-```
-
-Type `bme280` with `raw=False`
-```python
-meas_dict = {
-  "type": "bme280",
-  "loggerId": ...,
-  "cellId": ...,
-  "ts": ...,
-  "data": {
-    "pressure": ...,
-    "temperature": ...,
-    "humidity": ...,
-  },
-  "data_type": {
-    "pressure": float,
-    "temperature": float,
-    "humidity": float, 
-  }
-}
+To install the *deprecated* user config gui, use the following: =
+```bash
+pip install -e ents[gui]
 ```
 
 
-## Simulator
+
+## Simulator (New)
+
+The webserver `tools/http_decoder.py` can be used to decode uploaded measurements.
+
+### CLI Usage
+
+```
+usage: ents sim_generic [-h] [-v] [--url URL] --sensor SENSOR [SENSOR ...] [--min MIN] [--max MAX] --cell CELL --logger LOGGER [--start START] [--end END] [--freq FREQ] {batch,stream}
+
+positional arguments:
+  {batch,stream}        Upload mode
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Print addiitional request information.
+  --url URL             URL of the dirtviz instance (default: http://localhost:8000)
+  --sensor SENSOR [SENSOR ...]
+                        Type of sensor to simulate
+  --min MIN             Minimum sensor value (default: -1.0)
+  --max MAX             Maximum sensor value (default: 1.0)
+  --cell CELL           Cell Id
+  --logger LOGGER       Logger Id
+
+Batch:
+  --start START         Start date
+  --end END             End date
+
+Stream:
+  --freq FREQ           Frequency of uploads (default: 10s)
+```
+
+### Examples
+
+You can find the available sensors in the `sensors.proto` file.
+
+Example uploading single measurement
+```
+ents sim_generic stream --sensor POWER_VOLTAGE --min 20 --max 30 --cell 1 --logger 1
+```
+
+Example uploading multiple measuremnets
+```
+ents sim_generic stream --sensor TEROS12_VWC_ADJ TEROS12_TEMP TEROS12_EC --min 10 --max 100 --cell 1 --logger 1
+```
+
+Example batch uploads
+```
+ents sim_generic batch --sensor POWER_CURRENT --cell 1 --logger 1 --start 2026-01-19 --end 2026-01-20 --freq 60
+```
+
+
+## Simulator (Old)
 
 Simulate WiFi sensor uploads without requiring ENTS hardware.
 

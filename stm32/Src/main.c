@@ -24,34 +24,33 @@
 #include "app_lorawan.h"
 
 // userland
-#include "ads.h"
 #include "adc.h"
+#include "ads.h"
 #include "bme280_sensor.h"
 #include "board.h"
 #include "controller/controller.h"
+#include "controller/power.h"
 #include "controller/wifi.h"
 #include "controller/wifi_userconfig.h"
-#include "controller/power.h"
+#include "pcap02.h"
 #include "phytos31.h"
+#include "sen0308.h"
 #include "sensors.h"
 #include "status_led.h"
 #include "teros12.h"
 #include "teros21.h"
-#include "pcap02.h"
 #include "userConfig.h"
-#include "wifi.h"
-#include "waterPressure.h"
-#include "sen0308.h"
-#include "waterFlow.h"
 #include "user_config.h"
+#include "waterFlow.h"
+#include "waterPressure.h"
+#include "wifi.h"
 
 // Board configuration - define ONLY ONE of these
 // Comment these out to disable sensors
 #define DEFAULT
-//#define USE_CAP_SOIL_SENSOR
-//#define USE_WATER_PRESSURE_SENSOR
-//#define USE_FLOW_METER_SENSOR
-
+// #define USE_CAP_SOIL_SENSOR
+// #define USE_WATER_PRESSURE_SENSOR
+// #define USE_FLOW_METER_SENSOR
 
 /**
  * @brief  The application entry point.
@@ -71,8 +70,8 @@ int main(void) {
   MX_DMA_Init();
   MX_ADC_Init();
   MX_USART1_UART_Init();
-  MX_I2C2_Init(); 
-  SystemApp_Init(); 
+  MX_I2C2_Init();
+  SystemApp_Init();
 
   APP_PRINTF("\n\nRESET!\n\n");
   const char header[] = R"""(
@@ -86,10 +85,28 @@ int main(void) {
 |                                   |
 |  Environmentally NeTworked Sensor |
 +-----------------------------------+
-)"""; 
+)""";
   APP_PRINTF("\n%s\n", header);
-  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__, __TIME__);
+  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__,
+             __TIME__);
   APP_PRINTF("Git SHA: %s\n\n", GIT_REV);
+
+  // Typically, you need to apply a userconfig that specifies LoRa as the upload method before you can see the LoRaWAN keys.
+  // To eliminate that step in the board setup process, the only uniquely changing values (DevAddr and DevEUI) are shown.
+  // To keep in line with the LmHandler's formatting, the common AppKey, NwkKey, AppSKey, and NwkSKey are also shown.
+  uint32_t devAddr = 0;
+  GetDevAddr(&devAddr);
+  APP_PRINTF(
+      "###### AppKey:      2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C\r\n"
+      "###### NwkKey:      2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C\r\n"
+      "###### AppSKey:     2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C\r\n"
+      "###### NwkSKey:     2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C\r\n"
+      "###### DevEUI:      00:80:E1:15:%02X:%02X:%02X:%02X\r\n"
+      "###### AppEUI:      01:01:01:01:01:01:01:01\r\n"
+      "###### DevAddr:     %02X:%02X:%02X:%02X\r\n",
+      (devAddr >> 24) & 0xFF, (devAddr >> 16) & 0xFF, (devAddr >> 8) & 0xFF,
+      (devAddr) & 0xFF, (devAddr >> 24) & 0xFF, (devAddr >> 16) & 0xFF,
+      (devAddr >> 8) & 0xFF, (devAddr) & 0xFF);
 
   // Start status LEDs
   StatusLedInit();
@@ -97,14 +114,14 @@ int main(void) {
 
   // Wakeup via GPIO pin
   ControllerWakeup();
-  
-  // initialize esp32 controller module  
+
+  // initialize esp32 controller module
   ControllerInit();
 
   if (!ControllerPowerWakeup()) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error waking up ESP32!\n");
   }
-  
+
   // Print warning when using TEST_USER_CONFIG
 #ifdef TEST_USER_CONFIG
   APP_LOG(TS_OFF, VLEVEL_M, "WARNING: TEST_USER_CONFIG is enabled!\n");
@@ -114,50 +131,48 @@ int main(void) {
   const UserConfiguration* cfg = UserConfigGet();
 
   // initialize the user config interrupt
-  //UserConfig_InitAdvanceTrace();
-  
+  // UserConfig_InitAdvanceTrace();
+
   // currently not functional
-  //FIFO_Init();
-  
+  // FIFO_Init();
+
   APP_LOG(TS_OFF, VLEVEL_M, "Enabling Sensors\n");
   APP_LOG(TS_OFF, VLEVEL_M, "----------------\n");
 
   // init senors interface
   SensorsInit();
 
-
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
     if (sensor == EnabledSensor_Voltage) {
-      #ifdef DEFAULT
+#ifdef DEFAULT
       ADC_init();
       SensorsAdd(ADC_measureVoltage);
       APP_LOG(TS_OFF, VLEVEL_M, "Voltage Enabled!\n");
-      #endif
+#endif
 
-      #ifdef USE_FLOW_METER_SENSOR
+#ifdef USE_FLOW_METER_SENSOR
       FlowInit();
       SensorsAdd(WatFlow_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "Flow Meter Enabled!\n");
-      #endif
+#endif
 
-      #ifdef USE_WATER_PRESSURE_SENSOR
+#ifdef USE_WATER_PRESSURE_SENSOR
       PressureInit();
       SensorsAdd(WatPress_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "Water Pressure Sensor Enabled!\n");
-      #endif
+#endif
 
-      #ifdef USE_CAP_SOIL_SENSOR
+#ifdef USE_CAP_SOIL_SENSOR
       CapSoilInit();
       SensorsAdd(SEN0308_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Sensor Enabled!\n");
-      #endif
+#endif
 
-      #ifdef USE_PHYTOS31_SENSOR
+#ifdef USE_PHYTOS31_SENSOR
 
-
-      #endif
+#endif
     }
     if (sensor == EnabledSensor_Current) {
       ADC_init();
@@ -206,7 +221,7 @@ int main(void) {
   }
 
   StatusLedFlashFast();
-  
+
   APP_LOG(TS_OFF, VLEVEL_M, "\n\n");
 
   // init either WiFi or LoRaWAN
@@ -223,13 +238,12 @@ int main(void) {
   ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
 #endif
 
-
   while (1) {
     MX_LoRaWAN_Process();
 
-    #ifdef USE_FLOW_METER_SENSOR
+#ifdef USE_FLOW_METER_SENSOR
     FlowBackgroundTask();
-    #endif
+#endif
   }
 }
 
@@ -238,10 +252,10 @@ int main(void) {
 void FlowBackgroundTask(void) {
   static uint32_t last_check = 0;
   uint32_t current_time = HAL_GetTick();
-  
+
   // Update flow measurement every 100ms
   if (current_time - last_check >= 100) {
-    FlowGetMeasurement(); // This updates the internal state
+    FlowGetMeasurement();  // This updates the internal state
     last_check = current_time;
   }
 }

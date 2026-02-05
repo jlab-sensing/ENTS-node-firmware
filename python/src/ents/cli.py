@@ -36,7 +36,7 @@ from .proto.sensor import (
     decode_sensor_response,
 )
 
-from .simulator.node import NodeSimulator
+from .simulator.node import NodeSimulator, NodeSimulatorGeneric
 
 
 def entry():
@@ -68,15 +68,22 @@ def create_sim_generic_parser(subparsers):
     """
 
     sim_p = subparsers.add_parser("sim_generic", help="Simluate generic sensor uploads")
+
+    sim_p.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Print addiitional request information.",
+    )
+
     sim_p.add_argument(
         "--url",
-        required=True,
+        default="http://localhost:8000/api/sensor",
         type=str,
         help="URL of the dirtviz instance (default: http://localhost:8000)",
     )
     sim_p.add_argument(
-        "--mode",
-        required=True,
+        "mode",
         choices=["batch", "stream"],
         type=str,
         help="Upload mode",
@@ -88,6 +95,7 @@ def create_sim_generic_parser(subparsers):
         nargs="+",
         help="Type of sensor to simulate",
     )
+
     sim_p.add_argument(
         "--min", type=float, default=-1.0, help="Minimum sensor value (default: -1.0)"
     )
@@ -96,11 +104,16 @@ def create_sim_generic_parser(subparsers):
     )
     sim_p.add_argument("--cell", required=True, type=int, help="Cell Id")
     sim_p.add_argument("--logger", required=True, type=int, help="Logger Id")
-    sim_p.add_argument("--start", type=str, help="Start date")
-    sim_p.add_argument("--end", type=str, help="End date")
-    sim_p.add_argument(
+
+    batch = sim_p.add_argument_group("Batch")
+    batch.add_argument("--start", type=str, help="Start date")
+    batch.add_argument("--end", type=str, help="End date")
+
+    stream = sim_p.add_argument_group("Stream")
+    stream.add_argument(
         "--freq", default=10.0, type=float, help="Frequency of uploads (default: 10s)"
     )
+
     sim_p.set_defaults(func=simulate_generic)
 
     return sim_p
@@ -149,7 +162,12 @@ def create_sim_parser(subparsers):
 
 
 def simulate_generic(args):
-    simulation = NodeSimulator(
+    if args.verbose:
+        print("Arguments:")
+        print(args)
+        print()
+
+    simulation = NodeSimulatorGeneric(
         cell=args.cell,
         logger=args.logger,
         sensors=args.sensor,
@@ -184,8 +202,17 @@ def simulate_generic(args):
                 dt = datetime.now()
                 ts = int(dt.timestamp())
                 simulation.measure(ts)
+
                 while simulation.send_next(args.url):
                     print(simulation)
+
+                if args.verbose:
+                    print("Request")
+                    print(simulation.last_request())
+                    print("\nResponse")
+                    print(simulation.last_response())
+                    print()
+
                 time.sleep(args.freq)
         except KeyboardInterrupt as _:
             print("Stopping simulation")
