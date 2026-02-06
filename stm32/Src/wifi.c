@@ -163,7 +163,7 @@ void Upload(void) {
   // print buffer
   APP_LOG(TS_ON, VLEVEL_M, "Payload[%d]: ", buffer_len);
   for (int i = 0; i < buffer_len; i++) {
-    APP_LOG(TS_OFF, VLEVEL_M, "%x ", buffer[i]);
+    APP_LOG(TS_OFF, VLEVEL_M, "%02X ", buffer[i]);
   }
   APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
 

@@ -44,6 +44,9 @@ SDI12Status Teros12GetMeasurement(char addr, Teros12Data *data) {
 size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Teros12Data sens_data = {};
   SDI12Status status = Teros12GetMeasurement('0', &sens_data);
+  APP_LOG(TS_ON, VLEVEL_H,
+          "\tTeros12GetMeasurement() return %d (vwc=%f, temp=%f, ec=%d)\r\n",
+          status, sens_data.vwc, sens_data.temp, sens_data.ec);
   if (status != SDI12_OK) {
     return -1;
   }
@@ -53,6 +56,7 @@ size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   // calibration equation for mineral soils from Teros12 user manual
   // https://publications.metergroup.com/Manuals/20587_TEROS11-12_Manual_Web.pdf?_gl=1*174xdyp*_gcl_au*MTIxODkwMzcuMTc0MTIwMjU3Nw..
   float vwc_adj = (3.879e-4 * sens_data.vwc) - 0.6956;
+  APP_LOG(TS_ON, VLEVEL_H, "\tvwc_adj == %f \r\n", vwc_adj);
 
   // metadata
   Metadata meta = Metadata_init_zero;
