@@ -216,6 +216,7 @@ int main(void) {
     //   APP_LOG(TS_OFF, VLEVEL_M, "YFS210C Flow Meter Enabled!\n");
     // }
     if (sensor == EnabledSensor_PCAP02) {
+      pcap02_gpio_init();
       pcap02_init();
       SensorsAdd(pcap02_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "PCAP02 Enabled!\n");

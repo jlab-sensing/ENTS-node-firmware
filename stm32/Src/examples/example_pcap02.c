@@ -33,12 +33,11 @@ int main(void) {
   /* Configure the system clock */
   SystemClock_Config();
 
-  SystemApp_Init();
-
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C2_Init();
   MX_USART1_UART_Init();
+  MX_I2C2_Init();
+  SystemApp_Init();
 
   // Pin A10 (STM32WLE5JC) is used as an interrupt.
   // This function must be called after MX_GPIO_Init()
@@ -70,17 +69,6 @@ int main(void) {
 
   while (1) {
     pcap02_measure_capacitance(&res1, &res2, &res3);
-    // Evaluate the conversion
-    // APP_LOG(TS_OFF, VLEVEL_M,
-    //         "0x%02X%02X%02X (0x%06X)\r\n"
-    //         "\tfixed  (3): %01d\r\n"
-    //         "\tfract (21): %d / %d = %f\r\n"
-    //         "\tC1/C0     : %f\r\n"
-    //         "\tC1        : %f pF\r\n",
-    //         result.byte[2], result.byte[1], result.byte[0], result.word,
-    //         result.fixed, result.fractional, (1 << 21),
-    //         result.fractional / ((float)(1 << 21)), fixed_to_double(&result),
-    //         PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_double(&result));
     res1_double = fixed_to_double(&res1);
     res2_double = fixed_to_double(&res2);
     res3_double = fixed_to_double(&res3);
@@ -90,6 +78,6 @@ int main(void) {
             conv, res1_double, res1_double * 47, res2_double, res2_double * 47,
             res3_double, res3_double * 47);
     conv++;
-    HAL_Delay(100);
+    HAL_Delay(1000);
   }
 }

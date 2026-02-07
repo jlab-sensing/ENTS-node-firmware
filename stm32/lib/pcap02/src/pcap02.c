@@ -6,12 +6,19 @@
 #include "sensors.h"
 #include "userConfig.h"
 
+// Select between interrupt-driven mode (uncomment) and polling mode (comment).
+// Unsolved issue: If interrupt-driven mode is selected, the interrupt line goes
+// low after the first upload and immediately before the subsequent call to
+// SensorsMeasure().
+// #define PCAP02_DATA_READY_INTERRUPT
+
 // Private Globals
 static HAL_StatusTypeDef ret = HAL_OK;
 static volatile uint16_t dev_addr = PCAP02_I2C_ADDRESS;
 
-static volatile uint32_t INTN_Counter = 0;
-static volatile uint8_t INTN_State = GPIO_PIN_SET;
+#ifdef PCAP02_DATA_READY_INTERRUPT
+static volatile uint8_t INTN_Flag_Pcap02_Ready = 0;
+#endif
 
 // Private Function Definitions
 uint32_t test_sram_write_byte(uint8_t txData, uint16_t location);
@@ -112,6 +119,10 @@ void pcap02_init(void) {
   APP_LOG(TS_OFF, VLEVEL_H, "Initialize.\r\n");
   ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_INITIALIZE);
   if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
+
+#ifdef PCAP02_DATA_READY_INTERRUPT
+  INTN_Flag_Pcap02_Ready = 0;
+#endif
 }
 
 void pcap02_gpio_init(void) {
@@ -122,9 +133,16 @@ void pcap02_gpio_init(void) {
 
   /*Configure GPIO pin : INTN_Pin */
   GPIO_InitStruct.Pin = PCAP02_INTN_Pin;
+#ifdef PCAP02_DATA_READY_INTERRUPT
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+#else
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+#endif
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(PCAP02_INTN_GPIO_Port, &GPIO_InitStruct);
+#ifdef PCAP02_DATA_READY_INTERRUPT
+  INTN_Flag_Pcap02_Ready = 0;
+#endif
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(PCAP02_INTN_EXTI_IRQn, 0, 0);
@@ -756,7 +774,14 @@ uint32_t test_sram_write_memory_access(uint8_t txData[], uint8_t rxData[],
 // This function will block until the result registers are read (~4 ms).
 void pcap02_measure_capacitance(pcap02_result_t *Res1, pcap02_result_t *Res2,
                                 pcap02_result_t *Res3) {
-  // 6. Start measurement (CDC Start conversion)
+// 6. Start measurement (CDC Start conversion)
+#ifdef PCAP02_DATA_READY_INTERRUPT
+  if (INTN_Flag_Pcap02_Ready) {
+    APP_LOG(TS_OFF, VLEVEL_H,
+            "Flag was pre-raised, resetting flag before conversion start.\r\n");
+    INTN_Flag_Pcap02_Ready = 0;
+  }
+#endif
   APP_LOG(TS_OFF, VLEVEL_H, "CDC Start Conversion.\r\n");
   ret = I2C_Write_Opcode(dev_addr, PCAP02_OPCODE_CDC_START_CONVERSION);
   if (ret) APP_LOG(TS_OFF, VLEVEL_H, "\tret (HAL) %d\r\n", ret);
@@ -778,11 +803,19 @@ void pcap02_measure_capacitance(pcap02_result_t *Res1, pcap02_result_t *Res2,
   // Read result register after INTN = 0
   // Note: Approximately 82 ms or 83 ms between prints.
 
-  // Wait for the interrupt pin to go low.
-  while (INTN_State != GPIO_PIN_RESET);
+#ifdef PCAP02_DATA_READY_INTERRUPT
+  // Wait for interrupt callback to set flag to 1, indicating data ready.
+  while (!INTN_Flag_Pcap02_Ready);
 
   // Reset flag.
-  INTN_State = GPIO_PIN_SET;
+  INTN_Flag_Pcap02_Ready = 0;
+#endif
+
+  // Polling mode: block while pin is high.
+  // Pin goes low when data is ready.
+  // Typically 3.3 ms between opcode and data ready.
+  while (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
+         GPIO_PIN_SET);
 
   // APP_LOG(
   //     TS_OFF, VLEVEL_H,
@@ -817,6 +850,18 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   // Note: res2 and res3 are unused. Only res1 (C1/C0) is uploaded.
   pcap02_measure_capacitance(&res1, &res2, &res3);
 
+  static uint32_t conv = 1;
+  double res1_double, res2_double, res3_double;
+  res1_double = fixed_to_double(&res1);
+  res2_double = fixed_to_double(&res2);
+  res3_double = fixed_to_double(&res3);
+  APP_LOG(TS_OFF, VLEVEL_H,
+          "%d (47pF): C1/C0 = %lf, %lf pF, C2/C0 = %lf, %lf pF, C3/C0 = %lf, "
+          "%lf pF\r\n",
+          conv, res1_double, res1_double * 47, res2_double, res2_double * 47,
+          res3_double, res3_double * 47);
+  conv++;
+
   const UserConfiguration *cfg = UserConfigGet();
 
   // metadata
@@ -837,17 +882,16 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   return data_len;
 }
 
+#ifdef PCAP02_DATA_READY_INTERRUPT
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(GPIO_Pin);
 
-  // Note: It takes about 1us after INTN
+  APP_LOG(TS_OFF, VLEVEL_H, "\t\tEXTI: trig %d val %d\r\n", GPIO_Pin,
+          HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin));
 
   if (GPIO_Pin == PCAP02_INTN_Pin) {
-    INTN_State = (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
-                  GPIO_PIN_SET); /* low active */
-    if (INTN_State == GPIO_PIN_RESET) {
-      INTN_Counter += 1;
-    }
+    INTN_Flag_Pcap02_Ready = 1;
   }
 }
+#endif

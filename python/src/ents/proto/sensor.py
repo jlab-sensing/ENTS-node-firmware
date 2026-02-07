@@ -150,8 +150,8 @@ def get_sensor_data(meas_type: int) -> dict:
             "unit": "L/min",
         },
         SensorType.PCAP02_CAPACITANCE: {
-            "name": "Capacitance Ratio",
-            "unit": "pF/pF",
+            "name": "Capacitance",
+            "unit": "pF",
         },
     }
 
