@@ -53,9 +53,11 @@ size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
 
   const UserConfiguration *cfg = UserConfigGet();
 
-  // calibration equation for mineral soils from Teros12 user manual
+  // calibration equation for mineral soils from Teros12 user manual and scale
+  // to percent scale
   // https://publications.metergroup.com/Manuals/20587_TEROS11-12_Manual_Web.pdf?_gl=1*174xdyp*_gcl_au*MTIxODkwMzcuMTc0MTIwMjU3Nw..
   float vwc_adj = (3.879e-4 * sens_data.vwc) - 0.6956;
+  vwc_adj *= 100;
   APP_LOG(TS_ON, VLEVEL_H, "\tvwc_adj == %f \r\n", vwc_adj);
 
   // metadata
