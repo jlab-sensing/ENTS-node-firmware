@@ -8,6 +8,14 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
+## Unreleased
+
+### Added
+
+- Additional information on web userconfig interface [#308](pr308)
+
+[pr308]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/308
+
 ## [2.3.7] - 2026-02-03
 
 ### Added
