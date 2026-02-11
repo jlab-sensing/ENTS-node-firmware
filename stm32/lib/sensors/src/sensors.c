@@ -118,29 +118,29 @@ void SensorsMeasure(void) {
 
   // loop over callbacks
   for (int i = 0; i < callback_arr_len; i++) {
+    APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
+
     // call measurement function
     buffer_len = callback_arr[i](buffer, ts, meas_idx++);
 
-    APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
-
     if (buffer_len == ((size_t)-1)) {
       APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");
-      return;
+      continue;
     }
-
-    APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
-    APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
-
-    for (int j = 0; j < buffer_len; j++) {
-      APP_LOG(TS_OFF, VLEVEL_M, "%x", buffer[j]);
-    }
-    APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
 
     SensorsAddMeasurement(buffer, buffer_len);
   }
 }
 
 void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
+  APP_LOG(TS_ON, VLEVEL_M, "Buffer length: %u\r\n", buffer_len);
+  APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
+
+  for (int j = 0; j < buffer_len; j++) {
+    APP_LOG(TS_OFF, VLEVEL_M, "%02X", buffer[j]);
+  }
+  APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
+
 #ifdef SAVE_TO_MICROSD
   ControllerMicroSDSave(buffer, buffer_len);
 #endif

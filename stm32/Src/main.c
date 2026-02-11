@@ -74,6 +74,9 @@ int main(void) {
   SystemApp_Init();
 
   APP_PRINTF("\n\nRESET!\n\n");
+
+  HAL_Delay(100);
+
   const char header[] = R"""(
 +-----------------------------------+
 |   ______  _   _  _______  _____   |
@@ -141,7 +144,7 @@ int main(void) {
 
   // init senors interface
   SensorsInit();
-
+  
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
