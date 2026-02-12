@@ -8,8 +8,6 @@
 #include "pcap02_standard.h"
 #include "stm32_systime.h"
 
-extern volatile uint32_t INTN_Counter;
-
 #define PCAP02_REFERENCE_CAPACITOR_PF 47
 
 // Interrupt for PCAP02 INTN pin, which signals result ready
@@ -110,13 +108,14 @@ typedef union {
 // High level functions
 void pcap02_init(void);
 void pcap02_gpio_init(void);
-void pcap02_start_conversion(void);
-size_t pcap02_measure_capacitance(pcap02_result_t *result);
+void pcap02_measure_capacitance(pcap02_result_t *Res1, pcap02_result_t *Res2,
+                                pcap02_result_t *Res3);
 size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
-uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
+uint16_t pcap02_sram_write_firmware(const uint8_t *firmware,
+                                    uint16_t offset_bytes,
                                     uint16_t length_bytes);
-void pcap02_print_status_register(pcap02_read_register_status_t status);
+void pcap02_print_status_register(void);
 
 // Low level I2C functions
 void I2C_Sweep_DevAddr(uint8_t from_addr, uint8_t to_addr, uint8_t *addr_array);

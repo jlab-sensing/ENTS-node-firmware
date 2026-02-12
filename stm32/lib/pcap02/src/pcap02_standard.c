@@ -111,16 +111,17 @@ const uint8_t pcap02_standard_firmware_version[] = {
 };
 
 // Note: Register 77 (RUNBIT) is included here.
-// Default configuration, with minor changes:
-// Single floating (PC0 PC1 reference) R10 |= 0x01 (default single grounded)
-// Single conversion (by opcode) R24 = 0bXXXX_00XX (default continuous)
-// R17-R19 CONV_TIME 0 (default 2000, R17 0xD0, R18 0x07, R19 0x00)
+// Default standard configuration, with minor changes:
+// R10: Single floating (PC0 PC1 reference) R10 |= 0x01 (default 0x10 single grounded)
+// R12: Enable PC0-PC7 (all regular ports) R12 |= 0xFF (default 0x0F PC0-PC3)
+// R17-R19: CONV_TIME 0 (default 0xD0 0x07 0x00 which is 2000)
+// R24: Single conversion (by opcode) R24 &= ~0x0C (default 0x08 continuous)
 uint8_t pcap02_standard_config_registers[] = {
     0x0F, 0x00, 0x01, // Register  0,  1,  2
     0x94, 0x80, 0x05, // Register  3,  4,  5
     0x01, 0x04, 0xA8, // Register  6,  7,  8
     0x00, 0x11, 0x00, // Register  9, 10, 11
-    0x0F, 0x01, 0x00, // Register 12, 13, 14
+    0xFF, 0x01, 0x00, // Register 12, 13, 14
     0x00, 0x00, 0x00, // Register 15, 16, 17
     0x00, 0x00, 0x00, // Register 18, 19, 20
     0x00, 0x00, 0x02, // Register 21, 22, 23

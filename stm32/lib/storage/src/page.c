@@ -30,6 +30,8 @@ Page *AllocatePage(void) {
   new_page->next = NULL;
   new_page->prev = NULL;
   new_page->open = false;
+
+  return new_page;
 }
 
 void PageInit(void) {
