@@ -8,11 +8,13 @@ encoding/decoding cycle. Checks that missing fields result in an error and the
 correct dictionary format is returned.
 """
 
-import unittest
 import base64
+import unittest
+from math import inf, nan
 
 from ents.proto import (
     encode_response,
+    encode_teros12_measurement,
     decode_measurement,
     encode_esp32command,
     decode_esp32command,
@@ -48,6 +50,78 @@ class TestEncode(unittest.TestCase):
         resp_out.ParseFromString(resp_str)
 
         self.assertEqual(Response.ResponseType.ERROR, resp_out.resp)
+
+    def test_teros12_vwc_adj_fraction_normalized_to_percent(self):
+        meas_str = encode_teros12_measurement(
+            ts=1436079600,
+            cell_id=20,
+            logger_id=4,
+            vwc_raw=2124.62,
+            vwc_adj=0.9,
+            temp=24.8,
+            ec=123,
+        )
+
+        meas = Measurement()
+        meas.ParseFromString(meas_str)
+
+        self.assertAlmostEqual(90.0, meas.teros12.vwc_adj)
+
+    def test_teros12_vwc_adj_percent_not_double_scaled(self):
+        meas_str = encode_teros12_measurement(
+            ts=1436079600,
+            cell_id=20,
+            logger_id=4,
+            vwc_raw=2124.62,
+            vwc_adj=42.0,
+            temp=24.8,
+            ec=123,
+        )
+
+        meas = Measurement()
+        meas.ParseFromString(meas_str)
+
+        self.assertAlmostEqual(42.0, meas.teros12.vwc_adj)
+
+    def test_teros12_vwc_adj_boundary_one_scales_to_hundred(self):
+        meas_str = encode_teros12_measurement(
+            ts=1436079600,
+            cell_id=20,
+            logger_id=4,
+            vwc_raw=2124.62,
+            vwc_adj=1.0,
+            temp=24.8,
+            ec=123,
+        )
+
+        meas = Measurement()
+        meas.ParseFromString(meas_str)
+
+        self.assertAlmostEqual(100.0, meas.teros12.vwc_adj)
+
+    def test_teros12_vwc_adj_nan_rejected(self):
+        with self.assertRaises(ValueError):
+            encode_teros12_measurement(
+                ts=1436079600,
+                cell_id=20,
+                logger_id=4,
+                vwc_raw=2124.62,
+                vwc_adj=nan,
+                temp=24.8,
+                ec=123,
+            )
+
+    def test_teros12_vwc_adj_inf_rejected(self):
+        with self.assertRaises(ValueError):
+            encode_teros12_measurement(
+                ts=1436079600,
+                cell_id=20,
+                logger_id=4,
+                vwc_raw=2124.62,
+                vwc_adj=inf,
+                temp=24.8,
+                ec=123,
+            )
 
 
 class TestDecode(unittest.TestCase):

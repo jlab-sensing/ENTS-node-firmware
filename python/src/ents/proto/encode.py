@@ -10,6 +10,8 @@ Each type of measurement has a corresponding encoding function as follows:
     Teros12Measurement -> encode_teros12_measurement()
 """
 
+import math
+
 from .soil_power_sensor_pb2 import (
     Measurement,
     Response,
@@ -17,6 +19,18 @@ from .soil_power_sensor_pb2 import (
     EnabledSensor,
     Uploadmethod,
 )
+
+
+def _normalize_vwc_adj_percent(vwc_adj: float) -> float:
+    """Normalizes adjusted VWC to percent with input validation."""
+
+    if vwc_adj is None:
+        raise ValueError("vwc_adj cannot be None")
+    if not math.isfinite(vwc_adj):
+        raise ValueError("vwc_adj must be a finite number")
+    if 0 < vwc_adj <= 1:
+        return vwc_adj * 100
+    return vwc_adj
 
 
 def encode_response(success: bool = True) -> bytes:
@@ -89,7 +103,9 @@ def encode_teros12_measurement(
         cell_id: Cell Id from Dirtviz
         logger_id: Logger Id from Dirtviz
         vwc_raw: Raw volumetric water content from Teros12
-        vwc_adj: Volumetric water content from Teros12 with calibration applied
+        vwc_adj: Volumetric water content from Teros12 with calibration applied.
+            Values in fractional form (0..1] are normalized to percent (0..100).
+            Non-finite values are rejected.
         temp: Temperature in C
         ec: Electrical conductivity
 
@@ -106,7 +122,7 @@ def encode_teros12_measurement(
 
     # teros12
     meas.teros12.vwc_raw = vwc_raw
-    meas.teros12.vwc_adj = vwc_adj
+    meas.teros12.vwc_adj = _normalize_vwc_adj_percent(vwc_adj)
     meas.teros12.temp = temp
     meas.teros12.ec = ec
 

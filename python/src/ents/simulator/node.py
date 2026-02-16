@@ -37,6 +37,7 @@ class NodeSimulator:
         self.logger = logger
         self.sensors = sensors
         self.fn = fn
+        self.session = requests.Session()
 
     def __str__(self):
         """String representation of the simulation class
@@ -73,7 +74,7 @@ class NodeSimulator:
             return False
 
         headers = {"Content-Type": "application/octet-stream"}
-        result = requests.post(url, data=meas, headers=headers)
+        result = self.session.post(url, data=meas, headers=headers)
 
         # store result
         self.responses.append(result.text)

@@ -6,11 +6,16 @@ localhost:8080. Ensure there is not another process using this port.
 """
 
 import unittest
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import sys
+import os
 
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from multiprocessing import Process
 from datetime import datetime, timedelta
 from time import sleep
+
+# Ensure src is in path for subprocesses
+sys.path.append(os.path.abspath("src"))
 
 from ents.simulator.node import NodeSimulator
 
@@ -40,7 +45,7 @@ def run_server():
     """Run the simulated HTTP server on localhost:8080"""
 
     # run server
-    server = HTTPServer(("localhost", 8080), Backend)
+    server = ThreadingHTTPServer(("localhost", 8080), Backend)
     server.serve_forever()
 
 
@@ -53,7 +58,7 @@ class TestNodeSimulator(unittest.TestCase):
         self.backend = Process(target=run_server)
         self.backend.start()
         # give server time to start
-        sleep(0.5)
+        sleep(1)
 
     def tearDown(self):
         """Terminate process"""
