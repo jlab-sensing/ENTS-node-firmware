@@ -138,7 +138,10 @@ class BackendClient:
         end: datetime,
         resample: str = "none",
     ) -> pd.DataFrame:
-        """Gets generic sensor data for a specific cell
+        """Gets generic sensor data for a specific cell.
+
+        Returns a dataframe with the following column:
+        data, measurement, timestamp, type, unit
 
         Args:
             cell: The Cell object for which to get sensor data.
@@ -167,6 +170,30 @@ class BackendClient:
         data_df["timestamp"] = pd.to_datetime(data_df["timestamp"])
 
         return data_df
+
+    def sensor_data_simple(
+        self,
+        *args,
+        **kwargs
+    ) -> pd.DataFrame:
+        """Gets simplified version of sensor data.
+
+        See self.sensor_data
+
+        Has the following columns:
+        timestamp, {meas}
+
+        Returns:
+            A pandas DataFrame containing the sensor data.
+        """
+
+        raw = self.sensor_data(*args, **kwargs)
+
+        simplified = raw[["timestamp", "data"]]
+        simplified = simplified.rename(columns={"data": args[2]})
+
+        return simplified
+
 
     def cell_from_id(self, cell_id: int) -> Cell | None:
         """Get a Cell object from its ID.
