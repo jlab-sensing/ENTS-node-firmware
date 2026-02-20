@@ -1,13 +1,24 @@
 #include "controller/wifi.h"
 
+#include <assert.h>
+
 #include "communication.h"
 #include "transcoder.h"
 
 /** Timeout for i2c communication with esp32, in communication.h */
 extern unsigned int g_controller_i2c_timeout;
 
+/** Flag to track if the WiFi controller has been initialized */
+static bool wifi_initialized = false;
+
+void ControllerWiFiSetInitialized(void) { wifi_initialized = true; }
+
 ControllerStatus WiFiCommandTransaction(const WiFiCommand *input,
                                         WiFiCommand *output) {
+  assert(wifi_initialized &&
+         "WiFi controller used before ControllerWiFiSetInitialized() was "
+         "called. Ensure WiFi is enabled in user config.");
+
   // get reference to tx and rx buffers
   Buffer *tx = ControllerTx();
   Buffer *rx = ControllerRx();
