@@ -4,6 +4,7 @@
 #include <ArduinoLog.h>
 #include <Wire.h>
 
+#include <cassert>
 #include <cstring>
 
 #include "transcoder.h"
@@ -93,6 +94,10 @@ void ModuleHandler::ModuleHandler::OnReceive(size_t num_bytes) {
     if (req_map.find(cmd.which_command) == req_map.end()) {
       Log.errorln("No module registered for command type: %d",
                   cmd.which_command);
+
+      assert(false &&
+             "Received command for unregistered module. Ensure all required "
+             "modules are registered before use.");
 
       // reset buffer
       receive_buffer.len = 0;
