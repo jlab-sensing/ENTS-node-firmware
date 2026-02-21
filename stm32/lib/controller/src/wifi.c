@@ -1,7 +1,5 @@
 #include "controller/wifi.h"
 
-#include <assert.h>
-
 #include "communication.h"
 #include "transcoder.h"
 
@@ -15,9 +13,9 @@ void ControllerWiFiSetInitialized(void) { wifi_initialized = true; }
 
 ControllerStatus WiFiCommandTransaction(const WiFiCommand *input,
                                         WiFiCommand *output) {
-  assert(wifi_initialized &&
-         "WiFi controller used before ControllerWiFiSetInitialized() was "
-         "called. Ensure WiFi is enabled in user config.");
+  if (!wifi_initialized) {
+    return CONTROLLER_ERROR;
+  }
 
   // get reference to tx and rx buffers
   Buffer *tx = ControllerTx();
