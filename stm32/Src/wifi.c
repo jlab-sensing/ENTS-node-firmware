@@ -130,6 +130,9 @@ bool Esp32Init(void);
 void WiFiInit(void) {
   APP_LOG(TS_OFF, VLEVEL_M, "WiFi app starting\r\n");
 
+  // Mark WiFi controller as initialized so assert guards pass
+  ControllerWiFiSetInitialized();
+
   // loop until sucessful connection
   while (!Esp32Init()) {
     Disconnect();

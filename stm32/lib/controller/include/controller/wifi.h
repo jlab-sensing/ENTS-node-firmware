@@ -83,6 +83,14 @@ typedef struct {
 } ControllerWiFiResponse;
 
 /**
+ * @brief Mark the WiFi controller as initialized
+ *
+ * Must be called before any other ControllerWiFi* functions. Subsequent calls
+ * to ControllerWiFi* functions without calling this will trigger an assert.
+ */
+void ControllerWiFiSetInitialized(void);
+
+/**
  * @brief Initialize WiFi settings on the esp32
  *
  * Connect to a WiFi network with the given SSID and password. This function
