@@ -118,8 +118,7 @@ int main(void) {
                       "Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n",
                       __DATE__, __TIME__);
   HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
-  info_len = snprintf(info_str, sizeof(info_str),
-                      "D10!\n");
+  info_len = snprintf(info_str, sizeof(info_str), "D10!\n");
   HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
