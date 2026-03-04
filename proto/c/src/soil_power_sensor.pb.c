@@ -57,6 +57,9 @@ PB_BIND(YFS210CMeasurement, YFS210CMeasurement, AUTO)
 PB_BIND(PCAP02Measurement, PCAP02Measurement, AUTO)
 
 
+PB_BIND(D10Measurement, D10Measurement, AUTO)
+
+
 PB_BIND(Measurement, Measurement, AUTO)
 
 

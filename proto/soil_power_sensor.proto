@@ -170,6 +170,12 @@ message PCAP02Measurement {
   double capacitance = 1;
 }
 
+/* Water Flow Sensor */
+message D10Measurement {
+  // flow
+  double flow = 1;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata

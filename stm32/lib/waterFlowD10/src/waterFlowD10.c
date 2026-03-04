@@ -11,7 +11,7 @@
  ******************************************************************************
  */
 
-#include "waterFlow.h"
+#include "waterFlowD10.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@
 #include "usart.h"
 #include "userConfig.h"
 
-#define FLOW_AVG_COUNT 5
+#define FLOW_AVG_COUNT 15
 
 // Variables
 static float last_flow_lpm = 0;
@@ -62,14 +62,14 @@ void FlowInit() {
   lastTime = currentTime;
 }
 
-YFS210CMeasurement FlowGetMeasurement() {
+D10Measurement FlowGetMeasurement() {
   // get time
   currentTime = SysTimeGet();
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
   // Always calculate flow, not just every 100ms
   uint32_t pulses = pulse_count;
 
-  YFS210CMeasurement flowMeas;
+  D10Measurement flowMeas;
 
   // Calculate gallons per minute based on actual time elapsed
   float time_elapsed_minutes =
@@ -102,7 +102,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   // get timestamp
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
-  YFS210CMeasurement flowMeas = {};
+  D10Measurement flowMeas = {};
 
   if (diff.SubSeconds >= 100) {  // If more than 0.1 seconds has passed
     flowMeas = FlowGetMeasurement();
@@ -122,7 +122,7 @@ size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   size_t data_len = 0;
   SensorStatus status = SENSOR_OK;
 
-  status = EncodeDoubleMeasurement(meta, flowMeas.flow, SensorType_YFS210C_FLOW,
+  status = EncodeDoubleMeasurement(meta, flowMeas.flow, SensorType_D10_FLOW,
                                    data, &data_len);
   if (status != SENSOR_OK) {
     return -1;
