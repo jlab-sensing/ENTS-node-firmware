@@ -27,12 +27,12 @@
 #define FLOW_AVG_COUNT 5
 
 // Variables
-static float last_flow_lpm = 0;
+static volatile float last_flow_lpm = 0;
 static volatile unsigned long pulse_count = 0;
 SysTime_t currentTime;
 SysTime_t lastTime;
-static float flow_history[FLOW_AVG_COUNT] = {0};
-static uint8_t flow_index = 0;
+static volatile float flow_history[FLOW_AVG_COUNT] = {0};
+uint8_t flow_index = 0;
 
 // For every one liter of water that passes through the sensor in one minute,
 // there are 450 pulses. Therefore the calibration factor becomes [450/60 = 7.5]
@@ -49,8 +49,8 @@ void FlowInit() {
 
   // Configure PIN 10 on Port A (GPIO input)
   GPIO_InitStruct.Pin = GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;  // interrupt on falling edge
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;  // interrupt on rising edge
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
@@ -71,11 +71,11 @@ YFS210CMeasurement FlowGetMeasurement() {
 
   YFS210CMeasurement flowMeas;
 
-  // Calculate gallons per minute based on actual time elapsed
+  // Calculate liters per minute based on actual time elapsed
   float time_elapsed_minutes =
       (float)diff.SubSeconds / 6000.0f;  // Convert subseconds to minutes
   if (time_elapsed_minutes > 0) {
-    last_flow_lpm = ((float)pulses) / time_elapsed_minutes;
+    last_flow_lpm = ((float)pulses / calibration_factor) / time_elapsed_minutes;
     pulse_count = 0;  // Reset after calculation
     lastTime = currentTime;
   }

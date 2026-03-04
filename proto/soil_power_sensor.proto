@@ -170,7 +170,7 @@ message PCAP02Measurement {
   double capacitance = 1;
 }
 
-/* Water Flow Sensor */
+/* D10 Water Flow Sensor */
 message D10Measurement {
   // flow
   double flow = 1;
@@ -192,6 +192,7 @@ message Measurement {
     SEN0257Measurement sen0257 = 8;
     YFS210CMeasurement yfs210c = 9;
     PCAP02Measurement pcap02 = 10;
+    D10Measurement d10 = 11;
   }
 }
 
@@ -443,6 +444,7 @@ enum EnabledSensor {
   SEN0257 = 7;
   YFS210C = 8;
   PCAP02 = 9;
+  D10 = 10;
 }
 
 enum Uploadmethod {

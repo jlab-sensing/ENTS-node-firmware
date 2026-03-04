@@ -47,7 +47,7 @@ enum SensorType {
   /** PCAP02 measurements */
   PCAP02_CAPACITANCE = 19;
 
-  /** D10 asurements */
+  /** D10 measurements */
   D10_FLOW = 20;
 }
 
