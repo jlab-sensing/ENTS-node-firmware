@@ -25,6 +25,7 @@ extern "C" {
  * timer.
  */
 void WiFiInit(void);
+void WiFiChangePeriod(uint32_t period_ms);
 
 #ifdef __cplusplus
 }

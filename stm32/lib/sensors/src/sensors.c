@@ -167,3 +167,11 @@ void SensorsRun(void *arg) {
   // trigger task to run
   UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_Measurement), CFG_SEQ_Prio_0);
 }
+
+void SensorsChangePeriod(uint32_t period_ms) {
+  measure_period = period_ms;
+  UTIL_TIMER_Stop(&MeasureTimer);
+  UTIL_TIMER_SetPeriod(&MeasureTimer, measure_period);
+  UTIL_TIMER_Start(&MeasureTimer);
+  APP_LOG(TS_OFF, VLEVEL_M, "Sensor period changed to %u ms\r\n", period_ms);
+}

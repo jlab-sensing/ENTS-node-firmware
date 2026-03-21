@@ -52,6 +52,12 @@
 // #define USE_WATER_PRESSURE_SENSOR
 // #define USE_FLOW_METER_SENSOR
 
+/** Fast sample/upload interval in milliseconds when switch is ON */
+#define FAST_INTERVAL_MS 5000U
+
+/** How often to poll the switch in the main loop (ms) */
+#define SWITCH_POLL_INTERVAL_MS 100U
+
 /**
  * @brief  The application entry point.
  * @retval int
@@ -73,45 +79,17 @@ int main(void) {
   MX_I2C2_Init();
   SystemApp_Init();
 
-  APP_PRINTF("\n\nRESET!\n\n");
+  // Configure PA10 as regular input with internal pull-up
+  // External 10kΩ resistor to 3.3V provides stronger pull-up
+  // Switch open       -> PA10 HIGH (normal interval from user config)
+  // Switch closed GND -> PA10 LOW  (fast interval = FAST_INTERVAL_MS)
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  GPIO_InitStruct.Pin  = GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  HAL_Delay(100);
-
-  const char header[] = R"""(
-+-----------------------------------+
-|   ______  _   _  _______  _____   |
-|  |  ____|| \ | ||__   __|/ ____|  |
-|  | |__   |  \| |   | |  | (___    |
-|  |  __|  | . ` |   | |   \___ \   |
-|  | |____ | |\  |   | |   ____) |  |
-|  |______||_| \_|   |_|  |_____/   |
-|                                   |
-|  Environmentally NeTworked Sensor |
-+-----------------------------------+
-)""";
-  APP_PRINTF("\n%s\n", header);
-  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__,
-             __TIME__);
-  APP_PRINTF("Git SHA: %s\n\n", GIT_REV);
-
-  // Typically, you need to apply a userconfig that specifies LoRa as the upload method before you can see the LoRaWAN keys.
-  // To eliminate that step in the board setup process, the only uniquely changing values (DevAddr and DevEUI) are shown.
-  // To keep in line with the LmHandler's formatting, the common AppKey, NwkKey, AppSKey, and NwkSKey are also shown.
-  uint32_t devAddr = 0;
-  GetDevAddr(&devAddr);
-  APP_PRINTF(
-      "###### AppKey:      2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C\r\n"
-      "###### NwkKey:      2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C\r\n"
-      "###### AppSKey:     2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C\r\n"
-      "###### NwkSKey:     2B:7E:15:16:28:AE:D2:A6:AB:F7:15:88:09:CF:4F:3C\r\n"
-      "###### DevEUI:      00:80:E1:15:%02X:%02X:%02X:%02X\r\n"
-      "###### AppEUI:      01:01:01:01:01:01:01:01\r\n"
-      "###### DevAddr:     %02X:%02X:%02X:%02X\r\n",
-      (devAddr >> 24) & 0xFF, (devAddr >> 16) & 0xFF, (devAddr >> 8) & 0xFF,
-      (devAddr) & 0xFF, (devAddr >> 24) & 0xFF, (devAddr >> 16) & 0xFF,
-      (devAddr >> 8) & 0xFF, (devAddr) & 0xFF);
-
-  // Start status LEDs
   StatusLedInit();
   StatusLedFlashSlow();
 
@@ -144,7 +122,7 @@ int main(void) {
 
   // init senors interface
   SensorsInit();
-  
+
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];
@@ -193,35 +171,20 @@ int main(void) {
     if (sensor == EnabledSensor_BME280) {
       BME280Init();
       SensorsAdd(BME280Measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "BME280 Enabled!\n");
     }
-    // if (sensor == EnabledSensor_Phytos31) {
-    //   Phytos31Init();
-    //   SensorsAdd(Phytos31_measure);
-    //   APP_LOG(TS_OFF, VLEVEL_M, "Phytos31 Enabled!\n");
-    // }
-    // if (sensor == EnabledSensor_SEN0308) {
-    //   CapSoilInit();
-    //   SensorsAdd(SEN0308_measure);
-    //   APP_LOG(TS_OFF, VLEVEL_M, "SEN0308 Cap Soil Sensor Enabled!\n");
-    // }
-    // if (sensor == EnabledSensor_SEN0257) {
-    //   PressureInit();
-    //   SensorsAdd(WatPress_measure);
-    //   APP_LOG(TS_OFF, VLEVEL_M, "SEN0257 Water Pressure Sensor Enabled!\n");
-    // }
-    // if (sensor == EnabledSensor_YFS210C) {
-    //   FlowInit();
-    //   SensorsAdd(WatFlow_measure);
-    //   APP_LOG(TS_OFF, VLEVEL_M, "YFS210C Flow Meter Enabled!\n");
-    // }
     if (sensor == EnabledSensor_PCAP02) {
       pcap02_init();
       SensorsAdd(pcap02_measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "PCAP02 Enabled!\n");
     }
-    // TODO add support for dummy sensor
   }
+
+  APP_LOG(TS_OFF, VLEVEL_M, "\r\n=== Switch polling mode ===\r\n");
+  APP_LOG(TS_OFF, VLEVEL_M, "Normal interval : %u ms\r\n", cfg->Upload_interval * 1000);
+  APP_LOG(TS_OFF, VLEVEL_M, "Fast interval   : %u ms\r\n", FAST_INTERVAL_MS);
+  APP_LOG(TS_OFF, VLEVEL_M, "Poll interval   : %u ms\r\n", SWITCH_POLL_INTERVAL_MS);
+  APP_LOG(TS_OFF, VLEVEL_M, "PA10 initial    : %d (1=open 0=closed)\r\n",
+          HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10));
+  APP_LOG(TS_OFF, VLEVEL_M, "===========================\r\n\r\n");
 
   StatusLedFlashFast();
 
@@ -241,12 +204,45 @@ int main(void) {
   ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
 #endif
 
+  static bool last_fast_mode = false;
+  static uint32_t last_poll = 0;
+
   while (1) {
     MX_LoRaWAN_Process();
 
 #ifdef USE_FLOW_METER_SENSOR
     FlowBackgroundTask();
 #endif
+
+    uint32_t now = HAL_GetTick();
+    if (now - last_poll >= SWITCH_POLL_INTERVAL_MS) {
+      last_poll = now;
+
+      bool fast_mode = (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_RESET);
+
+      // Always print so we can see exactly what the pin reads
+      APP_LOG(TS_OFF, VLEVEL_M,
+              "[POLL] PA10=%d  fast_mode=%d  last_fast_mode=%d\r\n",
+              HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10),
+              (int)fast_mode,
+              (int)last_fast_mode);
+
+      if (fast_mode != last_fast_mode) {
+        if (fast_mode) {
+          APP_LOG(TS_OFF, VLEVEL_M,
+                  ">>> Switch ON  -> fast mode (%u ms)\r\n", FAST_INTERVAL_MS);
+          SensorsChangePeriod(FAST_INTERVAL_MS);
+          WiFiChangePeriod(FAST_INTERVAL_MS);
+        } else {
+          uint32_t normal_ms = cfg->Upload_interval * 1000;
+          APP_LOG(TS_OFF, VLEVEL_M,
+                  ">>> Switch OFF -> normal mode (%u ms)\r\n", normal_ms);
+          SensorsChangePeriod(normal_ms);
+          WiFiChangePeriod(normal_ms);
+        }
+        last_fast_mode = fast_mode;
+      }
+    }
   }
 }
 
@@ -258,7 +254,7 @@ void FlowBackgroundTask(void) {
 
   // Update flow measurement every 100ms
   if (current_time - last_check >= 100) {
-    FlowGetMeasurement();  // This updates the internal state
+    FlowGetMeasurement();
     last_check = current_time;
   }
 }

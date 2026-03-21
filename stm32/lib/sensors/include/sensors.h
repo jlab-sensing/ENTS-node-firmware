@@ -118,6 +118,8 @@ size_t SensorsMeasureTest(uint8_t *data);
  * @}
  */
 
+ void SensorsChangePeriod(uint32_t period_ms);
+
 #ifdef __cplusplus
 }
 #endif

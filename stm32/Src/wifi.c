@@ -435,3 +435,10 @@ bool Esp32Init(void) {
 
   return true;
 }
+
+void WiFiChangePeriod(uint32_t period_ms) {
+  UTIL_TIMER_Stop(&UploadTimer);
+  UTIL_TIMER_SetPeriod(&UploadTimer, period_ms);
+  UTIL_TIMER_Start(&UploadTimer);
+  APP_LOG(TS_OFF, VLEVEL_M, "Upload period changed to %u ms\r\n", period_ms);
+}
