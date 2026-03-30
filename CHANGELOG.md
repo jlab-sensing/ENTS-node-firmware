@@ -17,8 +17,10 @@ firmware versions for a hardware version.
 ### Updated
 
 - Teros12 outputs in percentage rather than decimal
+- Updated power units to *mV* and *A* [#326](i326)
 
 [pr308]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/308
+[i326]: https://github.com/jlab-sensing/ENTS-node-firmware/issues/326
 
 ## [2.3.7] - 2026-02-03
 
