@@ -14,7 +14,6 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
-
 # matplotlib formatting
 # plt.rcParams["font.size"] = 7
 # plt.rcParams['font.weight'] = 'medium'
