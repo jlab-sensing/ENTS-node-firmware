@@ -33,12 +33,11 @@ int main(void) {
   /* Configure the system clock */
   SystemClock_Config();
 
-  SystemApp_Init();
-
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C2_Init();
   MX_USART1_UART_Init();
+  MX_I2C2_Init();
+  SystemApp_Init();
 
   // Pin A10 (STM32WLE5JC) is used as an interrupt.
   // This function must be called after MX_GPIO_Init()
@@ -63,28 +62,22 @@ int main(void) {
   // The default onboard capacitors on the evaluation plugin module are 47 pF.
   // The measureable capacitance at RES1 (PC2 PC3) is 0 pF to 8*47 pF = 376 pF.
 
-  pcap02_result_t result = {0};
+  pcap02_result_t res1 = {0}, res2 = {0}, res3 = {0};
 
   uint32_t conv = 1;
+  double res1_double, res2_double, res3_double;
 
   while (1) {
-    // Send CDC_Start_Conversion opcode
-    pcap02_start_conversion();
-    // Wait for the conversion to resolve (< 4 ms?)
-    while (pcap02_measure_capacitance(&result) != 0);
-    // Evaluate the conversion
-    // APP_LOG(TS_OFF, VLEVEL_M,
-    //         "0x%02X%02X%02X (0x%06X)\r\n"
-    //         "\tfixed  (3): %01d\r\n"
-    //         "\tfract (21): %d / %d = %f\r\n"
-    //         "\tC1/C0     : %f\r\n"
-    //         "\tC1        : %f pF\r\n",
-    //         result.byte[2], result.byte[1], result.byte[0], result.word,
-    //         result.fixed, result.fractional, (1 << 21),
-    //         result.fractional / ((float)(1 << 21)), fixed_to_float(&result),
-    //         PCAP02_REFERENCE_CAPACITOR_PF * fixed_to_float(&result));
-    APP_LOG(TS_OFF, VLEVEL_M, "%d: %lf\r\n", conv, fixed_to_float(&result));
+    pcap02_measure_capacitance(&res1, &res2, &res3);
+    res1_double = fixed_to_double(&res1);
+    res2_double = fixed_to_double(&res2);
+    res3_double = fixed_to_double(&res3);
+    APP_LOG(TS_OFF, VLEVEL_M,
+            "%d (47pF): C1/C0 = %lf, %lf pF, C2/C0 = %lf, %lf pF, C3/C0 = %lf, "
+            "%lf pF\r\n",
+            conv, res1_double, res1_double * 47, res2_double, res2_double * 47,
+            res3_double, res3_double * 47);
     conv++;
-    HAL_Delay(100);
+    HAL_Delay(1000);
   }
 }
