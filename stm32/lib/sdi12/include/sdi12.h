@@ -22,6 +22,8 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "main.h"
+
 #include "gpio.h"
 #include "tim.h"
 #include "usart.h"

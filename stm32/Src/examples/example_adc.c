@@ -34,8 +34,8 @@ int main(void) {
 
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
 
   // init systemapp
   SystemApp_Init();
@@ -48,7 +48,7 @@ int main(void) {
   // HAL_Delay(50);
   ADC_init();
   // int size = sprintf(fail_str, "Failed at ADC_init\n");
-  // HAL_UART_Transmit(&huart1, (const uint8_t *) fail_str, size, 100);
+  // HAL_UART_Transmit(&huart2, (const uint8_t *) fail_str, size, 100);
 
   double voltage_reading;
   double current_reading;

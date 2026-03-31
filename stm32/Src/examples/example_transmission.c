@@ -110,8 +110,8 @@ int main(void) {
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
   SystemApp_Init();
 
   if (UserConfigLoad() != USERCONFIG_OK) {
@@ -129,7 +129,7 @@ int main(void) {
   UserConfigPrint();
 
   // required for SDI-12
-  MX_USART2_UART_Init();
+  MX_LPUART1_UART_Init();
   MX_TIM1_Init();
 
   // initialize the user config interrupt
@@ -276,7 +276,7 @@ void Error_Handler(void) {
   /* USER CODE BEGIN Error_Handler_Debug */
   // char error[30];
   // int error_len = sprintf(error, "Error!  HAL Status: %d\n", rc);
-  // HAL_UART_Transmit(&huart1, (const uint8_t *)error, error_len, 1000);
+  // HAL_UART_Transmit(&huart2, (const uint8_t *)error, error_len, 1000);
 
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();

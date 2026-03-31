@@ -44,7 +44,7 @@ int main(void) {
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC_Init();
-  MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
 
   // User level initialization
   battery_init();
@@ -56,7 +56,7 @@ int main(void) {
       info_str, sizeof(info_str),
       "Soil Power Sensor Wio-E5 firmware, test: %s, compiled on %s %s\n",
       __FILE__, __DATE__, __TIME__);
-  HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
+  HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
 
   // Infinite loop
   while (1) {
@@ -64,7 +64,7 @@ int main(void) {
     char buf[32];
     int buf_len = snprintf(buf, sizeof(buf), "Battery Voltage: %d mV\n",
                            battery_voltage());
-    HAL_UART_Transmit(&huart1, (const uint8_t *)buf, buf_len, 1000);
+    HAL_UART_Transmit(&huart2, (const uint8_t *)buf, buf_len, 1000);
 
     // Sleep
     // HAL_Delay(DELAY);

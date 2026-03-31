@@ -72,7 +72,7 @@ FramStatus Mb85rc1mtWrite(FramAddr addr, const uint8_t *data, size_t len) {
     for (int i = 0; i < write_len; i++) {
       // transmit data
       hal_status =
-          HAL_I2C_Mem_Write(&hi2c2, i2c_addr.dev, i2c_addr.mem,
+          HAL_I2C_Mem_Write(&hi2c1, i2c_addr.dev, i2c_addr.mem,
                             I2C_MEMADD_SIZE_16BIT, data, len, g_timeout);
       fram_status = ConvertStatus(hal_status);
       if (fram_status != FRAM_OK) {
@@ -119,7 +119,7 @@ FramStatus Mb85rc1mtRead(FramAddr addr, size_t len, uint8_t *data) {
     HAL_StatusTypeDef hal_status = HAL_OK;
 
     // read from memory
-    hal_status = HAL_I2C_Mem_Read(&hi2c2, i2c_addr.dev | 1, i2c_addr.mem,
+    hal_status = HAL_I2C_Mem_Read(&hi2c1, i2c_addr.dev | 1, i2c_addr.mem,
                                   I2C_MEMADD_SIZE_16BIT, data, len, g_timeout);
     fram_status = ConvertStatus(hal_status);
     if (fram_status != FRAM_OK) {
@@ -156,7 +156,7 @@ FramStatus Sleep(Mb85rc1mtAddress addr) {
   buffer[1] = sleep_cmd;
 
   HAL_StatusTypeDef status = HAL_OK;
-  status = HAL_I2C_Master_Transmit(&hi2c2, sleep_addr, buffer, buffer_len,
+  status = HAL_I2C_Master_Transmit(&hi2c1, sleep_addr, buffer, buffer_len,
                                    g_timeout);
 
   return ConvertStatus(status);
@@ -167,7 +167,7 @@ FramStatus Sleep(Mb85rc1mtAddress addr) {
 FramStatus Wakeup(Mb85rc1mtAddress addr) {
   /*
   HAL_StatusTypeDef status = HAL_OK;
-  status = HAL_I2C_Master_Transmit(&hi2c2, addr.dev, NULL, 0, 0);
+  status = HAL_I2C_Master_Transmit(&hi2c1, addr.dev, NULL, 0, 0);
   */
   /*
   // expect an error

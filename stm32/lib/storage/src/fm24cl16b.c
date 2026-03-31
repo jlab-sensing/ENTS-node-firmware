@@ -71,7 +71,7 @@ FramStatus Fm24cl16bWrite(FramAddr addr, const uint8_t *data, size_t len) {
     // Can optimize by using continuous writes but needs to account for the
     // change of address.
     HAL_StatusTypeDef status;
-    status = HAL_I2C_Mem_Write(&hi2c2, i2c_addr, addr_mat.seg,
+    status = HAL_I2C_Mem_Write(&hi2c1, i2c_addr, addr_mat.seg,
                                I2C_MEMADD_SIZE_8BIT, d, 1, fram_timeout);
     // return error if failed to write
     if (status != HAL_OK) {
@@ -101,7 +101,7 @@ FramStatus Fm24cl16bRead(FramAddr addr, size_t len, uint8_t *data) {
 
     // Read byte to data address
     HAL_StatusTypeDef status;
-    status = HAL_I2C_Mem_Read(&hi2c2, i2c_addr, addr_mat.seg,
+    status = HAL_I2C_Mem_Read(&hi2c1, i2c_addr, addr_mat.seg,
                               I2C_MEMADD_SIZE_8BIT, d, 1, fram_timeout);
 
     // return error if failed to write

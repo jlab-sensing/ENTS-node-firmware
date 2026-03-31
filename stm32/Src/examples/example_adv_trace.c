@@ -23,10 +23,10 @@ void RxCallback(uint8_t *pData, uint16_t Size, uint8_t Error) {
     // Process the received character
     if (receivedChar == 1) {
       // Send ACK to the sender
-      HAL_UART_Transmit(&huart1, &sendACK, 1, HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart2, &sendACK, 1, HAL_MAX_DELAY);
     } else {
       // Send NACK to the sender
-      HAL_UART_Transmit(&huart1, &sendNACK, 1, HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart2, &sendNACK, 1, HAL_MAX_DELAY);
     }
 
     // Start receiving the next character
@@ -79,8 +79,8 @@ int main(void) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
 
   /*Initialize timer and RTC*/
   /*Have to be initilized in example files because LoRaWan cannot be initialized
@@ -91,7 +91,7 @@ int main(void) {
   // UserConfig_InterruptInit();  // Initialize UART for interrupt mode
 
   // sprintf(uart_buf, "API Port: %lu\r\n", config->API_Endpoint_Port);
-  /*HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf,
+  /*HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf,
    strlen(uart_buf), HAL_MAX_DELAY); */
   /* USER CODE END 2 */
   InitAdvanceTrace();

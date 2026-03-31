@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // system includes
 #include "adc.h"
@@ -37,29 +38,43 @@ int main(void) {
 
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_ADC_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  // MX_ADC_Init();
+  MX_USART2_UART_Init();
+  // MX_I2C1_Init();
   SystemApp_Init();
+
+  char msg_init[] = "Initializing status LED.\r\n";
+  HAL_UART_Transmit(&huart2, (uint8_t *)msg_init, sizeof(msg_init), HAL_MAX_DELAY);
 
   StatusLedInit();
 
   APP_LOG(TS_OFF, VLEVEL_M, "Default status. Expected off.\n");
   PrintLedState();
-  HAL_Delay(5000);
+  HAL_Delay(1000);
 
-  StatusLedOn();
-  APP_LOG(TS_OFF, VLEVEL_M, "Turning on\n");
-  PrintLedState();
-  HAL_Delay(5000);
+  char msg_enter_loop[] = "Entering loop.\r\n";
+  HAL_UART_Transmit(&huart2, (uint8_t *)msg_enter_loop, sizeof(msg_enter_loop), HAL_MAX_DELAY);
 
-  StatusLedOff();
-  APP_LOG(TS_OFF, VLEVEL_M, "Turning off\n");
-  PrintLedState();
-  HAL_Delay(5000);
-
-  APP_LOG(TS_OFF, VLEVEL_M, "Done\n");
+  uint32_t i = 0;
+  char msg[] = "000\r\n";
 
   while (1) {
+    msg[2] = '0' + (i % 10);
+    msg[1] = '0' + ((i / 10) % 10);
+    msg[0] = '0' + ((i / 100) % 10);
+
+    HAL_UART_Transmit(&huart2, (uint8_t *)msg, sizeof(msg), HAL_MAX_DELAY);
+
+    StatusLedOn();
+    APP_LOG(TS_OFF, VLEVEL_M, "Turning on\n");
+    PrintLedState();
+    HAL_Delay(1000);
+
+    StatusLedOff();
+    APP_LOG(TS_OFF, VLEVEL_M, "Turning off\n");
+    PrintLedState();
+    HAL_Delay(1000);
+
+    i++;
   }
 }

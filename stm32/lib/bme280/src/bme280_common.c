@@ -40,7 +40,7 @@ BME280_INTF_RET_TYPE bme280_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32
 {
     dev_addr = *(uint8_t*)intf_ptr;
 
-    HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c2, dev_addr << 1, reg_addr,
+    HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c1, dev_addr << 1, reg_addr,
                                                 I2C_MEMADD_SIZE_8BIT, reg_data,
                                                 length, i2c_timeout);
 
@@ -58,7 +58,7 @@ BME280_INTF_RET_TYPE bme280_i2c_write(uint8_t reg_addr, const uint8_t *reg_data,
 {
     dev_addr = *(uint8_t*)intf_ptr;
 
-    HAL_StatusTypeDef status = HAL_I2C_Mem_Write(&hi2c2, dev_addr << 1,
+    HAL_StatusTypeDef status = HAL_I2C_Mem_Write(&hi2c1, dev_addr << 1,
                                                  reg_addr, I2C_MEMADD_SIZE_8BIT,
                                                  (uint8_t *) reg_data, length, i2c_timeout);
 

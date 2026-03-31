@@ -27,7 +27,6 @@
 #include "adc.h"
 #include "ads.h"
 #include "bme280_sensor.h"
-#include "board.h"
 #include "controller/controller.h"
 #include "controller/power.h"
 #include "controller/wifi.h"
@@ -69,8 +68,8 @@ int main(void) {
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
   SystemApp_Init();
 
   APP_PRINTF("\n\nRESET!\n\n");
@@ -116,7 +115,7 @@ int main(void) {
   StatusLedFlashSlow();
 
   // Wakeup via GPIO pin
-  ControllerWakeup();
+  ControllerWakeup(); // TODO: wakeup pin on IO expander
 
   // initialize esp32 controller module
   ControllerInit();

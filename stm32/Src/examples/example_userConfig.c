@@ -41,8 +41,8 @@ int main(void) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
 
   /*Initialize timer and RTC*/
   /*Have to be initilized in example files because LoRaWan cannot be initialized
@@ -59,27 +59,27 @@ int main(void) {
 
     // Print each member of the UserConfiguration
     sprintf(uart_buf, "Logger ID: %lu\r\n", config->logger_id);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     sprintf(uart_buf, "Cell ID: %lu\r\n", config->cell_id);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     if (config->Upload_method == 0) {
       sprintf(uart_buf, "Upload Method: %u \"LoRa\"\r\n",
               config->Upload_method);
-      HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+      HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                         HAL_MAX_DELAY);
     } else {
       sprintf(uart_buf, "Upload Method: %u \"WiFi\"\r\n",
               config->Upload_method);
-      HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+      HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                         HAL_MAX_DELAY);
     }
 
     sprintf(uart_buf, "Upload Interval: %lu\r\n", config->Upload_interval);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     for (int i = 0; i < config->enabled_sensors_count; i++) {
@@ -117,45 +117,45 @@ int main(void) {
           break;
       }
       sprintf(uart_buf, "Enabled Sensor %d: %s\r\n", i + 1, sensor_name);
-      HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+      HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                         HAL_MAX_DELAY);
     }
 
     sprintf(uart_buf, "Calibration V Slope: %f\r\n", config->Voltage_Slope);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     sprintf(uart_buf, "Calibration V Offset: %f\r\n", config->Voltage_Offset);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     sprintf(uart_buf, "Calibration I Slope: %f\r\n", config->Current_Slope);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     sprintf(uart_buf, "Calibration I Offset: %f\r\n", config->Current_Offset);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     sprintf(uart_buf, "WiFi SSID: %s\r\n", config->WiFi_SSID);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     sprintf(uart_buf, "WiFi Password: %s\r\n", config->WiFi_Password);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     sprintf(uart_buf, "API Endpoint URL: %s\r\n", config->API_Endpoint_URL);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
     sprintf(uart_buf, "API Port: %lu\r\n", config->API_Endpoint_Port);
-    HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf),
+    HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
   } else {
     const char *error_msg = "Failed to load user configuration from FRAM.\r\n";
-    HAL_UART_Transmit(&huart1, (uint8_t *)error_msg, strlen(error_msg),
+    HAL_UART_Transmit(&huart2, (uint8_t *)error_msg, strlen(error_msg),
                       HAL_MAX_DELAY);
   }
   /* USER CODE END 2 */

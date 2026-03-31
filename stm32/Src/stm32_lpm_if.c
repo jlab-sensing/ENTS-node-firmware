@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -23,8 +23,6 @@
 #include "stm32_lpm.h"
 #include "stm32_lpm_if.h"
 #include "usart_if.h"
-
-#include "board.h"
 
 /* USER CODE BEGIN Includes */
 

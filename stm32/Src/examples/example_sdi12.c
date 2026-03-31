@@ -47,8 +47,8 @@ int main(void) {
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_USART1_UART_Init();
   MX_USART2_UART_Init();
+  MX_LPUART1_UART_Init();
 
   SystemApp_Init();
 
@@ -61,7 +61,7 @@ int main(void) {
       info_str, sizeof(info_str),
       "Soil Power Sensor Wio-E5 firmware, test: %s, compiled on %s %s\n",
       __FILE__, __DATE__, __TIME__);
-  HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
+  HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
   char success[] = "HAL_OK\n";
   char failure[] = "HAL_FAIL\n";
   char buffer[20];
@@ -76,10 +76,10 @@ int main(void) {
 
     // NOLINTNEXTLINE
     if (SDI12GetMeasurement(addr, &measurement_info, buffer, 3000) == HAL_OK) {
-      HAL_UART_Transmit(&huart1, (const uint8_t *)success, 7, 100);
-      HAL_UART_Transmit(&huart1, buffer, 18, 100);
+      HAL_UART_Transmit(&huart2, (const uint8_t *)success, 7, 100);
+      HAL_UART_Transmit(&huart2, buffer, 18, 100);
     } else {
-      HAL_UART_Transmit(&huart1, (const uint8_t *)failure, 10, 100);
+      HAL_UART_Transmit(&huart2, (const uint8_t *)failure, 10, 100);
     }
 
     // Sleep

@@ -31,12 +31,13 @@ SDI12Status ParseMeasurementResponse(const char *responseBuffer, char addr,
 SDI12Status ParseServiceRequest(const char *requestBuffer, char addr);
 
 void SDI12WakeSensors(void) {
-  HAL_LIN_SendBreak(&huart2);                            // Send a break
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);  // Send the marking
+  HAL_LIN_SendBreak(&hlpuart1);                            // Send a break
+  HAL_GPIO_WritePin(SDI12_DIR_GPIO_Port, SDI12_DIR_Pin, GPIO_PIN_RESET);  // Send the marking
   // HAL_Delay(20); // Need an extra 10ms to account for the fact
   // that HAL_LIN_SendBreak is nonblocking
   for (int i = 0; i <= 40000; i++) {
-    // Figure out a way to do this delay with the low-power timer
+    // TODO: Figure out a way to do this delay with the low-power timer htim1
+    // (or schedule a one-time non-periodic event through the scheduler)
     asm("nop");
   }
 }
@@ -44,9 +45,9 @@ void SDI12WakeSensors(void) {
 SDI12Status SDI12SendCommand(const char *command, uint8_t size) {
   HAL_StatusTypeDef ret;
   SDI12WakeSensors();
-  ret = HAL_UART_Transmit(&huart2, (const uint8_t *)command, size,
+  ret = HAL_UART_Transmit(&hlpuart1, (const uint8_t *)command, size,
                           SEND_COMMAND_TIMEOUT);
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);  // Set to RX mode
+  HAL_GPIO_WritePin(SDI12_DIR_GPIO_Port, SDI12_DIR_Pin, GPIO_PIN_SET);  // Set to RX mode
   if (ret == HAL_OK) {
     return SDI12_OK;
   } else {
@@ -57,9 +58,9 @@ SDI12Status SDI12SendCommand(const char *command, uint8_t size) {
 SDI12Status SDI12ReadData(char *buffer, uint16_t bufferSize,
                           uint16_t timeoutMillis) {
   HAL_StatusTypeDef ret;
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);  // Set to RX mode
-  __HAL_UART_FLUSH_DRREGISTER(&huart2);
-  ret = HAL_UART_Receive(&huart2, (uint8_t *)buffer, bufferSize, timeoutMillis);
+  HAL_GPIO_WritePin(SDI12_DIR_GPIO_Port, SDI12_DIR_Pin, GPIO_PIN_SET);  // Set to RX mode
+  __HAL_UART_FLUSH_DRREGISTER(&hlpuart1);
+  ret = HAL_UART_Receive(&hlpuart1, (uint8_t *)buffer, bufferSize, timeoutMillis);
   if (ret == HAL_OK) {
     return SDI12_OK;
   } else if (ret == HAL_TIMEOUT) {

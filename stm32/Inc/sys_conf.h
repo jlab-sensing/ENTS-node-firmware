@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -47,7 +47,7 @@ extern "C" {
 /**
   * @brief  Verbose level for all trace logs
   */
-#define VERBOSE_LEVEL                        VLEVEL_M
+#define VERBOSE_LEVEL                        VLEVEL_H
 
 /**
   * @brief Enable trace logs
@@ -86,7 +86,7 @@ extern "C" {
   * @brief Disable Low Power mode
   * @note  0: LowPowerMode enabled. MCU enters stop2 mode, 1: LowPowerMode disabled. MCU enters sleep mode only
   */
-#define LOW_POWER_DISABLE                    0
+#define LOW_POWER_DISABLE                    1
 
 /* USER CODE BEGIN EC */
 

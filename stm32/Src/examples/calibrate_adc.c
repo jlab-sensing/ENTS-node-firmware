@@ -70,8 +70,8 @@ int main(void) {
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
 
   /*Initialize timer and RTC*/
   /*Have to be initilized in example files because LoRaWan cannot be initialized
@@ -92,7 +92,7 @@ int main(void) {
   HAL_StatusTypeDef status = HAL_OK;
 
   // block for host to send check command
-  status = HAL_UART_Receive(&huart1, (uint8_t *)check_input, 6, HAL_MAX_DELAY);
+  status = HAL_UART_Receive(&huart2, (uint8_t *)check_input, 6, HAL_MAX_DELAY);
   if (status != HAL_OK) {
     Error_Handler();
   }
@@ -100,7 +100,7 @@ int main(void) {
   // check for first chararcter in "check"
   if (check_input[0] == 'c') {
     status = HAL_UART_Transmit(
-        &huart1, (uint8_t *)check_result, size_check,
+        &huart2, (uint8_t *)check_result, size_check,
         uart_timeout);  // send response to the 'check' command
     if (status != HAL_OK) {
       Error_Handler();
@@ -119,7 +119,7 @@ int main(void) {
 
     // block until receive request for measurement
     status = HAL_UART_Receive(
-        &huart1, (uint8_t *)controller_input, 1,
+        &huart2, (uint8_t *)controller_input, 1,
         HAL_MAX_DELAY);  // On every other iteration, send the encoded
                          // measurement in response to the '0' command
     if (status != HAL_OK) {
@@ -156,14 +156,14 @@ int main(void) {
       size_t measurement_size = ostream.bytes_written;
 
       // send length
-      status = HAL_UART_Transmit(&huart1, (uint8_t *)&measurement_size, 1,
+      status = HAL_UART_Transmit(&huart2, (uint8_t *)&measurement_size, 1,
                                  uart_timeout);
       if (status != HAL_OK) {
         continue;
       }
 
       // send data
-      status = HAL_UART_Transmit(&huart1, (uint8_t *)encoded_measurement,
+      status = HAL_UART_Transmit(&huart2, (uint8_t *)encoded_measurement,
                                  measurement_size, uart_timeout);
       if (status != HAL_OK) {
         continue;

@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -29,14 +29,17 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
+
 /* USER CODE END Private defines */
 
 void MX_GPIO_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

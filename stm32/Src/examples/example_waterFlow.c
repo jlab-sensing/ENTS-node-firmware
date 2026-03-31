@@ -96,9 +96,9 @@ int main(void) {
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_USART1_UART_Init();
-  // MX_USART2_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  // MX_LPUART1_UART_Init();
+  MX_I2C1_Init();
 
   /*Initialize timer and RTC*/
   /*Have to be initilized in example files because LoRaWan cannot be initialized
@@ -117,7 +117,7 @@ int main(void) {
   info_len = snprintf(info_str, sizeof(info_str),
                       "Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n",
                       __DATE__, __TIME__);
-  HAL_UART_Transmit(&huart1, (const uint8_t *)info_str, info_len, 1000);
+  HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
   FlowInit();
@@ -143,7 +143,7 @@ int main(void) {
     reading_len =
         snprintf(output, sizeof(output), "Flow: %.4f \r\n", measurement.flow);
 
-    HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
+    HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
 
     for (int i = 0; i < 1000000; i++) {

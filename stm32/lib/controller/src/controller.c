@@ -42,12 +42,13 @@ void ControllerDeinit(void) {
   rx->len = 0;
 }
 
+// TODO: Controller wakeup for the ESP32 is now on the IO expander (via I2C).
 void ControllerWakeup(void) {
-  HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_SET);
+  // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_SET);
 
   HAL_Delay(50);
 
-  HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
+  // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
 
   HAL_Delay(50);
 }

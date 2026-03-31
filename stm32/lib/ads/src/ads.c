@@ -75,13 +75,13 @@ typedef union {
  *
  * @see data_ready_pin
  */
-const GPIO_TypeDef *data_ready_port = GPIOC;
+// const GPIO_TypeDef *data_ready_port = GPIOC;
 
 /**
  * @brief GPIO pin for adc data ready line
  *
  */
-const uint16_t data_ready_pin = GPIO_PIN_0;
+// const uint16_t data_ready_pin = GPIO_PIN_0;
 
 /** Uart timeout in ms */
 static const unsigned int g_timeout = 5000;
@@ -137,7 +137,7 @@ HAL_StatusTypeDef ADC_init(void) {
   HAL_StatusTypeDef ret = HAL_OK;
 
   // Send the reset code
-  ret = HAL_I2C_Master_Transmit(&hi2c2, addrls, &cmd_reset, 1, g_timeout);
+  ret = HAL_I2C_Master_Transmit(&hi2c1, addrls, &cmd_reset, 1, g_timeout);
   if (ret != HAL_OK) {
     return ret;
   }
@@ -151,7 +151,7 @@ HAL_StatusTypeDef ADC_init(void) {
 HAL_StatusTypeDef Configure(const ConfigReg reg_data) {
   HAL_StatusTypeDef ret;
   const uint8_t i2c_data[2] = {cmd_wreg, reg_data.value};
-  ret = HAL_I2C_Master_Transmit(&hi2c2, addrls, i2c_data, sizeof(i2c_data),
+  ret = HAL_I2C_Master_Transmit(&hi2c1, addrls, i2c_data, sizeof(i2c_data),
                                 g_timeout);
   return ret;
 }
@@ -217,7 +217,7 @@ double ADC_readCurrent(void) {
 
 HAL_StatusTypeDef probeADS12(void) {
   HAL_StatusTypeDef ret;
-  ret = HAL_I2C_IsDeviceReady(&hi2c2, addrls, 10, 20);
+  ret = HAL_I2C_IsDeviceReady(&hi2c1, addrls, 10, 20);
   return ret;
 }
 
@@ -265,16 +265,19 @@ size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx) {
   return data_len;
 }
 
+// TODO: Power on/off for the ADS1219 is moved to toggling the power to the I2C bus.
+//       Provide this function in a i2c or power library (instead of here).
+//       Note: Power toggle pins are on the IO expander (accessed through I2C).
 void PowerOn(void) {
   // set high
-  HAL_GPIO_WritePin(POWERDOWN_GPIO_Port, POWERDOWN_Pin, GPIO_PIN_SET);
+  // HAL_GPIO_WritePin(POWERDOWN_GPIO_Port, POWERDOWN_Pin, GPIO_PIN_SET);
   // delay for settling of analog components
   HAL_Delay(1);
 }
 
 void PowerOff(void) {
   // set low
-  HAL_GPIO_WritePin(POWERDOWN_GPIO_Port, POWERDOWN_Pin, GPIO_PIN_RESET);
+  // HAL_GPIO_WritePin(POWERDOWN_GPIO_Port, POWERDOWN_Pin, GPIO_PIN_RESET);
 }
 
 HAL_StatusTypeDef Measure(int32_t *meas) {
@@ -284,23 +287,26 @@ HAL_StatusTypeDef Measure(int32_t *meas) {
   PowerOn();
 
   // start conversion
-  HAL_I2C_Master_Transmit(&hi2c2, addrls, &cmd_start, 1, g_timeout);
+  HAL_I2C_Master_Transmit(&hi2c1, addrls, &cmd_start, 1, g_timeout);
 
   // wait for conversion
   HAL_Delay(60);
 
+  // TODO: Since the ADS1219 is now on its own I2C-only module/board, there is not data ready pin.
+  //       Stopgap: Wait an extra sample period.
   // Wait for the DRDY pin on the ADS12 to go low, this means data is ready
-  while (HAL_GPIO_ReadPin(data_ready_port, data_ready_pin)) {
-  }
+  // while (HAL_GPIO_ReadPin(data_ready_port, data_ready_pin)) {
+  // }
+  HAL_Delay(60);
 
   // send read data command
-  ret = HAL_I2C_Master_Transmit(&hi2c2, addrls, &cmd_rdata, 1, g_timeout);
+  ret = HAL_I2C_Master_Transmit(&hi2c1, addrls, &cmd_rdata, 1, g_timeout);
   if (ret != HAL_OK) {
     return -1;
   }
 
   // read 3 bytes of data
-  ret = HAL_I2C_Master_Receive(&hi2c2, addrls, rx_data, 3, g_timeout);
+  ret = HAL_I2C_Master_Receive(&hi2c1, addrls, rx_data, 3, g_timeout);
   if (ret != HAL_OK) {
     return -1;
   }

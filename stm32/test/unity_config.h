@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Transmits single charater to USART1
+ * @brief Transmits single charater to USART2
  *
  * The return code is checked. Requires the USART library to be initialized.
  *

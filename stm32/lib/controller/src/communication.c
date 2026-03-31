@@ -95,7 +95,7 @@ ControllerStatus ControllerTransmit(unsigned int timeout) {
     chunk.len = num_bytes + 1;
 
     // transmit data
-    hal_status = HAL_I2C_Master_Transmit(&hi2c2, g_esp32_i2c_addr, chunk.data,
+    hal_status = HAL_I2C_Master_Transmit(&hi2c1, g_esp32_i2c_addr, chunk.data,
                                          chunk.len, timeout);
     cont_status = HALToControllerStatus(hal_status);
     if (cont_status != CONTROLLER_SUCCESS) {
@@ -120,7 +120,7 @@ ControllerStatus ControllerReceive(unsigned int timeout) {
 
   // receive number of incoming bytes
   uint8_t len_bytes[2] = {};
-  hal_status = HAL_I2C_Master_Receive(&hi2c2, g_esp32_i2c_addr, len_bytes,
+  hal_status = HAL_I2C_Master_Receive(&hi2c1, g_esp32_i2c_addr, len_bytes,
                                       sizeof(len_bytes), timeout);
   if (hal_status != HAL_OK) {
     return HALToControllerStatus(hal_status);
@@ -156,7 +156,7 @@ ControllerStatus ControllerReceive(unsigned int timeout) {
     chunk.len = num_bytes + 1;
 
     // receive block of data
-    hal_status = HAL_I2C_Master_Receive(&hi2c2, g_esp32_i2c_addr, chunk.data,
+    hal_status = HAL_I2C_Master_Receive(&hi2c1, g_esp32_i2c_addr, chunk.data,
                                         chunk.len, timeout);
     cont_status = HALToControllerStatus(hal_status);
     if (cont_status != CONTROLLER_SUCCESS) {

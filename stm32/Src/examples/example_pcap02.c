@@ -37,14 +37,14 @@ int main(void) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C2_Init();
-  MX_USART1_UART_Init();
+  MX_I2C1_Init();
+  MX_USART2_UART_Init();
 
   // Pin A10 (STM32WLE5JC) is used as an interrupt.
   // This function must be called after MX_GPIO_Init()
   pcap02_gpio_init();
 
-  // NOTE: MX_I2C2_Init() must be called prior to pcap02_init().
+  // NOTE: MX_I2C1_Init() must be called prior to pcap02_init().
   pcap02_init();
 
   // 8. ‘h40 03 00 00 00; Read Res1, addresses 3, 4, 5. Res1 is expected to be

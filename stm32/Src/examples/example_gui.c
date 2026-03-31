@@ -44,8 +44,8 @@ int main(void) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
 
   /*Initialize timer and RTC*/
   /*Have to be initilized in example files because LoRaWan cannot be initialized
@@ -63,7 +63,7 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
-    // if (HAL_UART_Receive(&huart1, length_buf, 1, HAL_MAX_DELAY) == HAL_OK) {
+    // if (HAL_UART_Receive(&huart2, length_buf, 1, HAL_MAX_DELAY) == HAL_OK) {
     //     UserConfig_SendCurrentUserConfig();
     // }
     /* USER CODE BEGIN 3 */

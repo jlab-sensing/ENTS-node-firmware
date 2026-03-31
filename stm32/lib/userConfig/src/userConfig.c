@@ -82,7 +82,7 @@ UserConfigStatus UserConfig_SendCurrentUserConfig(void) {
   uint8_t length_buf[2];
 
   // Send ACK to the GUI
-  HAL_UART_Transmit(&huart1, ack, sizeof(ack) - 1, HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, ack, sizeof(ack) - 1, HAL_MAX_DELAY);
 
   // Read the length of the encoded data from FRAM
   if (UserConfig_ReadFromFRAM(USER_CONFIG_LEN_ADDR, 2, length_buf) !=
@@ -94,7 +94,7 @@ UserConfigStatus UserConfig_SendCurrentUserConfig(void) {
   data_length = (length_buf[0] << 8) | length_buf[1];
 
   // Send the encoded data length to the GUI
-  HAL_UART_Transmit(&huart1, length_buf, 2, HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, length_buf, 2, HAL_MAX_DELAY);
 
   // Read the encoded data from FRAM
   if (UserConfig_ReadFromFRAM(USER_CONFIG_START_ADDRESS, data_length,
@@ -103,7 +103,7 @@ UserConfigStatus UserConfig_SendCurrentUserConfig(void) {
   }
 
   // Send the encoded data to the GUI
-  HAL_UART_Transmit(&huart1, RX_Buffer, data_length, HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, RX_Buffer, data_length, HAL_MAX_DELAY);
   checked = false;
   RQFlag = 0x05;
   NVIC_SystemReset();
@@ -128,7 +128,7 @@ void UserConfig_InterruptHandler(void) {
 
       if (data_length > RX_BUFFER_SIZE) {
         uint8_t error_msg[] = "Data too large";
-        HAL_UART_Transmit(&huart1, error_msg, strlen((char *)error_msg),
+        HAL_UART_Transmit(&huart2, error_msg, strlen((char *)error_msg),
                           HAL_MAX_DELAY);
         length_received = false;
         checked = false;
@@ -140,7 +140,7 @@ void UserConfig_InterruptHandler(void) {
     if (index == data_length) {
       length_received = false;
       index = 0;
-      HAL_UART_Transmit(&huart1, ack, sizeof(ack) - 1, HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart2, ack, sizeof(ack) - 1, HAL_MAX_DELAY);
 
       UserConfigStatus status = UserConfig_WriteToFRAM(
           USER_CONFIG_START_ADDRESS, RX_Buffer, data_length);
@@ -152,21 +152,21 @@ void UserConfig_InterruptHandler(void) {
         if (UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_to_send, 2) !=
             USERCONFIG_OK) {
           uint8_t error_msg[] = "FRAM Error";
-          HAL_UART_Transmit(&huart1, error_msg, strlen((char *)error_msg),
+          HAL_UART_Transmit(&huart2, error_msg, strlen((char *)error_msg),
                             HAL_MAX_DELAY);
         }
         // Send encoded userconfig Length back to GUI
-        HAL_UART_Transmit(&huart1, length_to_send, 2, HAL_MAX_DELAY);
+        HAL_UART_Transmit(&huart2, length_to_send, 2, HAL_MAX_DELAY);
         // Read the received encoded data from FRAM
         UserConfig_ReadFromFRAM(USER_CONFIG_START_ADDRESS, data_length,
                                 RX_Buffer);
         // Send the received data back to the GUI for confirmation
-        HAL_UART_Transmit(&huart1, RX_Buffer, data_length, HAL_MAX_DELAY);
+        HAL_UART_Transmit(&huart2, RX_Buffer, data_length, HAL_MAX_DELAY);
         checked = false;
         NVIC_SystemReset();
       } else {
         uint8_t error_msg[] = "FRAM Error";
-        HAL_UART_Transmit(&huart1, error_msg, strlen((char *)error_msg),
+        HAL_UART_Transmit(&huart2, error_msg, strlen((char *)error_msg),
                           HAL_MAX_DELAY);
       }
     }
@@ -179,14 +179,14 @@ void UserConfig_ProcessDataPolling(void) {
   uint16_t data_length = 0;  // Length received data
 
   // Poll to receive the length of the encoded data (2 bytes)
-  if (HAL_UART_Receive(&huart1, length_buf, 2, 30000) == HAL_OK) {
+  if (HAL_UART_Receive(&huart2, length_buf, 2, 30000) == HAL_OK) {
     // Convert 2 bytes to length
     data_length = (length_buf[0] << 8) | length_buf[1];
     // Receive the actual encoded data of the received length
-    if (HAL_UART_Receive(&huart1, RX_Buffer, data_length, HAL_MAX_DELAY) ==
+    if (HAL_UART_Receive(&huart2, RX_Buffer, data_length, HAL_MAX_DELAY) ==
         HAL_OK) {
       // Send acknowledgment ("ACK") to the GUI
-      HAL_UART_Transmit(&huart1, ack, sizeof(ack) - 1, HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart2, ack, sizeof(ack) - 1, HAL_MAX_DELAY);
       // Write the received data to FRAM
       UserConfigStatus status = UserConfig_WriteToFRAM(
           USER_CONFIG_START_ADDRESS, RX_Buffer, data_length);
@@ -198,18 +198,18 @@ void UserConfig_ProcessDataPolling(void) {
         if (UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_to_send, 2) !=
             USERCONFIG_OK) {
           uint8_t error_msg[] = "FRAM Error";
-          HAL_UART_Transmit(&huart1, error_msg, strlen((char *)error_msg),
+          HAL_UART_Transmit(&huart2, error_msg, strlen((char *)error_msg),
                             HAL_MAX_DELAY);
         }
         // Send the received data back to the GUI for confirmation
-        HAL_UART_Transmit(&huart1, length_to_send, 2, HAL_MAX_DELAY);
+        HAL_UART_Transmit(&huart2, length_to_send, 2, HAL_MAX_DELAY);
         UserConfig_ReadFromFRAM(USER_CONFIG_START_ADDRESS, data_length,
                                 RX_Buffer);
-        HAL_UART_Transmit(&huart1, RX_Buffer, data_length, HAL_MAX_DELAY);
+        HAL_UART_Transmit(&huart2, RX_Buffer, data_length, HAL_MAX_DELAY);
       } else {
         // Handle FRAM write error
         uint8_t error_msg[] = "FRAM Error";
-        HAL_UART_Transmit(&huart1, error_msg, strlen((char *)error_msg),
+        HAL_UART_Transmit(&huart2, error_msg, strlen((char *)error_msg),
                           HAL_MAX_DELAY);
       }
       checked = false;

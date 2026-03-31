@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -28,6 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wlxx_hal.h"
+#include "board.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -59,26 +60,30 @@ extern "C" {
 #define RTC_PREDIV_A ((1<<(15-RTC_N_PREDIV_S))-1)
 #define RTC_N_PREDIV_S 10
 #define RTC_PREDIV_S ((1<<RTC_N_PREDIV_S)-1)
+#define VBAT_DIV_2_Pin GPIO_PIN_15
+#define VBAT_DIV_2_GPIO_Port GPIOA
+#define SDI12_DIR_Pin GPIO_PIN_9
+#define SDI12_DIR_GPIO_Port GPIOB
 #define USER_LED_Pin GPIO_PIN_5
 #define USER_LED_GPIO_Port GPIOB
 #define RF_CTRL3_Pin GPIO_PIN_3
 #define RF_CTRL3_GPIO_Port GPIOC
-#define VCC_Pin GPIO_PIN_13
-#define VCC_GPIO_Port GPIOB
+#define ESP32_EN_Pin GPIO_PIN_0
+#define ESP32_EN_GPIO_Port GPIOA
+#define USER_BUTTON_Pin GPIO_PIN_13
+#define USER_BUTTON_GPIO_Port GPIOB
 #define RF_CTRL2_Pin GPIO_PIN_5
 #define RF_CTRL2_GPIO_Port GPIOC
-#define POWERDOWN_Pin GPIO_PIN_9
-#define POWERDOWN_GPIO_Port GPIOA
-#define SDI_12_MUX_Pin GPIO_PIN_1
-#define SDI_12_MUX_GPIO_Port GPIOC
-#define ADC_DRDY_Pin GPIO_PIN_0
-#define ADC_DRDY_GPIO_Port GPIOC
+#define SDI12_TX_Pin GPIO_PIN_1
+#define SDI12_TX_GPIO_Port GPIOC
+#define SDI12_RX_Pin GPIO_PIN_0
+#define SDI12_RX_GPIO_Port GPIOC
 #define RF_CTRL1_Pin GPIO_PIN_4
 #define RF_CTRL1_GPIO_Port GPIOC
-#define ESP32_EN_Pin GPIO_PIN_10
-#define ESP32_EN_GPIO_Port GPIOB
-#define ESP32_WAKEUP_Pin GPIO_PIN_0
-#define ESP32_WAKEUP_GPIO_Port GPIOA
+#define USART2_RX_CP2102_Pin GPIO_PIN_3
+#define USART2_RX_CP2102_GPIO_Port GPIOA
+#define USART2_TX_CP2102_Pin GPIO_PIN_2
+#define USART2_TX_CP2102_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

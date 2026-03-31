@@ -25,11 +25,11 @@ void Board_Init(void) {
   MX_GPIO_Init();
   MX_DMA_Init();  
   MX_ADC_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
   
   // required for SDI-12
-  MX_USART2_UART_Init();
+  MX_LPUART1_UART_Init();
   MX_TIM1_Init();
 }
 
@@ -38,17 +38,17 @@ void Board_DeInit(void) {
     Error_Handler();
   }
 
-  if (HAL_UART_DeInit(&huart1) != HAL_OK) {
+  if (HAL_UART_DeInit(&huart2) != HAL_OK) {
     Error_Handler();
   }
 
   // NOTE DMA does not have a deinit function, STOP2 clocks are sufficient
 
-  if (HAL_I2C_DeInit(&hi2c2) != HAL_OK) {
+  if (HAL_I2C_DeInit(&hi2c1) != HAL_OK) {
     Error_Handler();
   }
 
-  if (HAL_UART_DeInit(&huart2) != HAL_OK) {
+  if (HAL_UART_DeInit(&hlpuart1) != HAL_OK) {
     Error_Handler();
   }
 
@@ -105,7 +105,7 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   // char error[30];
   // int error_len = sprintf(error, "Error!  HAL Status: %d\n", rc);
-  // HAL_UART_Transmit(&huart1, (const uint8_t *)error, error_len, 1000);
+  // HAL_UART_Transmit(&huart2, (const uint8_t *)error, error_len, 1000);
 
   StatusLedOn();
 

@@ -5,3 +5,10 @@
 docs/html
 
 stm32pio.ini
+
+# cubeMX generated files
+Core/
+Drivers/
+LoRaWAN/
+Middlewares/
+Utilities/

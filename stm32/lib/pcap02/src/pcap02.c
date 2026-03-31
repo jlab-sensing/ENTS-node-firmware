@@ -300,7 +300,7 @@ void I2C_Sweep_DevAddr(uint8_t from_addr, uint8_t to_addr,
 
   for (int check_addr = from_addr; check_addr <= to_addr; check_addr++) {
     /* Checks if target device is ready for communication. */
-    if (HAL_I2C_IsDeviceReady(&hi2c2, check_addr, trials, timeout) != HAL_OK) {
+    if (HAL_I2C_IsDeviceReady(&hi2c1, check_addr, trials, timeout) != HAL_OK) {
       // check_addr++;
       HAL_Delay(1);
       /* Return error */
@@ -330,17 +330,17 @@ HAL_StatusTypeDef I2C_Write_Opcode(uint8_t slave, uint8_t one_byte) {
   i2cTX[0] = one_byte;
 
   /* 1. Transmit register address */
-  while (HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, 1, timeout) !=
+  while (HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, 1, timeout) !=
          HAL_OK) {
     /* Error_Handler() function is called when Timeout error occurs.
        When Acknowledge failure occurs (Slave don't acknowledge it's address)
        Master restarts communication */
-    if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+    if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
       Error_Handler();
     }
   }
 
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+  while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 
   return HAL_OK;
 }
@@ -382,16 +382,16 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
 
     // WR
     /* Send WHO_AM_I register address */
-    while (HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, (2 + size),
+    while (HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, (2 + size),
                                    timeout) != HAL_OK) {
       /* Error_Handler() function is called when Timeout error occurs.
          When Acknowledge failure occurs (Slave don't acknowledge it's address)
          Master restarts communication */
-      if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+      if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
   } else if (opcode == PCAP02_OPCODE_SRAM_READ) {
     uint8_t i2cTX[2];
     uint8_t i2cRX[size];
@@ -401,28 +401,28 @@ HAL_StatusTypeDef I2C_Memory_Access(uint8_t slave, uint8_t opcode,
 
     // RD
     /* Send WHO_AM_I register address */
-    while (HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, 2,
+    while (HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, 2,
                                    timeout) != HAL_OK) {
       /* Error_Handler() function is called when Timeout error occurs.
          When Acknowledge failure occurs (Slave don't acknowledge it's address)
          Master restarts communication */
-      if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+      if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 
     /* Receieve data in the register */
-    while (HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, size,
+    while (HAL_I2C_Master_Receive(&hi2c1, (uint16_t)slave, i2cRX, size,
                                   timeout) != HAL_OK) {
       /* Error_Handler() function is called when Timeout error occurs.
          When Acknowledge failure occurs (Slave don't acknowledge it's address)
          Master restarts communication */
-      if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+      if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 
     // copy array
     for (int i = 0; i < size; i++) {
@@ -462,16 +462,16 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
       i2cTX[2 + i] = byte[i];
     }
     // WR
-    while (HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, (2 + size),
+    while (HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, (2 + size),
                                    timeout) != HAL_OK) {
       /* Error_Handler() function is called when Timeout error occurs.
          When Acknowledge failure occurs (Slave don't acknowledge it's address)
          Master restarts communication */
-      if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+      if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
   } else if (opcode == PCAP02_OPCODE_RESULT_READ) {
     uint8_t i2cTX[2];
     uint8_t i2cRX[size];
@@ -480,27 +480,27 @@ HAL_StatusTypeDef I2C_Config_Access(uint8_t slave, uint8_t opcode,
     i2cTX[1] = address;
 
     // RD
-    while (HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, 2,
+    while (HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, 2,
                                    timeout) != HAL_OK) {
       /* Error_Handler() function is called when Timeout error occurs.
          When Acknowledge failure occurs (Slave don't acknowledge it's address)
          Master restarts communication */
-      if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+      if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 
-    while (HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, size,
+    while (HAL_I2C_Master_Receive(&hi2c1, (uint16_t)slave, i2cRX, size,
                                   timeout) != HAL_OK) {
       /* Error_Handler() function is called when Timeout error occurs.
          When Acknowledge failure occurs (Slave don't acknowledge it's address)
          Master restarts communication */
-      if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+      if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
         Error_Handler();
       }
     }
-    while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+    while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 
     // copy array
     for (int i = 0; i < size; i++) {
@@ -540,16 +540,16 @@ HAL_StatusTypeDef I2C_Write_Dword(uint8_t slave, uint8_t opcode,
   i2cTX[2] = temp_u32;
 
   /* 1. Transmit register address */
-  while (HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, 6, timeout) !=
+  while (HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, 6, timeout) !=
          HAL_OK) {
     /* Error_Handler() function is called when Timeout error occurs.
        When Acknowledge failure occurs (Slave don't acknowledge it's address)
        Master restarts communication */
-    if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+    if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
       Error_Handler();
     }
   }
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+  while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 
   return HAL_OK;
 }
@@ -575,16 +575,16 @@ HAL_StatusTypeDef I2C_Write_Byte(uint8_t slave, uint8_t opcode, uint8_t address,
   i2cTX[2] = byte;
 
   /* 1. Transmit register address */
-  while (HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, 3, timeout) !=
+  while (HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, 3, timeout) !=
          HAL_OK) {
     /* Error_Handler() function is called when Timeout error occurs.
        When Acknowledge failure occurs (Slave don't acknowledge it's address)
        Master restarts communication */
-    if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF) {
+    if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF) {
       Error_Handler();
     }
   }
-  while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+  while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 
   return HAL_OK;
 }
@@ -609,10 +609,10 @@ uint32_t I2C_Read_Dword(uint8_t slave, uint8_t rd_opcode, uint8_t address) {
   i2cTX[1] = address;
 
   /* 1. Transmit register address */
-  HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, 2, timeout);
+  HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, 2, timeout);
 
   /* 2. Read four bytes */
-  HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, 4, timeout);
+  HAL_I2C_Master_Receive(&hi2c1, (uint16_t)slave, i2cRX, 4, timeout);
 
   /* Concatenate of bytes (from MSB to LSB) */
   temp_u32 = (i2cRX[0] << 24) + (i2cRX[1] << 16) + (i2cRX[2] << 8) + (i2cRX[3]);
@@ -640,10 +640,10 @@ uint8_t I2C_Read_Byte(uint8_t slave, uint8_t rd_opcode, uint8_t address) {
   i2cTX[1] = address;
 
   /* 1. Transmit register address */
-  HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, 2, timeout);
+  HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, 2, timeout);
 
   /* 2. Read four bytes */
-  HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, 1, timeout);
+  HAL_I2C_Master_Receive(&hi2c1, (uint16_t)slave, i2cRX, 1, timeout);
 
   /* Concatenate of bytes (from MSB to LSB) */
   temp_u8 = i2cRX[0];
@@ -674,34 +674,34 @@ uint32_t I2C_Read_Result(uint8_t slave, uint8_t rd_opcode, uint8_t address) {
   i2cTX[0] = rd_opcode;
   i2cTX[1] = address;
 
-  HAL_I2C_Master_Transmit(&hi2c2, (uint16_t)slave, i2cTX, 2, timeout);
-  HAL_I2C_Master_Receive(&hi2c2, (uint16_t)slave, i2cRX, 3, timeout);
+  HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)slave, i2cTX, 2, timeout);
+  HAL_I2C_Master_Receive(&hi2c1, (uint16_t)slave, i2cRX, 3, timeout);
 
   /* 1. Transmit register address */
-  //	while(HAL_I2C_Master_Transmit(&hi2c2, slave, i2cTX, 1, timeout) !=
+  //	while(HAL_I2C_Master_Transmit(&hi2c1, slave, i2cTX, 1, timeout) !=
   // HAL_OK) {
   /* Error_Handler() function is called when Timeout error occurs.
      When Acknowledge failure occurs (Slave don't acknowledge it's address)
      Master restarts communication */
-  /*		if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF)
+  /*		if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF)
                   {
                     Error_Handler();
                   }
           }
-          while(HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+          while(HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
   */
   /* 2. Read four bytes */
-  //	while(HAL_I2C_Master_Receive(&hi2c2, slave, i2cRX, 4, timeout) !=
+  //	while(HAL_I2C_Master_Receive(&hi2c1, slave, i2cRX, 4, timeout) !=
   // HAL_OK) {
   /* Error_Handler() function is called when Timeout error occurs.
      When Acknowledge failure occurs (Slave don't acknowledge it's address)
      Master restarts communication */
-/*		if (HAL_I2C_GetError(&hi2c2) != HAL_I2C_ERROR_AF)
+/*		if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF)
                 {
                   Error_Handler();
                 }
         }
-        while(HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY);
+        while(HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 */
 #ifdef MSB2LSB
   /* Concatenate of bytes (from MSB to LSB) */
