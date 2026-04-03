@@ -20,7 +20,8 @@ typedef enum _EnabledSensor {
     EnabledSensor_SEN0308 = 6,
     EnabledSensor_SEN0257 = 7,
     EnabledSensor_YFS210C = 8,
-    EnabledSensor_PCAP02 = 9
+    EnabledSensor_PCAP02 = 9,
+    EnabledSensor_D10 = 10
 } EnabledSensor;
 
 typedef enum _Uploadmethod {
@@ -288,10 +289,12 @@ typedef struct _PCAP02Measurement {
     double capacitance;
 } PCAP02Measurement;
 
-/* Water Flow Sensor */
+/* D10 Water Flow Sensor */
 typedef struct _D10Measurement {
     /* flow */
     double flow;
+    uint32_t volumeElapsed;
+    uint32_t timeElapsed;
 } D10Measurement;
 
 /* Top level measurement message */
@@ -310,6 +313,7 @@ typedef struct _Measurement {
         SEN0257Measurement sen0257;
         YFS210CMeasurement yfs210c;
         PCAP02Measurement pcap02;
+        D10Measurement d10;
     } measurement;
 } Measurement;
 
@@ -442,8 +446,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _EnabledSensor_MIN EnabledSensor_Voltage
-#define _EnabledSensor_MAX EnabledSensor_PCAP02
-#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_PCAP02+1))
+#define _EnabledSensor_MAX EnabledSensor_D10
+#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_D10+1))
 
 #define _Uploadmethod_MIN Uploadmethod_LoRa
 #define _Uploadmethod_MAX Uploadmethod_WiFi
@@ -555,7 +559,7 @@ extern "C" {
 #define SEN0257Measurement_init_default          {0, 0}
 #define YFS210CMeasurement_init_default          {0}
 #define PCAP02Measurement_init_default           {0}
-#define D10Measurement_init_default              {0}
+#define D10Measurement_init_default              {0, 0, 0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
@@ -585,7 +589,7 @@ extern "C" {
 #define SEN0257Measurement_init_zero             {0, 0}
 #define YFS210CMeasurement_init_zero             {0}
 #define PCAP02Measurement_init_zero              {0}
-#define D10Measurement_init_zero                 {0}
+#define D10Measurement_init_zero                 {0, 0, 0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
@@ -635,6 +639,8 @@ extern "C" {
 #define YFS210CMeasurement_flow_tag              1
 #define PCAP02Measurement_capacitance_tag        1
 #define D10Measurement_flow_tag                  1
+#define D10Measurement_volumeElapsed_tag         2
+#define D10Measurement_timeElapsed_tag           3
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -645,6 +651,7 @@ extern "C" {
 #define Measurement_sen0257_tag                  8
 #define Measurement_yfs210c_tag                  9
 #define Measurement_pcap02_tag                   10
+#define Measurement_d10_tag                      11
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -801,7 +808,9 @@ X(a, STATIC,   SINGULAR, DOUBLE,   capacitance,       1)
 #define PCAP02Measurement_DEFAULT NULL
 
 #define D10Measurement_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, DOUBLE,   flow,              1)
+X(a, STATIC,   SINGULAR, DOUBLE,   flow,              1) \
+X(a, STATIC,   SINGULAR, UINT32,   volumeElapsed,     2) \
+X(a, STATIC,   SINGULAR, UINT32,   timeElapsed,       3)
 #define D10Measurement_CALLBACK NULL
 #define D10Measurement_DEFAULT NULL
 
@@ -815,7 +824,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0308,measurement.sen0308),   7) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   9) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,d10,measurement.d10),  11)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -828,6 +838,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10)
 #define Measurement_measurement_sen0257_MSGTYPE SEN0257Measurement
 #define Measurement_measurement_yfs210c_MSGTYPE YFS210CMeasurement
 #define Measurement_measurement_pcap02_MSGTYPE PCAP02Measurement
+#define Measurement_measurement_d10_MSGTYPE D10Measurement
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
@@ -1001,7 +1012,7 @@ extern const pb_msgdesc_t adcValue_msg;
 #define BME280Measurement_size                   23
 #define CurrentDeltaMeasurement_size             6
 #define CurrentMeasurement_size                  9
-#define D10Measurement_size                      9
+#define D10Measurement_size                      21
 #define Esp32Command_size                        632
 #define IrrigationCommand_size                   4
 #define MeasurementMetadata_size                 18

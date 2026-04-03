@@ -49,6 +49,8 @@ enum SensorType {
 
   /** D10 measurements */
   D10_FLOW = 20;
+  D10_VOLUME_ELAPSED = 21;
+  D10_TIME_ELAPSED = 22;
 }
 
 enum SensorError {

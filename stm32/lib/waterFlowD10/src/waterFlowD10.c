@@ -24,19 +24,18 @@
 #include "usart.h"
 #include "userConfig.h"
 
-#define FLOW_AVG_COUNT 15
+// may need to change depending on specifics of irrigation system
+#define NO_IRRIGATION_FLOW_G 1
 
 // Variables
-static float last_flow_lpm = 0;
 static volatile unsigned long pulse_count = 0;
+static uint32_t previous_pulses = 0;
+static SysTime_t irrigationStartTime;
+static uint32_t irrigationStartPulseCount;
+static bool irrigating;
+
 SysTime_t currentTime;
 SysTime_t lastTime;
-static float flow_history[FLOW_AVG_COUNT] = {0};
-static uint8_t flow_index = 0;
-
-// For every one liter of water that passes through the sensor in one minute,
-// there are 450 pulses. Therefore the calibration factor becomes [450/60 = 7.5]
-const float calibration_factor = 7.5;
 
 void FlowInit() {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -58,8 +57,11 @@ void FlowInit() {
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
   // Get INIT Times
+  previous_pulses = pulse_count;
   currentTime = SysTimeGet();
   lastTime = currentTime;
+  irrigationStartTime = currentTime;
+  irrigationStartPulseCount = previous_pulses;
 }
 
 D10Measurement FlowGetMeasurement() {
@@ -68,29 +70,35 @@ D10Measurement FlowGetMeasurement() {
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
   // Always calculate flow, not just every 100ms
   uint32_t pulses = pulse_count;
+  uint32_t pulseDiff = pulses - previous_pulses;
+  D10Measurement returnValue = {0};
 
-  D10Measurement flowMeas;
-
-  // Calculate gallons per minute based on actual time elapsed
-  float time_elapsed_minutes =
-      (float)diff.SubSeconds / 6000.0f;  // Convert subseconds to minutes
-  if (time_elapsed_minutes > 0) {
-    last_flow_lpm = ((float)pulses) / time_elapsed_minutes;
-    pulse_count = 0;  // Reset after calculation
-    lastTime = currentTime;
+  // no irrigation occuring, moving start time and pulse count forward to catch
+  // irrigation
+  if (pulseDiff == NO_IRRIGATION_FLOW_G && !irrigating) {
+    irrigationStartPulseCount = pulses;
+    irrigationStartTime = currentTime;
+  }  // ending of irrigation phase (falling edge detected)
+  else if (pulseDiff == NO_IRRIGATION_FLOW_G) {
+    // need to calculate and submit elapsed time
+    // submit currentTime - irrigationStartTime
+    irrigating = false;
+    returnValue.timeElapsed = currentTime.Seconds - irrigationStartTime.Seconds;
+  }
+  // beginning of irrigation phase (rising edge detected) and continued
+  // irrgating phase pulses have increased from last checked period
+  else {
+    // submit pulses - irrigationStartPulseCount
+    irrigating = true;
+    returnValue.volumeElapsed = pulses - irrigationStartPulseCount;
   }
 
-  // Update history and calculate average
-  flow_history[flow_index] = last_flow_lpm;
-  flow_index = (flow_index + 1) % FLOW_AVG_COUNT;
-
-  float sum = 0.0f;
-  for (int i = 0; i < FLOW_AVG_COUNT; i++) {
-    sum += flow_history[i];
-  }
-  flowMeas.flow = sum / FLOW_AVG_COUNT;
-
-  return flowMeas;
+  // calculation of flow rate
+  float flowRateGPM = pulseDiff / ((diff.Seconds) / 60);
+  returnValue.flow = flowRateGPM;
+  previous_pulses = pulses;
+  lastTime = currentTime;
+  return returnValue;
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
@@ -101,15 +109,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   // get timestamp
-  SysTime_t diff = SysTimeSub(currentTime, lastTime);
   D10Measurement flowMeas = {};
 
-  if (diff.SubSeconds >= 100) {  // If more than 0.1 seconds has passed
-    flowMeas = FlowGetMeasurement();
-  }
+  flowMeas = FlowGetMeasurement();
 
   /// read measurement
-  flowMeas.flow = last_flow_lpm;
   const UserConfiguration* cfg = UserConfigGet();
 
   // metadata
@@ -124,6 +128,21 @@ size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
 
   status = EncodeDoubleMeasurement(meta, flowMeas.flow, SensorType_D10_FLOW,
                                    data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
+
+  SensorsAddMeasurement(data, data_len);
+  status =
+      EncodeUint32Measurement(meta, flowMeas.volumeElapsed,
+                              SensorType_D10_VOLUME_ELAPSED, data, &data_len);
+  if (status != SENSOR_OK) {
+    return -1;
+  }
+  SensorsAddMeasurement(data, data_len);
+
+  status = EncodeUint32Measurement(
+      meta, flowMeas.timeElapsed, SensorType_D10_TIME_ELAPSED, data, &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }

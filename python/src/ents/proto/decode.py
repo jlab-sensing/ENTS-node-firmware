@@ -74,6 +74,8 @@ def decode_measurement(data: bytes, raw: bool = True) -> dict:
             meta_dict["data"]["pressure"] /= 10.0
             meta_dict["data"]["temperature"] /= 100.0
             meta_dict["data"]["humidity"] /= 1000.0
+        if meta_dict["type"] == "D10":
+            meta_dict["data"]["timeElapsed"] /= 60.0
 
     # store measurement type
     meta_dict["data_type"] = {}
