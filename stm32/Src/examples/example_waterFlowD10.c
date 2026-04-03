@@ -128,10 +128,11 @@ int main(void) {
   //  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
   //  UTIL_TIMER_Init();
 
-  char output[50];
+  char output[100];
 
   D10Measurement measurement;
   size_t reading_len;
+  SysTime_t currentTime;
 
   /* USER CODE END 2 */
 
@@ -139,18 +140,22 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
-
+    currentTime = SysTimeGet();
     /* USER CODE BEGIN 3 */
     measurement = FlowGetMeasurement();
-    reading_len =
-        snprintf(output, sizeof(output), "Flow: %.4f \r\n", measurement.flow);
+    reading_len = snprintf(
+        output, sizeof(output),
+        "Flow, Time Elapsed, Volume Elapsed, systime: %f %u %u %u \r\n",
+        measurement.flow, measurement.timeElapsed, measurement.volumeElapsed,
+        currentTime.Seconds);
 
     HAL_UART_Transmit(&huart1, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);
 
-    for (int i = 0; i < 1000000; i++) {
-      asm("nop");
-    }
+    HAL_Delay(10000);
+    // for (int i = 0; i < 1000000; i++) {
+    //   asm("nop");
+    // }
   }
   /* USER CODE END 3 */
 }

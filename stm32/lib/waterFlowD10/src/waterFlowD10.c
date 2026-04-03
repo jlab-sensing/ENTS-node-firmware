@@ -34,8 +34,8 @@ static SysTime_t irrigationStartTime;
 static uint32_t irrigationStartPulseCount;
 static bool irrigating;
 
-SysTime_t currentTime;
-SysTime_t lastTime;
+static SysTime_t currentTime;
+static SysTime_t lastTime;
 
 void FlowInit() {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -62,6 +62,7 @@ void FlowInit() {
   lastTime = currentTime;
   irrigationStartTime = currentTime;
   irrigationStartPulseCount = previous_pulses;
+  irrigating = false;
 }
 
 D10Measurement FlowGetMeasurement() {
@@ -94,7 +95,7 @@ D10Measurement FlowGetMeasurement() {
   }
 
   // calculation of flow rate
-  float flowRateGPM = pulseDiff / ((diff.Seconds) / 60);
+  float flowRateGPM = (float)pulseDiff / ((diff.Seconds) / 60.0);
   returnValue.flow = flowRateGPM;
   previous_pulses = pulses;
   lastTime = currentTime;
