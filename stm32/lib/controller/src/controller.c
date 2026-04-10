@@ -52,3 +52,11 @@ void ControllerWakeup(void) {
 
   HAL_Delay(50);
 }
+
+void ControllerDeviceEnable(void) {
+  HAL_GPIO_WritePin(ESP32_EN_GPIO_Port, ESP32_EN_Pin, GPIO_PIN_SET);
+}
+
+void ControllerDeviceDisable(void) {
+  HAL_GPIO_WritePin(ESP32_EN_GPIO_Port, ESP32_EN_Pin, GPIO_PIN_RESET);
+}

@@ -93,9 +93,11 @@ int main(void) {
              __TIME__);
   APP_PRINTF("Git SHA: %s\n\n", GIT_REV);
 
-  // Typically, you need to apply a userconfig that specifies LoRa as the upload method before you can see the LoRaWAN keys.
-  // To eliminate that step in the board setup process, the only uniquely changing values (DevAddr and DevEUI) are shown.
-  // To keep in line with the LmHandler's formatting, the common AppKey, NwkKey, AppSKey, and NwkSKey are also shown.
+  // Typically, you need to apply a userconfig that specifies LoRa as the upload
+  // method before you can see the LoRaWAN keys. To eliminate that step in the
+  // board setup process, the only uniquely changing values (DevAddr and DevEUI)
+  // are shown. To keep in line with the LmHandler's formatting, the common
+  // AppKey, NwkKey, AppSKey, and NwkSKey are also shown.
   uint32_t devAddr = 0;
   GetDevAddr(&devAddr);
   APP_PRINTF(
@@ -114,8 +116,10 @@ int main(void) {
   StatusLedInit();
   StatusLedFlashSlow();
 
+  // boot ESP32
+  ControllerDeviceEnable();
   // Wakeup via GPIO pin
-  ControllerWakeup(); // TODO: wakeup pin on IO expander
+  ControllerWakeup();  // TODO: wakeup pin on IO expander
 
   // initialize esp32 controller module
   ControllerInit();
@@ -143,7 +147,7 @@ int main(void) {
 
   // init senors interface
   SensorsInit();
-  
+
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors[i];

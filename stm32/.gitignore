@@ -1,6 +1,6 @@
 .pio
 .vscode
-.orig
+*.orig
 
 # docs
 docs/html

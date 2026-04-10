@@ -55,6 +55,16 @@ void ControllerDeinit(void);
 void ControllerWakeup(void);
 
 /**
+ * @brief Enable the ESP32 EN pin
+ */
+void ControllerDeviceEnable(void);
+
+/**
+ * @brief Disable the ESP32 EN pin
+ */
+void ControllerDeviceDisable(void);
+
+/**
  * @}
  */
 
