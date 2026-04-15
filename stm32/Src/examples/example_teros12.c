@@ -54,11 +54,14 @@ int main(void) {
     SDI12Status status = SDI12_OK;
     status = Teros12GetMeasurement('0', &data);
 
+    // Generic calibrations from datasheet; VWC reported as % / 100 ([0,1]).
+    float vwc = data.vwc * 0.0003879 * - 0.6956;
+
     char print_buffer[256];
 
     snprintf(print_buffer, sizeof(print_buffer),
              "Status code: %d; addr = %c; vwc: %f; temp: %f; ec: %d", status,
-             data.addr, data.vwc, data.temp, data.ec);
+             data.addr, &vwc, data.temp, data.ec);
 
     APP_PRINTF("%s\r\n", print_buffer);
 
