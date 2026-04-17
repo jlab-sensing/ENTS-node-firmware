@@ -831,18 +831,3 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
 
   return data_len;
 }
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(GPIO_Pin);
-
-  // Note: It takes about 1us after INTN
-
-  if (GPIO_Pin == PCAP02_INTN_Pin) {
-    INTN_State = (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
-                  GPIO_PIN_SET); /* low active */
-    if (INTN_State == GPIO_PIN_RESET) {
-      INTN_Counter += 1;
-    }
-  }
-}

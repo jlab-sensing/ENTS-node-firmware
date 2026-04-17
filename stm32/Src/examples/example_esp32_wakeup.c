@@ -25,6 +25,7 @@
 #include "sys_app.h"
 #include "tim.h"
 #include "usart.h"
+#include "tca9535.h"
 
 const unsigned int wakeup_interval_ms = 10000;
 
@@ -42,26 +43,35 @@ int main(void) {
 
   StatusLedInit();
 
-  // ensure wakeup pin is low
-  HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
+  // boot ESP32
+  ControllerDeviceEnable();
 
-  // hard initialize gpio pin
-  // override any global gpio configuration
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = ESP32_WAKEUP_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(ESP32_WAKEUP_GPIO_Port, &GPIO_InitStruct);
+  // Wakeup pin is on the IO expander
+  TCA9535Init(false);
+
+  // ensure wakeup pin is low
+  Tca9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
+  // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
+
+  // // hard initialize gpio pin
+  // // override any global gpio configuration
+  // GPIO_InitTypeDef GPIO_InitStruct = {0};
+  // GPIO_InitStruct.Pin = ESP32_WAKEUP_Pin;
+  // GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  // GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  // HAL_GPIO_Init(ESP32_WAKEUP_GPIO_Port, &GPIO_InitStruct);
 
   while (1) {
     // set wakeup pin
-    HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_SET);
+    Tca9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_SET);
+    // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_SET);
     StatusLedOn();
 
     HAL_Delay(100);
 
     // reset wakeup pin
-    HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
+    Tca9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
+    // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
     StatusLedOff();
 
     APP_LOG(TS_ON, VLEVEL_M, "Triggered wakeup pin\n");

@@ -85,6 +85,11 @@ extern "C" {
 #define USART2_TX_CP2102_Pin GPIO_PIN_2
 #define USART2_TX_CP2102_GPIO_Port GPIOA
 
+// Interrupt for PCAP02 INTN pin, which signals result ready
+#define PCAP02_INTN_Pin GPIO_PIN_10
+#define PCAP02_INTN_GPIO_Port GPIOA
+#define PCAP02_INTN_EXTI_IRQn EXTI15_10_IRQn
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

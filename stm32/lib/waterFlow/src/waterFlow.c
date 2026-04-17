@@ -28,7 +28,7 @@
 
 // Variables
 static volatile float last_flow_lpm = 0;
-static volatile unsigned long pulse_count = 0;
+volatile unsigned long pulse_count = 0;
 SysTime_t currentTime;
 SysTime_t lastTime;
 static volatile float flow_history[FLOW_AVG_COUNT] = {0};
@@ -91,12 +91,6 @@ YFS210CMeasurement FlowGetMeasurement() {
   flowMeas.flow = sum / FLOW_AVG_COUNT;
 
   return flowMeas;
-}
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-  if (GPIO_Pin == GPIO_PIN_10) {
-    pulse_count++;
-  }
 }
 
 size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {

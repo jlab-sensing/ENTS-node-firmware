@@ -8,14 +8,12 @@
 #include "pcap02_standard.h"
 #include "stm32_systime.h"
 
+// Interrupt callback located in lora_app.c.
+
 extern volatile uint32_t INTN_Counter;
+extern volatile uint8_t INTN_State;
 
 #define PCAP02_REFERENCE_CAPACITOR_PF 47
-
-// Interrupt for PCAP02 INTN pin, which signals result ready
-#define PCAP02_INTN_Pin GPIO_PIN_10
-#define PCAP02_INTN_GPIO_Port GPIOA
-#define PCAP02_INTN_EXTI_IRQn EXTI15_10_IRQn
 
 // The address below is already left-shifted. The 8th bit (i.e. LSB) is the read
 // (0) / write (1) bit.

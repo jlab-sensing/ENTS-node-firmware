@@ -36,6 +36,7 @@
 #include "sen0308.h"
 #include "sensors.h"
 #include "status_led.h"
+#include "tca9535.h"
 #include "teros12.h"
 #include "teros21.h"
 #include "userConfig.h"
@@ -118,6 +119,9 @@ int main(void) {
 
   // boot ESP32
   ControllerDeviceEnable();
+
+  TCA9535Init(true);
+
   // Wakeup via GPIO pin
   ControllerWakeup();  // TODO: wakeup pin on IO expander
 
