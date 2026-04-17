@@ -38,7 +38,7 @@ extern "C" {
 #define TCA9535_CONFIG_REG0 0x06  // Configuration register. BIT = '1' sets port to input BIT = '0' sets port to output
 #define TCA9535_CONFIG_REG1 0x07  // Configuration register. BIT = '1' sets port to input BIT = '0' sets port to output
 
-/************************** Configuration Options *************************************/
+/************************** Register Options *************************************/
 #define TCA9535_CONFIG_OUTPUT 0
 #define TCA9535_CONFIG_INPUT 1
 #define TCA9535_POLARITY_ACTIVE_HIGH 0
