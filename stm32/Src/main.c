@@ -77,20 +77,20 @@ int main(void) {
 
   HAL_Delay(100);
 
-  const char header[] = R"""(
-+-----------------------------------+
-|   ______  _   _  _______  _____   |
-|  |  ____|| \ | ||__   __|/ ____|  |
-|  | |__   |  \| |   | |  | (___    |
-|  |  __|  | . ` |   | |   \___ \   |
-|  | |____ | |\  |   | |   ____) |  |
-|  |______||_| \_|   |_|  |_____/   |
-|                                   |
-|  Environmentally NeTworked Sensor |
-+-----------------------------------+
-)""";
+  const char header[] =
+      "+-----------------------------------+\r\n"
+      "|   ______  _   _  _______  _____   |\r\n"
+      "|  |  ____|| \\ | ||__   __|/ ____|  |\r\n"
+      "|  | |__   |  \\| |   | |  | (___    |\r\n"
+      "|  |  __|  | . ` |   | |   \\___ \\   |\r\n"
+      "|  | |____ | |\\  |   | |   ____) |  |\r\n"
+      "|  |______||_| \\_|   |_|  |_____/   |\r\n"
+      "|                                   |\r\n"
+      "|  Environmentally NeTworked Sensor |\r\n"
+      "+-----------------------------------+\r\n";
+
   APP_PRINTF("\n%s\n", header);
-  APP_PRINTF("Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__,
+  APP_PRINTF("ENTS LoRa-E5 STM32 firmware, compiled on %s %s\n", __DATE__,
              __TIME__);
   APP_PRINTF("Git SHA: %s\n\n", GIT_REV);
 
@@ -120,10 +120,10 @@ int main(void) {
   // boot ESP32
   ControllerDeviceEnable();
 
-  TCA9535Init(true);
+  TCA9535Init(false);
 
   // Wakeup via GPIO pin
-  ControllerWakeup();  // TODO: wakeup pin on IO expander
+  ControllerWakeup();
 
   // initialize esp32 controller module
   ControllerInit();
