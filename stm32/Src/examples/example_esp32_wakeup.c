@@ -50,7 +50,7 @@ int main(void) {
   TCA9535Init(false);
 
   // ensure wakeup pin is low
-  Tca9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
+  TCA9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
   // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
 
   // // hard initialize gpio pin
@@ -63,14 +63,14 @@ int main(void) {
 
   while (1) {
     // set wakeup pin
-    Tca9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_SET);
+    TCA9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_SET);
     // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_SET);
     StatusLedOn();
 
     HAL_Delay(100);
 
     // reset wakeup pin
-    Tca9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
+    TCA9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
     // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
     StatusLedOff();
 

@@ -1,11 +1,16 @@
 /**
  * @file tca9535.h
  * @author Jack Lin (jlin143@ucsc.edu)
- * @brief
+ * @brief Driver code for the onboard TCA9535 IO expander.
  * @version 1.0
  * @date 2026-04-10
  *
  * @note Adapted from TI SLVC564 I/O Expander Software and Firmware Package. Interrupt callback located in lora_app.c.
+ * 
+ * General usage:
+ * 1. Initialize the device: TCA9535Init(false);
+ * 2. Use the HAL-like functions to write / read individual IO pins, or modify TCA9535_Reg_map and use the low level functions to write / read multiple IO pins simultaneously.
+ * If using the interrupt feature, modify the HAL_GPIO_EXTI_Callback() function in lora_app.c to check for the interrupt pin PB13.
  *
  * TODO:
  * - n/a
@@ -233,19 +238,19 @@ extern TCA9535Regs TCA9535_Reg_map;
 /************************** Public Function Prototypes *************************************/
 
 
-// High level functions
+// Initialization functions
 bool TCA9535Init(bool interruptEnable);
+void TCA9535InitStructDefault(TCA9535Regs* Regs);
+void TCA9535InterruptInit();
+void TCA9535InterruptDeinit();
 
+// HAL-like functions
 void TCA9535WritePin(uint8_t IO_Port, uint8_t IO_Pin, GPIO_PinState PinState);
 void TCA9535TogglePin(uint8_t IO_Port, uint8_t IO_Pin);
 GPIO_PinState TCA9535ReadPin(uint8_t IO_Port, uint8_t IO_Pin);
 void TCA9535SetDirection(uint8_t IO_Port, uint8_t IO_Pin, uint8_t Direction);
 
 // Low level functions
-void TCA9535InitStructDefault(TCA9535Regs* Regs);
-void TCA9535InterruptInit();
-void TCA9535InterruptDeinit();
-
 HAL_StatusTypeDef TCA9535WriteOutput(TCA9535Regs* Regs);
 HAL_StatusTypeDef TCA9535WritePolarity(TCA9535Regs* Regs);
 HAL_StatusTypeDef TCA9535WriteConfig(TCA9535Regs* Regs);

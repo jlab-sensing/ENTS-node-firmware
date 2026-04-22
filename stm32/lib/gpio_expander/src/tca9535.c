@@ -8,6 +8,17 @@ TCA9535Regs TCA9535_Reg_map;
 
 static const uint32_t timeout = HAL_MAX_DELAY;
 
+/**
+ * @brief Initializes the TCA9535 with the ENTS HW v3.1.0 default configuration.
+ * 
+ * @param interruptEnable bool to optionally enable the external interrupt for
+ * TCA9535 pin change.
+ * 
+ * @note The default configuration is different from the TCA9535 power-on device
+ * default settings.
+ * 
+ * @return void
+ */
 bool TCA9535Init(bool interruptEnable) {
   TCA9535InitStructDefault((TCA9535Regs*)&TCA9535_Reg_map);
 
