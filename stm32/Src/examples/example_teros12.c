@@ -3,8 +3,11 @@
  *
  * Prints teros12 measurements over serial.
  *
- * @author John Madden
- * @date 2025-02-11
+ * @author  John Madden
+ * @author  nubby
+ *
+ * @date    2026-04-23
+ * @version 1.0.2
  */
 
 // stdlib includes
@@ -54,14 +57,16 @@ int main(void) {
     SDI12Status status = SDI12_OK;
     status = Teros12GetMeasurement('0', &data);
 
-    // Generic calibrations from datasheet; VWC reported as % / 100 ([0,1]).
-    float vwc = data.vwc * 0.0003879 * - 0.6956;
+    // Generic calibration for mineralized soils from datasheet;
+    // predicted VWC reported as % / 100 ([0,1]).
+    float vwc_pred = data.vwc * 0.0003879 - 0.6956;
 
     char print_buffer[256];
 
     snprintf(print_buffer, sizeof(print_buffer),
-             "Status code: %d; addr = %c; vwc: %f; temp: %f; ec: %d", status,
-             data.addr, &vwc, data.temp, data.ec);
+             "Status code: %d; addr = %c; vwcRaw: %f; temp: %f; ec: %d; "
+             "vwcPercentMineralizedSoils: %f",
+             status, data.addr, data.vwc, data.temp, data.ec, vwc_pred);
 
     APP_PRINTF("%s\r\n", print_buffer);
 
