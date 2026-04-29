@@ -8,6 +8,17 @@ TCA9535Regs TCA9535_Reg_map;
 
 static const uint32_t timeout = HAL_MAX_DELAY;
 
+/**
+ * @brief Initializes the TCA9535 with the ENTS HW v3.1.0 default configuration.
+ * 
+ * @param interruptEnable bool to optionally enable the external interrupt for
+ * TCA9535 pin change.
+ * 
+ * @note The default configuration is different from the TCA9535 power-on device
+ * default settings.
+ * 
+ * @return void
+ */
 bool TCA9535Init(bool interruptEnable) {
   TCA9535InitStructDefault((TCA9535Regs*)&TCA9535_Reg_map);
 
@@ -17,7 +28,7 @@ bool TCA9535Init(bool interruptEnable) {
   }
 
   if (interruptEnable) {
-    Tca9535InterruptInit();
+    TCA9535InterruptInit();
   }
 
   return true;
@@ -37,7 +48,7 @@ bool TCA9535Init(bool interruptEnable) {
  *
  * @return void
  */
-void Tca9535InterruptInit() {
+void TCA9535InterruptInit() {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
@@ -64,7 +75,7 @@ void Tca9535InterruptInit() {
  *
  * @return void
  */
-void Tca9535InterruptDeinit() {
+void TCA9535InterruptDeinit() {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
@@ -120,17 +131,17 @@ HAL_StatusTypeDef TCA9535WriteAll(TCA9535Regs* Regs) {
   // pairs (i.e. CONFIG0, then CONFIG1), not between different register types
   // (i.e. OUTPUT1 then POLARITY0).
 
-  hal_status = TCA9535WriteConfig(Regs);
-  if (hal_status != HAL_OK) {
-    return hal_status;
-  }
-
   hal_status = TCA9535WriteOutput(Regs);
   if (hal_status != HAL_OK) {
     return hal_status;
   }
 
   hal_status = TCA9535WritePolarity(Regs);
+  if (hal_status != HAL_OK) {
+    return hal_status;
+  }
+
+  hal_status = TCA9535WriteConfig(Regs);
   if (hal_status != HAL_OK) {
     return hal_status;
   }
@@ -166,45 +177,45 @@ HAL_StatusTypeDef TCA9535ReadAll(TCA9535Regs* Regs) {
 
 HAL_StatusTypeDef TCA9535ReadInput(TCA9535Regs* Regs) {
   return HAL_I2C_Mem_Read(&hi2c1, TCA9535_ADDRESS, TCA9535_INPUT_REG0,
-                          sizeof(Regs->Input), (uint8_t*)&Regs->Input,
+                          TCA9535_MEM_ADDRESS_SIZE, (uint8_t*)&Regs->Input,
                           sizeof(Regs->Input), timeout);
 }
 
 HAL_StatusTypeDef TCA9535WriteOutput(TCA9535Regs* Regs) {
   return HAL_I2C_Mem_Write(&hi2c1, TCA9535_ADDRESS, TCA9535_OUTPUT_REG0,
-                           sizeof(Regs->Output), (uint8_t*)&Regs->Output,
+                           TCA9535_MEM_ADDRESS_SIZE, (uint8_t*)&Regs->Output,
                            sizeof(Regs->Output), timeout);
 }
 
 HAL_StatusTypeDef TCA9535ReadOutput(TCA9535Regs* Regs) {
   return HAL_I2C_Mem_Read(&hi2c1, TCA9535_ADDRESS, TCA9535_OUTPUT_REG0,
-                          sizeof(Regs->Output), (uint8_t*)&Regs->Output,
+                          TCA9535_MEM_ADDRESS_SIZE, (uint8_t*)&Regs->Output,
                           sizeof(Regs->Output), timeout);
 }
 
 HAL_StatusTypeDef TCA9535WritePolarity(TCA9535Regs* Regs) {
   return HAL_I2C_Mem_Write(&hi2c1, TCA9535_ADDRESS, TCA9535_POLARITY_REG0,
-                           sizeof(Regs->PolarityInversion),
+                           TCA9535_MEM_ADDRESS_SIZE,
                            (uint8_t*)&Regs->PolarityInversion,
                            sizeof(Regs->PolarityInversion), timeout);
 }
 
 HAL_StatusTypeDef TCA9535ReadPolarity(TCA9535Regs* Regs) {
   return HAL_I2C_Mem_Read(&hi2c1, TCA9535_ADDRESS, TCA9535_POLARITY_REG0,
-                          sizeof(Regs->PolarityInversion),
+                          TCA9535_MEM_ADDRESS_SIZE,
                           (uint8_t*)&Regs->PolarityInversion,
                           sizeof(Regs->PolarityInversion), timeout);
 }
 
 HAL_StatusTypeDef TCA9535WriteConfig(TCA9535Regs* Regs) {
   return HAL_I2C_Mem_Write(&hi2c1, TCA9535_ADDRESS, TCA9535_CONFIG_REG0,
-                           sizeof(Regs->Config), (uint8_t*)&Regs->Config,
+                           TCA9535_MEM_ADDRESS_SIZE, (uint8_t*)&Regs->Config,
                            sizeof(Regs->Config), timeout);
 }
 
 HAL_StatusTypeDef TCA9535ReadConfig(TCA9535Regs* Regs) {
   return HAL_I2C_Mem_Read(&hi2c1, TCA9535_ADDRESS, TCA9535_CONFIG_REG0,
-                          sizeof(Regs->Config), (uint8_t*)&Regs->Config,
+                          TCA9535_MEM_ADDRESS_SIZE, (uint8_t*)&Regs->Config,
                           sizeof(Regs->Config), timeout);
 }
 
@@ -218,12 +229,13 @@ HAL_StatusTypeDef TCA9535ReadConfig(TCA9535Regs* Regs) {
  * @param PinState Pin state to apply
  * @return void
  */
-void Tca9535WritePin(uint8_t IO_Port, uint8_t IO_Pin, GPIO_PinState PinState) {
+void TCA9535WritePin(uint8_t IO_Port, uint8_t IO_Pin, GPIO_PinState PinState) {
   TCA9535_Reg_map.Output.all =
       (TCA9535_Reg_map.Output.all & ~((1 << IO_Pin) << (IO_Port * 8))) |
       ((PinState << IO_Pin) << (IO_Port * 8));
+  APP_LOG(TS_OFF, VLEVEL_M, "\tTCA9535_Reg_map.Output.all = 0x%04X\r\n", TCA9535_Reg_map.Output.all);
 
-  TCA9535WriteOutput(&TCA9535_Reg_map);
+  APP_LOG(TS_OFF, VLEVEL_M, "\t%d\r\n", TCA9535WriteOutput(&TCA9535_Reg_map));
 }
 
 /**
@@ -235,7 +247,7 @@ void Tca9535WritePin(uint8_t IO_Port, uint8_t IO_Pin, GPIO_PinState PinState) {
  * @param IO_Pin  Pin number
  * @return void
  */
-void Tca9535TogglePin(uint8_t IO_Port, uint8_t IO_Pin) {
+void TCA9535TogglePin(uint8_t IO_Port, uint8_t IO_Pin) {
   TCA9535_Reg_map.Output.all ^= (1 << IO_Pin) << (IO_Port * 8);
 
   TCA9535WriteOutput(&TCA9535_Reg_map);
@@ -248,20 +260,76 @@ void Tca9535TogglePin(uint8_t IO_Port, uint8_t IO_Pin) {
  * @param IO_Pin  Pin number
  * @return See GPIO_PinState
  */
-GPIO_PinState Tca9535ReadPin(uint8_t IO_Port, uint8_t IO_Pin) {
+GPIO_PinState TCA9535ReadPin(uint8_t IO_Port, uint8_t IO_Pin) {
   if (TCA9535ReadInput(&TCA9535_Reg_map) != HAL_OK) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error reading TCA9535 input register.\r\n");
   }
   return ((TCA9535_Reg_map.Input.all >> IO_Pin) >> (IO_Port * 8)) & 1;
 }
 
-/// @brief Set pin direction for the onboard TCA9535.
-/// @param IO_Port Port number
-/// @param IO_Pin  Pin number
-/// @param Direction TCA9535_CONFIG_OUTPUT or TCA9535_CONFIG_INPUT
-void Tca9535SetDirection(uint8_t IO_Port, uint8_t IO_Pin, uint8_t Direction) {
+/**
+ * @brief Set pin direction for the onboard TCA9535.
+ * @param IO_Port Port number
+ * @param IO_Pin  Pin number
+ * @param Direction TCA9535_CONFIG_OUTPUT or TCA9535_CONFIG_INPUT
+ */
+void TCA9535SetDirection(uint8_t IO_Port, uint8_t IO_Pin, uint8_t Direction) {
   TCA9535_Reg_map.Config.all =
       (TCA9535_Reg_map.Config.all & ~((1 << IO_Pin) << (IO_Port * 8))) |
       ((Direction << IO_Pin) << (IO_Port * 8));
-  TCA9535WriteConfig(&TCA9535_Reg_map);
+  APP_LOG(TS_OFF, VLEVEL_M, "\tTCA9535_Reg_map.Config.all = 0x%04X\r\n", TCA9535_Reg_map.Config.all);
+
+  APP_LOG(TS_OFF, VLEVEL_M, "\t%d\r\n", TCA9535WriteConfig(&TCA9535_Reg_map));
+  
+}
+
+/**
+ * @brief Prints the values within the TCA9535Regs struct argument.
+ */
+void TCA9535PrintAll(TCA9535Regs* Regs){
+  
+  APP_LOG(TS_OFF, VLEVEL_M, "Config.all = 0x%04X\r\n", TCA9535_Reg_map.Config.all);
+  // APP_LOG(TS_OFF, VLEVEL_M, "Config.bits = 0b%01d%01d%01d%01d_%01d%01d%01d%01d\r\n", 
+  //   TCA9535_Reg_map.Config.Port.P1.bit.B7, 
+  //   TCA9535_Reg_map.Config.Port.P1.bit.B6,
+  //   TCA9535_Reg_map.Config.Port.P1.bit.B5,
+  //   TCA9535_Reg_map.Config.Port.P1.bit.B4,
+  //   TCA9535_Reg_map.Config.Port.P1.bit.B3,
+  //   TCA9535_Reg_map.Config.Port.P1.bit.B2,
+  //   TCA9535_Reg_map.Config.Port.P1.bit.B1,
+  //   TCA9535_Reg_map.Config.Port.P1.bit.B0
+  // );
+  APP_LOG(TS_OFF, VLEVEL_M, "Input.all = 0x%04X\r\n", TCA9535_Reg_map.Input.all);
+  // APP_LOG(TS_OFF, VLEVEL_M, "Input.bits = 0b%01d%01d%01d%01d_%01d%01d%01d%01d\r\n", 
+  //   TCA9535_Reg_map.Input.Port.P1.bit.B7, 
+  //   TCA9535_Reg_map.Input.Port.P1.bit.B6,
+  //   TCA9535_Reg_map.Input.Port.P1.bit.B5,
+  //   TCA9535_Reg_map.Input.Port.P1.bit.B4,
+  //   TCA9535_Reg_map.Input.Port.P1.bit.B3,
+  //   TCA9535_Reg_map.Input.Port.P1.bit.B2,
+  //   TCA9535_Reg_map.Input.Port.P1.bit.B1,
+  //   TCA9535_Reg_map.Input.Port.P1.bit.B0
+  // );
+  APP_LOG(TS_OFF, VLEVEL_M, "Output.all = 0x%04X\r\n", TCA9535_Reg_map.Output.all);
+  // APP_LOG(TS_OFF, VLEVEL_M, "Output.bits = 0b%01d%01d%01d%01d_%01d%01d%01d%01d\r\n", 
+  //   TCA9535_Reg_map.Output.Port.P1.bit.B7, 
+  //   TCA9535_Reg_map.Output.Port.P1.bit.B6,
+  //   TCA9535_Reg_map.Output.Port.P1.bit.B5,
+  //   TCA9535_Reg_map.Output.Port.P1.bit.B4,
+  //   TCA9535_Reg_map.Output.Port.P1.bit.B3,
+  //   TCA9535_Reg_map.Output.Port.P1.bit.B2,
+  //   TCA9535_Reg_map.Output.Port.P1.bit.B1,
+  //   TCA9535_Reg_map.Output.Port.P1.bit.B0
+  // );
+  APP_LOG(TS_OFF, VLEVEL_M, "PolarityInversion.all = 0x%04X\r\n", TCA9535_Reg_map.PolarityInversion.all);
+  // APP_LOG(TS_OFF, VLEVEL_M, "PolarityInversion.bits = 0b%01d%01d%01d%01d_%01d%01d%01d%01d\r\n", 
+  //   TCA9535_Reg_map.PolarityInversion.Port.P1.bit.B7, 
+  //   TCA9535_Reg_map.PolarityInversion.Port.P1.bit.B6,
+  //   TCA9535_Reg_map.PolarityInversion.Port.P1.bit.B5,
+  //   TCA9535_Reg_map.PolarityInversion.Port.P1.bit.B4,
+  //   TCA9535_Reg_map.PolarityInversion.Port.P1.bit.B3,
+  //   TCA9535_Reg_map.PolarityInversion.Port.P1.bit.B2,
+  //   TCA9535_Reg_map.PolarityInversion.Port.P1.bit.B1,
+  //   TCA9535_Reg_map.PolarityInversion.Port.P1.bit.B0
+  // );
 }
