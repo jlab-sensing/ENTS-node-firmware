@@ -1,3 +1,6 @@
+# Data files.
+*.log
+
 # user-defined
 *.code-workspace
 **/.vscode/
