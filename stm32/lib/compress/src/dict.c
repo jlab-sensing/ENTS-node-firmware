@@ -1,4 +1,4 @@
-#include "include\dict.h"
+#include "dict.h"
 
 #include <stdio.h>
 
