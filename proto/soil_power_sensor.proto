@@ -415,11 +415,12 @@ message UserConfiguration {
 
   /********** Measurement Settings **********/
   repeated EnabledSensor enabled_sensors = 5;  // Deprecated
-  repeated EnabledSensorMultiple enabled_sensors_multiple = 14; // List of enabled sensors
-  double Voltage_Slope = 6;                    // Calibration slope for voltage
-  double Voltage_Offset = 7;                   // Calibration offset for voltage
-  double Current_Slope = 8;                    // Calibration slope for current
-  double Current_Offset = 9;                   // Calibration offset for current
+  repeated EnabledSensorMultiple enabled_sensors_multiple =
+      14;                     // List of enabled sensors
+  double Voltage_Slope = 6;   // Calibration slope for voltage
+  double Voltage_Offset = 7;  // Calibration offset for voltage
+  double Current_Slope = 8;   // Calibration slope for current
+  double Current_Offset = 9;  // Calibration offset for current
 
   /********** WiFi Settings **********/
   string WiFi_SSID = 10;

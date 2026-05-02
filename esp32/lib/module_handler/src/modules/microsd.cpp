@@ -336,9 +336,14 @@ void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
   userConfigFile.printf("enabled_sensors_multiple_count=%u\r\n",
                         uc.enabled_sensors_multiple_count);
   for (int i = 0; i < uc.enabled_sensors_multiple_count; i++) {
-    userConfigFile.printf("enabled_sensors_multiple[%d].enabled_sensor=%d (%s)\r\n", i, uc.enabled_sensors_multiple[i].enabled_sensor, EnabledSensor_name(uc.enabled_sensors_multiple[i].enabled_sensor));
-    userConfigFile.printf("enabled_sensors_multiple[%d].cell_id=%d\r\n", i, uc.enabled_sensors_multiple[i].cell_id);
-    userConfigFile.printf("enabled_sensors_multiple[%d].index=%d\r\n", i, uc.enabled_sensors_multiple[i].index);
+    userConfigFile.printf(
+        "enabled_sensors_multiple[%d].enabled_sensor=%d (%s)\r\n", i,
+        uc.enabled_sensors_multiple[i].enabled_sensor,
+        EnabledSensor_name(uc.enabled_sensors_multiple[i].enabled_sensor));
+    userConfigFile.printf("enabled_sensors_multiple[%d].cell_id=%d\r\n", i,
+                          uc.enabled_sensors_multiple[i].cell_id);
+    userConfigFile.printf("enabled_sensors_multiple[%d].index=%d\r\n", i,
+                          uc.enabled_sensors_multiple[i].index);
   }
   userConfigFile.printf("Voltage_Slope=%.9lf\r\n", uc.Voltage_Slope);
   userConfigFile.printf("Voltage_Offset=%.9lf\r\n", uc.Voltage_Offset);

@@ -265,7 +265,8 @@ size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx) {
   return data_len;
 }
 
-// TODO: Power on/off for the ADS1219 is moved to toggling the power to the I2C bus.
+// TODO: Power on/off for the ADS1219 is moved to toggling the power to the I2C
+// bus.
 //       Provide this function in a i2c or power library (instead of here).
 //       Note: Power toggle pins are on the IO expander (accessed through I2C).
 void PowerOn(void) {
@@ -292,7 +293,8 @@ HAL_StatusTypeDef Measure(int32_t *meas) {
   // wait for conversion
   HAL_Delay(60);
 
-  // TODO: Since the ADS1219 is now on its own I2C-only module/board, there is not data ready pin.
+  // TODO: Since the ADS1219 is now on its own I2C-only module/board, there is
+  // not data ready pin.
   //       Stopgap: Wait an extra sample period.
   // Wait for the DRDY pin on the ADS12 to go low, this means data is ready
   // while (HAL_GPIO_ReadPin(data_ready_port, data_ready_pin)) {

@@ -1,6 +1,6 @@
-#include <stdio.h>
-
 #include "include\dict.h"
+
+#include <stdio.h>
 
 // Global dictionary variable
 static DictEntry *dictionary = NULL;

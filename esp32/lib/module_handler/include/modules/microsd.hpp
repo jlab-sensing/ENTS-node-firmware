@@ -14,8 +14,8 @@
 
 #include <Arduino.h>
 
-#include "soil_power_sensor.pb.h"
 #include "sensor.pb.h"
+#include "soil_power_sensor.pb.h"
 #include "template_module.hpp"
 #include "transcoder.h"
 
@@ -66,7 +66,7 @@ class ModuleMicroSD : public ModuleHandler::Module {
    * If saving raw bytes, the provided filename will be used.
    * Otherwise (null string filename), the filename "/raw.csv" will be used and
    * data will be appended to the end of that file.
-   * 
+   *
    * @todo Support RepeatedSensorMeasurements
    */
   void Save(const Esp32Command &cmd);
