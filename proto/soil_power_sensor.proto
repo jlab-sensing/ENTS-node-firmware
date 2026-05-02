@@ -13,6 +13,8 @@
 
 syntax = "proto3";
 
+import "sensor.proto";
+
 /* Data shared between all measurement messages */
 message MeasurementMetadata {
   // id of the cell measured
@@ -345,10 +347,16 @@ message MicroSDCommand {
   ReturnCode rc = 3;
 
   oneof data {
-    /* measurement to be saved */
+    /* Deprecated, use SensorMeasurement instead. (measurement to be saved) */
     Measurement meas = 4;
     /* userConfig to be saved */
     UserConfiguration uc = 5;
+    /* sensor measurement */
+    SensorMeasurement sensor_measurement = 6;
+    /* repeated sensor measurements */
+    RepeatedSensorMeasurements repeated_sensor_measurements = 7;
+    /* raw bytes to be written. May contain error return messages. */
+    bytes raw_data = 8;
   }
 }
 
@@ -406,7 +414,8 @@ message UserConfiguration {
   uint32 Upload_interval = 4;      // upload time in seconds
 
   /********** Measurement Settings **********/
-  repeated EnabledSensor enabled_sensors = 5;  // List of enabled sensors
+  repeated EnabledSensor enabled_sensors = 5;  // Deprecated
+  repeated EnabledSensorMultiple enabled_sensors_multiple = 14; // List of enabled sensors
   double Voltage_Slope = 6;                    // Calibration slope for voltage
   double Voltage_Offset = 7;                   // Calibration offset for voltage
   double Current_Slope = 8;                    // Calibration slope for current
@@ -424,6 +433,12 @@ message UserConfiguration {
 
 message adcValue {
   uint32 adc = 1;
+}
+
+message EnabledSensorMultiple {
+  EnabledSensor enabled_sensor = 1;
+  uint32 cell_id = 2;
+  uint32 index = 3;
 }
 
 enum EnabledSensor {

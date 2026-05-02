@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.h
+ * @brief          : Header for main.c file.
+ *                   This file contains the common defines of the application.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32wlxx_hal.h"
 #include "board.h"
+#include "stm32wlxx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -57,9 +57,9 @@ extern "C" {
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define RTC_PREDIV_A ((1<<(15-RTC_N_PREDIV_S))-1)
+#define RTC_PREDIV_A ((1 << (15 - RTC_N_PREDIV_S)) - 1)
 #define RTC_N_PREDIV_S 10
-#define RTC_PREDIV_S ((1<<RTC_N_PREDIV_S)-1)
+#define RTC_PREDIV_S ((1 << RTC_N_PREDIV_S) - 1)
 #define VBAT_DIV_2_Pin GPIO_PIN_15
 #define VBAT_DIV_2_GPIO_Port GPIOA
 #define SDI12_DIR_Pin GPIO_PIN_9

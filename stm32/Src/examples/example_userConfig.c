@@ -82,9 +82,9 @@ int main(void) {
     HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, strlen(uart_buf),
                       HAL_MAX_DELAY);
 
-    for (int i = 0; i < config->enabled_sensors_count; i++) {
+    for (int i = 0; i < config->enabled_sensors_multiple_count; i++) {
       const char *sensor_name;
-      switch (config->enabled_sensors[i]) {
+      switch (config->enabled_sensors_multiple[i].enabled_sensor) {
         case EnabledSensor_Voltage:
           sensor_name = "Voltage";
           break;

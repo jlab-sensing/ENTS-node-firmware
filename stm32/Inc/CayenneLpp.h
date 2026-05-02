@@ -1,23 +1,23 @@
 /*!
-  * @file      CayenneLpp.h
-  *
-  * @brief     Implements the Cayenne Low Power Protocol
-  *
-  * @copyright Revised BSD License, see section \ref LICENSE.
-  *
-  * @code
-  *                ______                              _
-  *               / _____)             _              | |
-  *              ( (____  _____ ____ _| |_ _____  ____| |__
-  *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
-  *               _____) ) ____| | | || |_| ____( (___| | | |
-  *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
-  *              (C)2013-2018 Semtech
-  *
-  * @endcode
-  *
-  * @author    Miguel Luis ( Semtech )
-  */
+ * @file      CayenneLpp.h
+ *
+ * @brief     Implements the Cayenne Low Power Protocol
+ *
+ * @copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * @code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2018 Semtech
+ *
+ * @endcode
+ *
+ * @author    Miguel Luis ( Semtech )
+ */
 #ifndef __CAYENNE_LPP_H__
 #define __CAYENNE_LPP_H__
 
@@ -67,25 +67,26 @@ uint8_t CayenneLppAddDigitalInput(uint8_t channel, uint8_t value);
 
 uint8_t CayenneLppAddDigitalOutput(uint8_t channel, uint8_t value);
 
-uint8_t CayenneLppAddAnalogInput( uint8_t channel, float value );
+uint8_t CayenneLppAddAnalogInput(uint8_t channel, float value);
 
-uint8_t CayenneLppAddAnalogOutput( uint8_t channel, float value );
+uint8_t CayenneLppAddAnalogOutput(uint8_t channel, float value);
 
 uint8_t CayenneLppAddLuminosity(uint8_t channel, uint16_t lux);
 
 uint8_t CayenneLppAddPresence(uint8_t channel, uint8_t value);
 
-uint8_t CayenneLppAddTemperature( uint8_t channel, float celsius );
+uint8_t CayenneLppAddTemperature(uint8_t channel, float celsius);
 
-uint8_t CayenneLppAddRelativeHumidity( uint8_t channel, float rh );
+uint8_t CayenneLppAddRelativeHumidity(uint8_t channel, float rh);
 
-uint8_t CayenneLppAddAccelerometer( uint8_t channel, float x, float y, float z );
+uint8_t CayenneLppAddAccelerometer(uint8_t channel, float x, float y, float z);
 
-uint8_t CayenneLppAddBarometricPressure( uint8_t channel, float hpa );
+uint8_t CayenneLppAddBarometricPressure(uint8_t channel, float hpa);
 
-uint8_t CayenneLppAddGyrometer( uint8_t channel, float x, float y, float z );
+uint8_t CayenneLppAddGyrometer(uint8_t channel, float x, float y, float z);
 
-uint8_t CayenneLppAddGps( uint8_t channel, float latitude, float longitude, float meters );
+uint8_t CayenneLppAddGps(uint8_t channel, float latitude, float longitude,
+                         float meters);
 
 /* USER CODE BEGIN EFP */
 

@@ -20,51 +20,25 @@ void printDecodedConfig(const UserConfiguration *pb_config) {
   Serial.println("Upload Settings:");
   Serial.printf("  Logger ID: %u\n", pb_config->logger_id);
   Serial.printf("  Cell ID: %u\n", pb_config->cell_id);
-  Serial.printf(
-      "  Upload Method: %s\n",
-      pb_config->Upload_method == Uploadmethod_WiFi ? "WiFi" : "LoRa");
+  Serial.printf("  Upload Method: %s\n",
+                Uploadmethod_name(pb_config->Upload_method));
   Serial.printf("  Upload Interval: %u seconds\n", pb_config->Upload_interval);
 
   Serial.println("\nMeasurement Settings:");
   Serial.print("  Enabled Sensors: ");
-  for (size_t i = 0; i < pb_config->enabled_sensors_count; i++) {
-    if (i > 0) Serial.print(", ");
-    switch (pb_config->enabled_sensors[i]) {
-      case EnabledSensor_Voltage:
-        Serial.print("Voltage");
-        break;
-      case EnabledSensor_Current:
-        Serial.print("Current");
-        break;
-      case EnabledSensor_Teros12:
-        Serial.print("Teros12");
-        break;
-      case EnabledSensor_Teros21:
-        Serial.print("Teros21");
-        break;
-      case EnabledSensor_BME280:
-        Serial.print("BME280");
-        break;
-      case EnabledSensor_Phytos31:
-        Serial.print("Phytos31");
-        break;
-      case EnabledSensor_SEN0308:
-        Serial.print("SEN0308");
-        break;
-      case EnabledSensor_SEN0257:
-        Serial.print("SEN0257");
-        break;
-      case EnabledSensor_YFS210C:
-        Serial.print("YFS210C");
-        break;
-      case EnabledSensor_PCAP02:
-        Serial.print("PCAP02");
-        break;
-      default:
-        Serial.print("Unrecognized sensor type");
-        break;
-    }
+
+  Serial.printf("  Enabled Sensors Multiple (%d):",
+                pb_config->enabled_sensors_multiple_count);
+  for (int i = 0; i < pb_config->enabled_sensors_multiple_count; i++) {
+    Serial.printf(" %03d - %s\r\n", i,
+                  EnabledSensor_name(
+                      pb_config->enabled_sensors_multiple[i].enabled_sensor));
+    Serial.printf(" %03d - cell_id=%d\r\n", i,
+                  pb_config->enabled_sensors_multiple[i].cell_id);
+    Serial.printf(" %03d - index=%d\r\n", i,
+                  pb_config->enabled_sensors_multiple[i].index);
   }
+
   Serial.println();
   Serial.printf("  Voltage Slope: %.4f\n", pb_config->Voltage_Slope);
   Serial.printf("  Voltage Offset: %.4f\n", pb_config->Voltage_Offset);

@@ -117,16 +117,14 @@ int main(void) {
   StatusLedInit();
   StatusLedFlashSlow();
 
-  // boot ESP32
-  ControllerDeviceEnable();
-
+  // GPIO expander
   TCA9535Init(false);
 
-  // Wakeup via GPIO pin
-  ControllerWakeup();
-
-  // initialize esp32 controller module
+  // Enable ESP32 and initialize ESP32 controller module.
   ControllerInit();
+
+  // Send wakeup to ESP32
+  ControllerWakeup();
 
   if (!ControllerPowerWakeup()) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error waking up ESP32!\n");
@@ -153,8 +151,8 @@ int main(void) {
   SensorsInit();
 
   // configure enabled sensors
-  for (int i = 0; i < cfg->enabled_sensors_count; i++) {
-    EnabledSensor sensor = cfg->enabled_sensors[i];
+  for (int i = 0; i < cfg->enabled_sensors_multiple_count; i++) {
+    EnabledSensor sensor = cfg->enabled_sensors_multiple[i].enabled_sensor;
     if (sensor == EnabledSensor_Voltage) {
 #ifdef DEFAULT
       ADC_init();

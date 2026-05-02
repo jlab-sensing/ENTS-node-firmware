@@ -21,7 +21,44 @@ PB_BIND(SensorMeasurement, SensorMeasurement, AUTO)
 PB_BIND(RepeatedSensorMeasurements, RepeatedSensorMeasurements, 2)
 
 
+const char *SensorType_name(SensorType v) {
+    switch (v) {
+        case SensorType_NONE: return "NONE";
+        case SensorType_POWER_VOLTAGE: return "POWER_VOLTAGE";
+        case SensorType_POWER_CURRENT: return "POWER_CURRENT";
+        case SensorType_TEROS12_VWC: return "TEROS12_VWC";
+        case SensorType_TEROS12_VWC_ADJ: return "TEROS12_VWC_ADJ";
+        case SensorType_TEROS12_TEMP: return "TEROS12_TEMP";
+        case SensorType_TEROS12_EC: return "TEROS12_EC";
+        case SensorType_PHYTOS31_VOLTAGE: return "PHYTOS31_VOLTAGE";
+        case SensorType_PHYTOS31_LEAF_WETNESS: return "PHYTOS31_LEAF_WETNESS";
+        case SensorType_BME280_PRESSURE: return "BME280_PRESSURE";
+        case SensorType_BME280_TEMP: return "BME280_TEMP";
+        case SensorType_BME280_HUMIDITY: return "BME280_HUMIDITY";
+        case SensorType_TEROS21_MATRIC_POT: return "TEROS21_MATRIC_POT";
+        case SensorType_TEROS21_TEMP: return "TEROS21_TEMP";
+        case SensorType_SEN0308_VOLTAGE: return "SEN0308_VOLTAGE";
+        case SensorType_SEN0308_HUMIDITY: return "SEN0308_HUMIDITY";
+        case SensorType_SEN0257_VOLTAGE: return "SEN0257_VOLTAGE";
+        case SensorType_SEN0257_PRESSURE: return "SEN0257_PRESSURE";
+        case SensorType_YFS210C_FLOW: return "YFS210C_FLOW";
+        case SensorType_PCAP02_CAPACITANCE: return "PCAP02_CAPACITANCE";
+    }
+    return "unknown";
+}
 
+const char *SensorError_name(SensorError v) {
+    switch (v) {
+        case SensorError_OK: return "OK";
+        case SensorError_GENERAL: return "GENERAL";
+        case SensorError_LOGGER: return "LOGGER";
+        case SensorError_CELL: return "CELL";
+        case SensorError_UNSUPPORTED: return "UNSUPPORTED";
+        case SensorError_INVALID: return "INVALID";
+        case SensorError_DECODE: return "DECODE";
+    }
+    return "unknown";
+}
 
 
 

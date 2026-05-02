@@ -17,14 +17,14 @@
  * \endcode
  */
 /**
-  ******************************************************************************
-  *
-  *          Portions COPYRIGHT 2020 STMicroelectronics
-  *
-  * @file    Commissioning.h
-  * @author  MCD Application Team
-  * @brief   End-device commissioning parameters
-  ******************************************************************************
+ ******************************************************************************
+ *
+ *          Portions COPYRIGHT 2020 STMicroelectronics
+ *
+ * @file    Commissioning.h
+ * @author  MCD Application Team
+ * @brief   End-device commissioning parameters
+ ******************************************************************************
  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -46,8 +46,8 @@
  ******************************************************************************
  ******************************************************************************
  */
-#include "se-identity.h"
 #include "LoRaMacVersion.h"
+#include "se-identity.h"
 
 /* USER CODE BEGIN EC1 */
 
@@ -57,22 +57,22 @@
  * When using ABP activation the MAC layer must know in advance to which server
  * version it will be connected.
  */
-#define ABP_ACTIVATION_LRWAN_VERSION                       LORAMAC_VERSION
+#define ABP_ACTIVATION_LRWAN_VERSION LORAMAC_VERSION
 
 /*!
  * Indicates if the end-device support the operation with repeaters
  */
-#define LORAWAN_REPEATER_SUPPORT                           false
+#define LORAWAN_REPEATER_SUPPORT false
 
 /*!
  * Indicates if the end-device is to be connected to a private or public network
  */
-#define LORAWAN_PUBLIC_NETWORK                             true
+#define LORAWAN_PUBLIC_NETWORK true
 
 /*!
  * Current network ID
  */
-#define LORAWAN_NETWORK_ID                                 ( uint32_t )0
+#define LORAWAN_NETWORK_ID (uint32_t)0
 
 /* USER CODE BEGIN EC2 */
 

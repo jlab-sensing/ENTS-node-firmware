@@ -5,8 +5,10 @@ WiFiCommand.resp max_size:222
 WiFiCommand.mac max_size:18
 
 MicroSDCommand.filename max_length:255
+MicroSDCommand.raw_data max_size:256
 
 UserConfiguration.WiFi_SSID max_length: 32
 UserConfiguration.WiFi_Password max_length: 64
 UserConfiguration.API_Endpoint_URL max_length: 64
 UserConfiguration.enabled_sensors max_count:5
+UserConfiguration.enabled_sensors_multiple max_count:255

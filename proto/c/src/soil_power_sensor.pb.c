@@ -87,24 +87,151 @@ PB_BIND(IrrigationCommand, IrrigationCommand, AUTO)
 PB_BIND(PowerCommand, PowerCommand, AUTO)
 
 
-PB_BIND(UserConfiguration, UserConfiguration, AUTO)
+PB_BIND(UserConfiguration, UserConfiguration, 2)
 
 
 PB_BIND(adcValue, adcValue, AUTO)
 
 
+PB_BIND(EnabledSensorMultiple, EnabledSensorMultiple, AUTO)
 
 
+const char *EnabledSensor_name(EnabledSensor v) {
+    switch (v) {
+        case EnabledSensor_Voltage: return "Voltage";
+        case EnabledSensor_Current: return "Current";
+        case EnabledSensor_Teros12: return "Teros12";
+        case EnabledSensor_Teros21: return "Teros21";
+        case EnabledSensor_BME280: return "BME280";
+        case EnabledSensor_Phytos31: return "Phytos31";
+        case EnabledSensor_SEN0308: return "SEN0308";
+        case EnabledSensor_SEN0257: return "SEN0257";
+        case EnabledSensor_YFS210C: return "YFS210C";
+        case EnabledSensor_PCAP02: return "PCAP02";
+    }
+    return "unknown";
+}
 
+const char *Uploadmethod_name(Uploadmethod v) {
+    switch (v) {
+        case Uploadmethod_LoRa: return "LoRa";
+        case Uploadmethod_WiFi: return "WiFi";
+    }
+    return "unknown";
+}
 
+const char *Response_ResponseType_name(Response_ResponseType v) {
+    switch (v) {
+        case Response_ResponseType_SUCCESS: return "SUCCESS";
+        case Response_ResponseType_ERROR: return "ERROR";
+    }
+    return "unknown";
+}
 
+const char *PageCommand_RequestType_name(PageCommand_RequestType v) {
+    switch (v) {
+        case PageCommand_RequestType_OPEN: return "OPEN";
+        case PageCommand_RequestType_CLOSE: return "CLOSE";
+        case PageCommand_RequestType_READ: return "READ";
+        case PageCommand_RequestType_WRITE: return "WRITE";
+    }
+    return "unknown";
+}
 
+const char *TestCommand_ChangeState_name(TestCommand_ChangeState v) {
+    switch (v) {
+        case TestCommand_ChangeState_RECEIVE: return "RECEIVE";
+        case TestCommand_ChangeState_RECEIVE_REQUEST: return "RECEIVE_REQUEST";
+        case TestCommand_ChangeState_REQUEST: return "REQUEST";
+    }
+    return "unknown";
+}
 
+const char *WiFiCommand_Type_name(WiFiCommand_Type v) {
+    switch (v) {
+        case WiFiCommand_Type_CONNECT: return "CONNECT";
+        case WiFiCommand_Type_POST: return "POST";
+        case WiFiCommand_Type_CHECK: return "CHECK";
+        case WiFiCommand_Type_TIME: return "TIME";
+        case WiFiCommand_Type_DISCONNECT: return "DISCONNECT";
+        case WiFiCommand_Type_CHECK_WIFI: return "CHECK_WIFI";
+        case WiFiCommand_Type_CHECK_API: return "CHECK_API";
+        case WiFiCommand_Type_NTP_SYNC: return "NTP_SYNC";
+        case WiFiCommand_Type_HOST: return "HOST";
+        case WiFiCommand_Type_STOP_HOST: return "STOP_HOST";
+        case WiFiCommand_Type_HOST_INFO: return "HOST_INFO";
+    }
+    return "unknown";
+}
 
+const char *UserConfigCommand_RequestType_name(UserConfigCommand_RequestType v) {
+    switch (v) {
+        case UserConfigCommand_RequestType_REQUEST_CONFIG: return "REQUEST_CONFIG";
+        case UserConfigCommand_RequestType_RESPONSE_CONFIG: return "RESPONSE_CONFIG";
+        case UserConfigCommand_RequestType_START: return "START";
+    }
+    return "unknown";
+}
 
+const char *MicroSDCommand_Type_name(MicroSDCommand_Type v) {
+    switch (v) {
+        case MicroSDCommand_Type_SAVE: return "SAVE";
+        case MicroSDCommand_Type_USERCONFIG: return "USERCONFIG";
+    }
+    return "unknown";
+}
 
+const char *MicroSDCommand_ReturnCode_name(MicroSDCommand_ReturnCode v) {
+    switch (v) {
+        case MicroSDCommand_ReturnCode_SUCCESS: return "SUCCESS";
+        case MicroSDCommand_ReturnCode_ERROR_GENERAL: return "ERROR_GENERAL";
+        case MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED: return "ERROR_MICROSD_NOT_INSERTED";
+        case MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE: return "ERROR_FILE_SYSTEM_NOT_MOUNTABLE";
+        case MicroSDCommand_ReturnCode_ERROR_PAYLOAD_NOT_DECODED: return "ERROR_PAYLOAD_NOT_DECODED";
+        case MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED: return "ERROR_FILE_NOT_OPENED";
+    }
+    return "unknown";
+}
 
+const char *IrrigationCommand_Type_name(IrrigationCommand_Type v) {
+    switch (v) {
+        case IrrigationCommand_Type_CHECK: return "CHECK";
+    }
+    return "unknown";
+}
 
+const char *IrrigationCommand_State_name(IrrigationCommand_State v) {
+    switch (v) {
+        case IrrigationCommand_State_OPEN: return "OPEN";
+        case IrrigationCommand_State_CLOSE: return "CLOSE";
+    }
+    return "unknown";
+}
+
+const char *PowerCommand_Type_name(PowerCommand_Type v) {
+    switch (v) {
+        case PowerCommand_Type_SLEEP: return "SLEEP";
+        case PowerCommand_Type_WAKEUP: return "WAKEUP";
+    }
+    return "unknown";
+}
+
+const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v) {
+    switch (v) {
+        case PowerCommand_WakeupReason_POWER_WAKEUP_EXT0: return "POWER_WAKEUP_EXT0";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_EXT1: return "POWER_WAKEUP_EXT1";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_TIMER: return "POWER_WAKEUP_TIMER";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_TOUCHPAD: return "POWER_WAKEUP_TOUCHPAD";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_ULP: return "POWER_WAKEUP_ULP";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_GPIO: return "POWER_WAKEUP_GPIO";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_UART: return "POWER_WAKEUP_UART";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_WIFI: return "POWER_WAKEUP_WIFI";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_COCPU: return "POWER_WAKEUP_COCPU";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_COCPU_TRAP_TRIG: return "POWER_WAKEUP_COCPU_TRAP_TRIG";
+        case PowerCommand_WakeupReason_POWER_WAKEUP_BT: return "POWER_WAKEUP_BT";
+    }
+    return "unknown";
+}
 
 
 

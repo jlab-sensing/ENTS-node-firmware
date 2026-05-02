@@ -117,10 +117,12 @@ extern "C" {
 #define _SensorType_MIN SensorType_NONE
 #define _SensorType_MAX SensorType_PCAP02_CAPACITANCE
 #define _SensorType_ARRAYSIZE ((SensorType)(SensorType_PCAP02_CAPACITANCE+1))
+const char *SensorType_name(SensorType v);
 
 #define _SensorError_MIN SensorError_OK
 #define _SensorError_MAX SensorError_DECODE
 #define _SensorError_ARRAYSIZE ((SensorError)(SensorError_DECODE+1))
+const char *SensorError_name(SensorError v);
 
 
 #define SensorResponse_error_ENUMTYPE SensorError

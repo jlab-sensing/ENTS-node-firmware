@@ -27,6 +27,10 @@ void setConfig(const UserConfiguration &new_config) {
   strncpy(config.API_Endpoint_URL, new_config.API_Endpoint_URL,
           sizeof(config.API_Endpoint_URL));
   config.API_Endpoint_Port = new_config.API_Endpoint_Port;
+  config.enabled_sensors_multiple_count =
+      new_config.enabled_sensors_multiple_count;
+  memcpy(config.enabled_sensors_multiple, new_config.enabled_sensors_multiple,
+         sizeof(config.enabled_sensors_multiple));
 
   // Check that the user config can be encoded/decoded?? (John)
   uint8_t buffer[UserConfiguration_size];
@@ -54,49 +58,25 @@ String getConfigJson() {
   String json = "{";
   json += "\"logger_id\":" + String(config.logger_id) + ",";
   json += "\"cell_id\":" + String(config.cell_id) + ",";
-  json += "\"upload_method\":\"" +
-          String(config.Upload_method == Uploadmethod_WiFi ? "WiFi" : "LoRa") +
-          "\",";
+  json += "\"upload_method\":\"";
+  json += Uploadmethod_name(config.Upload_method);
+  json += "\",";
   json += "\"upload_interval\":" + String(config.Upload_interval) + ",";
 
   // Enabled sensors
-  json += "\"enabled_sensors\":[";
-  for (uint8_t i = 0; i < config.enabled_sensors_count; i++) {
+  json += "\"enabled_sensors_multiple_count\":" +
+          String(config.enabled_sensors_multiple_count) + ",";
+  json += "\"enabled_sensors_multiple\":[";
+  for (uint8_t i = 0; i < config.enabled_sensors_multiple_count; i++) {
     if (i > 0) json += ",";
-    switch (config.enabled_sensors[i]) {
-      case EnabledSensor_Voltage:
-        json += "\"Voltage\"";
-        break;
-      case EnabledSensor_Current:
-        json += "\"Current\"";
-        break;
-      case EnabledSensor_Teros12:
-        json += "\"Teros12\"";
-        break;
-      case EnabledSensor_Teros21:
-        json += "\"Teros21\"";
-        break;
-      case EnabledSensor_BME280:
-        json += "\"BME280\"";
-        break;
-      case EnabledSensor_Phytos31:
-        json += "\"Phytos31\"";
-        break;
-      case EnabledSensor_SEN0308:
-        json += "\"SEN0308\"";
-        break;
-      case EnabledSensor_SEN0257:
-        json += "\"SEN0257\"";
-        break;
-      case EnabledSensor_YFS210C:
-        json += "\"YFS210C\"";
-        break;
-      case EnabledSensor_PCAP02:
-        json += "\"PCAP02\"";
-        break;
-      default:
-        break;
-    }
+
+    json += "{\"";
+    json +=
+        EnabledSensor_name(config.enabled_sensors_multiple[i].enabled_sensor);
+    json += ",";
+    json += String(config.enabled_sensors_multiple[i].cell_id) + ",";
+    json += String(config.enabled_sensors_multiple[i].index) + ",";
+    json += "\"}";
   }
   json += "],";
 
@@ -125,54 +105,27 @@ void printConfig(const UserConfiguration &pconfig) {
   Log.noticeln(" ============ Configuration Details ============");
   Log.noticeln(" Logger ID: %u", pconfig.logger_id);
   Log.noticeln(" Cell ID: %u", pconfig.cell_id);
-  Log.noticeln(" Upload Method: %s",
-               pconfig.Upload_method == Uploadmethod_LoRa ? "LoRa" : "WiFi");
+  Log.noticeln(" Upload Method: %s", Uploadmethod_name(pconfig.Upload_method));
   Log.noticeln(" Upload Interval: %u sec", pconfig.Upload_interval);
 
-  Log.noticeln(" Enabled Sensors (%d):", pconfig.enabled_sensors_count);
-  for (int i = 0; i < pconfig.enabled_sensors_count; i++) {
-    const char *sensor_name = "Unknown";
-    switch (pconfig.enabled_sensors[i]) {
-      case EnabledSensor_Voltage:
-        sensor_name = "Voltage";
-        break;
-      case EnabledSensor_Current:
-        sensor_name = "Current";
-        break;
-      case EnabledSensor_Teros12:
-        sensor_name = "Teros12";
-        break;
-      case EnabledSensor_Teros21:
-        sensor_name = "Teros21";
-        break;
-      case EnabledSensor_BME280:
-        sensor_name = "BME280";
-        break;
-      case EnabledSensor_Phytos31:
-        sensor_name = "Phytos31";
-        break;
-      case EnabledSensor_SEN0308:
-        sensor_name = "SEN0308";
-        break;
-      case EnabledSensor_SEN0257:
-        sensor_name = "SEN0257";
-        break;
-      case EnabledSensor_YFS210C:
-        sensor_name = "YFS210C";
-        break;
-      case EnabledSensor_PCAP02:
-        sensor_name = "PCAP02";
-        break;
-    }
-    Log.noticeln("   - %s", sensor_name);
+  Log.noticeln(" Enabled Sensors Multiple (%d):",
+               pconfig.enabled_sensors_multiple_count);
+  for (int i = 0; i < pconfig.enabled_sensors_multiple_count; i++) {
+    Log.noticeln(
+        " %03d - %s\r\n", i,
+        EnabledSensor_name(pconfig.enabled_sensors_multiple[i].enabled_sensor));
+    Log.noticeln(" %03d - cell_id=%d\r\n", i,
+                 pconfig.enabled_sensors_multiple[i].cell_id);
+    Log.noticeln(" %03d - index=%d\r\n", i,
+                 pconfig.enabled_sensors_multiple[i].index);
   }
 
   // NOTE(jtmadden): This doesn't print all the precision
   Log.noticeln(" Calibration Data:");
-  Log.noticeln("   Voltage Slope: %D", pconfig.Voltage_Slope);
-  Log.noticeln("   Voltage Offset: %D", pconfig.Voltage_Offset);
-  Log.noticeln("   Current Slope: %D", pconfig.Current_Slope);
-  Log.noticeln("   Current Offset: %D", pconfig.Current_Offset);
+  Log.noticeln("   Voltage Slope: %.9lf", pconfig.Voltage_Slope);
+  Log.noticeln("   Voltage Offset: %.9lf", pconfig.Voltage_Offset);
+  Log.noticeln("   Current Slope: %.9lf", pconfig.Current_Slope);
+  Log.noticeln("   Current Offset: %.9lf", pconfig.Current_Offset);
 
   Log.noticeln(" WiFi Settings:");
   Log.noticeln("   SSID: %s", pconfig.WiFi_SSID);

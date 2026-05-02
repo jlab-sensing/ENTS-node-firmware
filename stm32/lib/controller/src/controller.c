@@ -24,6 +24,9 @@ void ControllerInit(void) {
   rx->size = buffer_size;
   rx->len = 0;
 
+  // Set EN pin for ESP32.
+  ControllerDeviceEnable();
+
   // TODO(jtmaden): Add check for communication
 }
 
@@ -51,7 +54,8 @@ void ControllerWakeup(void) {
   HAL_Delay(50);
 
   TCA9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
-  // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
+  // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin,
+  // GPIO_PIN_RESET);
 
   HAL_Delay(50);
 }

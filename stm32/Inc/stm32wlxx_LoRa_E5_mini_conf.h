@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    stm32wlxx_LoRa_E5_mini_conf.h
-  * @author  MCD Application Team
-  * @brief   STM32WLxx_LoRa_E5_mini board configuration file.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2020(-2021) STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    stm32wlxx_LoRa_E5_mini_conf.h
+ * @author  MCD Application Team
+ * @brief   STM32WLxx_LoRa_E5_mini board configuration file.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2020(-2021) STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -23,7 +23,7 @@
 #define STM32WLXX_LORA_E5_MINI_CONF_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -40,44 +40,45 @@
 
 /* Exported constants --------------------------------------------------------*/
 /** @addtogroup BSP
-  * @{
-  */
+ * @{
+ */
 
 /** @addtogroup STM32WLXX_LoRa_E5_mini
-  * @{
-  */
+ * @{
+ */
 
 /** @defgroup STM32WLXX_LoRa_E5_mini_CONFIG CONFIG
-  * @{
-  */
+ * @{
+ */
 
-/** @defgroup STM32WLXX_LoRa_E5_mini_CONFIG_Exported_Constants Exported Constants
-  * @{
-  */
+/** @defgroup STM32WLXX_LoRa_E5_mini_CONFIG_Exported_Constants Exported
+ * Constants
+ * @{
+ */
 /* COM usage define */
-#define USE_BSP_COM_FEATURE                 0U
+#define USE_BSP_COM_FEATURE 0U
 
 /* COM log define */
-#define USE_COM_LOG                         0U
+#define USE_COM_LOG 0U
 
 /* IRQ priorities */
-#define BSP_BUTTON_SWx_IT_PRIORITY         15U
+#define BSP_BUTTON_SWx_IT_PRIORITY 15U
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /* USER CODE BEGIN EC */
 

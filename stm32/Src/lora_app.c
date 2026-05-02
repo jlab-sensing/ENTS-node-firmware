@@ -330,7 +330,7 @@ void LoRaWAN_Init(void) {
   // convert interval to ms
   // TxPeriodicity = (cfg->Upload_interval * 1000);
   // divide by number of sensors
-  // TxPeriodicity /= cfg->enabled_sensors_count;
+  // TxPeriodicity /= cfg->enabled_sensors_multiple_count;
   // divide by 2 to keep upload buffer empty for failed uploads
   // TxPeriodicity /= 2;
   /* USER CODE END LoRaWAN_Init_1 */
@@ -473,7 +473,7 @@ static void SendTxData(void) {
       TxPeriodicity = (cfg->Upload_interval * 1000);
       // divide by number of sensors
       // NOTE John I think this is zero indexed so we need to add 1
-      TxPeriodicity /= cfg->enabled_sensors_count + 1;
+      TxPeriodicity /= cfg->enabled_sensors_multiple_count + 1;
       // divide by 2 to keep upload buffer empty for failed uploads
       TxPeriodicity /= 2;
 

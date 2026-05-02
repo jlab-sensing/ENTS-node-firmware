@@ -5,12 +5,16 @@
  * @version 1.0
  * @date 2026-04-10
  *
- * @note Adapted from TI SLVC564 I/O Expander Software and Firmware Package. Interrupt callback located in lora_app.c.
- * 
+ * @note Adapted from TI SLVC564 I/O Expander Software and Firmware Package.
+ * Interrupt callback located in lora_app.c.
+ *
  * General usage:
  * 1. Initialize the device: TCA9535Init(false);
- * 2. Use the HAL-like functions to write / read individual IO pins, or modify TCA9535_Reg_map and use the low level functions to write / read multiple IO pins simultaneously.
- * If using the interrupt feature, modify the HAL_GPIO_EXTI_Callback() function in lora_app.c to check for the interrupt pin PB13.
+ * 2. Use the HAL-like functions to write / read individual IO pins, or modify
+ * TCA9535_Reg_map and use the low level functions to write / read multiple IO
+ * pins simultaneously. If using the interrupt feature, modify the
+ * HAL_GPIO_EXTI_Callback() function in lora_app.c to check for the interrupt
+ * pin PB13.
  *
  * TODO:
  * - n/a
@@ -31,28 +35,43 @@ extern "C" {
 #include "main.h"
 
 /************************** I2C Address ***************************************/
-#define TCA9535_ADDRESS (0x20 << 1)  // I2C 7-bit Address [0100(A2)(A1)(A0)] + (R/~W)
+#define TCA9535_ADDRESS \
+  (0x20 << 1)  // I2C 7-bit Address [0100(A2)(A1)(A0)] + (R/~W)
 
-#define TCA9535_MEM_ADDRESS_SIZE 1 // 1 byte memory address
+#define TCA9535_MEM_ADDRESS_SIZE 1  // 1 byte memory address
 
 /************************** I2C Registers *************************************/
 #define TCA9535_INPUT_REG0 0x00  // Input status register
 #define TCA9535_INPUT_REG1 0x01  // Input status register
-#define TCA9535_OUTPUT_REG0 0x02  // Output register to change state of output BIT set to 1, output set HIGH
-#define TCA9535_OUTPUT_REG1 0x03  // Output register to change state of output BIT set to 1, output set HIGH
-#define TCA9535_POLARITY_REG0 0x04  // Polarity inversion register. BIT '1' inverts input polarity of register 0x00 (input registers only)
-#define TCA9535_POLARITY_REG1 0x05  // Polarity inversion register. BIT '1' inverts input polarity of register 0x01 (input registers only)
-#define TCA9535_CONFIG_REG0 0x06  // Configuration register. BIT = '1' sets port to input BIT = '0' sets port to output
-#define TCA9535_CONFIG_REG1 0x07  // Configuration register. BIT = '1' sets port to input BIT = '0' sets port to output
+#define TCA9535_OUTPUT_REG0 \
+  0x02  // Output register to change state of output BIT set to 1, output set
+        // HIGH
+#define TCA9535_OUTPUT_REG1 \
+  0x03  // Output register to change state of output BIT set to 1, output set
+        // HIGH
+#define TCA9535_POLARITY_REG0 \
+  0x04  // Polarity inversion register. BIT '1' inverts input polarity of
+        // register 0x00 (input registers only)
+#define TCA9535_POLARITY_REG1 \
+  0x05  // Polarity inversion register. BIT '1' inverts input polarity of
+        // register 0x01 (input registers only)
+#define TCA9535_CONFIG_REG0 \
+  0x06  // Configuration register. BIT = '1' sets port to input BIT = '0' sets
+        // port to output
+#define TCA9535_CONFIG_REG1 \
+  0x07  // Configuration register. BIT = '1' sets port to input BIT = '0' sets
+        // port to output
 
-/************************** Register Options *************************************/
+/************************** Register Options
+ * *************************************/
 #define TCA9535_CONFIG_OUTPUT 0
 #define TCA9535_CONFIG_INPUT 1
 #define TCA9535_POLARITY_ACTIVE_HIGH 0
 #define TCA9535_POLARITY_ACTIVE_LOW 1
 
 /************************** Pin Map *************************************/
-// This pin mapping section describes the pin connection for the onboard TCA9535 on hardware v3.1.0.
+// This pin mapping section describes the pin connection for the onboard TCA9535
+// on hardware v3.1.0.
 
 // P0: [MSB] P07 ... P00 [LSB]
 // P1: [MSB] P17 ... P10 [LSB]
@@ -60,7 +79,7 @@ extern "C" {
 
 // HW v3.1.0
 
-// P0
+// P0x
 // 0 ESP32 WAKEUP (IO3)
 // 1 ~CHG
 // 2 ~PG
@@ -70,19 +89,20 @@ extern "C" {
 // 6 SPI2_SHUTDOWN
 // 7 SOLAR_DETECT
 
-// P1
-// 0 27
-// 1 29
-// 2 31
-// 3 33
-// 4 35
-// 5 37
-// 6 28
-// 7 36
+// P1x
+// 0 40-pin header pin # 27
+// 1 40-pin header pin # 29
+// 2 40-pin header pin # 31
+// 3 40-pin header pin # 33
+// 4 40-pin header pin # 35
+// 5 40-pin header pin # 37
+// 6 40-pin header pin # 28
+// 7 40-pin header pin # 36
 
 #define TCA9535_WAKEUP_PORT 0
 #define TCA9535_WAKEUP_PIN 0
-#define TCA9535_WAKEUP_MASK ((1 << TCA9535_WAKEUP_PIN) << (TCA9535_WAKEUP_PORT * 8))
+#define TCA9535_WAKEUP_MASK \
+  ((1 << TCA9535_WAKEUP_PIN) << (TCA9535_WAKEUP_PORT * 8))
 #define TCA9535_nCHG_PORT 0
 #define TCA9535_nCHG_PIN 1
 #define TCA9535_nCHG_MASK ((1 << TCA9535_nCHG_PIN) << (TCA9535_nCHG_PORT * 8))
@@ -91,19 +111,26 @@ extern "C" {
 #define TCA9535_nPG_MASK ((1 << TCA9535_nPG_PIN) << (TCA9535_nPG_PORT * 8))
 #define TCA9535_USART1_SHUTDOWN_PORT 0
 #define TCA9535_USART1_SHUTDOWN_PIN 3
-#define TCA9535_USART1_SHUTDOWN_MASK ((1 << TCA9535_USART1_SHUTDOWN_PIN) << (TCA9535_USART1_SHUTDOWN_PORT * 8))
+#define TCA9535_USART1_SHUTDOWN_MASK \
+  ((1 << TCA9535_USART1_SHUTDOWN_PIN) << (TCA9535_USART1_SHUTDOWN_PORT * 8))
 #define TCA9535_I2C1_PORT1_SHUTDOWN_PORT 0
 #define TCA9535_I2C1_PORT1_SHUTDOWN_PIN 4
-#define TCA9535_I2C1_PORT1_SHUTDOWN_MASK ((1 << TCA9535_I2C1_PORT1_SHUTDOWN_PIN) << (TCA9535_I2C1_PORT1_SHUTDOWN_PORT * 8))
+#define TCA9535_I2C1_PORT1_SHUTDOWN_MASK  \
+  ((1 << TCA9535_I2C1_PORT1_SHUTDOWN_PIN) \
+   << (TCA9535_I2C1_PORT1_SHUTDOWN_PORT * 8))
 #define TCA9535_I2C1_PORT2_SHUTDOWN_PORT 0
 #define TCA9535_I2C1_PORT2_SHUTDOWN_PIN 5
-#define TCA9535_I2C1_PORT2_SHUTDOWN_MASK ((1 << TCA9535_I2C1_PORT2_SHUTDOWN_PIN) << (TCA9535_I2C1_PORT2_SHUTDOWN_PORT * 8))
+#define TCA9535_I2C1_PORT2_SHUTDOWN_MASK  \
+  ((1 << TCA9535_I2C1_PORT2_SHUTDOWN_PIN) \
+   << (TCA9535_I2C1_PORT2_SHUTDOWN_PORT * 8))
 #define TCA9535_SPI2_SHUTDOWN_PORT 0
 #define TCA9535_SPI2_SHUTDOWN_PIN 6
-#define TCA9535_SPI2_SHUTDOWN_MASK ((1 << TCA9535_SPI2_SHUTDOWN_PIN) << (TCA9535_SPI2_SHUTDOWN_PORT * 8))
+#define TCA9535_SPI2_SHUTDOWN_MASK \
+  ((1 << TCA9535_SPI2_SHUTDOWN_PIN) << (TCA9535_SPI2_SHUTDOWN_PORT * 8))
 #define TCA9535_SOLAR_DETECT_PORT 0
 #define TCA9535_SOLAR_DETECT_PIN 7
-#define TCA9535_SOLAR_DETECT_MASK ((1 << TCA9535_SOLAR_DETECT_PIN) << (TCA9535_SOLAR_DETECT_PORT * 8))
+#define TCA9535_SOLAR_DETECT_MASK \
+  ((1 << TCA9535_SOLAR_DETECT_PIN) << (TCA9535_SOLAR_DETECT_PORT * 8))
 
 // Unused
 #define TCA9535_P10_PORT 1
@@ -131,7 +158,8 @@ extern "C" {
 #define TCA9535_P17_PIN 7
 #define TCA9535_P17_MASK ((1 << TCA9535_P17_PIN) << (TCA9535_P17_PORT * 8))
 
-/************************** Structs and Unions *************************************/
+/************************** Structs and Unions
+ * *************************************/
 struct TCA9535_sBit {
   uint8_t B0 : 1;
   uint8_t B1 : 1;
@@ -232,11 +260,12 @@ typedef struct {
   union TCA9535_uConfig Config;
 } TCA9535Regs;
 
-/************************** Global Variables *************************************/
+/************************** Global Variables
+ * *************************************/
 extern TCA9535Regs TCA9535_Reg_map;
 
-/************************** Public Function Prototypes *************************************/
-
+/************************** Public Function Prototypes
+ * *************************************/
 
 // Initialization functions
 bool TCA9535Init(bool interruptEnable);

@@ -222,7 +222,7 @@
 
         <label for="cell_id">
           <details>
-            <summary>Cell ID</summary>
+            <summary>Default Cell ID</summary>
             <p>The cell ID specifies which cell on your endpoint that the uploaded data belongs to. You can create a
               cell and obtain a cell ID by logging in to your endpoint, navigating to your profile's "Cells" page, and
               creating a cell.</p>
@@ -230,6 +230,7 @@
               page if you are the owner of the cell or (2) open the cell on your endpoint's data visualization dashboard
               and identify the cell ID located in the URL.</p>
             <p>Multiple loggers may upload to the same cell ID.</p>
+            <p>This input is applied to all selected sensors that do not have a cell ID otherwise specified.</p>
           </details>
         </label>
         <input type="number" id="cell_id" name="cell_id" min="0" placeholder="Enter Cell ID (positive integer)">
@@ -268,56 +269,97 @@
           <p>The SEN0308 should not be enabled with either Voltage or Current. (SEN0308 outputs an analog voltage which
             is read by the onboard ADC.)</p>
         </details>
+
         <div class="checkbox-group">
           <div class="checkbox-row">
             <input type="checkbox" id="voltage_enabled" name="voltage_enabled">
             <label for="voltage_enabled">Voltage</label>
           </div>
+          <div id="ads1219_voltage" name="ads1219_voltage">
+            <button class="addButton">Add Sensor</button>
+          </div>
+
 
           <div class="checkbox-row">
             <input type="checkbox" id="current_enabled" name="current_enabled">
             <label for="current_enabled">Current</label>
+          </div>
+          <div id="ads1219_current" name="ads1219_current">
+            <button class="addButton">Add Sensor</button>
           </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="teros12_enabled" name="teros12_enabled">
             <label for="teros12_enabled">Teros12</label>
           </div>
+          <div id="teros12" name="teros12">
+            <button class="addButton">Add Sensor</button>
+          </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="teros21_enabled" name="teros21_enabled">
             <label for="teros21_enabled">Teros21</label>
+          </div>
+          <div id="teros21" name="teros21">
+            <button class="addButton">Add Sensor</button>
           </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="bme280_enabled" name="bme280_enabled">
             <label for="bme280_enabled">BME280</label>
           </div>
+          <div id="bme280" name="bme280">
+            <button class="addButton">Add Sensor</button>
+          </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="Phytos31_enabled" name="Phytos31_enabled">
             <label for="Phytos31_enabled">Phytos31</label>
+          </div>
+          <div id="phytos31" name="phytos31">
+            <button class="addButton">Add Sensor</button>
           </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="SEN0308_enabled" name="SEN0308_enabled">
             <label for="SEN0308_enabled">SEN0308</label>
           </div>
+          <div id="sen0308" name="sen0308">
+            <button class="addButton">Add Sensor</button>
+          </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="SEN0257_enabled" name="SEN0257_enabled">
             <label for="SEN0257_enabled">SEN0257</label>
+          </div>
+          <div id="sen0257" name="sen0257">
+            <button class="addButton">Add Sensor</button>
           </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="YFS210C_enabled" name="YFS210C_enabled">
             <label for="YFS210C_enabled">YFS210C</label>
           </div>
+          <div id="yfs210c" name="yfs210c">
+            <button class="addButton">Add Sensor</button>
+          </div>
 
           <div class="checkbox-row">
             <input type="checkbox" id="PCAP02_enabled" name="PCAP02_enabled">
             <label for="PCAP02_enabled">PCAP02</label>
           </div>
+          <div id="pcap02" name="pcap02">
+            <button class="addButton">Add Sensor</button>
+          </div>
+          
+          <!-- <div class="checkbox-row">
+            <input type="checkbox" id="SENSOR_NAME_enabled" name="SENSOR_NAME_enabled">
+            <label for="SENSOR_NAME_enabled">SENSOR_NAME</label>
+          </div>
+          <div id="SENSOR_NAME" name="SENSOR_NAME">
+            <button class="addButton">Add Sensor</button>
+          </div> -->
+
         </div>
 
         <details>
@@ -401,6 +443,66 @@
     </form>
 
     <script>
+      // Buttons for adding and removing additional sensors.
+      // Based off of:
+      // https://dev.to/getsmartwebsite/creating-dynamic-form-fields-with-html-css-and-javascript-a-comprehensive-guide-46bn
+
+
+      // document
+      //   .getElementById("addButton")
+      //   .addEventListener("click", function (event) {
+      var allAddButton = document.getElementsByClassName("addButton");
+      Array.from(allAddButton).forEach(function (allAddButton) {
+        allAddButton.addEventListener('click', function (event) {
+          event.preventDefault();
+
+          var inputContainer = this.parentNode;//document.getElementById("voltage");
+
+          var newInputWrapper = document.createElement("div");
+          newInputWrapper.classList.add("inputWrapper");
+
+          var sensor_cell_id_label = document.createTextNode("Cell ID");
+          newInputWrapper.appendChild(sensor_cell_id_label);
+
+          var sensor_cell_id_input = document.createElement("input");
+          sensor_cell_id_input.type = "number";
+          sensor_cell_id_input.id =
+            "sensor_" + "cell_id" + (inputContainer.children.length + 1);
+          sensor_cell_id_input.name = "sensor_cell_id";
+          sensor_cell_id_input.placeholder = "Leave blank to use Default Cell ID";
+          //   sensor_cell_id_input.value = document.getElementById('cell_id').value; // Note: novalidate is on. Invalid inputs in the top level cell_id input will not be copied to here on field creation.
+          newInputWrapper.appendChild(sensor_cell_id_input);
+
+          var sensor_index_input_label = document.createElement("details");
+          var summary_for_label = document.createElement("summary");
+          summary_for_label.textContent = "Index";
+          sensor_index_input_label.appendChild(summary_for_label);
+          var text_for_label = document.createElement("p");
+          text_for_label.textContent = "The index is typically used to specify the sensor address, such as when multiple of the same sensors are used on the same bus. For SDI-12 sensors, leave blank to use the default '0' address, or enter the decimal (not ASCII) representation of the SDI-12 address ['0'-'9'=48-57, 'A'-'Z'=65-90, 'a'-'z'=97-122]. For I2C sensors, leave blank to use the default sensor address, or enter the non left-shifted 7-bit address in decimal.";
+          sensor_index_input_label.appendChild(text_for_label);
+          newInputWrapper.appendChild(sensor_index_input_label);
+
+          var sensor_index_input = document.createElement("input");
+          sensor_index_input.type = "text";
+          sensor_index_input.id =
+            "sensor_" + "index" + (inputContainer.children.length + 1);
+          sensor_index_input.name = "sensor_index";
+          sensor_index_input.placeholder = "index: uint32";
+          newInputWrapper.appendChild(sensor_index_input);
+
+          var newButton = document.createElement("button");
+          newButton.textContent = "Remove Sensor";
+          newButton.classList.add("removeButton");
+          newButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.target.parentNode.remove();
+          });
+          newInputWrapper.appendChild(newButton);
+
+          inputContainer.appendChild(newInputWrapper);
+        });
+      });
+
       // DOM Elements
       const modal = document.getElementById("configModal");
       const modalTitle = document.getElementById("modalTitle");
@@ -469,6 +571,16 @@
           closeModal();
         }
       };
+
+      $(".addSensorButton").click(function () {
+        $("form > p:first-child").clone(true).insertBefore("form > p:last-child");
+        return false;
+      });
+
+      $(".removeSensorButton").click(function () {
+        $(this).parent().remove();
+      });
+
 
       configForm.addEventListener('submit', handleSubmit);
 

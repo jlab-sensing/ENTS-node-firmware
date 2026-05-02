@@ -14,24 +14,18 @@
 #ifndef STM32_INC_PAYLOAD_H_
 #define STM32_INC_PAYLOAD_H_
 
-
-#include <stdint.h>
 #include <stddef.h>
-
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 typedef enum _PayloadStatus {
   PAYLOAD_OK,
   PAYLOAD_ERROR,
   PAYLOAD_NO_DATA,
 } PayloadStatus;
-
-
 
 /**
  * @brief Formats the next payload from the FIFO buffer.
@@ -48,7 +42,6 @@ typedef enum _PayloadStatus {
  * PAYLOAD_ERROR on failure.
  */
 PayloadStatus FormatPayload(uint8_t* buffer, size_t size, size_t* length);
-
 
 #ifdef __cplusplus
 }

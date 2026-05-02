@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    sys_sensors.h
-  * @author  MCD Application Team
-  * @brief   Header for sensors application
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    sys_sensors.h
+ * @author  MCD Application Team
+ * @brief   Header for sensors application
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -33,17 +33,16 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /**
-  * Sensor data parameters
-  */
-typedef struct
-{
-  float pressure;         /*!< in mbar */
-  float temperature;      /*!< in degC */
-  float humidity;         /*!< in % */
-  int32_t latitude;       /*!< latitude converted to binary */
-  int32_t longitude;      /*!< longitude converted to binary */
-  int16_t altitudeGps;    /*!< in m */
-  int16_t altitudeBar;    /*!< in m * 10 */
+ * Sensor data parameters
+ */
+typedef struct {
+  float pressure;      /*!< in mbar */
+  float temperature;   /*!< in degC */
+  float humidity;      /*!< in % */
+  int32_t latitude;    /*!< latitude converted to binary */
+  int32_t longitude;   /*!< longitude converted to binary */
+  int16_t altitudeGps; /*!< in m */
+  int16_t altitudeBar; /*!< in m * 10 */
   /**more may be added*/
   /* USER CODE BEGIN sensor_t */
 
@@ -57,9 +56,10 @@ typedef struct
 /* Exported constants --------------------------------------------------------*/
 
 /* USER CODE BEGIN EC */
-#if defined (SENSOR_ENABLED) && (SENSOR_ENABLED == 1) && defined (X_NUCLEO_IKS01A2)
-#define HTS221_0    0U
-#define LPS22HB_0   1U
+#if defined(SENSOR_ENABLED) && (SENSOR_ENABLED == 1) && \
+    defined(X_NUCLEO_IKS01A2)
+#define HTS221_0 0U
+#define LPS22HB_0 1U
 #endif /* SENSOR_ENABLED & X_NUCLEO_IKS01A2 */
 /* USER CODE END EC */
 
@@ -75,14 +75,14 @@ typedef struct
 
 /* Exported functions prototypes ---------------------------------------------*/
 /**
-  * @brief  initialize the environmental sensor
-  */
+ * @brief  initialize the environmental sensor
+ */
 int32_t EnvSensors_Init(void);
 
 /**
-  * @brief  Environmental sensor  read.
-  * @param  sensor_data sensor data
-  */
+ * @brief  Environmental sensor  read.
+ * @param  sensor_data sensor data
+ */
 int32_t EnvSensors_Read(sensor_t *sensor_data);
 
 /* USER CODE BEGIN EFP */

@@ -22,7 +22,7 @@ static uint8_t RX_Buffer[RX_BUFFER_SIZE];
 // Acknowledgment message sent to the GUI.
 uint8_t ack[] = "ACK";
 // Static variable to store the loaded user configuration in RAM
-static UserConfiguration loadedConfig;
+static UserConfiguration loadedConfig = UserConfiguration_init_zero;
 // Request flag: 0x01 = Receive, 0x02 = Send, 0x05 = Initial/Invalid.
 static uint8_t RQFlag = 0x05;
 // Flag indicating if the request flag byte has been received.
@@ -34,8 +34,9 @@ const static UserConfiguration testConfig = {
     .cell_id = 200,
     .Upload_method = Uploadmethod_WiFi,
     .Upload_interval = 10,
-    .enabled_sensors_count = 2,
-    .enabled_sensors = {EnabledSensor_Voltage, EnabledSensor_Current},
+    .enabled_sensors_multiple_count = 2,
+    .enabled_sensors_multiple = {{EnabledSensor_Voltage, 200, 0},
+                                 {EnabledSensor_Current, 200, 0}},
     // calibration values are taken from 2.2.3-033
     .Voltage_Slope = -0.00039326,
     .Voltage_Offset = 4.92916378e-05,
@@ -325,43 +326,10 @@ void UserConfigPrintAny(const UserConfiguration *config) {
 
   APP_PRINTF("Upload Interval: %u\r\n", config->Upload_interval);
 
-  for (int i = 0; i < config->enabled_sensors_count; i++) {
-    const char *sensor_name = NULL;
-    switch (config->enabled_sensors[i]) {
-      case EnabledSensor_Voltage:
-        sensor_name = "Voltage";
-        break;
-      case EnabledSensor_Current:
-        sensor_name = "Current";
-        break;
-      case EnabledSensor_Teros12:
-        sensor_name = "Teros12";
-        break;
-      case EnabledSensor_Teros21:
-        sensor_name = "Teros21";
-        break;
-      case EnabledSensor_BME280:
-        sensor_name = "BME280";
-        break;
-      case EnabledSensor_Phytos31:
-        sensor_name = "Phytos31";
-        break;
-      case EnabledSensor_SEN0308:
-        sensor_name = "SEN0308";
-        break;
-      case EnabledSensor_SEN0257:
-        sensor_name = "SEN0257";
-        break;
-      case EnabledSensor_YFS210C:
-        sensor_name = "YFS210C";
-        break;
-      case EnabledSensor_PCAP02:
-        sensor_name = "PCAP02";
-        break;
-      default:
-        sensor_name = "Unknown Sensor";
-    }
-    APP_PRINTF("Enabled Sensor %d: %s\r\n", i + 1, sensor_name);
+  for (int i = 0; i < config->enabled_sensors_multiple_count; i++) {
+    APP_PRINTF(
+        "Enabled Sensor %d: %s\r\n", i + 1,
+        EnabledSensor_name(config->enabled_sensors_multiple[i].enabled_sensor));
   }
 
   char float_str[100];

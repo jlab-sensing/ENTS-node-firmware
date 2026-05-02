@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    mw_log_conf.h
-  * @author  MCD Application Team
-  * @brief   Configure (enable/disable) traces
-  *******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    mw_log_conf.h
+ * @author  MCD Application Team
+ * @brief   Configure (enable/disable) traces
+ *******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -52,9 +52,14 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef MW_LOG_ENABLED
-#define MW_LOG(TS,VL, ...)   do{ {UTIL_ADV_TRACE_COND_FSend(VL, T_REG_OFF, TS, __VA_ARGS__);} }while(0)
-#else  /* MW_LOG_ENABLED */
-#define MW_LOG(TS,VL, ...)
+#define MW_LOG(TS, VL, ...)                                      \
+  do {                                                           \
+    {                                                            \
+      UTIL_ADV_TRACE_COND_FSend(VL, T_REG_OFF, TS, __VA_ARGS__); \
+    }                                                            \
+  } while (0)
+#else /* MW_LOG_ENABLED */
+#define MW_LOG(TS, VL, ...)
 #endif /* MW_LOG_ENABLED */
 /* USER CODE BEGIN EM */
 

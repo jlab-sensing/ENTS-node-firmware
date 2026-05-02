@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    stm32wlxx_it.h
-  * @brief   This file contains the headers of the interrupt handlers.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    stm32wlxx_it.h
+ * @brief   This file contains the headers of the interrupt handlers.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -73,7 +73,7 @@ void RTC_Alarm_IRQHandler(void);
 void SUBGHZ_Radio_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
-//Interrupt handler used for jLab Demo Irrigation Site Flow Meter
+// Interrupt handler used for jLab Demo Irrigation Site Flow Meter
 void EXTI15_10_IRQnHandler(void);
 
 /* USER CODE END EFP */

@@ -15,6 +15,7 @@
 #include <Arduino.h>
 
 #include "soil_power_sensor.pb.h"
+#include "sensor.pb.h"
 #include "template_module.hpp"
 #include "transcoder.h"
 
@@ -46,7 +47,33 @@ class ModuleMicroSD : public ModuleHandler::Module {
   size_t OnRequest(uint8_t *buffer);
 
  private:
+  /**
+   * @brief Saves the measurement as a CSV (or raw data) to the micro SD card.
+   *
+   * The `which_data` field identifies the data field as either an encoded
+   * measurement or raw bytes.
+   *
+   * If saving an encoded measurement, the provided filename will be used.
+   * Otherwise (null string filename), a filename will be generated based on the
+   * measurement type (Ex. "/1_POWER_VOLTAGE.csv") and the measurement data and
+   * metadata is appended to the end of the CSV.
+   *
+   * For measurements, the first row of the CSV is the header row.
+   *
+   * unix_time | cell_id | logger_id | sensor_data
+   *    ...    |   ...   |    ...    |     ...
+   *
+   * If saving raw bytes, the provided filename will be used.
+   * Otherwise (null string filename), the filename "/raw.csv" will be used and
+   * data will be appended to the end of that file.
+   * 
+   * @todo Support RepeatedSensorMeasurements
+   */
   void Save(const Esp32Command &cmd);
+  /**
+   * @brief Save the User Configuration to a plain text file on the micro SD
+   * card.
+   */
   void UserConfig(const Esp32Command &cmd);
 
   /** Buffer for i2c requests */

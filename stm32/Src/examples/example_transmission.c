@@ -164,8 +164,8 @@ int main(void) {
   SensorsInit();
 
   // configure enabled sensors
-  for (int i = 0; i < cfg->enabled_sensors_count; i++) {
-    EnabledSensor sensor = cfg->enabled_sensors[i];
+  for (int i = 0; i < cfg->enabled_sensors_multiple_count; i++) {
+    EnabledSensor sensor = cfg->enabled_sensors_multiple[i].enabled_sensor;
     if (sensor == EnabledSensor_Voltage) {
       ADC_init();
       SensorsAdd(ADC_measureVoltage);

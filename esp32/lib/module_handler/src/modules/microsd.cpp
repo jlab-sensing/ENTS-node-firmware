@@ -5,9 +5,10 @@
 
 #include "pb_decode.h"
 
+#define MICROSD_FAT32_FILENAME_MAX_LENGTH 255
+
 static const uint8_t chipSelect_pin = 7;
 static UserConfiguration uc = UserConfiguration_init_zero;
-static char dataFileFilename[256];
 
 static void printCardInfo(void);
 static void printFileInfo(File f);
@@ -54,30 +55,39 @@ size_t ModuleMicroSD::OnRequest(uint8_t *buffer) {
 }
 
 void ModuleMicroSD::Save(const Esp32Command &cmd) {
-  static uint32_t last_ts = 0;
-  // init return microSD command
-  MicroSDCommand microsd_cmd = MicroSDCommand_init_zero;
-  microsd_cmd.type = MicroSDCommand_Type_SAVE;
+  File dataFile;
+  char dataFileFilename[MICROSD_FAT32_FILENAME_MAX_LENGTH + 1];
+  char writeBuffer[256];
+
+  MicroSDCommand return_cmd = MicroSDCommand_init_zero;
+  return_cmd.type = MicroSDCommand_Type_SAVE;
+  return_cmd.rc = MicroSDCommand_ReturnCode_SUCCESS;
 
   Log.traceln("ModuleMicroSD::Save");
 
   Log.verbose("microsd_command.filename: %s\r\n",
               cmd.command.microsd_command.filename);
-  Log.verbose("microsd_command.type: %u\r\n", cmd.command.microsd_command.type);
-  if (cmd.command.microsd_command.which_data == MicroSDCommand_meas_tag) {
-    Log.verbose("microsd_command.which_data: %u (%s)\r\n",
-                cmd.command.microsd_command.which_data,
-                "MicroSDCommand_meas_tag");
-  } else if (cmd.command.microsd_command.which_data == MicroSDCommand_uc_tag) {
-    Log.verbose("microsd_command.which_data: %u (%s)\r\n",
-                cmd.command.microsd_command.which_data,
-                "MicroSDCommand_uc_tag");
-  } else {
-    Log.verbose("microsd_command.which_data: %u (%s)\r\n",
-                cmd.command.microsd_command.which_data, "UNKNOWN");
-  }
 
-  File dataFile;
+  Log.verbose("microsd_command.type: %u\r\n", cmd.command.microsd_command.type);
+
+  // Check payload type: encoded measurement or raw data
+  // if (cmd.command.microsd_command.which_data == MicroSDCommand_meas_tag) {
+  //   Log.verbose("Encoded Measurement\r\n");
+  // } else if (cmd.command.microsd_command.which_data ==
+  //            MicroSDCommand_raw_data_tag) {
+  //   Log.verbose("Raw Data\r\n");
+  // } else {
+  //   Log.error("Unexpected data type, aborting save to micro SD card.\r\n");
+  //   return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_GENERAL;
+  //   snprintf((char *)return_cmd.data.raw_data.bytes,
+  //            sizeof(return_cmd.data.raw_data.bytes),
+  //            "[ModuleMicroSD::Save] Error: Unexpected data type in "
+  //            "'which_data' field.\r\n");
+  //   this->request_buffer_len = EncodeMicroSDCommand(&return_cmd,
+  //   request_buffer,
+  //                                                   sizeof(request_buffer));
+  //   return;
+  // }
 
   // The ESP32-C3 IO7 pins:
   // IO4: CLK / SCK / SCLK
@@ -89,211 +99,192 @@ void ModuleMicroSD::Save(const Esp32Command &cmd) {
   // inserted.
   if (!microsd_detect_card()) {
     Log.error("Aborting save to micro SD card.\r\n");
-    microsd_cmd.rc = MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED;
-  } else {
-    // Note: SD.begin(chipSelect) assumes the default SCLK, MISO, MOSI pins.
-    // For non-default pin assignments, call SPI.begin(SCLK, MISO, MOSI, CS)
-    // prior to SD.begin(CS).
-    SD.end();
-    if (!SD.begin(chipSelect_pin)) {
-      Log.error(
-          "Failed to begin, make sure that a FAT32 formatted SD card is "
-          "inserted. Aborting save to micro SD card.\r\n");
-      microsd_cmd.rc =
-          MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE;
+    return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED;
+    this->request_buffer_len = EncodeMicroSDCommand(&return_cmd, request_buffer,
+                                                    sizeof(request_buffer));
+    return;
+  }
+  // Note: SD.begin(chipSelect) assumes the default SCLK, MISO, MOSI pins.
+  // For non-default pin assignments, call SPI.begin(SCLK, MISO, MOSI, CS)
+  // prior to SD.begin(CS).
+  SD.end();
+  if (!SD.begin(chipSelect_pin)) {
+    Log.error(
+        "Failed to begin, make sure that a FAT32 formatted SD card is "
+        "inserted. Aborting save to micro SD card.\r\n");
+    return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE;
+  }
+
+  Log.verbose("microsd_command.which_data: %u ",
+              cmd.command.microsd_command.which_data);
+  if (cmd.command.microsd_command.which_data ==
+      MicroSDCommand_sensor_measurement_tag) {
+    Log.verbose("Encoded SensorMeasurement\r\n");
+    if (cmd.command.microsd_command.data.sensor_measurement.has_meta) {
+      Log.verbose(
+          "sensor_measurement.meta.cell_id: %u\r\n",
+          cmd.command.microsd_command.data.sensor_measurement.meta.cell_id);
+      Log.verbose(
+          "sensor_measurement.meta.logger_id: %u\r\n",
+          cmd.command.microsd_command.data.sensor_measurement.meta.logger_id);
+      Log.verbose("sensor_measurement.meta.ts: %u\r\n",
+                  cmd.command.microsd_command.data.sensor_measurement.meta.ts);
     } else {
-      {  // Meas log print
-        if (cmd.command.microsd_command.data.meas.has_meta) {
-          Log.verbose("meas.meta.cell_id: %u\r\n",
-                      cmd.command.microsd_command.data.meas.meta.cell_id);
-          Log.verbose("meas.meta.logger_id: %u\r\n",
-                      cmd.command.microsd_command.data.meas.meta.logger_id);
-          Log.verbose("meas.meta.ts: %u\r\n",
-                      cmd.command.microsd_command.data.meas.meta.ts);
-        }
-        Log.verbose("meas.which_measurement: %u\r\n",
-                    cmd.command.microsd_command.data.meas.which_measurement);
-        switch (cmd.command.microsd_command.data.meas.which_measurement) {
-          case Measurement_power_tag:
-            Log.verbose(
-                ",%lf,%lf",
-                cmd.command.microsd_command.data.meas.measurement.power.voltage,
-                cmd.command.microsd_command.data.meas.measurement.power
-                    .current);
-            break;
-          case Measurement_teros12_tag:
-            Log.verbose(
-                ",%lf,%u,%lf",
-                cmd.command.microsd_command.data.meas.measurement.teros12
-                    .vwc_adj,
-                cmd.command.microsd_command.data.meas.measurement.teros12.ec,
-                cmd.command.microsd_command.data.meas.measurement.teros12.temp);
-            break;
-          case Measurement_phytos31_tag:
-            Log.verbose(",%lf,%lf",
-                        cmd.command.microsd_command.data.meas.measurement
-                            .phytos31.voltage,
-                        cmd.command.microsd_command.data.meas.measurement
-                            .phytos31.leaf_wetness);
-            break;
-          case Measurement_bme280_tag:
-            Log.verbose(",%u,%d,%u",
-                        cmd.command.microsd_command.data.meas.measurement.bme280
-                            .pressure,
-                        cmd.command.microsd_command.data.meas.measurement.bme280
-                            .temperature,
-                        cmd.command.microsd_command.data.meas.measurement.bme280
-                            .humidity);
-            break;
-          case Measurement_teros21_tag:
-            Log.verbose(
-                ",%lf,%lf",
-                cmd.command.microsd_command.data.meas.measurement.teros21
-                    .matric_pot,
-                cmd.command.microsd_command.data.meas.measurement.teros21.temp);
-            break;
-          case Measurement_sen0308_tag:
-            Log.verbose(",%lf,%lf",
-                        cmd.command.microsd_command.data.meas.measurement
-                            .sen0308.voltage,
-                        cmd.command.microsd_command.data.meas.measurement
-                            .sen0308.humidity);
-            break;
-          case Measurement_sen0257_tag:
-            Log.verbose(",%lf,%lf",
-                        cmd.command.microsd_command.data.meas.measurement
-                            .sen0257.voltage,
-                        cmd.command.microsd_command.data.meas.measurement
-                            .sen0257.pressure);
-            break;
-          case Measurement_yfs210c_tag:
-            Log.verbose(
-                ",%lf",
-                cmd.command.microsd_command.data.meas.measurement.yfs210c.flow);
-            break;
-          case Measurement_pcap02_tag:
-            Log.verbose(",%lf", cmd.command.microsd_command.data.meas
-                                    .measurement.pcap02.capacitance);
-            break;
-          case Measurement_meta_tag:
-            Log.verbose(
-                "meta tag: %d\r\n",
-                cmd.command.microsd_command.data.meas.which_measurement);
-            break;
-          default:
-            Log.verbose(
-                "Unrecognized measurement type: %d\r\n",
-                cmd.command.microsd_command.data.meas.which_measurement);
-            microsd_cmd.rc = MicroSDCommand_ReturnCode_ERROR_GENERAL;
-            break;
-        }
-      }
-      dataFile = SD.open(dataFileFilename, FILE_APPEND);
+      Log.verbose(
+          "sensor_measurement no metadata, data will be appended without "
+          "timestamp.\r\n");
+    }
+
+    // Use provided filename or generate filename based on measurement type.
+    if (cmd.command.microsd_command.filename[0] != '\0') {
+      strncpy(dataFileFilename, cmd.command.microsd_command.filename,
+              sizeof(dataFileFilename));
+    } else {
+      // Generate filename using enum value and enum name.
+      snprintf(dataFileFilename, sizeof(dataFileFilename), "/%d_%s.csv",
+               cmd.command.microsd_command.data.sensor_measurement.type,
+               SensorType_name(
+                   cmd.command.microsd_command.data.sensor_measurement.type));
+    }
+
+    // Prepare data to append
+    switch (cmd.command.microsd_command.data.sensor_measurement.which_value) {
+      case SensorMeasurement_unsigned_int_tag:
+        snprintf(
+            writeBuffer, sizeof(writeBuffer), "%u,%u,%u,%u\r\n",
+            cmd.command.microsd_command.data.sensor_measurement.meta.ts,
+            cmd.command.microsd_command.data.sensor_measurement.meta.cell_id,
+            cmd.command.microsd_command.data.sensor_measurement.meta.logger_id,
+            cmd.command.microsd_command.data.sensor_measurement.value
+                .unsigned_int);
+        break;
+      case SensorMeasurement_signed_int_tag:
+        snprintf(
+            writeBuffer, sizeof(writeBuffer), "%u,%u,%u,%u\r\n",
+            cmd.command.microsd_command.data.sensor_measurement.meta.ts,
+            cmd.command.microsd_command.data.sensor_measurement.meta.cell_id,
+            cmd.command.microsd_command.data.sensor_measurement.meta.logger_id,
+            cmd.command.microsd_command.data.sensor_measurement.value
+                .signed_int);
+        break;
+      case SensorMeasurement_decimal_tag:
+        snprintf(
+            writeBuffer, sizeof(writeBuffer), "%u,%u,%u,%.9lf\r\n",
+            cmd.command.microsd_command.data.sensor_measurement.meta.ts,
+            cmd.command.microsd_command.data.sensor_measurement.meta.cell_id,
+            cmd.command.microsd_command.data.sensor_measurement.meta.logger_id,
+            cmd.command.microsd_command.data.sensor_measurement.value.decimal);
+        break;
+      default:
+        Log.error(
+            "Unexpected SensorMeasurement value type, aborting save to micro "
+            "SD card.\r\n");
+        return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_GENERAL;
+        snprintf(
+            (char *)return_cmd.data.raw_data.bytes,
+            sizeof(return_cmd.data.raw_data.bytes),
+            "[ModuleMicroSD::Save] Error: Unexpected SensorMeasurement type in "
+            "'which_value' field.\r\n");
+        this->request_buffer_len = EncodeMicroSDCommand(
+            &return_cmd, request_buffer, sizeof(request_buffer));
+        return;
+        break;
+    }
+
+    // If the file does not yet exist, create it and write the row 1 headers.
+    if (!SD.exists(dataFileFilename)) {
+      dataFile = SD.open(dataFileFilename, FILE_WRITE, true);
       if (!dataFile) {
-        Log.error("Failed to open '%s' with '%s'\r\n", dataFileFilename,
-                  FILE_APPEND);
-        microsd_cmd.rc = MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED;
-        strncpy(microsd_cmd.filename, dataFileFilename,
-                sizeof(microsd_cmd.filename));
-      } else {
-        Log.trace("Successfully opened '%s' with '%s'\r\n", dataFileFilename,
-                  FILE_APPEND);
-
-        // If the new (current) measurement is on a new timestamp, create a
-        // new line
-        if (cmd.command.microsd_command.data.meas.meta.ts != last_ts) {
-          dataFile.printf("\r\n%u",
-                          cmd.command.microsd_command.data.meas.meta.ts);
-        }
-
-        // Note: Assume that the measurements are sent in ascending order of
-        // timestamp and _tag (such that the transmission order matches the CSV
-        // row 1 header order).
-        switch (cmd.command.microsd_command.data.meas.which_measurement) {
-          case Measurement_power_tag:
-            dataFile.printf(
-                ",%lf,%lf",
-                cmd.command.microsd_command.data.meas.measurement.power.voltage,
-                cmd.command.microsd_command.data.meas.measurement.power
-                    .current);
-            break;
-          case Measurement_teros12_tag:
-            dataFile.printf(
-                ",%lf,%u,%lf",
-                cmd.command.microsd_command.data.meas.measurement.teros12
-                    .vwc_adj,
-                cmd.command.microsd_command.data.meas.measurement.teros12.ec,
-                cmd.command.microsd_command.data.meas.measurement.teros12.temp);
-            break;
-          case Measurement_phytos31_tag:
-            dataFile.printf(",%lf,%lf",
-                            cmd.command.microsd_command.data.meas.measurement
-                                .phytos31.voltage,
-                            cmd.command.microsd_command.data.meas.measurement
-                                .phytos31.leaf_wetness);
-            break;
-          case Measurement_bme280_tag:
-            dataFile.printf(",%u,%d,%u",
-                            cmd.command.microsd_command.data.meas.measurement
-                                .bme280.pressure,
-                            cmd.command.microsd_command.data.meas.measurement
-                                .bme280.temperature,
-                            cmd.command.microsd_command.data.meas.measurement
-                                .bme280.humidity);
-            break;
-          case Measurement_teros21_tag:
-            dataFile.printf(
-                ",%lf,%lf",
-                cmd.command.microsd_command.data.meas.measurement.teros21
-                    .matric_pot,
-                cmd.command.microsd_command.data.meas.measurement.teros21.temp);
-            break;
-          case Measurement_sen0308_tag:
-            dataFile.printf(",%lf,%lf",
-                            cmd.command.microsd_command.data.meas.measurement
-                                .sen0308.voltage,
-                            cmd.command.microsd_command.data.meas.measurement
-                                .sen0308.humidity);
-            break;
-          case Measurement_sen0257_tag:
-            dataFile.printf(",%lf,%lf",
-                            cmd.command.microsd_command.data.meas.measurement
-                                .sen0257.voltage,
-                            cmd.command.microsd_command.data.meas.measurement
-                                .sen0257.pressure);
-            break;
-          case Measurement_yfs210c_tag:
-            dataFile.printf(
-                ",%lf",
-                cmd.command.microsd_command.data.meas.measurement.yfs210c.flow);
-            break;
-          case Measurement_pcap02_tag:
-            dataFile.printf(",%lf", cmd.command.microsd_command.data.meas
-                                        .measurement.pcap02.capacitance);
-            break;
-          default:
-            Log.error("Unrecognized measurement type: %d\r\n",
-                      cmd.command.microsd_command.data.meas.which_measurement);
-            microsd_cmd.rc = MicroSDCommand_ReturnCode_ERROR_GENERAL;
-            break;
-        }
-
-        dataFile.close();
-        Log.trace("Wrote to and closed '%s'\r\n", dataFileFilename);
-
-        last_ts = cmd.command.microsd_command.data.meas.meta.ts;
+        Log.error("Failed to create '%s' with '%s'\r\n", dataFileFilename,
+                  FILE_WRITE);
+        return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED;
+        strncpy(return_cmd.filename, dataFileFilename,
+                sizeof(return_cmd.filename));
+        return;
       }
+      dataFile.printf(
+          "unix_time (s),cell_id,logger_id,%s\r\n",
+          SensorType_name(
+              cmd.command.microsd_command.data.sensor_measurement.type));
+      dataFile.close();
+    }
+
+  } else if (cmd.command.microsd_command.which_data ==
+             MicroSDCommand_raw_data_tag) {
+    Log.verbose("Raw Data\r\n");
+    // Use provided filename or use "/raw.csv".
+    if (cmd.command.microsd_command.filename[0] != '\0') {
+      strncpy(dataFileFilename, cmd.command.microsd_command.filename,
+              sizeof(dataFileFilename));
+    } else {
+      snprintf(dataFileFilename, sizeof(dataFileFilename), "/raw.csv");
+    }
+
+    if (cmd.command.microsd_command.filename[0] == '\0') {
+      Log.error(
+          "No filename provided for raw data write, aborting save to micro SD "
+          "card.\r\n");
+      return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_GENERAL;
+      snprintf((char *)return_cmd.data.raw_data.bytes,
+               sizeof(return_cmd.data.raw_data.bytes),
+               "[ModuleMicroSD::Save] Error: No filename provided for raw data "
+               "write.\r\n");
+      this->request_buffer_len = EncodeMicroSDCommand(
+          &return_cmd, request_buffer, sizeof(request_buffer));
+      return;
+    }
+
+  } else {
+    Log.error(
+        "Unexpected which_data type, aborting save to micro SD card.\r\n");
+    return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_GENERAL;
+    snprintf((char *)return_cmd.data.raw_data.bytes,
+             sizeof(return_cmd.data.raw_data.bytes),
+             "[ModuleMicroSD::Save] Error: Unexpected data type in "
+             "'which_data' field.\r\n");
+    this->request_buffer_len = EncodeMicroSDCommand(&return_cmd, request_buffer,
+                                                    sizeof(request_buffer));
+    return;
+  }
+
+  dataFile = SD.open(dataFileFilename, FILE_APPEND);
+  if (!dataFile) {
+    Log.error("Failed to open '%s' with '%s'\r\n", dataFileFilename,
+              FILE_APPEND);
+    return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED;
+    strncpy(return_cmd.filename, dataFileFilename, sizeof(return_cmd.filename));
+    return;
+  }
+
+  Log.trace("Successfully opened '%s' with '%s'\r\n", dataFileFilename,
+            FILE_APPEND);
+
+  // Append new data
+  if (cmd.command.microsd_command.which_data ==
+      MicroSDCommand_sensor_measurement_tag) {
+    dataFile.printf("%s", writeBuffer);
+  } else if (cmd.command.microsd_command.which_data ==
+             MicroSDCommand_raw_data_tag) {
+    for (uint32_t i = 0; i < cmd.command.microsd_command.data.raw_data.size;
+         i++) {
+      dataFile.write(cmd.command.microsd_command.data.raw_data.bytes[i]);
     }
   }
+
+  dataFile.close();
+  Log.trace("Wrote to and closed '%s'\r\n", dataFileFilename);
+
   // encode command in buffer
-  this->request_buffer_len = EncodeMicroSDCommand(&microsd_cmd, request_buffer,
-                                                  sizeof(request_buffer));
+  this->request_buffer_len =
+      EncodeMicroSDCommand(&return_cmd, request_buffer, sizeof(request_buffer));
 }
 
 void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
-  // init return microSD command
-  MicroSDCommand microsd_cmd = MicroSDCommand_init_zero;
-  microsd_cmd.type = MicroSDCommand_Type_USERCONFIG;
+  File userConfigFile;
+  char userConfigFileFilename[MICROSD_FAT32_FILENAME_MAX_LENGTH + 1];
+
+  MicroSDCommand return_cmd = MicroSDCommand_init_zero;
+  return_cmd.type = MicroSDCommand_Type_USERCONFIG;
 
   Log.traceln("ModuleMicroSD::UserConfig");
 
@@ -302,123 +293,67 @@ void ModuleMicroSD::UserConfig(const Esp32Command &cmd) {
   // Check for SD card
   if (!microsd_detect_card()) {
     Log.error("Aborting save to micro SD card.\r\n");
-    microsd_cmd.rc = MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED;
-  } else {
-    // Note: SD.begin(chipSelect) assumes the default SCLK, MISO, MOSI pins.
-    // For non-default pin assignments, call SPI.begin(SCLK, MISO, MOSI, CS)
-    // prior to SD.begin(CS).
-    SD.end();
-    if (!SD.begin(chipSelect_pin)) {
-      Log.error(
-          "Failed to begin, make sure that a FAT32 formatted SD card is "
-          "inserted. Aborting save to micro SD card.\r\n");
-      microsd_cmd.rc =
-          MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE;
-    } else {
-      // (Over)Write a file for the userConfig
-      char userConfigFileFilename[sizeof(dataFileFilename)] = {0};
-      strncpy(userConfigFileFilename, cmd.command.microsd_command.filename,
-              sizeof(userConfigFileFilename));
-      strncat(userConfigFileFilename, ".userconfig", sizeof(".userconfig"));
-      File userConfigFile = SD.open(userConfigFileFilename, FILE_WRITE);
-      if (!userConfigFile) {
-        Log.error("Failed to open '%s' with '%s'\r\n", userConfigFileFilename,
-                  FILE_WRITE);
-        microsd_cmd.rc = MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED;
-        strncpy(microsd_cmd.filename, userConfigFileFilename,
-                sizeof(microsd_cmd.filename));
-      } else {
-        // Write the userconfig to the file
-        userConfigFile.printf("logger_id=%d\r\n", uc.logger_id);
-        userConfigFile.printf("cell_id=%d\r\n", uc.cell_id);
-        char upload_method_s[][18] = {"Uploadmethod_LoRa", "Uploadmethod_WiFi",
-                                      "UNKNOWN"};
-        userConfigFile.printf("Upload_method=%d (%s)\r\n", uc.Upload_method,
-                              upload_method_s[uc.Upload_method]);
-
-        userConfigFile.printf("Upload_interval=%d\r\n", uc.Upload_interval);
-        userConfigFile.printf("enabled_sensors_count=%d\r\n",
-                              uc.enabled_sensors_count);
-
-        char enabled_sensors_s[][9] = {
-            "Voltage",  "Current", "Teros12", "Teros21", "BME280",
-            "Phytos31", "SEN0308", "SEN0257", "YFS210C", "PCAP02"};
-        for (int i = 0; i < uc.enabled_sensors_count; i++) {
-          userConfigFile.printf("enabled_sensors[%d]=%d (%s)\r\n", i,
-                                uc.enabled_sensors[i], enabled_sensors_s[i]);
-        }
-
-        userConfigFile.printf("Voltage_Slope=%lf\r\n", uc.Voltage_Slope);
-        userConfigFile.printf("Voltage_Offset=%lf\r\n", uc.Voltage_Offset);
-        userConfigFile.printf("Current_Slope=%lf\r\n", uc.Current_Slope);
-        userConfigFile.printf("Current_Offset=%lf\r\n", uc.Current_Offset);
-        userConfigFile.printf("WiFi_SSID=%s\r\n", uc.WiFi_SSID);
-        userConfigFile.printf("WiFi_Password=%s\r\n", uc.WiFi_Password);
-        userConfigFile.printf("API_Endpoint_URL=%s\r\n", uc.API_Endpoint_URL);
-        userConfigFile.printf("API_Endpoint_Port=%d\r\n", uc.API_Endpoint_Port);
-
-        userConfigFile.close();
-
-        // Create a new file for the CSV
-        strncpy(dataFileFilename, cmd.command.microsd_command.filename,
-                sizeof(dataFileFilename));
-
-        File dataFile = SD.open(dataFileFilename, FILE_WRITE);
-        if (!dataFile) {
-          Log.error("Failed to open '%s' with '%s'\r\n", dataFileFilename,
-                    FILE_WRITE);
-          microsd_cmd.rc = MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED;
-          strncpy(microsd_cmd.filename, dataFileFilename,
-                  sizeof(microsd_cmd.filename));
-        } else {
-          // Add the headers
-          dataFile.printf("timestamp");
-          for (int i = 0; i < uc.enabled_sensors_count; i++) {
-            switch (uc.enabled_sensors[i]) {
-              case EnabledSensor_Voltage:
-              case EnabledSensor_Current:
-                dataFile.printf(",voltage,current");
-                break;
-              case EnabledSensor_Teros12:
-                dataFile.printf(",vwc_Teros12,ec_Teros12,temp_Teros12");
-                break;
-              case EnabledSensor_Teros21:
-                dataFile.printf(",matricpotential_Teros21,temp_Teros21");
-                break;
-              case EnabledSensor_BME280:
-                dataFile.printf(
-                    ",pressure_BME280,temperature_BME280,humidity_BME280");
-                break;
-              case EnabledSensor_Phytos31:
-                dataFile.printf(",voltage_Phytos31,leaf_wetness_Phytos31");
-                break;
-              case EnabledSensor_SEN0308:
-                dataFile.printf(",voltage_SEN0308,humidity_SEN0308");
-                break;
-              case EnabledSensor_SEN0257:
-                dataFile.printf(",voltage_SEN0257,pressure_SEN0257");
-                break;
-              case EnabledSensor_YFS210C:
-                dataFile.printf(",flow_YFS210C");
-                break;
-              case EnabledSensor_PCAP02:
-                dataFile.printf(",capacitance_PCAP02");
-                break;
-              default:
-                dataFile.printf(",ERROR Unknown sensor type");
-                microsd_cmd.rc = MicroSDCommand_ReturnCode_ERROR_GENERAL;
-                break;
-            }
-          }
-          dataFile.close();
-        }
-      }
-    }
+    return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_MICROSD_NOT_INSERTED;
+    return;
+  }
+  // Note: SD.begin(chipSelect) assumes the default SCLK, MISO, MOSI pins.
+  // For non-default pin assignments, call SPI.begin(SCLK, MISO, MOSI, CS)
+  // prior to SD.begin(CS).
+  SD.end();
+  if (!SD.begin(chipSelect_pin)) {
+    Log.error(
+        "Failed to begin, make sure that a FAT32 formatted SD card is "
+        "inserted. Aborting save to micro SD card.\r\n");
+    return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_FILE_SYSTEM_NOT_MOUNTABLE;
+    return;
   }
 
+  // (Over)Write a file for the userConfig
+  if (cmd.command.microsd_command.filename[0] != '\0') {
+    strncpy(userConfigFileFilename, cmd.command.microsd_command.filename,
+            sizeof(userConfigFileFilename));
+  } else {
+    snprintf(userConfigFileFilename, sizeof(userConfigFileFilename),
+             "/userconfig.txt");
+  }
+
+  userConfigFile = SD.open(userConfigFileFilename, FILE_WRITE, true);
+  if (!userConfigFile) {
+    Log.error("Failed to open/create '%s' with '%s'\r\n",
+              userConfigFileFilename, FILE_WRITE);
+    return_cmd.rc = MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED;
+    strncpy(return_cmd.filename, userConfigFileFilename,
+            sizeof(return_cmd.filename));
+    return;
+  }
+
+  // Write the userconfig to the file
+  userConfigFile.printf("logger_id=%u\r\n", uc.logger_id);
+  userConfigFile.printf("cell_id=%u\r\n", uc.cell_id);
+  userConfigFile.printf("Upload_method=%u (%s)\r\n", uc.Upload_method,
+                        Uploadmethod_name(uc.Upload_method));
+  userConfigFile.printf("Upload_interval=%u\r\n", uc.Upload_interval);
+  userConfigFile.printf("enabled_sensors_multiple_count=%u\r\n",
+                        uc.enabled_sensors_multiple_count);
+  for (int i = 0; i < uc.enabled_sensors_multiple_count; i++) {
+    userConfigFile.printf("enabled_sensors_multiple[%d].enabled_sensor=%d (%s)\r\n", i, uc.enabled_sensors_multiple[i].enabled_sensor, EnabledSensor_name(uc.enabled_sensors_multiple[i].enabled_sensor));
+    userConfigFile.printf("enabled_sensors_multiple[%d].cell_id=%d\r\n", i, uc.enabled_sensors_multiple[i].cell_id);
+    userConfigFile.printf("enabled_sensors_multiple[%d].index=%d\r\n", i, uc.enabled_sensors_multiple[i].index);
+  }
+  userConfigFile.printf("Voltage_Slope=%.9lf\r\n", uc.Voltage_Slope);
+  userConfigFile.printf("Voltage_Offset=%.9lf\r\n", uc.Voltage_Offset);
+  userConfigFile.printf("Current_Slope=%.9lf\r\n", uc.Current_Slope);
+  userConfigFile.printf("Current_Offset=%.9lf\r\n", uc.Current_Offset);
+  userConfigFile.printf("WiFi_SSID=%s\r\n", uc.WiFi_SSID);
+  userConfigFile.printf("WiFi_Password=%s\r\n", uc.WiFi_Password);
+  userConfigFile.printf("API_Endpoint_URL=%s\r\n", uc.API_Endpoint_URL);
+  userConfigFile.printf("API_Endpoint_Port=%u\r\n", uc.API_Endpoint_Port);
+
+  userConfigFile.close();
+
   // encode command in buffer
-  this->request_buffer_len = EncodeMicroSDCommand(&microsd_cmd, request_buffer,
-                                                  sizeof(request_buffer));
+  this->request_buffer_len =
+      EncodeMicroSDCommand(&return_cmd, request_buffer, sizeof(request_buffer));
 }
 
 static void printCardInfo(void) {
