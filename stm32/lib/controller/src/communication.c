@@ -4,6 +4,7 @@
 #include <stm32wlxx_hal.h>
 
 #include "i2c.h"
+#include "sys_app.h" // APP_LOG
 
 /** Global timeout for i2c communication with esp32 */
 unsigned int g_controller_i2c_timeout = 10000;
@@ -193,6 +194,7 @@ ControllerStatus ControllerTransaction(unsigned int timeout) {
   // transmit, stop early if error
   status = ControllerTransmit(timeout);
   if (status != CONTROLLER_SUCCESS) {
+    APP_LOG(TS_OFF, VLEVEL_H, "ControllerTransmit() error (%d), skipping receive\r\n", status);
     return status;
   }
 

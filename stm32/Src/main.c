@@ -70,7 +70,7 @@ int main(void) {
   MX_DMA_Init();
   MX_ADC_Init();
   MX_USART2_UART_Init();
-  MX_I2C1_Init();
+  MX_I2C1_Init(); // standard mode 100 kHz
   SystemApp_Init();
 
   APP_PRINTF("\n\nRESET!\n\n");

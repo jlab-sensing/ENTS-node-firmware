@@ -36,8 +36,7 @@ static const uint8_t cmd_rreg = 0x20;
 /** Read from register */
 static const uint8_t cmd_wreg = 0x40;
 
-// #define CALIBRATION
-#define DELTA_ENCODING
+#define DISABLE_CALIBRATION
 int32_t previous_voltage_reading = 0;
 int32_t previous_current_reading = 0;
 
@@ -175,7 +174,7 @@ double ADC_readVoltage(void) {
     return -1;  // Return -1 on error
   }
 
-#ifdef CALIBRATION
+#ifdef DISABLE_CALIBRATION
   meas = (double)raw;
 #else
   meas = (voltage_calibration_m * raw) + voltage_calibration_b;
@@ -206,7 +205,7 @@ double ADC_readCurrent(void) {
     return -1;  // Return -1 on error
   }
 
-#ifdef CALIBRATION
+#ifdef DISABLE_CALIBRATION
   meas = (double)raw;
 #else
   meas = (current_calibration_m * raw) + current_calibration_b;

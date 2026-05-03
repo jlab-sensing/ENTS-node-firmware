@@ -75,7 +75,7 @@ void setup() {
   Serial.begin(115200);
 
   // Create logging interfface
-  Log.begin(LOG_LEVEL_INFO, &Serial);
+  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
 
   if (!LittleFS.begin()) {
     Log.errorln("LittleFS mount failed!");
@@ -122,7 +122,7 @@ void setup() {
   // start i2c interface
   Wire.onReceive(onReceive);
   Wire.onRequest(onRequest);
-  bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 400000);
+  bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 100000); // previously 400000
 
   if (i2c_status) {
     Log.noticeln("Success!");
