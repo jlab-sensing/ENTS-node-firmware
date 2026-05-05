@@ -39,7 +39,7 @@ extern "C" {
  *
  * @return Return code from the ESP32 describing the success or failure of the operation.
  */
-MicroSDCommand_ReturnCode ControllerMicroSDSave(const uint8_t *data, const uint16_t num_bytes);
+MicroSDCommand_ReturnCode ControllerMicroSDSave(const uint8_t *data, const uint16_t num_bytes, const char *filename);
 
 /**
  * @brief Send the UserConfig to the ESP32 and saves a file on the microSD with

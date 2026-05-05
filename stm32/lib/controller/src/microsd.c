@@ -8,13 +8,20 @@
 extern unsigned int g_controller_i2c_timeout;
 
 MicroSDCommand_ReturnCode ControllerMicroSDSave(const uint8_t *data,
-                                                const uint16_t num_bytes) {
+                                                const uint16_t num_bytes,
+                                                const char *filename) {
   // get reference to tx and rx buffers
   Buffer *tx = ControllerTx();
   Buffer *rx = ControllerRx();
 
   MicroSDCommand microsd_cmd = MicroSDCommand_init_zero;
   microsd_cmd.type = MicroSDCommand_Type_SAVE;
+
+  // Set filename if provided, otherwise ESP32 generates one from sensor type.
+  if (filename != NULL && filename[0] != '\0') {
+    snprintf(microsd_cmd.filename, sizeof(microsd_cmd.filename), "/%s",
+             filename);
+  }
 
   microsd_cmd.which_data = MicroSDCommand_sensor_measurement_tag;
   // Data is already Measurement-encoded.

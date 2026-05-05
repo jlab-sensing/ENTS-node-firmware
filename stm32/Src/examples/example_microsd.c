@@ -102,7 +102,7 @@ int main(void) {
     APP_PRINTF(
         "Sending encoded measurement to ESP32 for saving to micro SD... ");
 
-    ControllerMicroSDSave(encoded_measurement, encoded_measurement_length);
+    ControllerMicroSDSave(encoded_measurement, encoded_measurement_length, NULL);
 
     // encoded_measurement_length =
     //     ADC_measureVoltage(encoded_measurement, timestamp, 0);
