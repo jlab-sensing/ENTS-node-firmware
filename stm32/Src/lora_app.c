@@ -44,8 +44,8 @@
 
 // peripherals requiring a gpio external interrupt
 #include "pcap02.h"
-#include "waterFlow.h"
 #include "tca9535.h"
+#include "waterFlow.h"
 
 /* USER CODE END Includes */
 
@@ -383,7 +383,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   // UNUSED(GPIO_Pin);
 
   switch (GPIO_Pin) {
-    case GPIO_PIN_10: // PCAP02_INTN_Pin, YF-S201C water flow
+    case GPIO_PIN_10:  // PCAP02_INTN_Pin, YF-S201C water flow
       // PCAP02
       INTN_State = (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
                     GPIO_PIN_SET); /* low active */
@@ -394,7 +394,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
       // YF-S201C water flow
       pulse_count++;
       break;
-    case USER_BUTTON_Pin: // user button, TCA9535 IO expander interrupt
+    case USER_BUTTON_Pin:  // user button, TCA9535 IO expander interrupt
       APP_LOG(TS_OFF, VLEVEL_M, "PB13 int (TCA9535)\r\n");
       // if (TCA9535ReadInput(&TCA9535_Reg_map) != HAL_OK){
       //   APP_LOG(TS_OFF, VLEVEL_M, "Failed to read TCA9535 input reg.\r\n");
@@ -440,9 +440,25 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
             "SNR:%d\r\n",
             params->DownlinkCounter, slotStrings[params->RxSlot], appData->Port,
             params->Datarate, params->Rssi, params->Snr);
+    APP_LOG(
+        TS_OFF, VLEVEL_H,
+        "###### D/L IsMcpsIndication:0x%02X | LoRaMacEventInfoStatus:0x%02X | "
+        "LinkCheck:0x%02X | DemodMargin:0x%02X | "
+        "NbGateways:0x%02X\r\n",
+        params->IsMcpsIndication, params->Status, params->LinkCheck,
+        params->DemodMargin, params->NbGateways);
+        // CommissioningParams skipped.
     switch (appData->Port) {
       // TODO add cases for incoming data on ports
       default:
+        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u\r\n", appData->Port);
+        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData BufferSize: %u\r\n",
+                appData->BufferSize);
+        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Buffer (hex): ");
+        for (int i = 0; i < appData->BufferSize; i++) {
+          APP_LOG(TS_OFF, VLEVEL_H, "%02X", appData->Buffer[i]);
+        }
+        APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
         break;
     }
   }

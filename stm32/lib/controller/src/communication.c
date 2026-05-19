@@ -29,7 +29,7 @@ static const int g_i2c_buffer_size = 32;
  * This is hardcoded on both devices but is variable in case of another device
  * using the same address.
  */
-static const uint8_t g_esp32_i2c_addr = 0x20 << 1;
+static const uint8_t g_esp32_i2c_addr = 0x28 << 1;
 
 /** @brief Buffer for ControllerTransmit */
 static Buffer tx = {0};

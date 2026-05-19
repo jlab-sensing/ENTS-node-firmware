@@ -20,7 +20,7 @@
 #include "modules/wifi_userconfig.hpp"
 
 /** Target device address */
-static const uint8_t dev_addr = 0x20;
+static const uint8_t dev_addr = 0x28;
 /** Serial data pin */
 static const int sda_pin = 0;
 /** Serial clock pin */
@@ -74,7 +74,7 @@ void setup() {
   // Start serial interface
   Serial.begin(115200);
 
-  // Create logging interfface
+  // Create logging interface
   Log.begin(LOG_LEVEL_VERBOSE, &Serial);
 
   if (!LittleFS.begin()) {
@@ -122,7 +122,7 @@ void setup() {
   // start i2c interface
   Wire.onReceive(onReceive);
   Wire.onRequest(onRequest);
-  bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 100000); // previously 400000
+  bool i2c_status = Wire.begin(dev_addr, sda_pin, scl_pin, 400000);
 
   if (i2c_status) {
     Log.noticeln("Success!");
