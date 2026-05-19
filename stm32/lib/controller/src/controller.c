@@ -62,7 +62,7 @@ void ControllerWakeup(void) {
 
 void ControllerDeviceEnable(void) {
   HAL_GPIO_WritePin(ESP32_EN_GPIO_Port, ESP32_EN_Pin, GPIO_PIN_SET);
-  
+
   // A delay is necessary to give the ESP32 enough time to initialize.
   // Not recommended to go below 500 ms. ESP32 may fail to receive a
   // subsequent command when there is <500 ms delay between ESP32_EN

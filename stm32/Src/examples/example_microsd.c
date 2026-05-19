@@ -56,7 +56,7 @@ int main(void) {
   ControllerWakeup();
   HAL_Delay(1000);
 
-  if (!ControllerPowerWakeup()) { // while
+  if (!ControllerPowerWakeup()) {  // while
     APP_LOG(TS_OFF, VLEVEL_M, "Error waking up ESP32!\r\n");
     // HAL_Delay(5000);
   }
@@ -64,7 +64,7 @@ int main(void) {
 
   if (ADC_init()) {
     APP_LOG(TS_OFF, VLEVEL_M, "Failed to initailize ADS1219.\r\n");
-    while(1);
+    while (1);
   }
 
   uint8_t encoded_measurement[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
@@ -102,7 +102,8 @@ int main(void) {
     APP_PRINTF(
         "Sending encoded measurement to ESP32 for saving to micro SD... ");
 
-    ControllerMicroSDSave(encoded_measurement, encoded_measurement_length, NULL);
+    ControllerMicroSDSave(encoded_measurement, encoded_measurement_length,
+                          NULL);
 
     // encoded_measurement_length =
     //     ADC_measureVoltage(encoded_measurement, timestamp, 0);
