@@ -233,10 +233,10 @@ void TCA9535WritePin(uint8_t IO_Port, uint8_t IO_Pin, GPIO_PinState PinState) {
   TCA9535_Reg_map.Output.all =
       (TCA9535_Reg_map.Output.all & ~((1 << IO_Pin) << (IO_Port * 8))) |
       ((PinState << IO_Pin) << (IO_Port * 8));
-  APP_LOG(TS_OFF, VLEVEL_M, "\tTCA9535_Reg_map.Output.all = 0x%04X\r\n",
+  APP_LOG(TS_OFF, VLEVEL_H, "\tTCA9535_Reg_map.Output.all = 0x%04X\r\n",
           TCA9535_Reg_map.Output.all);
 
-  APP_LOG(TS_OFF, VLEVEL_M, "\t%d\r\n", TCA9535WriteOutput(&TCA9535_Reg_map));
+  APP_LOG(TS_OFF, VLEVEL_H, "\t%d\r\n", TCA9535WriteOutput(&TCA9535_Reg_map));
 }
 
 /**
@@ -278,10 +278,10 @@ void TCA9535SetDirection(uint8_t IO_Port, uint8_t IO_Pin, uint8_t Direction) {
   TCA9535_Reg_map.Config.all =
       (TCA9535_Reg_map.Config.all & ~((1 << IO_Pin) << (IO_Port * 8))) |
       ((Direction << IO_Pin) << (IO_Port * 8));
-  APP_LOG(TS_OFF, VLEVEL_M, "\tTCA9535_Reg_map.Config.all = 0x%04X\r\n",
+  APP_LOG(TS_OFF, VLEVEL_H, "\tTCA9535_Reg_map.Config.all = 0x%04X\r\n",
           TCA9535_Reg_map.Config.all);
 
-  APP_LOG(TS_OFF, VLEVEL_M, "\t%d\r\n", TCA9535WriteConfig(&TCA9535_Reg_map));
+  APP_LOG(TS_OFF, VLEVEL_H, "\t%d\r\n", TCA9535WriteConfig(&TCA9535_Reg_map));
 }
 
 /**

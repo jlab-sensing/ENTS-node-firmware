@@ -70,7 +70,7 @@ int main(void) {
   MX_DMA_Init();
   MX_ADC_Init();
   MX_USART2_UART_Init();
-  MX_I2C1_Init(); // standard mode 100 kHz
+  MX_I2C1_Init();
   SystemApp_Init();
 
   APP_PRINTF("\n\nRESET!\n\n");
@@ -123,13 +123,9 @@ int main(void) {
   // Enable ESP32 and initialize ESP32 controller module.
   ControllerInit();
 
-  // Send wakeup to ESP32
-  ControllerWakeup();
-
   if (!ControllerPowerWakeup()) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error waking up ESP32!\n");
   }
-
   // Print warning when using TEST_USER_CONFIG
 #ifdef TEST_USER_CONFIG
   APP_LOG(TS_OFF, VLEVEL_M, "WARNING: TEST_USER_CONFIG is enabled!\n");

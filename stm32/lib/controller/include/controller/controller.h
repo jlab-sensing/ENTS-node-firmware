@@ -43,19 +43,21 @@ void ControllerInit(void);
 void ControllerDeinit(void);
 
 /**
- * @brief Trigger esp32 wakeup pin
+ * @brief Wake up ESP32 from sleep state
+ * @pre ESP32 must be enabled in order to wake it up, see `ControllerDeviceEnable()`.
+ * 
+ * @note `ControllerTransaction()` calls this function (TODO) in order to wake the
+ * ESP32 so it can receive the transmission and reply (then go to sleep).
  *
- * After this function is called and the controller is initialized with
- * ControllerInit(), the function ControllerPowerWakeup() should be used to
- * check that the esp32 has correctly woken up.
- *
- * Since this is blocking code, a small internal delay is added for the startup
- * time on the esp32.
+ * A small internal delay is added for the startup time on the esp32.
+ * 
+ * Normally, the ESP32 enters the sleep state after providing data in response to
+ * the STM32 calling `ControllerReceive()`.
  */
 void ControllerWakeup(void);
 
 /**
- * @brief Enable the ESP32 EN pin
+ * @brief Enable the ESP32 EN pin.
  */
 void ControllerDeviceEnable(void);
 

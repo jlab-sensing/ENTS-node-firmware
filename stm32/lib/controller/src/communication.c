@@ -1,4 +1,5 @@
 #include "communication.h"
+#include "controller/controller.h"
 
 #include <stdlib.h>
 #include <stm32wlxx_hal.h>
@@ -38,14 +39,6 @@ static Buffer tx = {0};
 static Buffer rx = {0};
 
 /**
- * @brief Wakeup esp32 from deep sleep
- *
- * Starting with hardware version 2.2.2 there is an stm32 GPIO line connected
- * the esp32 ext1 to wakeup the device from a deep sleep state.
- */
-void ControllerWakeupEsp32(void);
-
-/**
  * @brief Converts HAL status to Controller status
  *
  * @param status HAL status
@@ -62,9 +55,6 @@ ControllerStatus ControllerTransmit(unsigned int timeout) {
 
   // return code storage
   ControllerStatus cont_status = CONTROLLER_SUCCESS;
-
-  // wakeup esp32
-  ControllerWakeupEsp32();
 
   // create small buffer
   Buffer chunk = {0};
@@ -191,6 +181,9 @@ ControllerStatus ControllerTransaction(unsigned int timeout) {
   // status code
   ControllerStatus status = CONTROLLER_SUCCESS;
 
+  // wakeup esp32
+  // ControllerWakeup(); // TODO: re-enable after fixing esp32 deep sleep
+
   // transmit, stop early if error
   status = ControllerTransmit(timeout);
   if (status != CONTROLLER_SUCCESS) {
@@ -198,7 +191,7 @@ ControllerStatus ControllerTransaction(unsigned int timeout) {
     return status;
   }
 
-  // Receive
+  // Receive (esp32 enters sleep state after fulfilling the request)
   status = ControllerReceive(timeout);
   return status;
 }
@@ -216,5 +209,3 @@ ControllerStatus HALToControllerStatus(HAL_StatusTypeDef hal_status) {
 
   return CONTROLLER_SUCCESS;
 }
-
-void ControllerWakeupEsp32(void) {}
