@@ -43,6 +43,9 @@ const char *SensorType_name(SensorType v) {
         case SensorType_SEN0257_PRESSURE: return "SEN0257_PRESSURE";
         case SensorType_YFS210C_FLOW: return "YFS210C_FLOW";
         case SensorType_PCAP02_CAPACITANCE: return "PCAP02_CAPACITANCE";
+        case SensorType_D10_FLOW: return "D10_FLOW";
+        case SensorType_D10_VOLUME_ELAPSED: return "D10_VOLUME_ELAPSED";
+        case SensorType_D10_TIME_ELAPSED: return "D10_TIME_ELAPSED";
     }
     return "unknown";
 }

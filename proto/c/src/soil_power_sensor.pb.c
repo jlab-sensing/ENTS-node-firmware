@@ -57,6 +57,9 @@ PB_BIND(YFS210CMeasurement, YFS210CMeasurement, AUTO)
 PB_BIND(PCAP02Measurement, PCAP02Measurement, AUTO)
 
 
+PB_BIND(D10Measurement, D10Measurement, AUTO)
+
+
 PB_BIND(Measurement, Measurement, AUTO)
 
 
@@ -108,6 +111,7 @@ const char *EnabledSensor_name(EnabledSensor v) {
         case EnabledSensor_SEN0257: return "SEN0257";
         case EnabledSensor_YFS210C: return "YFS210C";
         case EnabledSensor_PCAP02: return "PCAP02";
+        case EnabledSensor_D10: return "D10";
     }
     return "unknown";
 }

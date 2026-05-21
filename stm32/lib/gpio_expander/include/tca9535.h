@@ -6,14 +6,14 @@
  * @date 2026-04-10
  *
  * @note Adapted from TI SLVC564 I/O Expander Software and Firmware Package.
- * Interrupt callback located in lora_app.c.
+ * Interrupt callback located in stm32wlxx_it.c.
  *
  * General usage:
  * 1. Initialize the device: TCA9535Init(false);
  * 2. Use the HAL-like functions to write / read individual IO pins, or modify
  * TCA9535_Reg_map and use the low level functions to write / read multiple IO
  * pins simultaneously. If using the interrupt feature, modify the
- * HAL_GPIO_EXTI_Callback() function in lora_app.c to check for the interrupt
+ * HAL_GPIO_EXTI_Callback() function in stm32wlxx_it.c to check for the interrupt
  * pin PB13.
  *
  * TODO:
@@ -52,18 +52,11 @@ extern "C" {
 #define TCA9535_POLARITY_REG0 \
   0x04  // Polarity inversion register. BIT '1' inverts input polarity of
         // register 0x00 (input registers only)
-#define TCA9535_POLARITY_REG1 \
-  0x05  // Polarity inversion register. BIT '1' inverts input polarity of
-        // register 0x01 (input registers only)
-#define TCA9535_CONFIG_REG0 \
-  0x06  // Configuration register. BIT = '1' sets port to input BIT = '0' sets
-        // port to output
-#define TCA9535_CONFIG_REG1 \
-  0x07  // Configuration register. BIT = '1' sets port to input BIT = '0' sets
-        // port to output
+#define TCA9535_POLARITY_REG1   0x05  // Polarity inversion
+#define TCA9535_CONFIG_REG0 0x06  // Direction, 1=input 0=output
+#define TCA9535_CONFIG_REG1 0x07  // Direction 
 
-/************************** Register Options
- * *************************************/
+/************************** Register Options **********************************/
 #define TCA9535_CONFIG_OUTPUT 0
 #define TCA9535_CONFIG_INPUT 1
 #define TCA9535_POLARITY_ACTIVE_HIGH 0
@@ -158,8 +151,7 @@ extern "C" {
 #define TCA9535_P17_PIN 7
 #define TCA9535_P17_MASK ((1 << TCA9535_P17_PIN) << (TCA9535_P17_PORT * 8))
 
-/************************** Structs and Unions
- * *************************************/
+/************************** Structs and Unions ********************************/
 struct TCA9535_sBit {
   uint8_t B0 : 1;
   uint8_t B1 : 1;
@@ -260,12 +252,10 @@ typedef struct {
   union TCA9535_uConfig Config;
 } TCA9535Regs;
 
-/************************** Global Variables
- * *************************************/
+/************************** Global Variables **********************************/
 extern TCA9535Regs TCA9535_Reg_map;
 
-/************************** Public Function Prototypes
- * *************************************/
+/************************** Public Function Prototypes ************************/
 
 // Initialization functions
 bool TCA9535Init(bool interruptEnable);

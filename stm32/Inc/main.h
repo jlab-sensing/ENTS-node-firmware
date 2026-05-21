@@ -47,7 +47,16 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#define __HAL_RCC_GPIOx_CLK_ENABLE(GPIO_PORT) \
+if (GPIO_PORT == GPIOA){                      \
+    __HAL_RCC_GPIOA_CLK_ENABLE();             \
+}else if (GPIO_PORT == GPIOB){                \
+    __HAL_RCC_GPIOB_CLK_ENABLE();             \
+}else if (GPIO_PORT == GPIOC){                \
+    __HAL_RCC_GPIOC_CLK_ENABLE();             \
+}else if (GPIO_PORT ==  GPIOH){               \
+    __HAL_RCC_GPIOH_CLK_ENABLE();             \
+}
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -89,6 +98,16 @@ extern "C" {
 #define PCAP02_INTN_Pin GPIO_PIN_10
 #define PCAP02_INTN_GPIO_Port GPIOA
 #define PCAP02_INTN_EXTI_IRQn EXTI15_10_IRQn
+
+// YF-S201C water flow meter
+#define YFS201C_Pin GPIO_PIN_15
+#define YFS201C_GPIO_Port GPIOA
+#define YFS201C_EXTI_IRQn EXTI15_10_IRQn
+
+// D10 water meter
+#define D10_Pin GPIO_PIN_15
+#define D10_GPIO_Port GPIOA
+#define D10_EXTI_IRQn EXTI15_10_IRQn
 
 /* USER CODE BEGIN Private defines */
 
