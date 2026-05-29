@@ -73,6 +73,9 @@ The following is a list of steps that should be complated on a newly assembled b
     - On a new board you will need to disable read protection to fix the "Error: data read failed" error. Go to the Option Bytes tab (box with the letters "OB" on the left) and click Read Out Protection, set the RDP level to AA, or "no protection". Then press apply and wait for confirmation.
         - The "Compact View" tab can be used to show the RDP level easily.
     - After changing the RDP level to AA and applying the change, press the Disconnect button in the top right of the interface.
+    - OPTIONAL: Enable USB UART transmit and receive activity LEDs for the CP2102.
+        - Download and install [Simplicity Studio Version 5](https://www.silabs.com/software-and-tools/simplicity-studio/simplicity-studio-version-5). You cannot use Version 6, which does not have the USBXpress Configurator tool.
+        - With the ENTS board plugged into your computer via a USB cable, follow the guide in [SiLab AN721](https://www.silabs.com/documents/public/application-notes/AN721.pdf) to use the tool to configure the CP2102. Take note of Chapter 3 "Device Customization Software" and Figure 3.11 "GPIO Customization". An alternative CLI tool may also be available, see Chapter 3.2 "CP21xx Device Customization Software".
 
 3. Run unit tests on the STM32
     - Prerequisites:
@@ -137,14 +140,6 @@ The following is a list of steps that should be complated on a newly assembled b
         - Press and hold the blue BOOT button.
         - Release the blue RST button.
         - Release the blue BOOT button.
-    - ESP32 terminal:
-        - `pio run -e release -t uploadfs --upload-port <COMx>`
-        - Enter the bootloader again, then: `pio run -e release -t upload --upload-port <COMx>`
-        - Replace `<COMx>` with the port for the USB to TTL adapter.
-        - Use `pio device list` to list the connected devices.
-            - The device corresponding to your USB to TTL adapter should be used for both the upload port and the (not necessary for this step) monitor port.
-    - NOTE FOR UCSC: Save the ESP32's wifi MAC. The wifi MAC is made available near the tail end of the ESP32's build log, after it connects to the ESP32 but before it begins writing the firmware. The wifi MAC is required to whitelist the device on the UCSC-Devices wifi network.
-        - Note that the wifi AP MAC is not the same as the wifi MAC. You must register the regular wifi MAC, not the AP MAC. The access point MAC can be useful for distinguishing between boards if you are setting up multiple new boards at the same time (as they will all broadcast with the same SSID `ents-unconfigured` for unconfigured boards). The AP MAC is sent over serial by the STM32 as well as by the ESP32 monitor on bootup.
     - STM32 terminal: `pio run -e stm32 -t upload -t monitor --upload-port <COMx> --monitor-port <COMy>`
         - Replace `<COMx>` and `<COMy>` with the port for the STLINK and the Wio-E5 respectively.
         - Use `pio device list` to list the connected devices.
@@ -155,6 +150,15 @@ The following is a list of steps that should be complated on a newly assembled b
     - Save the Wio-E5's LoRaWAN information, which is prepended by `######`. You will need the AppEUI/JoinEUI, DevEUI, and AppKey. Only the last 4 bytes of the DevEUI (i.e. DevAddr) should vary between boards.
         - NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI, JoinEUI (AppEUI), and AppKey.
         - The ENTS board's default configuration is to use LoRa communication. In order to print out the LoRaWAN information, the board must be configured to transmit via LoRa, not wifi.
+    - ESP32 terminal:
+        - Note: The ESP32 enable (EN) pin is controlled by the STM32 through a GPIO pin. In order to program the ESP32, you first have to ensure that the STM32 has enabled the ESP32. This is most easily done by loading the `stm32` program described earlier in this step.
+        - `pio run -e release -t uploadfs --upload-port <COMx>`
+        - Enter the bootloader again, then: `pio run -e release -t upload --upload-port <COMx>`
+        - Replace `<COMx>` with the port for the USB to TTL adapter.
+        - Use `pio device list` to list the connected devices.
+            - The device corresponding to your USB to TTL adapter should be used for both the upload port and the (not necessary for this step) monitor port.
+    - NOTE FOR UCSC: Save the ESP32's wifi MAC. The wifi MAC is made available near the tail end of the ESP32's build log, after it connects to the ESP32 but before it begins writing the firmware. The wifi MAC is required to whitelist the device on the UCSC-Devices wifi network.
+        - Note that the wifi AP MAC is not the same as the wifi MAC. You must register the regular wifi MAC, not the AP MAC. The access point MAC can be useful for distinguishing between boards if you are setting up multiple new boards at the same time (as they will all broadcast with the same SSID `ents-unconfigured` for unconfigured boards). The AP MAC is sent over serial by the STM32 as well as by the ESP32 monitor on bootup.
     - Restart both the STM32 and the ESP32. First press and release the blue RST button near the ESP32, then press and release the Wio-E5's RST button.
 
 6. Register the logger on DirtViz (which performs The Things Network registration to enable LoRaWAN communication).
