@@ -1,10 +1,10 @@
 """Client interface with dirtviz.
-
-TODO:
-- Add caching of data
 """
 
 from datetime import datetime
+import json
+import hashlib
+from pathlib import Path
 
 import pandas as pd
 
@@ -28,22 +28,34 @@ class Cell:
         self.longitude = data["longitude"]
 
     def __repr__(self):
-        return f"Cell(id={self.cell_id}, name={self.name})"
+        return f"Cell(id={self.id}, name={self.name})"
 
 
 class BackendClient:
     """Client for interacting with the Dirtviz API."""
 
-    def __init__(self, base_url: str = "https://dirtviz.jlab.ucsc.edu/api/"):
+    def __init__(self, base_url: str = "https://dirtviz.jlab.ucsc.edu/api/", cache_dir: str = None):
         """Initialize the BackendClient.
 
         Sets the base URL for the API. Defaults to the Dirtviz API.
+
+        Args:
+            base_url: Base URL for the API.
+            cache_dir: Directory to store cached responses. Defaults to ~/.cache/dirtviz/.
         """
 
         self.base_url = base_url
 
+        if cache_dir is None:
+            cache_dir = Path.home() / ".cache" / "dirtviz"
+        else:
+            cache_dir = Path(cache_dir)
+
+        self.cache_dir = cache_dir
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+
     def get(self, endpoint: str, params: dict = None) -> dict:
-        """Get request to the API.
+        """Get request to the API with disk-based caching.
 
         Args:
             endpoint: The API endpoint to request.
@@ -53,11 +65,53 @@ class BackendClient:
             A dictionary containing the response data.
         """
 
+        cache_path = self._get_cache_path(endpoint, params)
+
+        # Check if response is cached
+        if cache_path.exists():
+            with open(cache_path, 'r') as f:
+                return json.load(f)
+
         url = f"{self.base_url}{endpoint}"
         response = requests.get(url, params=params)
         response.raise_for_status()
 
-        return response.json()
+        result = response.json()
+
+        # Save to cache
+        with open(cache_path, 'w') as f:
+            json.dump(result, f)
+
+        return result
+
+    def _get_cache_path(self, endpoint: str, params: dict = None) -> Path:
+        """Generate a cache file path from endpoint and parameters.
+
+        Args:
+            endpoint: The API endpoint.
+            params: Optional parameters dictionary.
+
+        Returns:
+            A Path object for the cache file.
+        """
+
+        # Create a hash of the endpoint and params
+        if params is None:
+            params_str = ""
+        else:
+            params_str = json.dumps(params, sort_keys=True)
+
+        key = f"{endpoint}:{params_str}"
+        cache_hash = hashlib.md5(key.encode()).hexdigest()
+
+        return self.cache_dir / f"{cache_hash}.json"
+
+    def clear_cache(self) -> None:
+        """Clear all cached data."""
+        import shutil
+        if self.cache_dir.exists():
+            shutil.rmtree(self.cache_dir)
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def time_to_params(start: datetime, end: datetime) -> dict:
