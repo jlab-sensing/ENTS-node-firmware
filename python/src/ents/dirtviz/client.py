@@ -231,6 +231,57 @@ class BackendClient:
 
         return None
 
+    def cells_from_tag_id(self, tag: int) -> list[Cell]:
+        """Gets a list of Cell objects that have a specific tag.
+
+        Args:
+            tag: The tag to search for.
+
+        Returns:
+            A list of Cell objects that have the specified tag.
+        """
+
+        cell_list = []
+
+        endpoint = f"/tags/{tag}/cells"
+        cell_data_list = self.get(endpoint)
+
+        for c in cell_data_list["cells"]:
+            cell = Cell(c)
+            cell_list.append(cell)
+
+        return cell_list
+
+    def cells_from_tag_name(self, tag: str) -> list[Cell]:
+        """Gets a list of Cell objects that have a specific tag.
+
+        Args:
+            tag: The tag to search for.
+
+        Returns:
+            A list of Cell objects that have the specified tag.
+        """
+
+        cell_list = []
+
+        # Get all tags
+        endpoint = "/tag/"
+        cell_data_list = self.get(endpoint)
+
+        # find tag id from name
+        tag_id = None
+        for t in cell_data_list:
+            if t["name"] == tag:
+                tag_id = t["id"]
+                break
+
+        # check that tag exists
+        if tag_id is None:
+            return []
+
+        # return cells from tag id
+        return self.cells_from_tag_id(tag_id)
+
     def cells(self) -> list[Cell]:
         """Gets a list of all cells from the API.
 
