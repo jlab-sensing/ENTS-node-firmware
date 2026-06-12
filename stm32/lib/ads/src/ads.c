@@ -181,8 +181,6 @@ double ADC_readVoltage(void) {
   meas = (voltage_calibration_m * raw) + voltage_calibration_b;
 #endif
 
-  meas /= 1000;
-
   return meas;
 }
 
@@ -210,6 +208,7 @@ double ADC_readCurrent(void) {
   meas = (double)raw;
 #else
   meas = (current_calibration_m * raw) + current_calibration_b;
+  meas *= 1e6;
 #endif
 
   return meas;
