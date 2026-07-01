@@ -572,16 +572,6 @@
         }
       };
 
-      $(".addSensorButton").click(function () {
-        $("form > p:first-child").clone(true).insertBefore("form > p:last-child");
-        return false;
-      });
-
-      $(".removeSensorButton").click(function () {
-        $(this).parent().remove();
-      });
-
-
       configForm.addEventListener('submit', handleSubmit);
 
       // Populate fields from /config

@@ -8,6 +8,7 @@
 #include "stm32_seq.h"
 #include "stm32_timer.h"
 #include "utilities_def.h"
+#include "status_led.h"
 
 static UTIL_TIMER_Object_t UserConfigTimer = {};
 
@@ -65,7 +66,22 @@ void UserConfigStart(unsigned int timeout) {
       APP_LOG(TS_OFF, VLEVEL_M, "No configuration to send to ESP32!\n");
       // it's a trap! No valid userconfig
       // Waiting for new configuration on reset
-      while (1);
+      while (1){
+          // APP_LOG(TS_OFF, VLEVEL_M, "Requesting configuration from ESP32...\n");
+          // UserConfigStatus status = ControllerUserConfigRequest();
+          // APP_LOG(TS_OFF, VLEVEL_M, "%d\n",status);
+          // if (status == USERCONFIG_OK){
+          // APP_LOG(TS_OFF, VLEVEL_M, "\nUpdated user configuration:\n");
+          // APP_LOG(TS_OFF, VLEVEL_M, "---------------------------\n");
+          // UserConfigPrint();
+          // APP_LOG(TS_OFF, VLEVEL_M, "\n");
+          // StatusLedFlashFast();
+          // HAL_Delay(1000);
+          // StatusLedFlashSlow();
+          // break;
+          // }
+          // HAL_Delay(1000);
+      }
 
     // Otherwise send the saved config and continue
     } else {
@@ -94,6 +110,9 @@ void UserConfigStart(unsigned int timeout) {
     APP_LOG(TS_OFF, VLEVEL_M, "---------------------------\n");
     UserConfigPrint();
     APP_LOG(TS_OFF, VLEVEL_M, "\n");
+    StatusLedFlashFast();
+    HAL_Delay(1000);
+    StatusLedFlashSlow();
   }
 }
 
