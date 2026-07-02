@@ -1,6 +1,13 @@
 #include <stdint.h>
 #include <stddef.h>
-
+typedef struct {
+    float wind_speed;   
+    int32_t wind_direction; 
+    float altitude;     
+    float pressure;     
+    float temperature;  
+    float humidity;      
+} EDU0157Data;
 /*
 
 reference:
