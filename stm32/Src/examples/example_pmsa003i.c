@@ -24,7 +24,7 @@
 
 /** Delay between print statements */
 #ifndef DELAY
-#define DELAY 2000
+#define DELAY 1000
 #endif
 
 /** Global variable for all return codes */

@@ -6,8 +6,13 @@ static bool i2c_read(uint8_t *tx, uint16_t tx_len, uint8_t *rx, uint16_t rx_len)
     HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c1, 
                                                 (PMSA003I_I2C_ADDR << 1), tx[0], I2C_MEMADD_SIZE_8BIT, 
                                                 rx, rx_len, 100);
-    return (status == HAL_OK);
+    if (status == HAL_OK){
     return true; 
+    }
+    else{
+        HAL_I2C_Init(&hi2c1);
+        return false;
+    }
 }
 
 
@@ -15,9 +20,12 @@ bool pmsa003i_read( pmsa003i_data_t *out_data) {
     uint8_t start_reg = PMSA003I_REG_START;
     uint8_t buffer[PMSA003I_BUFFER_SIZE] = {0};
 
-    if ( out_data == NULL) return false;
-
+    if ( out_data == NULL) {
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "data pointer not ok\r\n");
+        return false;
+    }
     if (!i2c_read(&start_reg, 1, buffer, PMSA003I_BUFFER_SIZE)) {
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "hal not ok\r\n");
         return false; 
     }
 
@@ -25,6 +33,11 @@ bool pmsa003i_read( pmsa003i_data_t *out_data) {
 
     if (buffer[0] != 0x42 || buffer[1] != 0x4D) {
         APP_LOG(TS_OFF, VLEVEL_ALWAYS, "data not ok - pmsa003i\r\n");
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Raw buffer: ");
+        for (int i = 0; i < PMSA003I_BUFFER_SIZE; i++) {
+            APP_LOG(TS_OFF, VLEVEL_ALWAYS, "%02X ", buffer[i]);
+        }
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "\r\n");
         return false; 
     }
 
@@ -44,6 +57,15 @@ bool pmsa003i_read( pmsa003i_data_t *out_data) {
     uint16_t checksum = buffer_u16[14];
     if (sum != checksum) {
         APP_LOG(TS_OFF, VLEVEL_ALWAYS, "checksum doesn't match\r\n");
+        for (int i = 0; i < PMSA003I_BUFFER_SIZE; i++) {
+            APP_LOG(TS_OFF, VLEVEL_ALWAYS, "%02X ", buffer[i]);
+        }
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "\r\n");
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Converted buffer: ");
+        for (int i = 0; i < 15; i++) {
+            APP_LOG(TS_OFF, VLEVEL_ALWAYS, "%04X ", buffer_u16[i]);
+        }
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "\r\n");
         return false; 
     }
 
