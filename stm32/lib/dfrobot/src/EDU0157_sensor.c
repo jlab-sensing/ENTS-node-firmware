@@ -15,13 +15,6 @@ static uint32_t period = 0;
  */
 static struct EDU0157_dev dev;
 static uint8_t dev_addr=DFR_DEVICE_ADDR;
-void print_hex_buffer(const char *label, uint8_t *buf, size_t len) {
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "%s (Len: %d): ", label, (int)len);
-    for (size_t i = 0; i < len; i++) {
-        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "%02X ", buf[i]);
-    }
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "\r\n");
-}
 static int direction_to_int(const char *dir)
 {
     if (strcmp(dir, "N")  == 0) return 0;
@@ -103,7 +96,6 @@ size_t EDU0157Measure(uint8_t *data, SysTime_t ts, uint32_t idx)
     if (sen_status != SENSOR_OK) {
         return -1;
     }
-print_hex_buffer("AFTER WIND SPEED", data, data_len);
     SensorsAddMeasurement(data, data_len);
     //wd
     sen_status = EncodeUint32Measurement(
@@ -114,7 +106,6 @@ print_hex_buffer("AFTER WIND SPEED", data, data_len);
         &data_len);
     if (sen_status != SENSOR_OK)
         return -1;
-print_hex_buffer("AFTER WIND SPEED1", data, data_len);
     SensorsAddMeasurement(data, data_len);
 
     //alttideu
@@ -126,7 +117,6 @@ print_hex_buffer("AFTER WIND SPEED1", data, data_len);
         &data_len);
     if (sen_status != SENSOR_OK)
         return -1;
-        print_hex_buffer("AFTER WIND SPEED2", data, data_len);
     SensorsAddMeasurement(data, data_len);
 
     //pressure
