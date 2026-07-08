@@ -12,7 +12,7 @@
 #include "sensors.h"
 
 
-static bool i2c_read(uint8_t *tx, uint16_t tx_len, uint8_t *rx, uint16_t rx_len) {
+static bool i2c_read(uint8_t *tx, uint8_t *rx, uint16_t rx_len) {
 
     HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c1, 
                                                 (PMSA003I_I2C_ADDR << 1), tx[0], I2C_MEMADD_SIZE_8BIT, 
@@ -21,7 +21,9 @@ static bool i2c_read(uint8_t *tx, uint16_t tx_len, uint8_t *rx, uint16_t rx_len)
     return true; 
     }
     else{
-        HAL_I2C_Init(&hi2c1);
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, " %x\r\n",hi2c1.ErrorCode);
+
+
         return false;
     }
 }
@@ -35,7 +37,7 @@ bool pmsa003i_read( pmsa003i_data_t *out_data) {
         APP_LOG(TS_OFF, VLEVEL_ALWAYS, "data pointer not ok\r\n");
         return false;
     }
-    if (!i2c_read(&start_reg, 1, buffer, PMSA003I_BUFFER_SIZE)) {
+    if (!i2c_read(&start_reg, buffer, PMSA003I_BUFFER_SIZE)) {
         APP_LOG(TS_OFF, VLEVEL_ALWAYS, "hal not ok\r\n");
         return false; 
     }

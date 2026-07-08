@@ -44,12 +44,6 @@ typedef enum _SensorType {
     SensorType_D10_FLOW = 20,
     SensorType_D10_VOLUME_ELAPSED = 21,
     SensorType_D10_TIME_ELAPSED = 22,
-    /* * PCAP02 measurements */
-    SensorType_PCAP02_CAPACITANCE = 19,
-    /* * D10 measurements */
-    SensorType_D10_FLOW = 20,
-    SensorType_D10_VOLUME_ELAPSED = 21,
-    SensorType_D10_TIME_ELAPSED = 22,
     /* * PMSA003I measurements */
     SensorType_PMSA003I_PM1_0_STD = 23,
     SensorType_PMSA003I_PM2_5_STD = 24,
