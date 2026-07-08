@@ -8,6 +8,9 @@
 #include "sys_app.h"
 #include "stm32wlxx_hal.h"
 #include "i2c.h"
+#include "stm32wlxx_hal_i2c.h"
+#include "stm32wlxx_hal_def.h"
+#include "stm32_systime.h"
 
 
 #define PMSA003I_I2C_ADDR             0x12  
@@ -32,5 +35,7 @@ typedef struct { //data structure inspired by: https://github.com/adafruit/Adafr
 } pmsa003i_data_t;
 
 bool pmsa003i_read(pmsa003i_data_t *out_data);
+
+size_t PMSA003IMeasure(uint8_t *data, SysTime_t ts, uint32_t idx);
 
 #endif

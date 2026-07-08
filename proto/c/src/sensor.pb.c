@@ -46,6 +46,18 @@ const char *SensorType_name(SensorType v) {
         case SensorType_D10_FLOW: return "D10_FLOW";
         case SensorType_D10_VOLUME_ELAPSED: return "D10_VOLUME_ELAPSED";
         case SensorType_D10_TIME_ELAPSED: return "D10_TIME_ELAPSED";
+        case SensorType_PMSA003I_PM1_0_STD: return "PMSA003I_PM1_0_STD";
+        case SensorType_PMSA003I_PM2_5_STD: return "PMSA003I_PM2_5_STD";
+        case SensorType_PMSA003I_PM10_0_STD: return "PMSA003I_PM10_0_STD";
+        case SensorType_PMSA003I_PM1_0_ENV: return "PMSA003I_PM1_0_ENV";
+        case SensorType_PMSA003I_PM2_5_ENV: return "PMSA003I_PM2_5_ENV";
+        case SensorType_PMSA003I_PM10_0_ENV: return "PMSA003I_PM10_0_ENV";
+        case SensorType_PMSA003I_PARTICLES_0_3UM: return "PMSA003I_PARTICLES_0_3UM";
+        case SensorType_PMSA003I_PARTICLES_0_5UM: return "PMSA003I_PARTICLES_0_5UM";
+        case SensorType_PMSA003I_PARTICLES_1_0UM: return "PMSA003I_PARTICLES_1_0UM";
+        case SensorType_PMSA003I_PARTICLES_2_5UM: return "PMSA003I_PARTICLES_2_5UM";
+        case SensorType_PMSA003I_PARTICLES_5_0UM: return "PMSA003I_PARTICLES_5_0UM";
+        case SensorType_PMSA003I_PARTICLES_10_0UM: return "PMSA003I_PARTICLES_10_0UM";
     }
     return "unknown";
 }

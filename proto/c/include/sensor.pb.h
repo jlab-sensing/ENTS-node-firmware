@@ -43,7 +43,26 @@ typedef enum _SensorType {
     /* * D10 measurements */
     SensorType_D10_FLOW = 20,
     SensorType_D10_VOLUME_ELAPSED = 21,
-    SensorType_D10_TIME_ELAPSED = 22
+    SensorType_D10_TIME_ELAPSED = 22,
+    /* * PCAP02 measurements */
+    SensorType_PCAP02_CAPACITANCE = 19,
+    /* * D10 measurements */
+    SensorType_D10_FLOW = 20,
+    SensorType_D10_VOLUME_ELAPSED = 21,
+    SensorType_D10_TIME_ELAPSED = 22,
+    /* * PMSA003I measurements */
+    SensorType_PMSA003I_PM1_0_STD = 23,
+    SensorType_PMSA003I_PM2_5_STD = 24,
+    SensorType_PMSA003I_PM10_0_STD = 25,
+    SensorType_PMSA003I_PM1_0_ENV = 26,
+    SensorType_PMSA003I_PM2_5_ENV = 27,
+    SensorType_PMSA003I_PM10_0_ENV = 28,
+    SensorType_PMSA003I_PARTICLES_0_3UM = 29,
+    SensorType_PMSA003I_PARTICLES_0_5UM = 30,
+    SensorType_PMSA003I_PARTICLES_1_0UM = 31,
+    SensorType_PMSA003I_PARTICLES_2_5UM = 32,
+    SensorType_PMSA003I_PARTICLES_5_0UM = 33,
+    SensorType_PMSA003I_PARTICLES_10_0UM = 34
 } SensorType;
 
 typedef enum _SensorError {

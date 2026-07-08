@@ -153,6 +153,54 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Capacitance Ratio",
             "unit": "pF/pF",
         },
+        SensorType.PMSA003I_PM1_0_STD: {
+            "name": "PM1.0 Standard",
+            "unit": "ug/m3",
+        },
+        SensorType.PMSA003I_PM2_5_STD: {
+            "name": "PM2.5 Standard",
+            "unit": "ug/m3",
+        },
+        SensorType.PMSA003I_PM10_0_STD: {
+            "name": "PM10.0 Standard",
+            "unit": "ug/m3",
+        },
+        SensorType.PMSA003I_PM1_0_ENV: {
+            "name": "PM1.0 Environmental",
+            "unit": "ug/m3",
+        },
+        SensorType.PMSA003I_PM2_5_ENV: {
+            "name": "PM2.5 Environmental",
+            "unit": "ug/m3",
+        },
+        SensorType.PMSA003I_PM10_0_ENV: {
+            "name": "PM10.0 Environmental",
+            "unit": "ug/m3",
+        },
+        SensorType.PMSA003I_PARTICLES_0_3UM: {
+            "name": "Particles > 0.3um",
+            "unit": "count/0.1L",
+        },
+        SensorType.PMSA003I_PARTICLES_0_5UM: {
+            "name": "Particles > 0.5um",
+            "unit": "count/0.1L",
+        },
+        SensorType.PMSA003I_PARTICLES_1_0UM: {
+            "name": "Particles > 1.0um",
+            "unit": "count/0.1L",
+        },
+        SensorType.PMSA003I_PARTICLES_2_5UM: {
+            "name": "Particles > 2.5um",
+            "unit": "count/0.1L",
+        },
+        SensorType.PMSA003I_PARTICLES_5_0UM: {
+            "name": "Particles > 5.0um",
+            "unit": "count/0.1L",
+        },
+        SensorType.PMSA003I_PARTICLES_10_0UM: {
+            "name": "Particles > 10.0um",
+            "unit": "count/0.1L",
+        },
     }
 
     meta = SENSOR_DATA[SensorType.Value(meas_type)]

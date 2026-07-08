@@ -1,6 +1,17 @@
 #include "pmsa003i.h"
 //based off bme280_common
 
+// system includes
+#include "sys_app.h"
+#include "stm32_systime.h"
+
+// user includes
+#include "transcoder.h"
+#include "userConfig.h"
+#include "sensor.h"
+#include "sensors.h"
+
+
 static bool i2c_read(uint8_t *tx, uint16_t tx_len, uint8_t *rx, uint16_t rx_len) {
 
     HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c1, 
@@ -85,4 +96,78 @@ bool pmsa003i_read( pmsa003i_data_t *out_data) {
     out_data->particles_100um = buffer_u16[12];
 
     return true;
+}
+
+size_t PMSA003IMeasure(uint8_t *data, SysTime_t ts, uint32_t idx){
+    pmsa003i_data_t sens_data = {};
+  bool status = pmsa003i_read(&sens_data);
+  if (status != true) {
+    return -1;
+  }
+
+  const UserConfiguration* cfg = UserConfigGet();
+
+  // metadata
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = cfg->cell_id;
+
+  SensorStatus sen_status = SENSOR_OK;
+  size_t data_len = 0;
+
+// stadnard pm
+sen_status = EncodeUint32Measurement(meta, sens_data.pm10_standard, SensorType_PMSA003I_PM1_0_STD, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.pm25_standard, SensorType_PMSA003I_PM2_5_STD, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.pm100_standard, SensorType_PMSA003I_PM10_0_STD, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+
+// env pm
+sen_status = EncodeUint32Measurement(meta, sens_data.pm10_env, SensorType_PMSA003I_PM1_0_ENV, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.pm25_env, SensorType_PMSA003I_PM2_5_ENV, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.pm100_env, SensorType_PMSA003I_PM10_0_ENV, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+
+// particle cts
+sen_status = EncodeUint32Measurement(meta, sens_data.particles_03um, SensorType_PMSA003I_PARTICLES_0_3UM, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.particles_05um, SensorType_PMSA003I_PARTICLES_0_5UM, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.particles_10um, SensorType_PMSA003I_PARTICLES_1_0UM, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.particles_25um, SensorType_PMSA003I_PARTICLES_2_5UM, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.particles_50um, SensorType_PMSA003I_PARTICLES_5_0UM, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+sen_status = EncodeUint32Measurement(meta, sens_data.particles_100um, SensorType_PMSA003I_PARTICLES_10_0UM, data, &data_len);
+if (sen_status != SENSOR_OK) return -1;
+SensorsAddMeasurement(data, data_len);
+
+  return data_len;
 }
