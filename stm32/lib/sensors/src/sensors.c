@@ -121,7 +121,12 @@ void SensorsMeasure(void) {
     APP_LOG(TS_ON, VLEVEL_M, "Callback index: %d\r\n", i);
 
     // call measurement function
-    buffer_len = callback_arr[i](buffer, ts, meas_idx++);
+    // NOTE: Sensors must be queued in sequential order using
+    // SensorsAdd() since the callback order is used by the sensor measurement
+    // callback function to identify which (if any) sensor it is in the case of
+    // multiple of the same sensor type.
+    buffer_len = callback_arr[i](buffer, ts, i);
+    meas_idx++;
 
     if (buffer_len == ((size_t)-1)) {
       APP_LOG(TS_ON, VLEVEL_M, "Error: buffer_len == -1\r\n");
