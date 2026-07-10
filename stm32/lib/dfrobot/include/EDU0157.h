@@ -1,3 +1,14 @@
+/** @file EDU0157.h
+ * 
+ * @brief EDU0157 i2c library
+ * 
+ * Based on dfrobot library: https://github.com/DFRobot/DFRobot_LarkWeatherStation
+ * 
+ * @author Kai Otsuka
+ * @date 2026-7-7
+ * 
+ * 
+*/
 #include <stdint.h>
 #include <stddef.h>
 typedef struct {
@@ -36,7 +47,7 @@ bme280 library in this repo
 
 static const uint32_t i2c_timeout = 1000;
 
-//copied this from bme280
+//copied this from bme280, kind of redundant.
 typedef EDU0157_INTF_RET_TYPE (*EDU0157_read_fptr_t)(uint8_t expected_cmd,char *out,
                                  size_t max_len, void *intf_ptr);
 typedef EDU0157_INTF_RET_TYPE (*EDU0157_write_fptr_t)(uint8_t cmd, const void *args, uint16_t arg_len, void *intf_ptr);
@@ -48,6 +59,10 @@ EDU0157_INTF_RET_TYPE EDU0157_i2c_recieve(uint8_t expected_cmd,char *out,
 EDU0157_INTF_RET_TYPE EDU0157_i2c_write(uint8_t cmd, const void *args, uint16_t arg_len, void *intf_ptr);
 void EDU0157_delay_us(uint32_t period, void *intf_ptr);
 
+/**
+ * @brief EDU0157 Device structure
+ * 
+ */
 struct EDU0157_dev
 {
     void *intf_ptr;
@@ -62,9 +77,23 @@ struct EDU0157_dev
     EDU0157_delay_us_fptr_t delay_us;
 };
 
+/**
+ * @brief Initialize the EDU0157 device structure
+ * 
+ * @param dev Pointer to the EDU0157 device structure
+ * @return int 0 on success, -1 on failure
+ */
 int EDU0157_init(struct EDU0157_dev *dev);
 
-
+/**
+ * @brief Get a value from the EDU0157 device
+ * 
+ * @param dev Pointer to the EDU0157 device structure
+ * @param key The key of the value to get *This is useless because they keys dont work so i always call get all data.
+ * @param out Buffer to store the output value
+ * @param max_len Maximum length of the output buffer
+ * @return int 1 on success, 0 on failure
+ */
 int EDU0157_get_value(struct EDU0157_dev *dev,const char *key,
                       char *out,
                       size_t max_len);

@@ -174,6 +174,12 @@ void handleSave() {
     config.enabled_sensors[config.enabled_sensors_count++] =
         EnabledSensor_PCAP02;
   }
+  bool EDU0157_enabled = server.hasArg("EDU0157_enabled");
+  if (EDU0157_enabled) {
+    config.enabled_sensors[config.enabled_sensors_count++] =
+        EnabledSensor_EDU0157;
+  }
+
 
   config.Voltage_Slope =
       strtod(server.arg("calibration_v_slope").c_str(), NULL);

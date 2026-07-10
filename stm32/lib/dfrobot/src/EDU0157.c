@@ -1,3 +1,16 @@
+/** @file EDU0157.c
+ * 
+ * @brief EDU0157 i2c library
+ * 
+ * Based on dfrobot library: https://github.com/DFRobot/DFRobot_LarkWeatherStation
+ * 
+ * @author Kai Otsuka
+ * @date 2026-7-7
+ * 
+ * 
+*/
+
+
 
 #include <stdint.h>
 #include <stdlib.h>

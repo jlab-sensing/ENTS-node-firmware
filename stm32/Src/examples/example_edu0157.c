@@ -3,6 +3,9 @@
  *
  * Prints the raw string returned by the EDU0157 weather station.
  * based off bme280_example
+ * 
+ * @author Kai Otsuka
+ * @date 2026-7-7
  */
 
 // stdlib includes

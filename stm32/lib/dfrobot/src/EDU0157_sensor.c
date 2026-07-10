@@ -1,5 +1,16 @@
 #include "EDU0157_sensor.h"
 
+/** @file EDU0157_sensor.c
+ * 
+ * @brief EDU0157 sensor implementation
+ * 
+ * Based on bme280_sensor.c implementation
+ * 
+ * @author Kai Otsuka
+ * @date 2026-7-7
+ * 
+ * 
+*/
 
 /**
  * @brief Required time between measurements
@@ -28,6 +39,7 @@ static int direction_to_int(const char *dir)
 
     return -1;  
 }
+
 
 int EDU0157Init(void) {
     dev_addr = DFR_DEVICE_ADDR;

@@ -22,7 +22,8 @@ typedef enum _EnabledSensor {
     EnabledSensor_SEN0257 = 7,
     EnabledSensor_YFS210C = 8,
     EnabledSensor_PCAP02 = 9,
-    EnabledSensor_D10 = 10
+    EnabledSensor_D10 = 10,
+    EnabledSensor_EDU0157 = 11
 } EnabledSensor;
 
 typedef enum _Uploadmethod {
