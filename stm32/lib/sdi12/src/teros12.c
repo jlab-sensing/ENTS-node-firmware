@@ -43,15 +43,39 @@ SDI12Status Teros12GetMeasurement(char addr, Teros12Data *data) {
 
 size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Teros12Data sens_data = {};
-  SDI12Status status = Teros12GetMeasurement('0', &sens_data);
+  SDI12Status status = SDI12_OK;
+
+  const UserConfiguration *cfg = UserConfigGet();
+  uint32_t sensor_index = cfg->enabled_sensors_multiple[idx].index;
+
+  // SDI-12 spec 1.4: 0-9 (48-57), A-Z (65-90), a-z (97-122)
+  char sdi12_address = '0';
+
+  switch (sensor_index) {
+    case 0 ... 9:  // default address is '0'. Also fix common user error of not
+                   // putting the ascii decimal for '0'-'9'.
+      sdi12_address = sensor_index + '0';
+      break;
+    case '0' ... '9':
+    case 'A' ... 'Z':
+    case 'a' ... 'z':
+      sdi12_address = sensor_index;
+      break;
+    default:
+      APP_LOG(TS_ON, VLEVEL_H,
+              "Invalid SDI-12 address provided in the userconfig index field: "
+              "0x%X ('%c')\r\n",
+              sensor_index, sensor_index);
+      return -1;
+      break;
+  }
+  status = Teros12GetMeasurement(sdi12_address, &sens_data);
   APP_LOG(TS_ON, VLEVEL_H,
           "\tTeros12GetMeasurement() return %d (vwc=%f, temp=%f, ec=%d)\r\n",
           status, sens_data.vwc, sens_data.temp, sens_data.ec);
   if (status != SDI12_OK) {
     return -1;
   }
-
-  const UserConfiguration *cfg = UserConfigGet();
 
   // calibration equation for mineral soils from Teros12 user manual and scale
   // to percent scale
@@ -64,7 +88,11 @@ size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  if (cfg->enabled_sensors_multiple[idx].cell_id != 0) {
+    meta.cell_id = cfg->enabled_sensors_multiple[idx].cell_id;
+  } else {
+    meta.cell_id = cfg->cell_id;
+  }
 
   // variables for the next block
   size_t data_len = 0;

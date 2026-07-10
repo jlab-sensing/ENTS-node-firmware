@@ -52,7 +52,7 @@ void printQuery();
  * This function checks the inputs provided by the user in the web form
  * and returns a string containing any validation errors.
  *
- * @return A string with validation errors. Emptyry string for no errors.
+ * @return A string with validation errors. Empty string for no errors.
  */
 String validateInputs();
 
@@ -115,64 +115,129 @@ void handleSave() {
 
   config.Upload_interval = server.arg("upload_interval").toInt();
 
-  bool voltage_enabled = server.hasArg("voltage_enabled");
-  if (voltage_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_Voltage;
-  }
+  // no #define for enabled_sensor_multiple max_count, determine from array size
+  const uint32_t enabled_sensors_multiple_max_count =
+      (sizeof(config.enabled_sensors_multiple) /
+       sizeof(config.enabled_sensors_multiple[0]));
 
-  bool current_enabled = server.hasArg("current_enabled");
-  if (current_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_Current;
-  }
+  // Iterate through all sensor form fields and extract sensor type, cell ID,
+  // and index.
+  for (config.enabled_sensors_multiple_count = 0;
+       config.enabled_sensors_multiple_count <
+       enabled_sensors_multiple_max_count;
+       config.enabled_sensors_multiple_count++) {
+    String selected_sensor = server.arg(
+        "selected_sensor_" + (config.enabled_sensors_multiple_count + 1));
+    String selected_sensor_cell_id = server.arg(
+        "sensor_cell_id_" + (config.enabled_sensors_multiple_count + 1));
+    String selected_sensor_index =
+        server.arg("sensor_idx_" + (config.enabled_sensors_multiple_count + 1));
 
-  bool teros12_enabled = server.hasArg("teros12_enabled");
-  if (teros12_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_Teros12;
-  }
+    if (selected_sensor == "") break;
 
-  bool teros21_enabled = server.hasArg("teros21_enabled");
-  if (teros21_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_Teros21;
-  }
+    // iterator of type uint (instead of enum) due to inability to increment
+    // enums.
+    for (uint32_t s = _EnabledSensor_MIN; s < _EnabledSensor_ARRAYSIZE; s++) {
+      if (selected_sensor == EnabledSensor_name((EnabledSensor)s)) {
+        config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+            .enabled_sensor = (EnabledSensor)s;
+        break;
+      }
+    }
 
-  bool bme280_enabled = server.hasArg("bme280_enabled");
-  if (bme280_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_BME280;
-  }
+    // Apply default cell ID if not specified for the current sensor.
+    if (selected_sensor_cell_id == "") {
+      config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+          .cell_id = config.cell_id;
+    } else {
+      config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+          .cell_id = selected_sensor_cell_id.toInt();
+    }
 
-  bool Phytos31_enabled = server.hasArg("Phytos31_enabled");
-  if (Phytos31_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_Phytos31;
-  }
+    // Apply sensor index default or user-provided value.
+    switch (
+        config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+            .enabled_sensor) {
+      case EnabledSensor_Teros12:
+      case EnabledSensor_Teros21:
+        // SDI-12: Index field may hold an ASCII character indicating sensor
+        // address.
 
-  bool SEN0308_enabled = server.hasArg("SEN0308_enabled");
-  if (SEN0308_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_SEN0308;
-  }
+        if (selected_sensor_index == "") {
+          // Default SDI-12 address is '0'
+          config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+              .index = '0';
+        } else {
+          config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+              .index = selected_sensor_index.c_str()[0];
+        }
+        break;
+      case EnabledSensor_BME280:
+      case EnabledSensor_PCAP02:
+      case EnabledSensor_Voltage:
+      case EnabledSensor_Current:
+        // I2C: Index field may hold the non-left shifted 7 bit address
+        // (decimal, not hexadecimal).
 
-  bool SEN0257_enabled = server.hasArg("SEN0257_enabled");
-  if (SEN0257_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_SEN0257;
-  }
+        if (selected_sensor_index == "") {
+          // Default I2C address is sensor-dependent.
+          switch (
+              config
+                  .enabled_sensors_multiple[config
+                                                .enabled_sensors_multiple_count]
+                  .enabled_sensor) {
+            case EnabledSensor_BME280:
+              config
+                  .enabled_sensors_multiple[config
+                                                .enabled_sensors_multiple_count]
+                  .index = 0x77;
+              break;
+            case EnabledSensor_PCAP02:
+              config
+                  .enabled_sensors_multiple[config
+                                                .enabled_sensors_multiple_count]
+                  .index = 0x28;
+              break;
+            case EnabledSensor_Voltage:
+              config
+                  .enabled_sensors_multiple[config
+                                                .enabled_sensors_multiple_count]
+                  .index = 0x40;
+              break;
+            case EnabledSensor_Current:
+              config
+                  .enabled_sensors_multiple[config
+                                                .enabled_sensors_multiple_count]
+                  .index = 0x40;
+              break;
+            default:
+              break;
+          }
+        } else {
+          config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+              .index = selected_sensor_index.toInt();
+        }
+        break;
+      case EnabledSensor_D10:
+      case EnabledSensor_YFS210C:
+        // Digital: Index field may hold the digital pin.
 
-  bool YFS210C_enabled = server.hasArg("YFS210C_enabled");
-  if (YFS210C_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_YFS210C;
-  }
+        // TODO: Choose default pins and map user inputs to alternative pins
 
-  bool PCAP02_enabled = server.hasArg("PCAP02_enabled");
-  if (PCAP02_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_PCAP02;
+        break;
+      case EnabledSensor_SEN0257:
+      case EnabledSensor_SEN0308:
+      case EnabledSensor_Phytos31:
+        // Onboard analog: Index field may hold the ADC channel.
+
+        // TODO: Choose default channels and map user inputs to alt channels
+
+        break;
+      default:
+        config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+            .index = selected_sensor_index.toInt();
+        break;
+    }
   }
   bool EDU0157_enabled = server.hasArg("EDU0157_enabled");
   if (EDU0157_enabled) {
@@ -181,6 +246,10 @@ void handleSave() {
   }
 
 
+  // TODO: the calibration values for the ADS1219 will be stored on each AFE in
+  // nonvolatile memory. Therefore, calibration values will not need to be
+  // stored per duplicated ADS1219 sensor and will instead be fetched from the
+  // board when reading the analog output.
   config.Voltage_Slope =
       strtod(server.arg("calibration_v_slope").c_str(), NULL);
   config.Voltage_Offset =
