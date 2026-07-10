@@ -152,7 +152,7 @@ def get_sensor_data(meas_type: int) -> dict:
         SensorType.PCAP02_CAPACITANCE: {
             "name": "Capacitance Ratio",
             "unit": "pF/pF",
-        }, 
+        },
         SensorType.EDU0157_WIND_SPEED: {
             "name": "Wind Speed",
             "unit": "m/s",
