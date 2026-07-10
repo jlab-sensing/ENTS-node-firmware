@@ -176,6 +176,7 @@ void handleSave() {
       case EnabledSensor_PCAP02:
       case EnabledSensor_Voltage:
       case EnabledSensor_Current:
+      case EnabledSensor_EDU0157:
         // I2C: Index field may hold the non-left shifted 7 bit address
         // (decimal, not hexadecimal).
 
@@ -210,6 +211,12 @@ void handleSave() {
                                                 .enabled_sensors_multiple_count]
                   .index = 0x40;
               break;
+            case EnabledSensor_EDU0157:
+              config
+                  .enabled_sensors_multiple[config
+                                                .enabled_sensors_multiple_count]
+                  .index = 0x42;
+              break;
             default:
               break;
           }
@@ -239,12 +246,6 @@ void handleSave() {
         break;
     }
   }
-  bool EDU0157_enabled = server.hasArg("EDU0157_enabled");
-  if (EDU0157_enabled) {
-    config.enabled_sensors[config.enabled_sensors_count++] =
-        EnabledSensor_EDU0157;
-  }
-
 
   // TODO: the calibration values for the ADS1219 will be stored on each AFE in
   // nonvolatile memory. Therefore, calibration values will not need to be

@@ -216,6 +216,11 @@ int main(void) {
     //   SensorsAdd(WatFlow_measure);
     //   APP_LOG(TS_OFF, VLEVEL_M, "YFS210C Flow Meter Enabled!\n");
     // }
+    // if (sensor = EnabledSensor_EDU0157) {
+    //   EDU0157Init();
+    //   SensorsAdd(EDU0157Measure);
+    //   APP_LOG(TS_OFF, VLEVEL_M, "EDU0157 Enabled!\n");
+    // }
     if (sensor == EnabledSensor_PCAP02) {
       pcap02_init();
       SensorsAdd(pcap02_measure);
