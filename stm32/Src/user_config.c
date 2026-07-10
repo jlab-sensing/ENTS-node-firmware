@@ -67,6 +67,7 @@ void UserConfigStart(unsigned int timeout) {
       // it's a trap! No valid userconfig
       // Waiting for new configuration on reset
       while (1){
+         // this keeps requesting a new config if the stm32 doesn't have a config so resetting isn't needed
           // APP_LOG(TS_OFF, VLEVEL_M, "Requesting configuration from ESP32...\n");
           // UserConfigStatus status = ControllerUserConfigRequest();
           // APP_LOG(TS_OFF, VLEVEL_M, "%d\n",status);
@@ -110,9 +111,6 @@ void UserConfigStart(unsigned int timeout) {
     APP_LOG(TS_OFF, VLEVEL_M, "---------------------------\n");
     UserConfigPrint();
     APP_LOG(TS_OFF, VLEVEL_M, "\n");
-    StatusLedFlashFast();
-    HAL_Delay(1000);
-    StatusLedFlashSlow();
   }
 }
 
