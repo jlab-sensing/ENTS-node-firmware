@@ -272,12 +272,17 @@
             select Sensor 2 as "Teros12". Instead, make sure that all selected sensors are packed towards Sensor 1.</p>
           <p><b>Cell ID</b>: You may leave the Cell ID field blank to use the Default Cell ID you entered at the top of
             the page.</p>
-          <p><b>idx</b>: The index (idx) field is typically used to specify the sensor address, such as when multiple of
-            the same sensors are used on the same bus. For SDI-12 sensors, you may enter either the ASCII character of
-            the device address (i.e. 'a', '0', 'N' without quotes) or leave blank to use the default '0' address. Valid
-            SDI-12 addresses: ['0'-'9'=48-57, 'A'-'Z'=65-90, 'a'-'z'=97-122]. For I2C sensors, leave blank to use the
-            default sensor address, or enter the non left-shifted 7-bit address in decimal. For onboard analog sensing
-            (such as the Irrometer Watermark 200SS), you must enter the ADC channel number.</p>
+          <p><b>Index</b>: The index field is typically used to specify the sensor address, such as when multiple
+            of the same sensors are used on the same bus in order to avoid addressing conflicts.</p>
+          <ul>
+            <li>For SDI-12 sensors, you may enter either the ASCII character of the device address (i.e. 'a', '0', 'N'
+              without quotes) or leave blank to use the default '0' address. Valid SDI-12 addresses: ['0'-'9'=48-57,
+              'A'-'Z'=65-90, 'a'-'z'=97-122].</li>
+            <li>For I2C sensors, leave blank to use the default sensor address, or enter the non left-shifted 7-bit
+              address in decimal. Non-decimal input (such as hexadecimal) is not supported.</li>
+            <li>For onboard analog sensing (such as the Irrometer Watermark 200SS), you must enter the ADC channel
+              number.</li>
+          </ul>
         </details>
 
         <div id="sensor_selection_list">
@@ -366,7 +371,7 @@
 
     <script>
       var sensor_selection_list = document.getElementById("sensor_selection_list");
-      for (let i = 1; i <= 32; i++) {
+      for (let i = 1; i <= 16; i++) { // Number of sensors listed here may not exceed the limit defined in the protobuf options file.
         var sensor_selection = document.createElement("div");
         sensor_selection.className = "sensors"; // On form submission, iterate through all divs of class "sensors" to identify enabled sensors and associated metadata.
         // if (i === 1) { sensor_selection.hidden = false; } else { sensor_selection.hidden = true; }
@@ -374,7 +379,7 @@
           `
           <label for="sensor_dropdown_${i}">Sensor ${i}</label>
           <select name="selected_sensor_${i}" id="sensor_dropdown_${i}">
-            <option value="none">none</option>
+            <option value="">none</option>
             <option value="Voltage">ADS1219 Voltage</option>
             <option value="Current">ADS1219 Current</option>
             <option value="Teros12">Teros12 Soil Moisture Sensor</option>
@@ -387,12 +392,12 @@
             <option value="PCAP02">PCAP02 Capacitance Sensor</option>
             <option value="D10">D10 Water Meter</option>
           </select>
-          <label for="sensor_cell_id_${i}">Cell ID</label>
+          <label for="sensor_cell_id_${i}">Cell ID (Sensor ${i})</label>
           <input type="number" id="sensor_cell_id_${i}" name="sensor_cell_id_${i}" min="0"
             placeholder="Enter Cell ID (positive integer) or leave blank for Default Cell ID">
-          <label for="sensor_idx_${i}">idx</label>
-          <input type="text" id="sensor_idx_${i}" name="sensor_idx_${i}"
-            placeholder="Enter idx (positive integer or single character) or leave blank for default idx">
+          <label for="sensor_index_${i}">Index (Sensor ${i})</label>
+          <input type="text" id="sensor_index_${i}" name="sensor_index_${i}"
+            placeholder="Enter Index (positive integer or single character) or leave blank for default index">
         `;
 
         sensor_selection_list.appendChild(sensor_selection);
@@ -437,6 +442,7 @@
 
         try {
           const formData = new FormData(configForm);
+          console.log(formData);
 
           const response = await fetch('/save', {
             method: 'POST',
@@ -491,6 +497,13 @@
             "api_endpoint_url"
           ];
 
+          // Append sensor fields
+          for (let i = 1; i <= 16; i++) { // Number of sensors listed here may not exceed the limit defined in the protobuf options file.
+            fields.push(`sensor_dropdown_${i}`);
+            fields.push(`sensor_cell_id_${i}`);
+            fields.push(`sensor_index_${i}`);
+          }
+
           fields.forEach(key => {
             const field = document.getElementById(key);
             if (field && config[key] !== undefined) {
@@ -498,30 +511,30 @@
             }
           });
 
-          // Handle enabled_sensors list
-          const sensorMap = {
-            "Voltage": "voltage_enabled",
-            "Current": "current_enabled",
-            "Teros12": "teros12_enabled",
-            "Teros21": "teros21_enabled",
-            "BME280": "bme280_enabled",
-            "Phytos31": "Phytos31_enabled",
-            "SEN0308": "SEN0308_enabled",
-            "SEN0257": "SEN0257_enabled",
-            "YFS210C": "YFS210C_enabled",
-            "PCAP02": "PCAP02_enabled"
-          };
+          // // Handle enabled_sensors list
+          // const sensorMap = {
+          //   "Voltage": "voltage_enabled",
+          //   "Current": "current_enabled",
+          //   "Teros12": "teros12_enabled",
+          //   "Teros21": "teros21_enabled",
+          //   "BME280": "bme280_enabled",
+          //   "Phytos31": "Phytos31_enabled",
+          //   "SEN0308": "SEN0308_enabled",
+          //   "SEN0257": "SEN0257_enabled",
+          //   "YFS210C": "YFS210C_enabled",
+          //   "PCAP02": "PCAP02_enabled"
+          // };
 
-          // Enable those in config
-          if (Array.isArray(config.enabled_sensors)) {
-            config.enabled_sensors.forEach(sensorName => {
-              const id = sensorMap[sensorName];
-              if (id) {
-                const cb = document.getElementById(id);
-                if (cb) cb.checked = true;
-              }
-            });
-          }
+          // // Enable those in config
+          // if (Array.isArray(config.enabled_sensors)) {
+          //   config.enabled_sensors.forEach(sensorName => {
+          //     const id = sensorMap[sensorName];
+          //     if (id) {
+          //       const cb = document.getElementById(id);
+          //       if (cb) cb.checked = true;
+          //     }
+          //   });
+          // }
 
         } catch (err) {
           console.error("Error loading config:", err);
