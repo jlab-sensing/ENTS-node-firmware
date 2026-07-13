@@ -14,16 +14,23 @@
 
 static bool i2c_read(uint8_t *tx, uint8_t *rx, uint16_t rx_len) {
 
-    HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c1, 
-                                                (PMSA003I_I2C_ADDR << 1), tx[0], I2C_MEMADD_SIZE_8BIT, 
-                                                rx, rx_len, 100);
+    HAL_StatusTypeDef status = HAL_I2C_Master_Receive(&hi2c1, 
+                                                (PMSA003I_I2C_ADDR << 1), tx, 32, 100);
     if (status == HAL_OK){
     return true; 
     }
     else{
-        APP_LOG(TS_OFF, VLEVEL_ALWAYS, " %x\r\n",hi2c1.ErrorCode);
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "I2C read failed with status: %d\r\n", status);
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "error: %x\r\n",HAL_I2C_GetError(&hi2c1));
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "state: %x\r\n",HAL_I2C_GetState(&hi2c1));
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Mode: %x\r\n",HAL_I2C_GetMode(&hi2c1));
+        uint8_t dummy = I2C1->RXDR;
+        while(hi2c1.Instance->ISR & I2C_ISR_RXNE){
 
-
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "RXDR = 0x%02X\n", dummy);
+        }
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "else\n");
+        APP_LOG(TS_OFF, VLEVEL_ALWAYS, "else");
         return false;
     }
 }
