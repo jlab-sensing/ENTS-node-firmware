@@ -43,7 +43,14 @@ typedef enum _SensorType {
     /* * D10 measurements */
     SensorType_D10_FLOW = 20,
     SensorType_D10_VOLUME_ELAPSED = 21,
-    SensorType_D10_TIME_ELAPSED = 22
+    SensorType_D10_TIME_ELAPSED = 22,
+    /* * EDU0157 weather station measurements */
+    SensorType_EDU0157_WIND_SPEED = 23,
+    SensorType_EDU0157_WIND_DIRECTION = 24,
+    SensorType_EDU0157_ALTITUDE = 25,
+    SensorType_EDU0157_PRESSURE = 26,
+    SensorType_EDU0157_TEMP = 27,
+    SensorType_EDU0157_HUMIDITY = 28
 } SensorType;
 
 typedef enum _SensorError {

@@ -46,6 +46,12 @@ const char *SensorType_name(SensorType v) {
         case SensorType_D10_FLOW: return "D10_FLOW";
         case SensorType_D10_VOLUME_ELAPSED: return "D10_VOLUME_ELAPSED";
         case SensorType_D10_TIME_ELAPSED: return "D10_TIME_ELAPSED";
+        case SensorType_EDU0157_WIND_SPEED: return "EDU0157_WIND_SPEED";
+        case SensorType_EDU0157_WIND_DIRECTION: return "EDU0157_WIND_DIRECTION";
+        case SensorType_EDU0157_ALTITUDE: return "EDU0157_ALTITUDE";
+        case SensorType_EDU0157_PRESSURE: return "EDU0157_PRESSURE";
+        case SensorType_EDU0157_TEMP: return "EDU0157_TEMP";
+        case SensorType_EDU0157_HUMIDITY: return "EDU0157_HUMIDITY";
     }
     return "unknown";
 }

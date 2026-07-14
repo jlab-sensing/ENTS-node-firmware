@@ -153,6 +153,30 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Capacitance Ratio",
             "unit": "pF/pF",
         },
+        SensorType.EDU0157_WIND_SPEED: {
+            "name": "Wind Speed",
+            "unit": "m/s",
+        },
+        SensorType.EDU0157_WIND_DIRECTION: {
+            "name": "Wind Direction",
+            "unit": "N/A",
+        },
+        SensorType.EDU0157_ALTITUDE: {
+            "name": "Altitude",
+            "unit": "m",
+        },
+        SensorType.EDU0157_PRESSURE: {
+            "name": "Pressure",
+            "unit": "hPa",
+        },
+        SensorType.EDU0157_TEMP: {
+            "name": "Temperature",
+            "unit": "C",
+        },
+        SensorType.EDU0157_HUMIDITY: {
+            "name": "Humidity",
+            "unit": "%RH",
+        },
     }
 
     meta = SENSOR_DATA[SensorType.Value(meas_type)]
