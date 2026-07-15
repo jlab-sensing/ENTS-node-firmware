@@ -88,6 +88,10 @@
       margin: 0;
     }
 
+    .sensor-warning {
+      color: red;
+    }
+
     /* Error/success messages */
     .error {
       color: red;
@@ -280,7 +284,7 @@
               'A'-'Z'=65-90, 'a'-'z'=97-122].</li>
             <li>For I2C sensors, leave blank to use the default sensor address, or enter the non left-shifted 7-bit
               address in decimal. Non-decimal input (such as hexadecimal) is not supported.</li>
-            <li>For onboard analog sensing (such as the Irrometer Watermark 200SS), you mey enter either the ADC channel
+            <li>For onboard analog sensing (such as the Irrometer Watermark 200SS), you may enter either the ADC channel
               number or leave blank to use the default ADC channel.</li>
             <li>For digital sensors (such as pulse output water meters or frequency/PWM output flow meters), you may
               enter either the pin number or leave blank to use the default pin.</li>
@@ -398,38 +402,40 @@
           <input type="number" id="sensor_cell_id_${i}" name="sensor_cell_id_${i}" min="0"
             placeholder="Enter Cell ID (positive integer) or leave blank for Default Cell ID">
           <label for="sensor_index_${i}">Index (Sensor ${i})</label>
-          <input type="text" id="sensor_index_${i}" name="sensor_index_${i}"
-            placeholder="Enter Index (positive integer or single character) or leave blank for default index">
-            <div id="sensor_warning_${i}" class="sensor-warning"></div>
+          <input type="text" id="sensor_index_${i}" name="sensor_index_${i}" list="sensor_index_options_${i}"
+    placeholder="Enter Index or leave blank for default">
+  <datalist id="sensor_index_options_${i}"></datalist>
+  <div id="sensor_warning_${i}" class="sensor-warning"></div>
         `;
 
         sensor_selection_list.appendChild(sensor_selection);
       }
+
       const SENSORS = {
         Voltage: {
           type: "i2c",
           defaultIndex: "40",
-          validIndexes: [40], // need to add others once i find out
+          validIndexes: ["40"], // need to add others once i find out
           conflicts: []
         },
 
         Current: {
           type: "i2c",
           defaultIndex: "40",
-          validIndexes: [40],
+          validIndexes: ["40"],
           conflicts: []
         },
 
         Teros12: {
           type: "sdi-12",
-          defaultIndex: "",
+          defaultIndex: "0",
           validIndexes: [],
           conflicts: []
         },
 
         Teros21: {
           type: "sdi-12",
-          defaultIndex: "",
+          defaultIndex: "0",
           validIndexes: [],
           conflicts: []
         },
@@ -437,7 +443,7 @@
         BME280: {
           type: "i2c",
           defaultIndex: "77",
-          validIndexes: [77, 76],
+          validIndexes: ["77", "76"],
           conflicts: []
         },
 
@@ -472,7 +478,7 @@
         PCAP02: {
           type: "i2c",
           defaultIndex: "",
-          validIndexes: [28],
+          validIndexes: ["28"],
           conflicts: []
         },
 
@@ -483,6 +489,8 @@
           conflicts: []
         }
       };
+
+      const disallowed_pins = [0, 1, 3, 12, 15];
 
       // DOM Elements
       const modal = document.getElementById("configModal");
@@ -539,30 +547,28 @@
         if (!sensor)
           return;
 
-        const index = Number(
-          document.getElementById(`sensor_index_${sensorNum}`).value
-        );
 
+        const index =
+          document.getElementById(`sensor_index_${sensorNum}`).value;
         // duplicate check
         for (let i = 1; i <= 16; i++) {
 
           if (i === sensorNum)
             continue;
 
-          const otherIndex =
-            Number(document.getElementById(`sensor_index_${i}`).value);
-
           const otherSensorName =
             document.getElementById(`sensor_dropdown_${i}`).value;
 
           const otherSensor =
             SENSORS[otherSensorName];
-            
+          const otherIndex =
+            document.getElementById(`sensor_index_${i}`).value;
+
 
           if (
             otherSensor &&
             otherSensor.type === sensor.type &&
-            otherIndex === index
+            otherIndex === index && index !== null
           ) {
             warning +=
               `Duplicate sensor index with Sensor ${i}. `;
@@ -600,7 +606,7 @@
           warning.style.display = "none";
         }
       }
-      function updateIndexOptions(sensorNum) {
+      function updateSensorIndex(sensorNum) {
 
         const sensor =
           SENSORS[
@@ -628,6 +634,10 @@
 
           datalist.appendChild(option);
         });
+
+        if (sensor.defaultIndex !== '') {
+          document.getElementById(`sensor_index_${sensorNum}`).value = sensor.defaultIndex;
+        }
       }
       // Show modal with success message
       function showSuccessModal(message) {
