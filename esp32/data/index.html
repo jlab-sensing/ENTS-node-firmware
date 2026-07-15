@@ -400,10 +400,89 @@
           <label for="sensor_index_${i}">Index (Sensor ${i})</label>
           <input type="text" id="sensor_index_${i}" name="sensor_index_${i}"
             placeholder="Enter Index (positive integer or single character) or leave blank for default index">
+            <div id="sensor_warning_${i}" class="sensor-warning"></div>
         `;
 
         sensor_selection_list.appendChild(sensor_selection);
       }
+      const SENSORS = {
+        Voltage: {
+          type: "i2c",
+          defaultIndex: "40",
+          validIndexes: [40], // need to add others once i find out
+          conflicts: []
+        },
+
+        Current: {
+          type: "i2c",
+          defaultIndex: "40",
+          validIndexes: [40],
+          conflicts: []
+        },
+
+        Teros12: {
+          type: "sdi-12",
+          defaultIndex: "",
+          validIndexes: [],
+          conflicts: []
+        },
+
+        Teros21: {
+          type: "sdi-12",
+          defaultIndex: "",
+          validIndexes: [],
+          conflicts: []
+        },
+
+        BME280: {
+          type: "i2c",
+          defaultIndex: "77",
+          validIndexes: [77, 76],
+          conflicts: []
+        },
+
+        Phytos31: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: [],
+          conflicts: []
+        },
+
+        SEN0308: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: [],
+          conflicts: []
+        },
+
+        SEN0257: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: [],
+          conflicts: []
+        },
+
+        YFS210C: {
+          type: "digital",
+          defaultIndex: "",
+          validIndexes: [],
+          conflicts: []
+        },
+
+        PCAP02: {
+          type: "i2c",
+          defaultIndex: "",
+          validIndexes: [28],
+          conflicts: []
+        },
+
+        D10: {
+          type: "digital",
+          defaultIndex: "",
+          validIndexes: [],
+          conflicts: []
+        }
+      };
 
       // DOM Elements
       const modal = document.getElementById("configModal");
@@ -413,7 +492,143 @@
       const closeBtn = document.getElementsByClassName("close")[0];
       const errorDisplay = document.getElementById('errorDisplay');
       const configForm = document.getElementById("configForm");
+      sensor_selection_list.addEventListener(
+        "change",
+        (event) => {
 
+          if (event.target.id.startsWith("sensor_dropdown_")) {
+
+            const i = Number(
+              event.target.id.split("_").pop()
+            );
+
+            updateSensorIndex(i);
+            validateIndex(i);
+          }
+        }
+      );
+
+      sensor_selection_list.addEventListener(
+        "input",
+        (event) => {
+
+          if (event.target.id.startsWith("sensor_index_")) {
+
+            const i = Number(
+              event.target.id.split("_").pop()
+            );
+
+            validateIndex(i);
+          }
+        }
+      );
+
+
+      function validateSensorIndex(sensorNum) {
+        updateIndexOptions(sensorNum);
+      }
+      function validateIndex(sensorNum) {
+
+        let warning = '';
+
+        const sensorName =
+          document.getElementById(`sensor_dropdown_${sensorNum}`).value;
+
+        const sensor = SENSORS[sensorName];
+
+        if (!sensor)
+          return;
+
+        const index = Number(
+          document.getElementById(`sensor_index_${sensorNum}`).value
+        );
+
+        // duplicate check
+        for (let i = 1; i <= 16; i++) {
+
+          if (i === sensorNum)
+            continue;
+
+          const otherIndex =
+            Number(document.getElementById(`sensor_index_${i}`).value);
+
+          const otherSensorName =
+            document.getElementById(`sensor_dropdown_${i}`).value;
+
+          const otherSensor =
+            SENSORS[otherSensorName];
+            
+
+          if (
+            otherSensor &&
+            otherSensor.type === sensor.type &&
+            otherIndex === index
+          ) {
+            warning +=
+              `Duplicate sensor index with Sensor ${i}. `;
+          }
+        }
+
+        if (
+          sensor.type === 'i2c' &&
+          sensor.validIndexes &&
+          !sensor.validIndexes.includes(index)
+        ) {
+          warning +=
+            'This may not be a valid I2C address for this device. ';
+        }
+
+        if (
+          sensor.type === 'digital' &&
+          disallowed_pins.includes(index)
+        ) {
+          warning +=
+            'This pin cannot be used safely. ';
+        }
+
+        setSensorWarning(sensorNum, warning);
+      }
+      function setSensorWarning(sensorNum, message) {
+        const warning =
+          document.getElementById(`sensor_warning_${sensorNum}`);
+
+        if (message) {
+          warning.textContent = message;
+          warning.style.display = "block";
+        } else {
+          warning.textContent = "";
+          warning.style.display = "none";
+        }
+      }
+      function updateIndexOptions(sensorNum) {
+
+        const sensor =
+          SENSORS[
+          document.getElementById(
+            `sensor_dropdown_${sensorNum}`
+          ).value
+          ];
+
+        const datalist =
+          document.getElementById(
+            `sensor_index_options_${sensorNum}`
+          );
+
+        datalist.innerHTML = "";
+
+        if (!sensor?.validIndexes)
+          return;
+
+        sensor.validIndexes.forEach(index => {
+
+          const option =
+            document.createElement("option");
+
+          option.value = index;
+
+          datalist.appendChild(option);
+        });
+      }
       // Show modal with success message
       function showSuccessModal(message) {
         modalTitle.textContent = "Success!";
