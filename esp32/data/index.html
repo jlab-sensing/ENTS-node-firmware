@@ -377,7 +377,7 @@
 
     <script>
       var sensor_selection_list = document.getElementById("sensor_selection_list");
-      for (let i = 1; i <= 16; i++) { // Number of sensors listed here may not exceed the limit defined in the protobuf options file.
+      for (let i = 1; i <= 4; i++) { // Number of sensors listed here may not exceed the limit defined in the protobuf options file.
         var sensor_selection = document.createElement("div");
         sensor_selection.className = "sensors"; // On form submission, iterate through all divs of class "sensors" to identify enabled sensors and associated metadata.
         // if (i === 1) { sensor_selection.hidden = false; } else { sensor_selection.hidden = true; }
@@ -414,16 +414,16 @@
       const SENSORS = {
         Voltage: {
           type: "i2c",
-          defaultIndex: "40",
-          validIndexes: ["40"], // need to add others once i find out
-          conflicts: []
+          defaultIndex: "0x40",
+          validIndexes: ["0x40"], // need to add others once i find out
+          conflicts: ["SEN0308"]
         },
 
         Current: {
           type: "i2c",
-          defaultIndex: "40",
-          validIndexes: ["40"],
-          conflicts: []
+          defaultIndex: "0x40",
+          validIndexes: ["0x40"],
+          conflicts: ["SEN0308"]
         },
 
         Teros12: {
@@ -442,8 +442,8 @@
 
         BME280: {
           type: "i2c",
-          defaultIndex: "77",
-          validIndexes: ["77", "76"],
+          defaultIndex: "0x77",
+          validIndexes: ["0x77", "0x76"],
           conflicts: []
         },
 
@@ -458,7 +458,7 @@
           type: "adc",
           defaultIndex: "",
           validIndexes: [],
-          conflicts: []
+          conflicts: ["Voltage","Current"]
         },
 
         SEN0257: {
@@ -472,14 +472,14 @@
           type: "digital",
           defaultIndex: "",
           validIndexes: [],
-          conflicts: []
+          conflicts: ["PCAP02"]
         },
 
         PCAP02: {
           type: "i2c",
-          defaultIndex: "",
-          validIndexes: ["28"],
-          conflicts: []
+          defaultIndex: "0x28",
+          validIndexes: ["0x28"],
+          conflicts: ["YFS210C"]
         },
 
         D10: {
@@ -491,6 +491,9 @@
       };
 
       const disallowed_pins = [0, 1, 3, 12, 15];
+      const sdi12_allowed = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F","G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+        "a", "b", "c", "d", "e", "f","g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+      ];
 
       // DOM Elements
       const modal = document.getElementById("configModal");
@@ -556,6 +559,9 @@
           if (i === sensorNum)
             continue;
 
+            if(
+              document.getElementById(`sensor_dropdown_${i}`).value === null
+            ) continue;
           const otherSensorName =
             document.getElementById(`sensor_dropdown_${i}`).value;
 
@@ -563,18 +569,26 @@
             SENSORS[otherSensorName];
           const otherIndex =
             document.getElementById(`sensor_index_${i}`).value;
-
-
+          if(!otherSensor) continue;
           if (
             otherSensor &&
             otherSensor.type === sensor.type &&
-            otherIndex === index && index !== null
+            otherIndex === index && index !== null&&
+            !(sensorName === "Voltage" && otherSensorName === "Current")&&
+            !(otherSensorName === "Voltage" && sensorName === "Current")
           ) {
             warning +=
               `Duplicate sensor index with Sensor ${i}. `;
           }
+          if(otherSensor && sensor.conflicts.includes(otherSensorName)) {
+            warning +=
+              `Sensor ${sensorNum} (${sensorName}) conflicts with Sensor ${i} (${otherSensorName}). `;
+          }
         }
-
+        if(sensor.type === 'sdi-12' && index !== '' && !sdi12_allowed.includes(index)) {
+          warning +=
+            'This may not be a valid SDI-12 address. ';
+        }
         if (
           sensor.type === 'i2c' &&
           sensor.validIndexes &&
