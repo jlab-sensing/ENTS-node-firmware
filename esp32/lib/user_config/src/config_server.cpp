@@ -215,7 +215,7 @@ void handleSave() {
           }
         } else {
           config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
-              .index = selected_sensor_index.toInt();
+          .index = strtol(selected_sensor_index.c_str(), NULL, 0);
         }
         break;
       case EnabledSensor_D10:
