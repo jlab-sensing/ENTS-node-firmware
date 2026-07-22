@@ -44,6 +44,7 @@
 #include "waterFlow.h"
 #include "waterPressure.h"
 #include "wifi.h"
+#include "as7343.h"
 
 // Board configuration - define ONLY ONE of these
 // Comment these out to disable sensors
@@ -196,6 +197,11 @@ int main(void) {
       SensorsAdd(BME280Measure);
       APP_LOG(TS_OFF, VLEVEL_M, "BME280 Enabled!\n");
     }
+    // if (sensor == EnabledSensor_AS7343) {
+    //   AS7343Init();
+    //   SensorsAdd(AS7343Measure);
+    //   APP_LOG(TS_OFF, VLEVEL_M, "AS7343 Enabled!\n");
+    // }
     // if (sensor == EnabledSensor_Phytos31) {
     //   Phytos31Init();
     //   SensorsAdd(Phytos31_measure);
