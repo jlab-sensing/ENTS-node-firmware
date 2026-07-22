@@ -180,6 +180,12 @@ message D10Measurement {
   uint32 timeElapsed = 3;
 }
 
+/* Spectral Sensor */
+message AS7343Measurement {
+  // voltage
+  uint32 channel_combined = 1;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -197,6 +203,7 @@ message Measurement {
     YFS210CMeasurement yfs210c = 9;
     PCAP02Measurement pcap02 = 10;
     D10Measurement d10 = 11;
+    AS7343Measurement AS7343 = 12;
   }
 }
 
@@ -463,6 +470,7 @@ enum EnabledSensor {
   YFS210C = 8;
   PCAP02 = 9;
   D10 = 10;
+  AS7343 = 11;
 }
 
 enum Uploadmethod {

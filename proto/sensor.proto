@@ -51,6 +51,10 @@ enum SensorType {
   D10_FLOW = 20;
   D10_VOLUME_ELAPSED = 21;
   D10_TIME_ELAPSED = 22;
+  
+  /** AS7343  measurements */
+  AS7343_SPECTRAL_DATA = 23;
+
 }
 
 enum SensorError {
