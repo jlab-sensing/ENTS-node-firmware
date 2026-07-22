@@ -153,6 +153,10 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Capacitance Ratio",
             "unit": "pF/pF",
         },
+        SensorType.AS7343_SPECTRAL_DATA: {
+            "name": "Spectral Data",
+            "unit": "uW/cm^2",
+        },
     }
 
     meta = SENSOR_DATA[SensorType.Value(meas_type)]

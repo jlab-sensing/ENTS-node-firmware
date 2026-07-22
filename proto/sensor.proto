@@ -46,6 +46,10 @@ enum SensorType {
 
   /** PCAP02 measurements */
   PCAP02_CAPACITANCE = 19;
+  
+  /** AS7343  measurements */
+  AS7343_SPECTRAL_DATA = 20;
+
 }
 
 enum SensorError {
