@@ -42,6 +42,8 @@
 #include "userConfig.h"
 #include "user_config.h"
 
+#include "solenoid.h"
+
 /* USER CODE END Includes */
 
 /* External variables
@@ -455,6 +457,20 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
         }
         APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
         break;
+
+      case 2:
+        if((appData->Buffer[0] == 0x00) && (appData->BufferSize == 1)){
+          // APP_LOG(TS_OFF, VLEVEL_H, "Closing solenoid, Message received: %02X", appData->Buffer[0]);
+          SolenoidClose();
+
+        }
+        else if ((appData->Buffer[0] == 0x01) && (appData->BufferSize == 1)){
+          // APP_LOG(TS_OFF, VLEVEL_H, "Opening solenoid, Message received: %02X", appData->Buffer[0]);
+          SolenoidOpen();
+        }
+        // APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u, toggling solenoid\r\n", appData->Port);
+        // UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_ToggleSolenoid), CFG_SEQ_Prio_0);
+        break;
     }
   }
   /* USER CODE END OnRxData_1 */
@@ -520,7 +536,7 @@ static void SendTxData(void) {
   // check if buffer is empty
   if (FramBufferLen() <= 0) {
     APP_LOG(TS_ON, VLEVEL_M, "Nothing in buffer\r\n");
-    return;
+    // return;
   }
 
   uint8_t battery_level = GetBatteryLevel();
@@ -541,7 +557,7 @@ static void SendTxData(void) {
     return;
   } else if (payload_status == PAYLOAD_NO_DATA) {
     APP_LOG(TS_ON, VLEVEL_M, "No data to send\r\n");
-    return;
+    // return;
   }
 
   // Old code for measurements

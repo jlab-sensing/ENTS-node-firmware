@@ -11,6 +11,8 @@
  */
 
 #include "solenoid.h"
+#include "utilities_def.h"
+#include "stm32_seq.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +38,9 @@ void SolenoidInit() {
   // Init state of Solenoid
   SolenoidClose();
   Solenoid = SOLENOID_OFF;
+
+  // UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_UserConfigCheck), UTIL_SEQ_RFU,
+  //                  SolenoidUpdate);
 }
 
 void SolenoidOpen(void) {
@@ -49,3 +54,19 @@ void SolenoidClose(void) {
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay OFF
   Solenoid = SOLENOID_OFF;
 }
+
+
+/* Private funct*/
+// static void SolenoidUpdate(void);
+
+// void SolenoidUpdate(void)
+// {
+//   // TODO parse the files from downlink.c/h into here, for now it is just a simple toggle
+//   if(Solenoid == SOLENOID_OFF)
+//   {
+//     SolenoidOpen();
+//   } else if (Solenoid == SOLENOID_ON)
+//   {
+//     SolenoidClose();
+//   }
+// }
