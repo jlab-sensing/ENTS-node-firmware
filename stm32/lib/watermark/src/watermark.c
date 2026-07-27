@@ -83,24 +83,27 @@ size_t Watermark200SSVA3_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
 
   // WM1
   meta.cell_id = cfg->enabled_sensors_multiple[0].cell_id;
-  status = EncodeDoubleMeasurement(
-      meta, Watermark200SSVA3_GetWM1(), SensorType_WATERMARK200SS_SOIL_TENSION, data, &data_len);
+  status = EncodeDoubleMeasurement(meta, Watermark200SSVA3_GetWM1(),
+                                   SensorType_WATERMARK200SS_SOIL_TENSION, data,
+                                   &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
   // WM2
   meta.cell_id = cfg->enabled_sensors_multiple[1].cell_id;
-  status = EncodeDoubleMeasurement(
-      meta, Watermark200SSVA3_GetWM2(), SensorType_WATERMARK200SS_SOIL_TENSION, data, &data_len);
+  status = EncodeDoubleMeasurement(meta, Watermark200SSVA3_GetWM2(),
+                                   SensorType_WATERMARK200SS_SOIL_TENSION, data,
+                                   &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
   // WM3
   meta.cell_id = cfg->enabled_sensors_multiple[2].cell_id;
-  status = EncodeDoubleMeasurement(
-      meta, Watermark200SSVA3_GetWM3(), SensorType_WATERMARK200SS_SOIL_TENSION, data, &data_len);
+  status = EncodeDoubleMeasurement(meta, Watermark200SSVA3_GetWM3(),
+                                   SensorType_WATERMARK200SS_SOIL_TENSION, data,
+                                   &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }

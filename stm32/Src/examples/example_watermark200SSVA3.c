@@ -61,10 +61,14 @@ int main(void) {
 
   while (1) {
     Watermark200SSVA3_GetMeasurement();
-    APP_PRINTF("%d Soil Tension (WM1): %lf kPa\r\n", conversion_count, Watermark200SSVA3_GetWM1());
-    APP_PRINTF("%d Soil Tension (WM2): %lf kPa\r\n", conversion_count, Watermark200SSVA3_GetWM2());
-    APP_PRINTF("%d Soil Tension (WM3): %lf kPa\r\n", conversion_count, Watermark200SSVA3_GetWM3());
-    APP_PRINTF("%d Soil Temperature:   %lf C\r\n", conversion_count, Watermark200SSVA3_GetWMTemp());
+    APP_PRINTF("%d Soil Tension (WM1): %lf kPa\r\n", conversion_count,
+               Watermark200SSVA3_GetWM1());
+    APP_PRINTF("%d Soil Tension (WM2): %lf kPa\r\n", conversion_count,
+               Watermark200SSVA3_GetWM2());
+    APP_PRINTF("%d Soil Tension (WM3): %lf kPa\r\n", conversion_count,
+               Watermark200SSVA3_GetWM3());
+    APP_PRINTF("%d Soil Temperature:   %lf C\r\n", conversion_count,
+               Watermark200SSVA3_GetWMTemp());
 
     APP_PRINTF("\r\n");
 
