@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    adc_if.h
-  * @author  MCD Application Team
-  * @brief   Header for ADC interface configuration
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    adc_if.h
+ * @author  MCD Application Team
+ * @brief   Header for ADC interface configuration
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,17 +40,17 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /**
-  * @brief Battery level in mV
-  */
-#define BAT_CR2032                  ((uint32_t) 3000)
+ * @brief Battery level in mV
+ */
+#define BAT_CR2032 ((uint32_t)3000)
 /**
-  * @brief Maximum battery level in mV
-  */
-#define VDD_BAT                     BAT_CR2032
+ * @brief Maximum battery level in mV
+ */
+#define VDD_BAT BAT_CR2032
 /**
-  * @brief Minimum battery level in mV
-  */
-#define VDD_MIN                     1800
+ * @brief Minimum battery level in mV
+ */
+#define VDD_MIN 1800
 
 /* USER CODE BEGIN EC */
 
@@ -69,25 +69,25 @@ extern "C" {
 /* Exported functions prototypes ---------------------------------------------*/
 
 /**
-  * @brief  Initializes the ADC input
-  */
+ * @brief  Initializes the ADC input
+ */
 void SYS_InitMeasurement(void);
 
 /**
-  * @brief DeInitializes the ADC
-  */
+ * @brief DeInitializes the ADC
+ */
 void SYS_DeInitMeasurement(void);
 
 /**
-  * @brief  Get the current temperature
-  * @return value temperature in degree Celsius( q7.8 )
-  */
+ * @brief  Get the current temperature
+ * @return value temperature in degree Celsius( q7.8 )
+ */
 int16_t SYS_GetTemperatureLevel(void);
 
 /**
-  * @brief Get the current battery level
-  * @return value battery level in linear scale
-  */
+ * @brief Get the current battery level
+ * @return value battery level in linear scale
+ */
 uint16_t SYS_GetBatteryLevel(void);
 
 /* USER CODE BEGIN EFP */

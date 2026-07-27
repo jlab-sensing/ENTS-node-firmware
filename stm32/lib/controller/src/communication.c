@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include <stm32wlxx_hal.h>
 
+#include "controller/controller.h"
 #include "i2c.h"
+#include "sys_app.h"  // APP_LOG
 
 /** Global timeout for i2c communication with esp32 */
 unsigned int g_controller_i2c_timeout = 10000;
@@ -28,21 +30,13 @@ static const int g_i2c_buffer_size = 32;
  * This is hardcoded on both devices but is variable in case of another device
  * using the same address.
  */
-static const uint8_t g_esp32_i2c_addr = 0x20 << 1;
+static const uint8_t g_esp32_i2c_addr = 0x28 << 1;
 
 /** @brief Buffer for ControllerTransmit */
 static Buffer tx = {0};
 
 /** Buffer for ControllerReceive */
 static Buffer rx = {0};
-
-/**
- * @brief Wakeup esp32 from deep sleep
- *
- * Starting with hardware version 2.2.2 there is an stm32 GPIO line connected
- * the esp32 ext1 to wakeup the device from a deep sleep state.
- */
-void ControllerWakeupEsp32(void);
 
 /**
  * @brief Converts HAL status to Controller status
@@ -61,9 +55,6 @@ ControllerStatus ControllerTransmit(unsigned int timeout) {
 
   // return code storage
   ControllerStatus cont_status = CONTROLLER_SUCCESS;
-
-  // wakeup esp32
-  ControllerWakeupEsp32();
 
   // create small buffer
   Buffer chunk = {0};
@@ -190,13 +181,18 @@ ControllerStatus ControllerTransaction(unsigned int timeout) {
   // status code
   ControllerStatus status = CONTROLLER_SUCCESS;
 
+  // wakeup esp32
+  // ControllerWakeup(); // TODO: re-enable after fixing esp32 deep sleep
+
   // transmit, stop early if error
   status = ControllerTransmit(timeout);
   if (status != CONTROLLER_SUCCESS) {
+    APP_LOG(TS_OFF, VLEVEL_H,
+            "ControllerTransmit() error (%d), skipping receive\r\n", status);
     return status;
   }
 
-  // Receive
+  // Receive (esp32 enters sleep state after fulfilling the request)
   status = ControllerReceive(timeout);
   return status;
 }
@@ -214,5 +210,3 @@ ControllerStatus HALToControllerStatus(HAL_StatusTypeDef hal_status) {
 
   return CONTROLLER_SUCCESS;
 }
-
-void ControllerWakeupEsp32(void) {}

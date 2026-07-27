@@ -42,11 +42,6 @@
 #include "userConfig.h"
 #include "user_config.h"
 
-// peripherals requiring a gpio external interrupt
-#include "pcap02.h"
-#include "waterFlow.h"
-#include "tca9535.h"
-
 /* USER CODE END Includes */
 
 /* External variables
@@ -330,7 +325,7 @@ void LoRaWAN_Init(void) {
   // convert interval to ms
   // TxPeriodicity = (cfg->Upload_interval * 1000);
   // divide by number of sensors
-  // TxPeriodicity /= cfg->enabled_sensors_count;
+  // TxPeriodicity /= cfg->enabled_sensors_multiple_count;
   // divide by 2 to keep upload buffer empty for failed uploads
   // TxPeriodicity /= 2;
   /* USER CODE END LoRaWAN_Init_1 */
@@ -376,25 +371,25 @@ void LoRaWAN_Init(void) {
 
 /* USER CODE BEGIN PB_Callbacks */
 
-// #if 0 /* User should remove the #if 0 statement and adapt the below code
-// according with his needs*/
+#if 0 // User should remove the #if 0 statement and adapt the below code
+// according with his needs
+// Note: see stm32wlxx_it.c for all interrupt handlers
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-  // /* Prevent unused argument(s) compilation warning */
+  // Prevent unused argument(s) compilation warning
   // UNUSED(GPIO_Pin);
 
   switch (GPIO_Pin) {
-    case GPIO_PIN_10: // PCAP02_INTN_Pin, YF-S201C water flow
+    case GPIO_PIN_15:  // PCAP02_INTN_Pin, YF-S201C water flow
       // PCAP02
-      INTN_State = (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
-                    GPIO_PIN_SET); /* low active */
-      if (INTN_State == GPIO_PIN_RESET) {
-        INTN_Counter += 1;
-      }
-
-      // YF-S201C water flow
+      // PCAP02_INTN_State = (HAL_GPIO_ReadPin(PCAP02_INTN_GPIO_Port, PCAP02_INTN_Pin) ==
+      //               GPIO_PIN_SET); /* low active */
+      // if (PCAP02_INTN_State == GPIO_PIN_RESET) {
+      //   PCAP02_INTN_Counter += 1;
+      // }
+      // pulse count incrementer for YF-S201C water flow meter and D10 water meter
       pulse_count++;
       break;
-    case USER_BUTTON_Pin: // user button, TCA9535 IO expander interrupt
+    case USER_BUTTON_Pin:  // user button, TCA9535 IO expander interrupt
       APP_LOG(TS_OFF, VLEVEL_M, "PB13 int (TCA9535)\r\n");
       // if (TCA9535ReadInput(&TCA9535_Reg_map) != HAL_OK){
       //   APP_LOG(TS_OFF, VLEVEL_M, "Failed to read TCA9535 input reg.\r\n");
@@ -418,7 +413,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
       break;
   }
 }
-// #endif
+#endif
 
 /* USER CODE END PB_Callbacks */
 
@@ -440,9 +435,25 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
             "SNR:%d\r\n",
             params->DownlinkCounter, slotStrings[params->RxSlot], appData->Port,
             params->Datarate, params->Rssi, params->Snr);
+    APP_LOG(
+        TS_OFF, VLEVEL_H,
+        "###### D/L IsMcpsIndication:0x%02X | LoRaMacEventInfoStatus:0x%02X | "
+        "LinkCheck:0x%02X | DemodMargin:0x%02X | "
+        "NbGateways:0x%02X\r\n",
+        params->IsMcpsIndication, params->Status, params->LinkCheck,
+        params->DemodMargin, params->NbGateways);
+        // CommissioningParams skipped.
     switch (appData->Port) {
       // TODO add cases for incoming data on ports
       default:
+        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u\r\n", appData->Port);
+        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData BufferSize: %u\r\n",
+                appData->BufferSize);
+        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Buffer (hex): ");
+        for (int i = 0; i < appData->BufferSize; i++) {
+          APP_LOG(TS_OFF, VLEVEL_H, "%02X", appData->Buffer[i]);
+        }
+        APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
         break;
     }
   }
@@ -473,7 +484,7 @@ static void SendTxData(void) {
       TxPeriodicity = (cfg->Upload_interval * 1000);
       // divide by number of sensors
       // NOTE John I think this is zero indexed so we need to add 1
-      TxPeriodicity /= cfg->enabled_sensors_count + 1;
+      TxPeriodicity /= cfg->enabled_sensors_multiple_count + 1;
       // divide by 2 to keep upload buffer empty for failed uploads
       TxPeriodicity /= 2;
 
@@ -494,7 +505,7 @@ static void SendTxData(void) {
     } else {
       APP_LOG(TS_OFF, VLEVEL_M,
               "Could not sync clock, retrying on next tx\r\n");
-      clock_synced = true;
+      // clock_synced = true;
     }
     // otherwise return
     return;

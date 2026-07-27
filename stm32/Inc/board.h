@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 
-
 /**
  * @brief Initialize board components
  *
@@ -32,19 +31,19 @@ void Board_Init(void);
 void Board_DeInit(void);
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void);
 
 /**
-* @brief  This function is executed in case of error occurrence.
-*
-* Turns on a solid status LED to give visual indicator to user. Enters an
-* infinite loop to halt program execution.
-*
-* @retval None
-*/
+ * @brief  This function is executed in case of error occurrence.
+ *
+ * Turns on a solid status LED to give visual indicator to user. Enters an
+ * infinite loop to halt program execution.
+ *
+ * @retval None
+ */
 void Error_Handler(void);
 
 /**
@@ -55,14 +54,14 @@ void Error_Handler(void);
  */
 void WaitForSerial(void);
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line);
 #endif /* USE_FULL_ASSERT */
 

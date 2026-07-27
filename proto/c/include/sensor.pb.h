@@ -39,7 +39,15 @@ typedef enum _SensorType {
     /* * YFS210C measurements */
     SensorType_YFS210C_FLOW = 18,
     /* * PCAP02 measurements */
-    SensorType_PCAP02_CAPACITANCE = 19
+    SensorType_PCAP02_CAPACITANCE = 19,
+    /* * D10 measurements */
+    SensorType_D10_FLOW = 20,
+    SensorType_D10_VOLUME_ELAPSED = 21,
+    SensorType_D10_TIME_ELAPSED = 22,
+    /* * Irrometer Watermark 200SS measurements */
+    SensorType_WATERMARK200SS_SOIL_TENSION = 23,
+    /* * Irrometer Watermark 200TS measurements */
+    SensorType_WATERMARK200TS_SOIL_TEMPERATURE = 24
 } SensorType;
 
 typedef enum _SensorError {
@@ -115,12 +123,14 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _SensorType_MIN SensorType_NONE
-#define _SensorType_MAX SensorType_PCAP02_CAPACITANCE
-#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_PCAP02_CAPACITANCE+1))
+#define _SensorType_MAX SensorType_WATERMARK200TS_SOIL_TEMPERATURE
+#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_WATERMARK200TS_SOIL_TEMPERATURE+1))
+const char *SensorType_name(SensorType v);
 
 #define _SensorError_MIN SensorError_OK
 #define _SensorError_MAX SensorError_DECODE
 #define _SensorError_ARRAYSIZE ((SensorError)(SensorError_DECODE+1))
+const char *SensorError_name(SensorError v);
 
 
 #define SensorResponse_error_ENUMTYPE SensorError

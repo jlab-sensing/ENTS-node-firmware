@@ -118,7 +118,7 @@ void SystemApp_Init(void)
   UTIL_ADV_TRACE_SetVerboseLevel(VERBOSE_LEVEL);
 
   /*Initialize the temperature and Battery measurement services */
-  SYS_InitMeasurement();
+  // SYS_InitMeasurement();
 
   /*Initialize the Sensors */
   EnvSensors_Init();

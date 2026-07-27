@@ -44,7 +44,8 @@ int main(void) {
   SystemApp_Init();
 
   char msg_init[] = "Initializing status LED.\r\n";
-  HAL_UART_Transmit(&huart2, (uint8_t *)msg_init, sizeof(msg_init), HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, (uint8_t *)msg_init, sizeof(msg_init),
+                    HAL_MAX_DELAY);
 
   StatusLedInit();
 
@@ -53,7 +54,8 @@ int main(void) {
   HAL_Delay(1000);
 
   char msg_enter_loop[] = "Entering loop.\r\n";
-  HAL_UART_Transmit(&huart2, (uint8_t *)msg_enter_loop, sizeof(msg_enter_loop), HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, (uint8_t *)msg_enter_loop, sizeof(msg_enter_loop),
+                    HAL_MAX_DELAY);
 
   uint32_t i = 0;
   char msg[] = "000\r\n";

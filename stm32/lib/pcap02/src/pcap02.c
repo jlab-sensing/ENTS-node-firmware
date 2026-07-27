@@ -10,8 +10,9 @@
 static HAL_StatusTypeDef ret = HAL_OK;
 static volatile uint16_t dev_addr = PCAP02_I2C_ADDRESS;
 
-volatile uint32_t INTN_Counter = 0;
-volatile uint8_t INTN_State = GPIO_PIN_SET;
+// Managed by GPIO interrupt in stm32wlxx_it.c
+extern volatile uint32_t PCAP02_INTN_Counter;
+extern volatile uint8_t PCAP02_INTN_State;
 
 // Private Function Definitions
 uint32_t test_sram_write_byte(uint8_t txData, uint16_t location);
@@ -124,7 +125,7 @@ void pcap02_gpio_init(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOx_CLK_ENABLE(PCAP02_INTN_GPIO_Port);
 
   /*Configure GPIO pin : INTN_Pin */
   GPIO_InitStruct.Pin = PCAP02_INTN_Pin;
@@ -776,12 +777,12 @@ size_t pcap02_measure_capacitance(pcap02_result_t *result) {
 
   // Read result register after INTN = 0
   // Note: Approximately 82 ms or 83 ms between prints.
-  if (INTN_State == GPIO_PIN_RESET) {
-    INTN_State = GPIO_PIN_SET;
+  if (PCAP02_INTN_State == GPIO_PIN_RESET) {
+    PCAP02_INTN_State = GPIO_PIN_SET;
     // APP_LOG(
     //     TS_OFF, VLEVEL_H,
     //     "[reading %lu @ tick %lu] Read Result on RES1 (ratio of C1 /
-    //     C0)\r\n", INTN_Counter, HAL_GetTick());
+    //     C0)\r\n", PCAP02_INTN_Counter, HAL_GetTick());
     // MyRawRES0 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x00);
     // MyRawRES1 = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ, 0x04);
     result->word = I2C_Read_Result(dev_addr, PCAP02_OPCODE_RESULT_READ,

@@ -153,6 +153,14 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Capacitance Ratio",
             "unit": "pF/pF",
         },
+        SensorType.WATERMARK200SS_SOIL_TENSION: {
+            "name": "Soil Tension",
+            "unit": "kPa",
+        },
+        SensorType.WATERMARK200TS_SOIL_TEMPERATURE: {
+            "name": "Soil Temperature",
+            "unit": "C",
+        },
     }
 
     meta = SENSOR_DATA[SensorType.Value(meas_type)]

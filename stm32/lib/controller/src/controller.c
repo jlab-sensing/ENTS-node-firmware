@@ -24,6 +24,9 @@ void ControllerInit(void) {
   rx->size = buffer_size;
   rx->len = 0;
 
+  // Set EN pin for ESP32.
+  ControllerDeviceEnable();
+
   // TODO(jtmaden): Add check for communication
 }
 
@@ -45,19 +48,26 @@ void ControllerDeinit(void) {
 
 // Note: Must initialize TCA9535 before calling this function.
 void ControllerWakeup(void) {
-  Tca9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_SET);
+  TCA9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_SET);
   // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_SET);
 
   HAL_Delay(50);
 
-  Tca9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
-  // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin, GPIO_PIN_RESET);
+  TCA9535WritePin(TCA9535_WAKEUP_PORT, TCA9535_WAKEUP_PIN, GPIO_PIN_RESET);
+  // HAL_GPIO_WritePin(ESP32_WAKEUP_GPIO_Port, ESP32_WAKEUP_Pin,
+  // GPIO_PIN_RESET);
 
   HAL_Delay(50);
 }
 
 void ControllerDeviceEnable(void) {
   HAL_GPIO_WritePin(ESP32_EN_GPIO_Port, ESP32_EN_Pin, GPIO_PIN_SET);
+
+  // A delay is necessary to give the ESP32 enough time to initialize.
+  // Not recommended to go below 500 ms. ESP32 may fail to receive a
+  // subsequent command when there is <500 ms delay between ESP32_EN
+  // being enabled and the next I2C transaction with the ESP32.
+  HAL_Delay(500);
 }
 
 void ControllerDeviceDisable(void) {

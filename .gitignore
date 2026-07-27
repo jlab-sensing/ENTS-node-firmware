@@ -5,6 +5,12 @@
 tags*
 .DS_Store
 
+# CubeMX
+.cproject
+.mxproject
+.project
+.settings/
+
 # configuration files
 proto/python/src/soil_power_sensor_protobuf/config/Load/*.json
 

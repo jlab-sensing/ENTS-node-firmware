@@ -20,7 +20,7 @@
 #include "modules/wifi_userconfig.hpp"
 
 /** Target device address */
-static const uint8_t dev_addr = 0x20;
+static const uint8_t dev_addr = 0x28;
 /** Serial data pin */
 static const int sda_pin = 0;
 /** Serial clock pin */
@@ -74,8 +74,8 @@ void setup() {
   // Start serial interface
   Serial.begin(115200);
 
-  // Create logging interfface
-  Log.begin(LOG_LEVEL_INFO, &Serial);
+  // Create logging interface
+  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
 
   if (!LittleFS.begin()) {
     Log.errorln("LittleFS mount failed!");

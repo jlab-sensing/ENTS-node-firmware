@@ -1,2 +1,4 @@
 RepeatedSensorMeasurements.measurements max_count: 16
 RepeatedSensorResponses.responses max_count: 16
+
+// SensorType enum_to_string:true // enum_to_string applied globally in Makefile

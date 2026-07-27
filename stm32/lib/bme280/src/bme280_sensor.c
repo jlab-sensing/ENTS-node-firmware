@@ -136,6 +136,10 @@ BME280Status BME280MeasureAll(BME280Data *data) {
 size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   // read sensor
   BME280Data sens_data;
+
+  // TODO: Implement multiple sensors for BME280 where idx specifies primary or secondary address.
+  // BME280Init() determines the I2C/SPI interface and I2C address.
+
   BME280Status status = BME280MeasureAll(&sens_data);
   if (status != BME280_STATUS_OK) {
     return -1;

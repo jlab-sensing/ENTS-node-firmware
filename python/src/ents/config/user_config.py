@@ -28,7 +28,6 @@ from ..proto import encode_user_configuration, decode_user_configuration
 
 
 class Ui_MainWindow(object):
-
     def setupUi(self, MainWindow):
         """
         @brief Sets up the user interface components.

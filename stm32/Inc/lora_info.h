@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    lora_info.h
-  * @author  MCD Application Team
-  * @brief   To give info to the application about LoRaWAN configuration
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    lora_info.h
+ * @author  MCD Application Team
+ * @brief   To give info to the application about LoRaWAN configuration
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 #ifndef __LORA_INFO_H__
@@ -44,12 +44,11 @@ extern "C" {
  * it can depend how it has been compiled (e.g. compiled regions ...)
  * Params should be better uint32_t foe easier alignment with info_table concept
  */
-typedef struct
-{
-  uint32_t ContextManagement;  /*!< 0: not compiled in Mw, 1 : compiled in MW  */
-  uint32_t Region;   /*!< Combination of regions compiled on MW  */
-  uint32_t ClassB;   /*!< 0: not compiled in Mw, 1 : compiled in MW  */
-  uint32_t Kms;      /*!< 0: not compiled in Mw, 1 : compiled in MW  */
+typedef struct {
+  uint32_t ContextManagement; /*!< 0: not compiled in Mw, 1 : compiled in MW  */
+  uint32_t Region;            /*!< Combination of regions compiled on MW  */
+  uint32_t ClassB;            /*!< 0: not compiled in Mw, 1 : compiled in MW  */
+  uint32_t Kms;               /*!< 0: not compiled in Mw, 1 : compiled in MW  */
 } LoraInfo_t;
 
 /* USER CODE BEGIN ET */
@@ -70,14 +69,14 @@ typedef struct
 
 /* Exported functions ------------------------------------------------------- */
 /**
-  * @brief initialize the LoraInfo table
-  */
+ * @brief initialize the LoraInfo table
+ */
 void LoraInfo_Init(void);
 
 /**
-  * @brief returns the pointer to the LoraInfo capabilities table
-  * @retval LoraInfo pointer
-  */
+ * @brief returns the pointer to the LoraInfo capabilities table
+ * @retval LoraInfo pointer
+ */
 LoraInfo_t *LoraInfo_GetPtr(void);
 
 /* USER CODE BEGIN EF */

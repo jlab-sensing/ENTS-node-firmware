@@ -1,6 +1,6 @@
 [![Build stm32](https://github.com/jlab-sensing/ents-node-firmware/actions/workflows/stm32.yaml/badge.svg)](https://github.com/jlab-sensing/ents-node-firmware/actions/workflows/stm32.yaml) [![Test stm32](https://github.com/jlab-sensing/ENTS-node-firmware/actions/workflows/stm32-test.yaml/badge.svg)](https://github.com/jlab-sensing/ENTS-node-firmware/actions/workflows/stm32-test.yaml) [![Build esp32](https://github.com/jlab-sensing/ents-node-firmware/actions/workflows/esp32.yaml/badge.svg)](https://github.com/jlab-sensing/ents-node-firmware/actions/workflows/esp32.yaml) [![Doxygen](https://github.com/jlab-sensing/ents-node-firmware/actions/workflows/docs.yaml/badge.svg)](https://github.com/jlab-sensing/ents-node-firmware/actions/workflows/docs.yaml)
 
-# Environmental NeTworked Sensor (ENTS) Firmware Developer Guide
+# Environmental NeTworked Sensing (ENTS) Firmware Developer Guide
 
 Firmware repository for STM32 and ESP32 microcontrollers on the ENTS-node board along with supporting libraries. This repository acts as the central hub for all repositories related to the project.
 

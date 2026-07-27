@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    utilities_def.h
-  * @author  MCD Application Team
-  * @brief   Definitions for modules requiring utilities
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    utilities_def.h
+ * @author  MCD Application Team
+ * @brief   Definitions for modules requiring utilities
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -34,14 +34,13 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /******************************************************************************
-  * LOW POWER MANAGER
-  ******************************************************************************/
+ * LOW POWER MANAGER
+ ******************************************************************************/
 /**
-  * Supported requester to the MCU Low Power Manager - can be increased up  to 32
-  * It lists a bit mapping of all user of the Low Power Manager
-  */
-typedef enum
-{
+ * Supported requester to the MCU Low Power Manager - can be increased up  to 32
+ * It lists a bit mapping of all user of the Low Power Manager
+ */
+typedef enum {
   /* USER CODE BEGIN CFG_LPM_Id_t_0 */
 
   /* USER CODE END CFG_LPM_Id_t_0 */
@@ -57,11 +56,10 @@ typedef enum
 /*---------------------------------------------------------------------------*/
 
 /**
-  * This is the list of priority required by the application
-  * Each Id shall be in the range 0..31
-  */
-typedef enum
-{
+ * This is the list of priority required by the application
+ * Each Id shall be in the range 0..31
+ */
+typedef enum {
   CFG_SEQ_Prio_0,
   /* USER CODE BEGIN CFG_SEQ_Prio_Id_t */
   CFG_SEQ_Prio_1,
@@ -70,11 +68,10 @@ typedef enum
 } CFG_SEQ_Prio_Id_t;
 
 /**
-  * This is the list of task id required by the application
-  * Each Id shall be in the range 0..31
-  */
-typedef enum
-{
+ * This is the list of task id required by the application
+ * Each Id shall be in the range 0..31
+ */
+typedef enum {
   CFG_SEQ_Task_LmHandlerProcess,
   CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent,
   CFG_SEQ_Task_LoRaStoreContextEvent,

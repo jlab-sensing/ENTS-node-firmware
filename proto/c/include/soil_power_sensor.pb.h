@@ -4,6 +4,7 @@
 #ifndef PB_SOIL_POWER_SENSOR_PB_H_INCLUDED
 #define PB_SOIL_POWER_SENSOR_PB_H_INCLUDED
 #include <pb.h>
+#include "sensor.pb.h"
 
 #if PB_PROTO_HEADER_VERSION != 40
 #error Regenerate this file with the current version of nanopb generator.
@@ -20,7 +21,10 @@ typedef enum _EnabledSensor {
     EnabledSensor_SEN0308 = 6,
     EnabledSensor_SEN0257 = 7,
     EnabledSensor_YFS210C = 8,
-    EnabledSensor_PCAP02 = 9
+    EnabledSensor_PCAP02 = 9,
+    EnabledSensor_D10 = 10,
+    EnabledSensor_WATERMARK200SS = 11,
+    EnabledSensor_WATERMARK200TS = 12
 } EnabledSensor;
 
 typedef enum _Uploadmethod {
@@ -288,6 +292,26 @@ typedef struct _PCAP02Measurement {
     double capacitance;
 } PCAP02Measurement;
 
+/* D10 Water Flow Sensor */
+typedef struct _D10Measurement {
+    /* flow */
+    double flow;
+    uint32_t volumeElapsed;
+    uint32_t timeElapsed;
+} D10Measurement;
+
+/* WATERMARK200SS Soil Tension Sensor */
+typedef struct _WATERMARK200SSMeasurement {
+    /* Soil tension (kPa or cb) */
+    double soil_tension;
+} WATERMARK200SSMeasurement;
+
+/* WATERMARK200TS Soil Temperature Sensor */
+typedef struct _WATERMARK200TSMeasurement {
+    /* Temperature in celcius */
+    double temperature;
+} WATERMARK200TSMeasurement;
+
 /* Top level measurement message */
 typedef struct _Measurement {
     /* Metadata */
@@ -304,6 +328,9 @@ typedef struct _Measurement {
         SEN0257Measurement sen0257;
         YFS210CMeasurement yfs210c;
         PCAP02Measurement pcap02;
+        D10Measurement d10;
+        WATERMARK200SSMeasurement watermark200ss;
+        WATERMARK200TSMeasurement watermark200ts;
     } measurement;
 } Measurement;
 
@@ -366,6 +393,16 @@ typedef struct _PowerCommand {
     uint32_t boot_count;
 } PowerCommand;
 
+typedef struct _adcValue {
+    uint32_t adc;
+} adcValue;
+
+typedef struct _EnabledSensorMultiple {
+    EnabledSensor enabled_sensor;
+    uint32_t cell_id;
+    uint32_t index;
+} EnabledSensorMultiple;
+
 typedef struct _UserConfiguration {
     /* ********* Upload Settings ********* */
     uint32_t logger_id; /* id of the logging device */
@@ -374,7 +411,7 @@ typedef struct _UserConfiguration {
     uint32_t Upload_interval; /* upload time in seconds */
     /* ********* Measurement Settings ********* */
     pb_size_t enabled_sensors_count;
-    EnabledSensor enabled_sensors[5]; /* List of enabled sensors */
+    EnabledSensor enabled_sensors[5]; /* Deprecated */
     double Voltage_Slope; /* Calibration slope for voltage */
     double Voltage_Offset; /* Calibration offset for voltage */
     double Current_Slope; /* Calibration slope for current */
@@ -386,6 +423,8 @@ typedef struct _UserConfiguration {
     /* Deprecated
  Embedded into the endpoint URL */
     uint32_t API_Endpoint_Port;
+    pb_size_t enabled_sensors_multiple_count;
+    EnabledSensorMultiple enabled_sensors_multiple[16]; /* List of enabled sensors */
 } UserConfiguration;
 
 typedef struct _UserConfigCommand {
@@ -396,6 +435,7 @@ typedef struct _UserConfigCommand {
     UserConfiguration config_data;
 } UserConfigCommand;
 
+typedef PB_BYTES_ARRAY_T(256) MicroSDCommand_raw_data_t;
 typedef struct _MicroSDCommand {
     /* Command type */
     MicroSDCommand_Type type;
@@ -405,10 +445,16 @@ typedef struct _MicroSDCommand {
     MicroSDCommand_ReturnCode rc;
     pb_size_t which_data;
     union {
-        /* measurement to be saved */
+        /* Deprecated, use SensorMeasurement instead. (measurement to be saved) */
         Measurement meas;
         /* userConfig to be saved */
         UserConfiguration uc;
+        /* sensor measurement */
+        SensorMeasurement sensor_measurement;
+        /* repeated sensor measurements */
+        RepeatedSensorMeasurements repeated_sensor_measurements;
+        /* raw bytes to be written. May contain error return messages. */
+        MicroSDCommand_raw_data_t raw_data;
     } data;
 } MicroSDCommand;
 
@@ -425,10 +471,6 @@ typedef struct _Esp32Command {
     } command;
 } Esp32Command;
 
-typedef struct _adcValue {
-    uint32_t adc;
-} adcValue;
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -436,56 +478,72 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _EnabledSensor_MIN EnabledSensor_Voltage
-#define _EnabledSensor_MAX EnabledSensor_PCAP02
-#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_PCAP02+1))
+#define _EnabledSensor_MAX EnabledSensor_WATERMARK200TS
+#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_WATERMARK200TS+1))
+const char *EnabledSensor_name(EnabledSensor v);
 
 #define _Uploadmethod_MIN Uploadmethod_LoRa
 #define _Uploadmethod_MAX Uploadmethod_WiFi
 #define _Uploadmethod_ARRAYSIZE ((Uploadmethod)(Uploadmethod_WiFi+1))
+const char *Uploadmethod_name(Uploadmethod v);
 
 #define _Response_ResponseType_MIN Response_ResponseType_SUCCESS
 #define _Response_ResponseType_MAX Response_ResponseType_ERROR
 #define _Response_ResponseType_ARRAYSIZE ((Response_ResponseType)(Response_ResponseType_ERROR+1))
+const char *Response_ResponseType_name(Response_ResponseType v);
 
 #define _PageCommand_RequestType_MIN PageCommand_RequestType_OPEN
 #define _PageCommand_RequestType_MAX PageCommand_RequestType_WRITE
 #define _PageCommand_RequestType_ARRAYSIZE ((PageCommand_RequestType)(PageCommand_RequestType_WRITE+1))
+const char *PageCommand_RequestType_name(PageCommand_RequestType v);
 
 #define _TestCommand_ChangeState_MIN TestCommand_ChangeState_RECEIVE
 #define _TestCommand_ChangeState_MAX TestCommand_ChangeState_REQUEST
 #define _TestCommand_ChangeState_ARRAYSIZE ((TestCommand_ChangeState)(TestCommand_ChangeState_REQUEST+1))
+const char *TestCommand_ChangeState_name(TestCommand_ChangeState v);
 
 #define _WiFiCommand_Type_MIN WiFiCommand_Type_CONNECT
 #define _WiFiCommand_Type_MAX WiFiCommand_Type_HOST_INFO
 #define _WiFiCommand_Type_ARRAYSIZE ((WiFiCommand_Type)(WiFiCommand_Type_HOST_INFO+1))
+const char *WiFiCommand_Type_name(WiFiCommand_Type v);
 
 #define _UserConfigCommand_RequestType_MIN UserConfigCommand_RequestType_REQUEST_CONFIG
 #define _UserConfigCommand_RequestType_MAX UserConfigCommand_RequestType_START
 #define _UserConfigCommand_RequestType_ARRAYSIZE ((UserConfigCommand_RequestType)(UserConfigCommand_RequestType_START+1))
+const char *UserConfigCommand_RequestType_name(UserConfigCommand_RequestType v);
 
 #define _MicroSDCommand_Type_MIN MicroSDCommand_Type_SAVE
 #define _MicroSDCommand_Type_MAX MicroSDCommand_Type_USERCONFIG
 #define _MicroSDCommand_Type_ARRAYSIZE ((MicroSDCommand_Type)(MicroSDCommand_Type_USERCONFIG+1))
+const char *MicroSDCommand_Type_name(MicroSDCommand_Type v);
 
 #define _MicroSDCommand_ReturnCode_MIN MicroSDCommand_ReturnCode_SUCCESS
 #define _MicroSDCommand_ReturnCode_MAX MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED
 #define _MicroSDCommand_ReturnCode_ARRAYSIZE ((MicroSDCommand_ReturnCode)(MicroSDCommand_ReturnCode_ERROR_FILE_NOT_OPENED+1))
+const char *MicroSDCommand_ReturnCode_name(MicroSDCommand_ReturnCode v);
 
 #define _IrrigationCommand_Type_MIN IrrigationCommand_Type_CHECK
 #define _IrrigationCommand_Type_MAX IrrigationCommand_Type_CHECK
 #define _IrrigationCommand_Type_ARRAYSIZE ((IrrigationCommand_Type)(IrrigationCommand_Type_CHECK+1))
+const char *IrrigationCommand_Type_name(IrrigationCommand_Type v);
 
 #define _IrrigationCommand_State_MIN IrrigationCommand_State_OPEN
 #define _IrrigationCommand_State_MAX IrrigationCommand_State_CLOSE
 #define _IrrigationCommand_State_ARRAYSIZE ((IrrigationCommand_State)(IrrigationCommand_State_CLOSE+1))
+const char *IrrigationCommand_State_name(IrrigationCommand_State v);
 
 #define _PowerCommand_Type_MIN PowerCommand_Type_SLEEP
 #define _PowerCommand_Type_MAX PowerCommand_Type_WAKEUP
 #define _PowerCommand_Type_ARRAYSIZE ((PowerCommand_Type)(PowerCommand_Type_WAKEUP+1))
+const char *PowerCommand_Type_name(PowerCommand_Type v);
 
 #define _PowerCommand_WakeupReason_MIN PowerCommand_WakeupReason_POWER_WAKEUP_EXT0
 #define _PowerCommand_WakeupReason_MAX PowerCommand_WakeupReason_POWER_WAKEUP_BT
 #define _PowerCommand_WakeupReason_ARRAYSIZE ((PowerCommand_WakeupReason)(PowerCommand_WakeupReason_POWER_WAKEUP_BT+1))
+const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
+
+
+
 
 
 
@@ -529,6 +587,8 @@ extern "C" {
 #define UserConfiguration_enabled_sensors_ENUMTYPE EnabledSensor
 
 
+#define EnabledSensorMultiple_enabled_sensor_ENUMTYPE EnabledSensor
+
 
 /* Initializer values for message structs */
 #define MeasurementMetadata_init_default         {0, 0, 0}
@@ -548,6 +608,9 @@ extern "C" {
 #define SEN0257Measurement_init_default          {0, 0}
 #define YFS210CMeasurement_init_default          {0}
 #define PCAP02Measurement_init_default           {0}
+#define D10Measurement_init_default              {0, 0, 0}
+#define WATERMARK200SSMeasurement_init_default   {0}
+#define WATERMARK200TSMeasurement_init_default   {0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
@@ -558,8 +621,9 @@ extern "C" {
 #define MicroSDCommand_init_default              {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_default}}
 #define IrrigationCommand_init_default           {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
 #define PowerCommand_init_default                {_PowerCommand_Type_MIN, _PowerCommand_WakeupReason_MIN, 0}
-#define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
+#define UserConfiguration_init_default           {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0, 0, {EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default, EnabledSensorMultiple_init_default}}
 #define adcValue_init_default                    {0}
+#define EnabledSensorMultiple_init_default       {_EnabledSensor_MIN, 0, 0}
 #define MeasurementMetadata_init_zero            {0, 0, 0}
 #define PowerMeasurement_init_zero               {0, 0}
 #define VoltageDeltaMeasurement_init_zero        {0}
@@ -577,6 +641,9 @@ extern "C" {
 #define SEN0257Measurement_init_zero             {0, 0}
 #define YFS210CMeasurement_init_zero             {0}
 #define PCAP02Measurement_init_zero              {0}
+#define D10Measurement_init_zero                 {0, 0, 0}
+#define WATERMARK200SSMeasurement_init_zero      {0}
+#define WATERMARK200TSMeasurement_init_zero      {0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
@@ -587,8 +654,9 @@ extern "C" {
 #define MicroSDCommand_init_zero                 {_MicroSDCommand_Type_MIN, "", _MicroSDCommand_ReturnCode_MIN, 0, {Measurement_init_zero}}
 #define IrrigationCommand_init_zero              {_IrrigationCommand_Type_MIN, _IrrigationCommand_State_MIN}
 #define PowerCommand_init_zero                   {_PowerCommand_Type_MIN, _PowerCommand_WakeupReason_MIN, 0}
-#define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0}
+#define UserConfiguration_init_zero              {0, 0, _Uploadmethod_MIN, 0, 0, {_EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN, _EnabledSensor_MIN}, 0, 0, 0, 0, "", "", "", 0, 0, {EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero, EnabledSensorMultiple_init_zero}}
 #define adcValue_init_zero                       {0}
+#define EnabledSensorMultiple_init_zero          {_EnabledSensor_MIN, 0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define MeasurementMetadata_cell_id_tag          1
@@ -625,6 +693,11 @@ extern "C" {
 #define SEN0257Measurement_pressure_tag          2
 #define YFS210CMeasurement_flow_tag              1
 #define PCAP02Measurement_capacitance_tag        1
+#define D10Measurement_flow_tag                  1
+#define D10Measurement_volumeElapsed_tag         2
+#define D10Measurement_timeElapsed_tag           3
+#define WATERMARK200SSMeasurement_soil_tension_tag 1
+#define WATERMARK200TSMeasurement_temperature_tag 1
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -635,6 +708,9 @@ extern "C" {
 #define Measurement_sen0257_tag                  8
 #define Measurement_yfs210c_tag                  9
 #define Measurement_pcap02_tag                   10
+#define Measurement_d10_tag                      11
+#define Measurement_watermark200ss_tag           12
+#define Measurement_watermark200ts_tag           13
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -657,6 +733,10 @@ extern "C" {
 #define PowerCommand_type_tag                    1
 #define PowerCommand_reason_tag                  2
 #define PowerCommand_boot_count_tag              3
+#define adcValue_adc_tag                         1
+#define EnabledSensorMultiple_enabled_sensor_tag 1
+#define EnabledSensorMultiple_cell_id_tag        2
+#define EnabledSensorMultiple_index_tag          3
 #define UserConfiguration_logger_id_tag          1
 #define UserConfiguration_cell_id_tag            2
 #define UserConfiguration_Upload_method_tag      3
@@ -670,6 +750,7 @@ extern "C" {
 #define UserConfiguration_WiFi_Password_tag      11
 #define UserConfiguration_API_Endpoint_URL_tag   12
 #define UserConfiguration_API_Endpoint_Port_tag  13
+#define UserConfiguration_enabled_sensors_multiple_tag 14
 #define UserConfigCommand_type_tag               1
 #define UserConfigCommand_config_data_tag        2
 #define MicroSDCommand_type_tag                  1
@@ -677,6 +758,9 @@ extern "C" {
 #define MicroSDCommand_rc_tag                    3
 #define MicroSDCommand_meas_tag                  4
 #define MicroSDCommand_uc_tag                    5
+#define MicroSDCommand_sensor_measurement_tag    6
+#define MicroSDCommand_repeated_sensor_measurements_tag 7
+#define MicroSDCommand_raw_data_tag              8
 #define Esp32Command_page_command_tag            1
 #define Esp32Command_test_command_tag            2
 #define Esp32Command_wifi_command_tag            3
@@ -684,7 +768,6 @@ extern "C" {
 #define Esp32Command_irrigation_command_tag      5
 #define Esp32Command_user_config_command_tag     6
 #define Esp32Command_power_command_tag           7
-#define adcValue_adc_tag                         1
 
 /* Struct field encoding specification for nanopb */
 #define MeasurementMetadata_FIELDLIST(X, a) \
@@ -790,6 +873,23 @@ X(a, STATIC,   SINGULAR, DOUBLE,   capacitance,       1)
 #define PCAP02Measurement_CALLBACK NULL
 #define PCAP02Measurement_DEFAULT NULL
 
+#define D10Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   flow,              1) \
+X(a, STATIC,   SINGULAR, UINT32,   volumeElapsed,     2) \
+X(a, STATIC,   SINGULAR, UINT32,   timeElapsed,       3)
+#define D10Measurement_CALLBACK NULL
+#define D10Measurement_DEFAULT NULL
+
+#define WATERMARK200SSMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   soil_tension,      1)
+#define WATERMARK200SSMeasurement_CALLBACK NULL
+#define WATERMARK200SSMeasurement_DEFAULT NULL
+
+#define WATERMARK200TSMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   temperature,       1)
+#define WATERMARK200TSMeasurement_CALLBACK NULL
+#define WATERMARK200TSMeasurement_DEFAULT NULL
+
 #define Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power,measurement.power),   2) \
@@ -800,7 +900,10 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,teros21,measurement.teros21),   
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0308,measurement.sen0308),   7) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   9) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,d10,measurement.d10),  11) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ss,measurement.watermark200ss),  12) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ts,measurement.watermark200ts),  13)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -813,6 +916,9 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10)
 #define Measurement_measurement_sen0257_MSGTYPE SEN0257Measurement
 #define Measurement_measurement_yfs210c_MSGTYPE YFS210CMeasurement
 #define Measurement_measurement_pcap02_MSGTYPE PCAP02Measurement
+#define Measurement_measurement_d10_MSGTYPE D10Measurement
+#define Measurement_measurement_watermark200ss_MSGTYPE WATERMARK200SSMeasurement
+#define Measurement_measurement_watermark200ts_MSGTYPE WATERMARK200TSMeasurement
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
@@ -877,11 +983,16 @@ X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
 X(a, STATIC,   SINGULAR, STRING,   filename,          2) \
 X(a, STATIC,   SINGULAR, UENUM,    rc,                3) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (data,meas,data.meas),   4) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (data,uc,data.uc),   5)
+X(a, STATIC,   ONEOF,    MESSAGE,  (data,uc,data.uc),   5) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (data,sensor_measurement,data.sensor_measurement),   6) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (data,repeated_sensor_measurements,data.repeated_sensor_measurements),   7) \
+X(a, STATIC,   ONEOF,    BYTES,    (data,raw_data,data.raw_data),   8)
 #define MicroSDCommand_CALLBACK NULL
 #define MicroSDCommand_DEFAULT NULL
 #define MicroSDCommand_data_meas_MSGTYPE Measurement
 #define MicroSDCommand_data_uc_MSGTYPE UserConfiguration
+#define MicroSDCommand_data_sensor_measurement_MSGTYPE SensorMeasurement
+#define MicroSDCommand_data_repeated_sensor_measurements_MSGTYPE RepeatedSensorMeasurements
 
 #define IrrigationCommand_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    type,              1) \
@@ -909,14 +1020,23 @@ X(a, STATIC,   SINGULAR, DOUBLE,   Current_Offset,    9) \
 X(a, STATIC,   SINGULAR, STRING,   WiFi_SSID,        10) \
 X(a, STATIC,   SINGULAR, STRING,   WiFi_Password,    11) \
 X(a, STATIC,   SINGULAR, STRING,   API_Endpoint_URL,  12) \
-X(a, STATIC,   SINGULAR, UINT32,   API_Endpoint_Port,  13)
+X(a, STATIC,   SINGULAR, UINT32,   API_Endpoint_Port,  13) \
+X(a, STATIC,   REPEATED, MESSAGE,  enabled_sensors_multiple,  14)
 #define UserConfiguration_CALLBACK NULL
 #define UserConfiguration_DEFAULT NULL
+#define UserConfiguration_enabled_sensors_multiple_MSGTYPE EnabledSensorMultiple
 
 #define adcValue_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   adc,               1)
 #define adcValue_CALLBACK NULL
 #define adcValue_DEFAULT NULL
+
+#define EnabledSensorMultiple_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    enabled_sensor,    1) \
+X(a, STATIC,   SINGULAR, UINT32,   cell_id,           2) \
+X(a, STATIC,   SINGULAR, UINT32,   index,             3)
+#define EnabledSensorMultiple_CALLBACK NULL
+#define EnabledSensorMultiple_DEFAULT NULL
 
 extern const pb_msgdesc_t MeasurementMetadata_msg;
 extern const pb_msgdesc_t PowerMeasurement_msg;
@@ -935,6 +1055,9 @@ extern const pb_msgdesc_t SEN0308Measurement_msg;
 extern const pb_msgdesc_t SEN0257Measurement_msg;
 extern const pb_msgdesc_t YFS210CMeasurement_msg;
 extern const pb_msgdesc_t PCAP02Measurement_msg;
+extern const pb_msgdesc_t D10Measurement_msg;
+extern const pb_msgdesc_t WATERMARK200SSMeasurement_msg;
+extern const pb_msgdesc_t WATERMARK200TSMeasurement_msg;
 extern const pb_msgdesc_t Measurement_msg;
 extern const pb_msgdesc_t Response_msg;
 extern const pb_msgdesc_t Esp32Command_msg;
@@ -947,6 +1070,7 @@ extern const pb_msgdesc_t IrrigationCommand_msg;
 extern const pb_msgdesc_t PowerCommand_msg;
 extern const pb_msgdesc_t UserConfiguration_msg;
 extern const pb_msgdesc_t adcValue_msg;
+extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define MeasurementMetadata_fields &MeasurementMetadata_msg
@@ -966,6 +1090,9 @@ extern const pb_msgdesc_t adcValue_msg;
 #define SEN0257Measurement_fields &SEN0257Measurement_msg
 #define YFS210CMeasurement_fields &YFS210CMeasurement_msg
 #define PCAP02Measurement_fields &PCAP02Measurement_msg
+#define D10Measurement_fields &D10Measurement_msg
+#define WATERMARK200SSMeasurement_fields &WATERMARK200SSMeasurement_msg
+#define WATERMARK200TSMeasurement_fields &WATERMARK200TSMeasurement_msg
 #define Measurement_fields &Measurement_msg
 #define Response_fields &Response_msg
 #define Esp32Command_fields &Esp32Command_msg
@@ -978,17 +1105,20 @@ extern const pb_msgdesc_t adcValue_msg;
 #define PowerCommand_fields &PowerCommand_msg
 #define UserConfiguration_fields &UserConfiguration_msg
 #define adcValue_fields &adcValue_msg
+#define EnabledSensorMultiple_fields &EnabledSensorMultiple_msg
 
 /* Maximum encoded size of messages (where known) */
 /* RepeatedPowerDeltas_size depends on runtime parameters */
 #define BME280Measurement_size                   23
 #define CurrentDeltaMeasurement_size             6
 #define CurrentMeasurement_size                  9
-#define Esp32Command_size                        632
+#define D10Measurement_size                      21
+#define EnabledSensorMultiple_size               14
+#define Esp32Command_size                        946
 #define IrrigationCommand_size                   4
 #define MeasurementMetadata_size                 18
 #define Measurement_size                         55
-#define MicroSDCommand_size                      503
+#define MicroSDCommand_size                      943
 #define PCAP02Measurement_size                   9
 #define PageCommand_size                         20
 #define Phytos31Measurement_size                 18
@@ -1003,10 +1133,12 @@ extern const pb_msgdesc_t adcValue_msg;
 #define Teros12Measurement_size                  33
 #define Teros21Measurement_size                  18
 #define TestCommand_size                         13
-#define UserConfigCommand_size                   243
-#define UserConfiguration_size                   238
+#define UserConfigCommand_size                   499
+#define UserConfiguration_size                   494
 #define VoltageDeltaMeasurement_size             6
 #define VoltageMeasurement_size                  9
+#define WATERMARK200SSMeasurement_size           9
+#define WATERMARK200TSMeasurement_size           9
 #define WiFiCommand_size                         629
 #define YFS210CMeasurement_size                  9
 #define adcValue_size                            6

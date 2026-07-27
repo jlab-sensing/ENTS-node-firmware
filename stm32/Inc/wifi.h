@@ -1,12 +1,12 @@
 /**
  * @file wifi.h
  * @author John Madden (jmadden173@pm.me)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-10-07
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 
 #ifndef INC_WIFI_H_

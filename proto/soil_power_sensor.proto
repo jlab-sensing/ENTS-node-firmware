@@ -13,6 +13,8 @@
 
 syntax = "proto3";
 
+import "sensor.proto";
+
 /* Data shared between all measurement messages */
 message MeasurementMetadata {
   // id of the cell measured
@@ -170,6 +172,26 @@ message PCAP02Measurement {
   double capacitance = 1;
 }
 
+/* D10 Water Flow Sensor */
+message D10Measurement {
+  // flow
+  double flow = 1;
+  uint32 volumeElapsed = 2;
+  uint32 timeElapsed = 3;
+}
+
+/* WATERMARK200SS Soil Tension Sensor */
+message WATERMARK200SSMeasurement {
+  // Soil tension (kPa or cb)
+  double soil_tension = 1;
+}
+
+/* WATERMARK200TS Soil Temperature Sensor */
+message WATERMARK200TSMeasurement {
+  // Temperature in celcius
+  double temperature = 1;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -186,6 +208,9 @@ message Measurement {
     SEN0257Measurement sen0257 = 8;
     YFS210CMeasurement yfs210c = 9;
     PCAP02Measurement pcap02 = 10;
+    D10Measurement d10 = 11;
+    WATERMARK200SSMeasurement watermark200ss = 12;
+    WATERMARK200TSMeasurement watermark200ts = 13;
   }
 }
 
@@ -345,10 +370,16 @@ message MicroSDCommand {
   ReturnCode rc = 3;
 
   oneof data {
-    /* measurement to be saved */
+    /* Deprecated, use SensorMeasurement instead. (measurement to be saved) */
     Measurement meas = 4;
     /* userConfig to be saved */
     UserConfiguration uc = 5;
+    /* sensor measurement */
+    SensorMeasurement sensor_measurement = 6;
+    /* repeated sensor measurements */
+    RepeatedSensorMeasurements repeated_sensor_measurements = 7;
+    /* raw bytes to be written. May contain error return messages. */
+    bytes raw_data = 8;
   }
 }
 
@@ -406,11 +437,13 @@ message UserConfiguration {
   uint32 Upload_interval = 4;      // upload time in seconds
 
   /********** Measurement Settings **********/
-  repeated EnabledSensor enabled_sensors = 5;  // List of enabled sensors
-  double Voltage_Slope = 6;                    // Calibration slope for voltage
-  double Voltage_Offset = 7;                   // Calibration offset for voltage
-  double Current_Slope = 8;                    // Calibration slope for current
-  double Current_Offset = 9;                   // Calibration offset for current
+  repeated EnabledSensor enabled_sensors = 5;  // Deprecated
+  repeated EnabledSensorMultiple enabled_sensors_multiple =
+      14;                     // List of enabled sensors
+  double Voltage_Slope = 6;   // Calibration slope for voltage
+  double Voltage_Offset = 7;  // Calibration offset for voltage
+  double Current_Slope = 8;   // Calibration slope for current
+  double Current_Offset = 9;  // Calibration offset for current
 
   /********** WiFi Settings **********/
   string WiFi_SSID = 10;
@@ -426,6 +459,12 @@ message adcValue {
   uint32 adc = 1;
 }
 
+message EnabledSensorMultiple {
+  EnabledSensor enabled_sensor = 1;
+  uint32 cell_id = 2;
+  uint32 index = 3;
+}
+
 enum EnabledSensor {
   Voltage = 0;
   Current = 1;
@@ -437,6 +476,9 @@ enum EnabledSensor {
   SEN0257 = 7;
   YFS210C = 8;
   PCAP02 = 9;
+  D10 = 10;
+  WATERMARK200SS = 11;
+  WATERMARK200TS = 12;
 }
 
 enum Uploadmethod {

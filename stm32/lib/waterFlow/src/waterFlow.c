@@ -27,12 +27,12 @@
 #define FLOW_AVG_COUNT 5
 
 // Variables
+extern volatile uint32_t pulse_count; // Managed by GPIO interrupt in stm32wlxx_it.c
 static volatile float last_flow_lpm = 0;
-volatile unsigned long pulse_count = 0;
-SysTime_t currentTime;
-SysTime_t lastTime;
+static SysTime_t currentTime;
+static SysTime_t lastTime;
 static volatile float flow_history[FLOW_AVG_COUNT] = {0};
-uint8_t flow_index = 0;
+static uint8_t flow_index = 0;
 
 // For every one liter of water that passes through the sensor in one minute,
 // there are 450 pulses. Therefore the calibration factor becomes [450/60 = 7.5]
@@ -41,21 +41,20 @@ const float calibration_factor = 7.5;
 void FlowInit() {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  // Configure PA10 as rising edge EXTI input (water flow sensor output)
-  __HAL_RCC_GPIOA_CLK_ENABLE();  // Enable  clock for port A
+  __HAL_RCC_GPIOx_CLK_ENABLE(YFS201C_GPIO_Port);
 
   // reset pins
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(YFS201C_GPIO_Port, YFS201C_Pin, GPIO_PIN_RESET);
 
-  // Configure PIN 10 on Port A (GPIO input)
-  GPIO_InitStruct.Pin = GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;  // interrupt on rising edge
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  // Configure PIN 9 on Port B (GPIO input)
+  GPIO_InitStruct.Pin = YFS201C_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(YFS201C_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+  HAL_NVIC_SetPriority(YFS201C_EXTI_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(YFS201C_EXTI_IRQn);
 
   // Get INIT Times
   currentTime = SysTimeGet();

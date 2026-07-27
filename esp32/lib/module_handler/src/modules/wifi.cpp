@@ -267,6 +267,10 @@ void ModuleWiFi::Host(const Esp32Command &cmd) {
   std::string ssid = cmd.command.wifi_command.ssid;
   std::string pass = cmd.command.wifi_command.passwd;
 
+  // TODO: Consider WIFI_MODE_APSTA for simultaneous AP (to provide user
+  // config modifications) and STA (for internet connection & uploading
+  // during the 60-120 seconds after boot that the user config is open.
+  WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid.c_str(), pass.c_str());
 
   std::string ip = WiFi.softAPIP().toString().c_str();

@@ -69,7 +69,7 @@ class ModulePower : public Module {
   const gpio_num_t wakeup_pin = GPIO_NUM_3;
 
   /** Buffer for i2c requests */
-  uint8_t request_buffer[WiFiCommand_size] = {};
+  uint8_t request_buffer[PowerCommand_size] = {};
   size_t request_buffer_len = 0;
 };
 

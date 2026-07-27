@@ -6,7 +6,7 @@
  *           the waterFlow.c file.
  *
  *           This library is designed to read measurements from a Water Flow
- *           Sensor 
+ *           Sensor
  *           https://www.danomsk.ru/upload/iblock/43d/193917_3b664efb7b37f7ae8ea1eea40978a265.pdf
  * @note     Interrupt callback located in lora_app.c.
  * @date     7/31/2025
