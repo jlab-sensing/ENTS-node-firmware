@@ -505,7 +505,7 @@ static void SendTxData(void) {
     } else {
       APP_LOG(TS_OFF, VLEVEL_M,
               "Could not sync clock, retrying on next tx\r\n");
-      clock_synced = true;
+      // clock_synced = true;
     }
     // otherwise return
     return;
