@@ -158,7 +158,7 @@ def get_sensor_data(meas_type: int) -> dict:
             "unit": "gal/min",
         },
         SensorType.D10_VOLUME_ELAPSED : {
-            "name": Volumne Elapsed",
+            "name": "Volume Elapsed",
             "unit": "gal",
         },
         SensorType.D10_TIME_ELAPSED : {
