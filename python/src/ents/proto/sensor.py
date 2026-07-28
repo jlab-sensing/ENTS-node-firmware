@@ -153,6 +153,18 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Capacitance Ratio",
             "unit": "pF/pF",
         },
+        SensorType.D10_FLOW: {
+            "name": "Flow rate",
+            "unit": "gal/min",
+        },
+        SensorType.D10_VOLUME_ELAPSED : {
+            "name": Volumne Elapsed",
+            "unit": "gal",
+        },
+        SensorType.D10_TIME_ELAPSED : {
+            "name": "Time Elapsed",
+            "unit": "s",
+        },
         SensorType.WATERMARK200SS_SOIL_TENSION: {
             "name": "Soil Tension",
             "unit": "kPa",
