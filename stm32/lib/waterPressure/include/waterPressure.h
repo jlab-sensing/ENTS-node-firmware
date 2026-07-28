@@ -21,17 +21,18 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ads.h"
+#include "transcoder.h"
+#include "systime.h"
 
 /**
  ******************************************************************************
  * @brief    Wrapper function for the ADC initilization.
  *
  * @param    void
- * @return   HAL_StatusTypeDef
+ * @return   void
  ******************************************************************************
  */
-HAL_StatusTypeDef PressureInit(void);
+void PressureInit(void);
 
 /**
  ******************************************************************************

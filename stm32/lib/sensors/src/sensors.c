@@ -155,7 +155,7 @@ void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
   if (status == FRAM_BUFFER_FULL) {
     APP_LOG(TS_ON, VLEVEL_M, "Error: TX Buffer full!\r\n");
   } else if (status != FRAM_OK) {
-    APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
+    APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer! %d\r\n", status);
   }
 }
 

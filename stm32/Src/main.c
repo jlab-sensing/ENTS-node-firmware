@@ -41,8 +41,9 @@
 #include "teros21.h"
 #include "userConfig.h"
 #include "user_config.h"
-#include "waterFlow.h"
+#include "waterFlowD10.h"
 #include "waterPressure.h"
+#include "watermark.h"
 #include "wifi.h"
 
 // Board configuration - define ONLY ONE of these
@@ -129,10 +130,13 @@ int main(void) {
   // Print warning when using TEST_USER_CONFIG
 #ifdef TEST_USER_CONFIG
   APP_LOG(TS_OFF, VLEVEL_M, "WARNING: TEST_USER_CONFIG is enabled!\n");
-#endif  // TEST_USER_CONFIG
-
+  const UserConfiguration* cfg = UserConfigGet();
+  UserConfigPrintAny(cfg);
+  UserConfigSave(cfg);
+#else
   UserConfigStart(120);
   const UserConfiguration* cfg = UserConfigGet();
+#endif  // TEST_USER_CONFIG
 
   // initialize the user config interrupt
   // UserConfig_InitAdvanceTrace();
@@ -145,6 +149,21 @@ int main(void) {
 
   // init senors interface
   SensorsInit();
+
+  if (0) {
+    Watermark200SSVA3_Init();
+    SensorsAdd(Watermark200SSVA3_measure);
+    APP_LOG(TS_OFF, VLEVEL_M, "Watermark 200SS-VA3 Enabled!\n");
+  }
+
+  if (1) {
+    FlowInit();
+    SensorsAdd(WatFlow_measure);
+    APP_LOG(TS_OFF, VLEVEL_M, "Water flow D10 enabled!\n");
+    PressureInit();
+    SensorsAdd(WatPress_measure);
+    APP_LOG(TS_OFF, VLEVEL_M, "Water pressure SEN0257 enabled!\n");
+  }
 
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_multiple_count; i++) {

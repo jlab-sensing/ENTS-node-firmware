@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "adc.h"
 #include "sensor.h"
 #include "sensors.h"
 #include "transcoder.h"
@@ -24,11 +25,23 @@
 // Measured when the sensor is at atmospheric pressure (not submerged)
 const double AtmosphericOffset = 2.065;
 
-HAL_StatusTypeDef PressureInit() { return ADC_init(); }
+void PressureInit() {
+  MX_ADC_Init();
 
-SEN0257Measurement PressureGetMeasurement() {
+  // B14 == p21 == channel 1
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pin = GPIO_PIN_14;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
+
+SEN0257Measurement PressureGetMeasurement(void) {
   SEN0257Measurement waterPressMeas;
-  waterPressMeas.voltage = ADC_readVoltage();
+  uint32_t value_raw = ADC_Convert_Single(ADC_CHANNEL_1);
+  double value_voltage = (double)value_raw * 3.3 / ((1 << 12) - 1);
+
+  waterPressMeas.voltage = value_voltage;
 
   // Calibration: 250kPa range with 0.5V-4.5V output
   // Pressure (kPa) = (Vout - Voffset) * (250kPa / (4.5V - 0.5V))
@@ -69,7 +82,7 @@ size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   if (status != SENSOR_OK) {
     return -1;
   }
-  
+
   // return number of bytes in serialized measurement
   return data_len;
 }

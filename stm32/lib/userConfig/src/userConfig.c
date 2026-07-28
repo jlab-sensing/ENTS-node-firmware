@@ -30,13 +30,13 @@ static bool checked;
 
 #ifdef TEST_USER_CONFIG
 const static UserConfiguration testConfig = {
-    .logger_id = 200,
-    .cell_id = 200,
-    .Upload_method = Uploadmethod_WiFi,
-    .Upload_interval = 10,
+    .logger_id = 1232,
+    .cell_id = 2595,
+    .Upload_method = Uploadmethod_LoRa,
+    .Upload_interval = 30,
     .enabled_sensors_multiple_count = 2,
-    .enabled_sensors_multiple = {{EnabledSensor_Voltage, 200, 0},
-                                 {EnabledSensor_Current, 200, 0}},
+    .enabled_sensors_multiple = {{EnabledSensor_D10, 2595, 0},
+                                 {EnabledSensor_SEN0257, 2595, 0}},
     // calibration values are taken from 2.2.3-033
     .Voltage_Slope = -0.00039326,
     .Voltage_Offset = 4.92916378e-05,
@@ -330,6 +330,9 @@ void UserConfigPrintAny(const UserConfiguration *config) {
     APP_PRINTF(
         "Enabled Sensor %d: %s\r\n", i + 1,
         EnabledSensor_name(config->enabled_sensors_multiple[i].enabled_sensor));
+    APP_PRINTF("\tCell ID: %d\r\n",
+               config->enabled_sensors_multiple[i].cell_id);
+    APP_PRINTF("\tIndex: %d\r\n", config->enabled_sensors_multiple[i].index);
   }
 
   char float_str[100];
