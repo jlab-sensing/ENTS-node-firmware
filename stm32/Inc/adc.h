@@ -42,6 +42,18 @@ void MX_ADC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+/**
+ * @brief  Read a single ADC channel.
+ * @note   Sets the channel to be rank 1, then performs a single-shot conversion
+ *         (halting after the first conversion). Does not restore the original
+ *         ADC channel rank.
+ * @note   ADC must be initialized as single-shot (non-continuous) with ECO set
+ *         to ADC_EOC_SINGLE_CONV.
+ * @param channel Channel number e.g. ADC_CHANNEL_11.
+ * @retval ADC reading.
+ */
+uint16_t ADC_Convert_Single(uint32_t channel);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

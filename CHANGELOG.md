@@ -13,10 +13,14 @@ firmware versions for a hardware version.
 ### Added
 
 - Additional information on web userconfig interface [#308](pr308)
+- Added new sensors:
+    - Watermark 200SS
+    - Watermark 200TS
 
 ### Updated
 
 - Teros12 outputs in percentage rather than decimal
+- `lora_app.c` modified to retry LoRa clock sync if unsuccessful on the first try.
 
 [pr308]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/308
 

@@ -51,7 +51,7 @@ void MX_ADC_Init(void)
   hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc.Init.LowPowerAutoWait = DISABLE;
   hadc.Init.LowPowerAutoPowerOff = DISABLE;
-  hadc.Init.ContinuousConvMode = ENABLE;
+  hadc.Init.ContinuousConvMode = DISABLE;
   hadc.Init.NbrOfConversion = 3;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
@@ -69,18 +69,18 @@ void MX_ADC_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_0;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
+  // sConfig.Channel = ADC_CHANNEL_0;
+  // sConfig.Rank = ADC_REGULAR_RANK_3;
   sConfig.SamplingTime = ADC_SAMPLINGTIME_COMMON_1;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  // if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  // {
+  //   Error_Handler();
+  // }
 
   /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -89,7 +89,7 @@ void MX_ADC_Init(void)
   /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_VREFINT;
-  sConfig.Rank = ADC_REGULAR_RANK_3;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -103,7 +103,7 @@ void MX_ADC_Init(void)
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  // GPIO_InitTypeDef GPIO_InitStruct = {0};
   if(adcHandle->Instance==ADC)
   {
   /* USER CODE BEGIN ADC_MspInit 0 */
@@ -119,33 +119,33 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PB4     ------> ADC_IN3
     PB13     ------> ADC_IN0
     */
-    GPIO_InitStruct.Pin = VBAT_DIV_2_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(VBAT_DIV_2_GPIO_Port, &GPIO_InitStruct);
+    // GPIO_InitStruct.Pin = VBAT_DIV_2_Pin;
+    // GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    // GPIO_InitStruct.Pull = GPIO_NOPULL;
+    // HAL_GPIO_Init(VBAT_DIV_2_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_4|USER_BUTTON_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    // GPIO_InitStruct.Pin = GPIO_PIN_4|USER_BUTTON_Pin;
+    // GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    // GPIO_InitStruct.Pull = GPIO_NOPULL;
+    // HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* ADC DMA Init */
     /* ADC Init */
-    hdma_adc.Instance = DMA1_Channel3;
-    hdma_adc.Init.Request = DMA_REQUEST_ADC;
-    hdma_adc.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_adc.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_adc.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_adc.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-    hdma_adc.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-    hdma_adc.Init.Mode = DMA_CIRCULAR;
-    hdma_adc.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_adc) != HAL_OK)
-    {
-      Error_Handler();
-    }
+    // hdma_adc.Instance = DMA1_Channel3;
+    // hdma_adc.Init.Request = DMA_REQUEST_ADC;
+    // hdma_adc.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    // hdma_adc.Init.PeriphInc = DMA_PINC_DISABLE;
+    // hdma_adc.Init.MemInc = DMA_MINC_ENABLE;
+    // hdma_adc.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    // hdma_adc.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    // hdma_adc.Init.Mode = DMA_CIRCULAR;
+    // hdma_adc.Init.Priority = DMA_PRIORITY_LOW;
+    // if (HAL_DMA_Init(&hdma_adc) != HAL_OK)
+    // {
+    //   Error_Handler();
+    // }
 
-    __HAL_LINKDMA(adcHandle,DMA_Handle,hdma_adc);
+    // __HAL_LINKDMA(adcHandle,DMA_Handle,hdma_adc);
 
     /* ADC interrupt Init */
     HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
@@ -188,5 +188,22 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 }
 
 /* USER CODE BEGIN 1 */
+uint16_t ADC_Convert_Single(uint32_t channel)
+{
+	ADC_ChannelConfTypeDef sConfig = {0};
+	sConfig.Channel = channel;
+	sConfig.Rank = ADC_REGULAR_RANK_1;
+	sConfig.SamplingTime = ADC_SAMPLINGTIME_COMMON_1;
+	if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
 
+	HAL_ADC_Start(&hadc);
+	HAL_ADC_PollForConversion(&hadc, 100);
+	uint16_t adcval = HAL_ADC_GetValue(&hadc);
+	HAL_ADC_Stop(&hadc);
+
+	return adcval;
+}
 /* USER CODE END 1 */

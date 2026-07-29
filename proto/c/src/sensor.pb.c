@@ -46,6 +46,8 @@ const char *SensorType_name(SensorType v) {
         case SensorType_D10_FLOW: return "D10_FLOW";
         case SensorType_D10_VOLUME_ELAPSED: return "D10_VOLUME_ELAPSED";
         case SensorType_D10_TIME_ELAPSED: return "D10_TIME_ELAPSED";
+        case SensorType_WATERMARK200SS_SOIL_TENSION: return "WATERMARK200SS_SOIL_TENSION";
+        case SensorType_WATERMARK200TS_SOIL_TEMPERATURE: return "WATERMARK200TS_SOIL_TEMPERATURE";
     }
     return "unknown";
 }
