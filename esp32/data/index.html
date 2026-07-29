@@ -377,7 +377,7 @@
 
     <script>
       var sensor_selection_list = document.getElementById("sensor_selection_list");
-      for (let i = 1; i <= 4; i++) { // Number of sensors listed here may not exceed the limit defined in the protobuf options file.
+      for (let i = 1; i <= 16; i++) { // Number of sensors listed here may not exceed the limit defined in the protobuf options file.
         var sensor_selection = document.createElement("div");
         sensor_selection.className = "sensors"; // On form submission, iterate through all divs of class "sensors" to identify enabled sensors and associated metadata.
         // if (i === 1) { sensor_selection.hidden = false; } else { sensor_selection.hidden = true; }
@@ -683,6 +683,7 @@
 
         try {
           const formData = new FormData(configForm);
+          console.log(JSON.stringify(Object.fromEntries(formData.entries())))
           console.log(formData);
 
           const response = await fetch('/save', {
