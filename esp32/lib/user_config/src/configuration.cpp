@@ -112,11 +112,11 @@ void printConfig(const UserConfiguration &pconfig) {
                pconfig.enabled_sensors_multiple_count);
   for (int i = 0; i < pconfig.enabled_sensors_multiple_count; i++) {
     Log.noticeln(
-        " %03d - %s\r\n", i,
+        " %d - %s\r\n", i,
         EnabledSensor_name(pconfig.enabled_sensors_multiple[i].enabled_sensor));
-    Log.noticeln(" %03d - cell_id=%d\r\n", i,
+    Log.noticeln(" %d - cell_id=%d\r\n", i,
                  pconfig.enabled_sensors_multiple[i].cell_id);
-    Log.noticeln(" %03d - index=%d\r\n", i,
+    Log.noticeln(" %d - index=%d\r\n", i,
                  pconfig.enabled_sensors_multiple[i].index);
   }
 

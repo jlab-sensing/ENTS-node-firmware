@@ -127,12 +127,11 @@ void handleSave() {
        enabled_sensors_multiple_max_count;
        config.enabled_sensors_multiple_count++) {
     String selected_sensor = server.arg(
-        "selected_sensor_" + (config.enabled_sensors_multiple_count + 1));
+        String("selected_sensor_") + (config.enabled_sensors_multiple_count + 1));
     String selected_sensor_cell_id = server.arg(
-        "sensor_cell_id_" + (config.enabled_sensors_multiple_count + 1));
+        String("sensor_cell_id_") + (config.enabled_sensors_multiple_count + 1));
     String selected_sensor_index =
-        server.arg("sensor_idx_" + (config.enabled_sensors_multiple_count + 1));
-
+        server.arg(String("sensor_index_") + (config.enabled_sensors_multiple_count + 1));
     if (selected_sensor == "") break;
 
     // iterator of type uint (instead of enum) due to inability to increment
@@ -215,7 +214,7 @@ void handleSave() {
           }
         } else {
           config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
-          .index = selected_sensor_index.toInt();
+          .index = strtol(selected_sensor_index.c_str(), NULL, 0);
         }
         break;
       case EnabledSensor_D10:
