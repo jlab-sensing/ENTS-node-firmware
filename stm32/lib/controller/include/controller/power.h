@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 /**
  * @ingroup controller
  * @defgroup controllerPower Power
