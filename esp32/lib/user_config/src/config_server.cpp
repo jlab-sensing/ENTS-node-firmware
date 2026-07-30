@@ -122,20 +122,18 @@ void handleSave() {
 
   // Iterate through all sensor form fields and extract sensor type, cell ID,
   // and index.
-  for (int i = 0;
-       i <
-       enabled_sensors_multiple_max_count;
-       i++) {
-    String selected_sensor = server.arg(
-        String("selected_sensor_") + (config.enabled_sensors_multiple_count + 1));
-    String selected_sensor_cell_id = server.arg(
-        String("sensor_cell_id_") + (config.enabled_sensors_multiple_count + 1));
-    String selected_sensor_index =
-        server.arg(String("sensor_index_") + (config.enabled_sensors_multiple_count + 1));
-    if (selected_sensor == ""){
+  for (int i = 0; i < enabled_sensors_multiple_max_count; i++) {
+    String selected_sensor =
+        server.arg(String("selected_sensor_") +
+                   (config.enabled_sensors_multiple_count + 1));
+    String selected_sensor_cell_id =
+        server.arg(String("sensor_cell_id_") +
+                   (config.enabled_sensors_multiple_count + 1));
+    String selected_sensor_index = server.arg(
+        String("sensor_index_") + (config.enabled_sensors_multiple_count + 1));
+    if (selected_sensor == "") {
       continue;
     }
-    
 
     // iterator of type uint (instead of enum) due to inability to increment
     // enums.
@@ -217,7 +215,7 @@ void handleSave() {
           }
         } else {
           config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
-          .index = strtol(selected_sensor_index.c_str(), NULL, 0);
+              .index = strtol(selected_sensor_index.c_str(), NULL, 0);
         }
         break;
       case EnabledSensor_D10:
