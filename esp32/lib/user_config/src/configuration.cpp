@@ -70,13 +70,13 @@ String getConfigJson() {
   for (uint8_t i = 0; i < config.enabled_sensors_multiple_count; i++) {
     if (i > 0) json += ",";
 
-    json += "{\"";
+    json += "{\"sensor_type\":\"";
     json +=
         EnabledSensor_name(config.enabled_sensors_multiple[i].enabled_sensor);
-    json += ",";
-    json += String(config.enabled_sensors_multiple[i].cell_id) + ",";
-    json += String(config.enabled_sensors_multiple[i].index) + ",";
-    json += "\"}";
+    json += "\",\"sensor_cell_id\":";
+    json += String(config.enabled_sensors_multiple[i].cell_id) + ",\"sensor_index\":";
+    json += String(config.enabled_sensors_multiple[i].index) ;
+    json += "}";
   }
   json += "],";
 

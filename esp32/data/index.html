@@ -722,9 +722,9 @@
         try {
           const response = await fetch('/config');
           if (!response.ok) throw new Error("Failed to fetch configuration");
-
           const config = await response.json();
 
+          console.log(config);
           // Fill standard fields
           const fields = [
             "logger_id",
@@ -740,12 +740,21 @@
           ];
 
           // Append sensor fields
-          for (let i = 1; i <= 16; i++) { // Number of sensors listed here may not exceed the limit defined in the protobuf options file.
-            fields.push(`sensor_dropdown_${i}`);
-            fields.push(`sensor_cell_id_${i}`);
-            fields.push(`sensor_index_${i}`);
-          }
+          // Fill sensor fields
+          console.log("count:", config.enabled_sensors_multiple_count);
+          console.log("sensors:", config.enabled_sensors_multiple);
+          for (let i = 0; i < config.enabled_sensors_multiple_count; i++) {
+            const sensor = config.enabled_sensors_multiple[i];
+            console.log(document.getElementById("sensor_dropdown_1"));
+            document.getElementById(`sensor_dropdown_${i + 1}`).value =
+              sensor.sensor_type;
 
+            document.getElementById(`sensor_cell_id_${i + 1}`).value =
+              sensor.sensor_cell_id;
+
+            document.getElementById(`sensor_index_${i + 1}`).value =
+              sensor.sensor_index;
+          }
           fields.forEach(key => {
             const field = document.getElementById(key);
             if (field && config[key] !== undefined) {
