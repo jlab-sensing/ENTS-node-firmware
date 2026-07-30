@@ -125,12 +125,12 @@ void handleSave() {
   for (int i = 0; i < enabled_sensors_multiple_max_count; i++) {
     String selected_sensor =
         server.arg(String("selected_sensor_") +
-                   (config.enabled_sensors_multiple_count + 1));
+                   (i + 1));
     String selected_sensor_cell_id =
         server.arg(String("sensor_cell_id_") +
-                   (config.enabled_sensors_multiple_count + 1));
+                   (i + 1));
     String selected_sensor_index = server.arg(
-        String("sensor_index_") + (config.enabled_sensors_multiple_count + 1));
+        String("sensor_index_") + (i + 1));
     if (selected_sensor == "") {
       continue;
     }
