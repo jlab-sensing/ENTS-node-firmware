@@ -122,17 +122,20 @@ void handleSave() {
 
   // Iterate through all sensor form fields and extract sensor type, cell ID,
   // and index.
-  for (config.enabled_sensors_multiple_count = 0;
-       config.enabled_sensors_multiple_count <
+  for (int i = 0;
+       i <
        enabled_sensors_multiple_max_count;
-       config.enabled_sensors_multiple_count++) {
+       i++) {
     String selected_sensor = server.arg(
         String("selected_sensor_") + (config.enabled_sensors_multiple_count + 1));
     String selected_sensor_cell_id = server.arg(
         String("sensor_cell_id_") + (config.enabled_sensors_multiple_count + 1));
     String selected_sensor_index =
         server.arg(String("sensor_index_") + (config.enabled_sensors_multiple_count + 1));
-    if (selected_sensor == "") break;
+    if (selected_sensor == ""){
+      continue;
+    }
+    
 
     // iterator of type uint (instead of enum) due to inability to increment
     // enums.
@@ -237,6 +240,7 @@ void handleSave() {
             .index = selected_sensor_index.toInt();
         break;
     }
+    config.enabled_sensors_multiple_count++;
   }
 
   // TODO: the calibration values for the ADS1219 will be stored on each AFE in
