@@ -39,6 +39,9 @@
 
 /** Array for holding function callbacks */
 static SensorsPrototypeMeasure callback_arr[MAX_SENSORS];
+static SensorsPrototypeMeasureMultiple callback_arr_multiple[MAX_SENSORS];
+static EnabledSensorMultiple callback_sensor_arr[MAX_SENSORS];
+static int callback_multiple_assigned[MAX_SENSORS] = {0};
 
 /** Length of @ref callback_arr */
 static unsigned int callback_arr_len = 0;
@@ -108,6 +111,21 @@ int SensorsAdd(SensorsPrototypeMeasure cb) {
   return callback_arr_len++;
 }
 
+int SensorsAddMultiple(SensorsPrototypeMeasureMultiple cb, EnabledSensorMultiple sensor) {
+  // check for out of range error
+  if (callback_arr_len >= MAX_SENSORS) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error: Too many sensors added!\r\n");
+    return -1;
+  }
+
+  // store callback in array
+  callback_arr_multiple[callback_arr_len] = cb;
+  callback_sensor_arr[callback_arr_len] = sensor;
+  callback_multiple_assigned[callback_arr_len] = 1;
+
+  // return index and increment
+  return callback_arr_len++;
+}
 void SensorsMeasure(void) {
   // buffer to store measurements
   uint8_t buffer[kBufferSize];
@@ -125,7 +143,12 @@ void SensorsMeasure(void) {
     // SensorsAdd() since the callback order is used by the sensor measurement
     // callback function to identify which (if any) sensor it is in the case of
     // multiple of the same sensor type.
-    buffer_len = callback_arr[i](buffer, ts, i);
+
+    if(callback_multiple_assigned[i]){
+      buffer_len = callback_arr_multiple[i](buffer, ts, i, callback_sensor_arr[i]);
+    } else {
+      buffer_len = callback_arr[i](buffer, ts, i);
+    }
     meas_idx++;
 
     if (buffer_len == ((size_t)-1)) {
