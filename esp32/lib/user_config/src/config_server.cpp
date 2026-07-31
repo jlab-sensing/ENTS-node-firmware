@@ -123,14 +123,11 @@ void handleSave() {
   // Iterate through all sensor form fields and extract sensor type, cell ID,
   // and index.
   for (int i = 0; i < enabled_sensors_multiple_max_count; i++) {
-    String selected_sensor =
-        server.arg(String("selected_sensor_") +
-                   (i + 1));
+    String selected_sensor = server.arg(String("selected_sensor_") + (i + 1));
     String selected_sensor_cell_id =
-        server.arg(String("sensor_cell_id_") +
-                   (i + 1));
-    String selected_sensor_index = server.arg(
-        String("sensor_index_") + (i + 1));
+        server.arg(String("sensor_cell_id_") + (i + 1));
+    String selected_sensor_index =
+        server.arg(String("sensor_index_") + (i + 1));
     if (selected_sensor == "") {
       continue;
     }
