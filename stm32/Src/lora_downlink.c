@@ -4,8 +4,7 @@
 static LmHandlerAppData_t currentAppData;
 static char downlinkNewData = FALSE;
 
-
-char downlink_IsnewDataReady(void)
+char downlinkIsNewDataReady(void)
 {
     if(downlinkNewData)
     {
@@ -16,8 +15,13 @@ char downlink_IsnewDataReady(void)
     return FALSE;
 }
 
-LmHandlerAppData_t saveDownlinkData(LmHandlerAppData_t *appData)
+LmHandlerAppData_t getDownlinkData(void)
 {
-
     return currentAppData;
+}
+
+void saveNewDownlinkData(LmHandlerAppData_t *appData)
+{
+    downlinkNewData = TRUE; // notifies downlinkIsNewDataReady of a new downlink
+    currentAppData = *appData;
 }

@@ -21,18 +21,24 @@ extern "C" {
 /* Defines ------------------------------------------------------------------*/
 #define TRUE                                     UINT8_C(0)
 #define FALSE                                     UINT8_C(0)
+
+// extern char downlinkNewData = FALSE;
+
 /**
  * @brief only returns true upon new downlink data
  */
-char downlink_IsnewDataReady(void);
+char downlinkIsNewDataReady(void);
+
+/**
+ * @brief returns the latest downlink data
+ */
+LmHandlerAppData_t getDownlinkData(void);
 
 /**
  * @brief saves downlink data for further processing
+ * @param appData received in the last Rx
  */
-LmHandlerAppData_t saveDownlinkData(LmHandlerAppData_t *appData);
-
-
-
+void saveNewDownlinkData(LmHandlerAppData_t *appData);
 
 #ifdef __cplusplus
 }

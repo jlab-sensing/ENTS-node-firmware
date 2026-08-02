@@ -43,6 +43,7 @@
 #include "user_config.h"
 
 #include "solenoid.h"
+#include "lora_downlink.h"
 
 /* USER CODE END Includes */
 
@@ -444,6 +445,10 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
         "NbGateways:0x%02X\r\n",
         params->IsMcpsIndication, params->Status, params->LinkCheck,
         params->DemodMargin, params->NbGateways);
+
+        // saving downlink appData
+        saveNewDownlinkData(appData);
+
         // CommissioningParams skipped.
     switch (appData->Port) {
       // TODO add cases for incoming data on ports
@@ -468,8 +473,7 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
           // APP_LOG(TS_OFF, VLEVEL_H, "Opening solenoid, Message received: %02X", appData->Buffer[0]);
           SolenoidOpen();
         }
-        // APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u, toggling solenoid\r\n", appData->Port);
-        // UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_ToggleSolenoid), CFG_SEQ_Prio_0);
+
         break;
     }
   }

@@ -39,8 +39,6 @@ void SolenoidInit() {
   SolenoidClose();
   Solenoid = SOLENOID_OFF;
 
-  // UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_UserConfigCheck), UTIL_SEQ_RFU,
-  //                  SolenoidUpdate);
 }
 
 void SolenoidOpen(void) {

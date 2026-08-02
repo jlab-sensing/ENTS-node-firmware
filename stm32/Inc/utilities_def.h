@@ -82,7 +82,6 @@ typedef enum {
   CFG_SEQ_Task_WiFiUpload,
   CFG_SEQ_Task_UserConfigStop,
   CFG_SEQ_Task_UserConfigCheck,
-  CFG_SEQ_Task_ToggleSolenoid,
   /* USER CODE END CFG_SEQ_Task_Id_t */
   CFG_SEQ_Task_NBR
 } CFG_SEQ_Task_Id_t;
