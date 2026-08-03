@@ -19,8 +19,12 @@ extern "C" {
 #include "LmHandlerTypes.h"
 
 /* Defines ------------------------------------------------------------------*/
-#define TRUE                                     UINT8_C(0)
+#ifndef TRUE
+#define TRUE                                      UINT8_C(1)
+#endif
+#ifndef FALSE
 #define FALSE                                     UINT8_C(0)
+#endif
 
 // extern char downlinkNewData = FALSE;
 

@@ -525,7 +525,7 @@ static void SendTxData(void) {
     } else {
       APP_LOG(TS_OFF, VLEVEL_M,
               "Could not sync clock, retrying on next tx\r\n");
-      // clock_synced = true;
+      clock_synced = true;
     }
     // otherwise return
     return;
@@ -561,7 +561,7 @@ static void SendTxData(void) {
     return;
   } else if (payload_status == PAYLOAD_NO_DATA) {
     APP_LOG(TS_ON, VLEVEL_M, "No data to send\r\n");
-    // return;
+    return;
   }
 
   // Old code for measurements

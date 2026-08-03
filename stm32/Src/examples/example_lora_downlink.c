@@ -20,9 +20,11 @@
 #include "usart.h"
 
 // user includes
-#include "bme280_sensor.h"
-#include "lora_downlink.h"
+#include "LmHandler.h"
 #include "app_lorawan.h"
+#include "lora_downlink.h"
+#include "lora_size.h"
+#include "payload.h"
 #include "sensors.h"
 
 /** Delay between print statements */
@@ -32,6 +34,10 @@
 
 /** Global variable for all return codes */
 HAL_StatusTypeDef rc;
+
+static uint8_t TestAppDataBuffer[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
+
+static LmHandlerAppData_t TestAppData = {0, 0, TestAppDataBuffer};
 
 /**
  * @brief Entry point for battery test
@@ -54,49 +60,41 @@ int main(void) {
   MX_USART2_UART_Init();
 
   // init lorawan
-  BME280Init();
-  SensorsAdd(BME280Measure);
   MX_LoRaWAN_Init();
 
-  APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Example Lora Downlink (%s), compile on %s %s\r\n",
-          __FILE__, __DATE__, __TIME__);
+  APP_LOG(TS_OFF, VLEVEL_ALWAYS,
+          "Example Lora Downlink (%s), compile on %s %s\r\n", __FILE__,
+          __DATE__, __TIME__);
 
   // Infinite loop
+
+  // Get max LoRaWAN payload size
+  LoRaMacRegion_t region = 0;
+  int8_t dr = 0;
+  LmHandlerGetTxDatarate(&dr);
+  uint8_t max_payload_size = lorawan_max_payload(region, dr);
+
   while (1) {
-    // Sleep
-    // HAL_Delay(DELAY);
-
-    // BME280Data data = {};
-
-    // BME280Status status = BME280MeasureAll(&data);
-    // if (status != BME280_STATUS_OK) {
-    //   APP_LOG(TS_OFF, VLEVEL_ALWAYS, "BME280 Error, status: %d\r\n", status);
-    //   continue;
-    // }
     MX_LoRaWAN_Process();
+    HAL_Delay(DELAY);
+    // Forcing an empty payload through to receive downlink
+    FormatPayload(TestAppData.Buffer, max_payload_size,
+                  (size_t *)&TestAppData.BufferSize);
+    LmHandlerSend(&TestAppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false);
 
-  //   // check if radio is busy
-  // if (LmHandlerIsBusy()) {
-  //   APP_LOG(TS_ON, VLEVEL_M, "LmHandler is busy\r\n");
-  //   return;
-  // }
-
-  // // check if buffer is empty
-  // if (FramBufferLen() <= 0) {
-  //   APP_LOG(TS_ON, VLEVEL_M, "Nothing in buffer\r\n");
-  //   // return;
-  // }
-
-  
-  // LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false);
-
-    // APP_LOG(TS_OFF, VLEVEL_ALWAYS,
-    //         "Pressure: %u, Temperature: %d, Humidity: %u\r\n", data.pressure,
-    //         data.temperature, data.humidity);
-    if(downlinkIsNewDataReady())
-    {
-      APP_LOG(TS_ON, VLEVEL_M, "HAAAAAAAAAAAAAAAAAAngnwieugtnw4gnwgnw4gnw4j\r\n");
+    // prints the stored downlink data when new data is available
+    if (downlinkIsNewDataReady()) {
+      // storing app data
+      const LmHandlerAppData_t latestAppData = getDownlinkData();
+      APP_LOG(TS_OFF, VLEVEL_H, "Stored AppData:\r\n");
+      APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u\r\n", latestAppData.Port);
+      APP_LOG(TS_OFF, VLEVEL_H, "OnRxData BufferSize: %u\r\n",
+              latestAppData.BufferSize);
+      APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Buffer (hex): ");
+      for (int i = 0; i < latestAppData.BufferSize; i++) {
+        APP_LOG(TS_OFF, VLEVEL_H, "%02X", latestAppData.Buffer[i]);
+      }
+      APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
     }
-    
   }
 }
