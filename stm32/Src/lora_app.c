@@ -540,7 +540,7 @@ static void SendTxData(void) {
   // check if buffer is empty
   if (FramBufferLen() <= 0) {
     APP_LOG(TS_ON, VLEVEL_M, "Nothing in buffer\r\n");
-    // return;
+    return;
   }
 
   uint8_t battery_level = GetBatteryLevel();
