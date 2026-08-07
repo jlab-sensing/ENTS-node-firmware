@@ -283,9 +283,9 @@
               without quotes) or leave blank to use the default '0' address. Valid SDI-12 addresses: ['0'-'9'=48-57,
               'A'-'Z'=65-90, 'a'-'z'=97-122].</li>
             <li>For I2C sensors, leave blank to use the default sensor address, or enter the non left-shifted 7-bit
-              address in decimal. Non-decimal input (such as hexadecimal) is not supported.</li>
-            <li>For onboard analog sensing (such as the Irrometer Watermark 200SS), you may enter either the ADC channel
-              number or leave blank to use the default ADC channel.</li>
+              address in hexadecimal.</li>
+            <li>For onboard analog sensing (such as the Irrometer Watermark 200SS), enter the pin number corresponding
+              to the 40 pin header.</li>
             <li>For digital sensors (such as pulse output water meters or frequency/PWM output flow meters), you may
               enter either the pin number or leave blank to use the default pin.</li>
           </ul>
@@ -413,6 +413,8 @@
         sensor_selection_list.appendChild(sensor_selection);
       }
 
+      const adc_allowed = ["21", "22", "24", "18"];
+      const digital_allowed = ["21", "22", "24", "18"]; // Add TCA 9535 once sensors support.
       const SENSORS = {
         Voltage: {
           type: "i2c",
@@ -452,28 +454,28 @@
         Phytos31: {
           type: "adc",
           defaultIndex: "",
-          validIndexes: [],
+          validIndexes: adc_allowed,
           conflicts: []
         },
 
         SEN0308: {
           type: "adc",
           defaultIndex: "",
-          validIndexes: [],
+          validIndexes: adc_allowed,
           conflicts: ["Voltage", "Current"]
         },
 
         SEN0257: {
           type: "adc",
           defaultIndex: "",
-          validIndexes: [],
+          validIndexes: adc_allowed,
           conflicts: []
         },
 
         YFS210C: {
           type: "digital",
           defaultIndex: "",
-          validIndexes: [],
+          validIndexes: digital_allowed,
           conflicts: ["PCAP02"]
         },
 
@@ -487,20 +489,20 @@
         D10: {
           type: "digital",
           defaultIndex: "",
-          validIndexes: [],
+          validIndexes: digital_allowed,
           conflicts: []
         },
         WATERMARK200SS: {
           type: "adc",
           defaultIndex: "",
-          validIndexes: [],
+          validIndexes: adc_allowed,
           conflicts: []
         },
 
         WATERMARK200TS: {
           type: "adc",
           defaultIndex: "",
-          validIndexes: [],
+          validIndexes: adc_allowed,
           conflicts: []
         }
       };
@@ -587,7 +589,9 @@
           if (!otherSensor) continue;
           if (
             otherSensor &&
-            otherSensor.type === sensor.type &&
+            (otherSensor.type === sensor.type ||
+              sensor.type === "adc" && otherSensor.type === "digital" ||
+              sensor.type === "digital" && otherSensor.type === "adc") &&
             otherIndex === index && index !== null &&
             !(sensorName === "Voltage" && otherSensorName === "Current") &&
             !(otherSensorName === "Voltage" && sensorName === "Current") //unusual circumstance where same index is allowed
@@ -612,13 +616,29 @@
           warning +=
             'This may not be a valid I2C address for this device. ';
         }
-
+        if (sensor.type === 'adc') {
+          if (!sensor.validIndexes.includes(index)) {
+            warning += "This is not a valid ADC pin. "
+          }
+          else if (index === "21") {
+            warning += "This pin will conflict with any SPI devices. "
+          }
+          else if (index === "16") {
+            warning += "This pin will conflict with user button and TCA interrupt. "
+          }
+        }
         if (
-          sensor.type === 'digital' &&
-          disallowed_pins.includes(index)
+          sensor.type === 'digital'
         ) {
-          warning +=
-            'This pin cannot be used safely. ';
+          if (!sensor.validIndexes.includes(index)) {
+            warning += "This is not a valid digital pin. "
+          }
+          else if (index === "21") {
+            warning += "This pin will conflict with any SPI devices. "
+          }
+          else if (index === "16") {
+            warning += "This pin will conflict with user button and TCA interrupt. "
+          }
         }
 
         setSensorWarning(sensorNum, warning);
@@ -651,8 +671,14 @@
 
         datalist.innerHTML = "";
 
-        if (!sensor?.validIndexes)
+        if (!sensor?.validIndexes) {
+          document.getElementById(`sensor_index_${sensorNum}`).value = '';
           return;
+        }
+        else {
+          document.getElementById(`sensor_index_${sensorNum}`).value = sensor.defaultIndex;
+        }
+
 
         sensor.validIndexes.forEach(index => {
 
@@ -664,9 +690,7 @@
           datalist.appendChild(option);
         });
 
-        if (sensor.defaultIndex !== '') {
-          document.getElementById(`sensor_index_${sensorNum}`).value = sensor.defaultIndex;
-        }
+
       }
       // Show modal with success message
       function showSuccessModal(message) {
