@@ -18,8 +18,11 @@ extern "C" {
 
 /**
  * @brief Starts the user config webserver
+ * 
+ * @param timeout Timeout in seconds to stop the server after inactivity.
+ * @param checkInterval Interval at which the esp32 is checked for new configurations.
  */
-void UserConfigStart(unsigned int timeout);
+void UserConfigStart(unsigned int timeout, unsigned int checkInterval);
 
 /**
  * @brief Stops the user config webserver after timeout.
@@ -34,6 +37,20 @@ void UserConfigSetupStop(unsigned int timeout);
  * @brief Stops the user config webserver
  */
 void UserConfigStop(void);
+
+/**
+ * @brief Sets up UserConfigCheck, calling it periodically
+ *
+ *
+ * @param timeout Interval in which UserConfigCheck is called in seconds.
+ */
+void UserConfigSetupCheck(unsigned int timeout);
+
+/**
+ * @brief Periodically checks for new user configure configs from esp32 and saves to FRAM
+ * 
+ */
+void UserConfigCheck(void);
 
 #ifdef __cplusplus
 }

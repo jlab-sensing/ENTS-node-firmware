@@ -69,7 +69,7 @@ size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   if (status != SENSOR_OK) {
     return -1;
   }
-  
+
   // return number of bytes in serialized measurement
   return data_len;
 }

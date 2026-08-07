@@ -28,7 +28,8 @@
 #define NO_IRRIGATION_FLOW_G 1
 
 // Variables
-extern volatile uint32_t pulse_count; // Managed by GPIO interrupt in stm32wlxx_it.c
+extern volatile uint32_t
+    pulse_count;  // Managed by GPIO interrupt in stm32wlxx_it.c
 static uint32_t previous_pulses = 0;
 static SysTime_t irrigationStartTime;
 static uint32_t irrigationStartPulseCount;
