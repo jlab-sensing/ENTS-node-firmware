@@ -463,7 +463,7 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
         APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
         break;
 
-      case 2:
+      case 3:
         if((appData->Buffer[0] == 0x00) && (appData->BufferSize == 1)){
           // APP_LOG(TS_OFF, VLEVEL_H, "Closing solenoid, Message received: %02X", appData->Buffer[0]);
           SolenoidClose();
