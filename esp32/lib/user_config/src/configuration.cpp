@@ -70,13 +70,13 @@ String getConfigJson() {
   for (uint8_t i = 0; i < config.enabled_sensors_multiple_count; i++) {
     if (i > 0) json += ",";
 
-    json += "{\"";
+    json += "{\"sensor_type\":\"";
     json +=
         EnabledSensor_name(config.enabled_sensors_multiple[i].enabled_sensor);
-    json += ",";
-    json += String(config.enabled_sensors_multiple[i].cell_id) + ",";
-    json += String(config.enabled_sensors_multiple[i].index) + ",";
-    json += "\"}";
+    json += "\",\"sensor_cell_id\":";
+    json += String(config.enabled_sensors_multiple[i].cell_id) + ",\"sensor_index\":";
+    json += String(config.enabled_sensors_multiple[i].index) ;
+    json += "}";
   }
   json += "],";
 
@@ -112,11 +112,11 @@ void printConfig(const UserConfiguration &pconfig) {
                pconfig.enabled_sensors_multiple_count);
   for (int i = 0; i < pconfig.enabled_sensors_multiple_count; i++) {
     Log.noticeln(
-        " %03d - %s\r\n", i,
+        " %d - %s\r\n", i,
         EnabledSensor_name(pconfig.enabled_sensors_multiple[i].enabled_sensor));
-    Log.noticeln(" %03d - cell_id=%d\r\n", i,
+    Log.noticeln(" %d - cell_id=%d\r\n", i,
                  pconfig.enabled_sensors_multiple[i].cell_id);
-    Log.noticeln(" %03d - index=%d\r\n", i,
+    Log.noticeln(" %d - index=%d\r\n", i,
                  pconfig.enabled_sensors_multiple[i].index);
   }
 

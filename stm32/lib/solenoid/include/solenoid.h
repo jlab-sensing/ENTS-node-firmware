@@ -65,6 +65,8 @@ void SolenoidOpen(void);
  */
 void SolenoidClose(void);
 
+
+
 #ifdef __cplusplus
 }
 #endif
