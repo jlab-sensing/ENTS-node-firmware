@@ -8,22 +8,21 @@ encoding/decoding cycle. Checks that missing fields result in an error and the
 correct dictionary format is returned.
 """
 
-import unittest
 import base64
+import unittest
 
 from ents.proto import (
-    encode_response,
+    decode_esp32command,
     decode_measurement,
     encode_esp32command,
-    decode_esp32command,
+    encode_response,
 )
-
 from ents.proto.soil_power_sensor_pb2 import (
-    Measurement,
-    Response,
-    MeasurementMetadata,
     Esp32Command,
+    Measurement,
+    MeasurementMetadata,
     PageCommand,
+    Response,
     TestCommand,
 )
 

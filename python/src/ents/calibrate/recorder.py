@@ -11,11 +11,12 @@ a range of output voltages on the Keithley and measure the voltage and current
 from both the SMU and the Soil Power Sensor (SPS).
 """
 
-import time
 import socket
+import time
+
 import serial
-from typing import Tuple
 from tqdm import tqdm
+
 from ..proto.sensor import decode_repeated_sensor_measurements
 
 
@@ -98,7 +99,7 @@ class SoilPowerSensorController(SerialController):
         super().__init__(port)
         self.check()
 
-    def get_power(self) -> Tuple[float, float]:
+    def get_power(self) -> tuple[float, float]:
         """Measure voltage from SPS
 
         Returns

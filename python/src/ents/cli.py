@@ -1,41 +1,38 @@
 import argparse
-
 import os
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
 import time
+from datetime import datetime, timedelta
 
-from .calibrate.recorder import Recorder
+import numpy as np
+import pandas as pd
+
 from .calibrate.linear_regression import (
     linear_regression,
-    print_eval,
     print_coef,
+    print_eval,
     print_norm,
 )
 from .calibrate.plots import (
-    plot_measurements,
     plot_calib,
+    plot_measurements,
     plot_residuals,
     plot_residuals_hist,
 )
-
-from .proto.encode import (
-    encode_power_measurement,
-    encode_phytos31_measurement,
-    encode_teros12_measurement,
-    encode_response,
-)
+from .calibrate.recorder import Recorder
 from .proto.decode import decode_measurement, decode_response
-from .proto.esp32 import encode_esp32command, decode_esp32command
-
-from .proto.sensor import (
-    encode_repeated_sensor_measurements,
-    decode_repeated_sensor_measurements,
-    encode_sensor_response,
-    decode_sensor_response,
+from .proto.encode import (
+    encode_phytos31_measurement,
+    encode_power_measurement,
+    encode_response,
+    encode_teros12_measurement,
 )
-
+from .proto.esp32 import decode_esp32command, encode_esp32command
+from .proto.sensor import (
+    decode_repeated_sensor_measurements,
+    decode_sensor_response,
+    encode_repeated_sensor_measurements,
+    encode_sensor_response,
+)
 from .simulator.node import NodeSimulator, NodeSimulatorGeneric
 
 
@@ -199,7 +196,7 @@ def simulate_generic(args):
         print("Use CTRL+C to stop the simulation")
         try:
             while True:
-                dt = datetime.now()
+                dt = datetime.now().astimezone()
                 ts = int(dt.timestamp())
                 simulation.measure(ts)
 
@@ -249,7 +246,7 @@ def simulate(args):
         print("Use CTRL+C to stop the simulation")
         try:
             while True:
-                dt = datetime.now()
+                dt = datetime.now().astimezone()
                 ts = int(dt.timestamp())
                 simulation.measure(ts)
                 while simulation.send_next(args.url):
@@ -817,14 +814,14 @@ def calibrate(args):
         pred = model.predict(np.array(_eval["meas"]).reshape(-1, 1))
         residuals = np.array(_eval["actual"]) - pred.flatten()
 
-        print("")
+        print()
         print("\r\rnCoefficients")
         print_coef(model)
         print("\r\nEvaluation")
         print_eval(pred, _eval["actual"])
         print("\r\nNormal fit")
         print_norm(residuals)
-        print("")
+        print()
 
         # plots
         if args.plot:
