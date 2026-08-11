@@ -23,7 +23,9 @@ typedef enum _EnabledSensor {
     EnabledSensor_YFS210C = 8,
     EnabledSensor_PCAP02 = 9,
     EnabledSensor_D10 = 10,
-    EnabledSensor_EDU0157 = 11
+    EnabledSensor_WATERMARK200SS = 11,
+    EnabledSensor_WATERMARK200TS = 12,
+    EnabledSensor_EDU0157 = 13
 } EnabledSensor;
 
 typedef enum _Uploadmethod {
@@ -299,6 +301,18 @@ typedef struct _D10Measurement {
     uint32_t timeElapsed;
 } D10Measurement;
 
+/* WATERMARK200SS Soil Tension Sensor */
+typedef struct _WATERMARK200SSMeasurement {
+    /* Soil tension (kPa or cb) */
+    double soil_tension;
+} WATERMARK200SSMeasurement;
+
+/* WATERMARK200TS Soil Temperature Sensor */
+typedef struct _WATERMARK200TSMeasurement {
+    /* Temperature in celcius */
+    double temperature;
+} WATERMARK200TSMeasurement;
+
 /* Top level measurement message */
 typedef struct _Measurement {
     /* Metadata */
@@ -316,6 +330,8 @@ typedef struct _Measurement {
         YFS210CMeasurement yfs210c;
         PCAP02Measurement pcap02;
         D10Measurement d10;
+        WATERMARK200SSMeasurement watermark200ss;
+        WATERMARK200TSMeasurement watermark200ts;
     } measurement;
 } Measurement;
 
@@ -463,8 +479,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _EnabledSensor_MIN EnabledSensor_Voltage
-#define _EnabledSensor_MAX EnabledSensor_D10
-#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_D10+1))
+#define _EnabledSensor_MAX EnabledSensor_WATERMARK200TS
+#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_WATERMARK200TS+1))
 const char *EnabledSensor_name(EnabledSensor v);
 
 #define _Uploadmethod_MIN Uploadmethod_LoRa
@@ -546,6 +562,8 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 
 
 
+
+
 #define Response_resp_ENUMTYPE Response_ResponseType
 
 
@@ -592,6 +610,8 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define YFS210CMeasurement_init_default          {0}
 #define PCAP02Measurement_init_default           {0}
 #define D10Measurement_init_default              {0, 0, 0}
+#define WATERMARK200SSMeasurement_init_default   {0}
+#define WATERMARK200TSMeasurement_init_default   {0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
@@ -623,6 +643,8 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define YFS210CMeasurement_init_zero             {0}
 #define PCAP02Measurement_init_zero              {0}
 #define D10Measurement_init_zero                 {0, 0, 0}
+#define WATERMARK200SSMeasurement_init_zero      {0}
+#define WATERMARK200TSMeasurement_init_zero      {0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
@@ -675,6 +697,8 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define D10Measurement_flow_tag                  1
 #define D10Measurement_volumeElapsed_tag         2
 #define D10Measurement_timeElapsed_tag           3
+#define WATERMARK200SSMeasurement_soil_tension_tag 1
+#define WATERMARK200TSMeasurement_temperature_tag 1
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -686,6 +710,8 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define Measurement_yfs210c_tag                  9
 #define Measurement_pcap02_tag                   10
 #define Measurement_d10_tag                      11
+#define Measurement_watermark200ss_tag           12
+#define Measurement_watermark200ts_tag           13
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -855,6 +881,16 @@ X(a, STATIC,   SINGULAR, UINT32,   timeElapsed,       3)
 #define D10Measurement_CALLBACK NULL
 #define D10Measurement_DEFAULT NULL
 
+#define WATERMARK200SSMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   soil_tension,      1)
+#define WATERMARK200SSMeasurement_CALLBACK NULL
+#define WATERMARK200SSMeasurement_DEFAULT NULL
+
+#define WATERMARK200TSMeasurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   temperature,       1)
+#define WATERMARK200TSMeasurement_CALLBACK NULL
+#define WATERMARK200TSMeasurement_DEFAULT NULL
+
 #define Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power,measurement.power),   2) \
@@ -866,7 +902,9 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0308,measurement.sen0308),   
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0257,measurement.sen0257),   8) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   9) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,d10,measurement.d10),  11)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,d10,measurement.d10),  11) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ss,measurement.watermark200ss),  12) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ts,measurement.watermark200ts),  13)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -880,6 +918,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,d10,measurement.d10),  11)
 #define Measurement_measurement_yfs210c_MSGTYPE YFS210CMeasurement
 #define Measurement_measurement_pcap02_MSGTYPE PCAP02Measurement
 #define Measurement_measurement_d10_MSGTYPE D10Measurement
+#define Measurement_measurement_watermark200ss_MSGTYPE WATERMARK200SSMeasurement
+#define Measurement_measurement_watermark200ts_MSGTYPE WATERMARK200TSMeasurement
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
@@ -1017,6 +1057,8 @@ extern const pb_msgdesc_t SEN0257Measurement_msg;
 extern const pb_msgdesc_t YFS210CMeasurement_msg;
 extern const pb_msgdesc_t PCAP02Measurement_msg;
 extern const pb_msgdesc_t D10Measurement_msg;
+extern const pb_msgdesc_t WATERMARK200SSMeasurement_msg;
+extern const pb_msgdesc_t WATERMARK200TSMeasurement_msg;
 extern const pb_msgdesc_t Measurement_msg;
 extern const pb_msgdesc_t Response_msg;
 extern const pb_msgdesc_t Esp32Command_msg;
@@ -1050,6 +1092,8 @@ extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 #define YFS210CMeasurement_fields &YFS210CMeasurement_msg
 #define PCAP02Measurement_fields &PCAP02Measurement_msg
 #define D10Measurement_fields &D10Measurement_msg
+#define WATERMARK200SSMeasurement_fields &WATERMARK200SSMeasurement_msg
+#define WATERMARK200TSMeasurement_fields &WATERMARK200TSMeasurement_msg
 #define Measurement_fields &Measurement_msg
 #define Response_fields &Response_msg
 #define Esp32Command_fields &Esp32Command_msg
@@ -1094,6 +1138,8 @@ extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 #define UserConfiguration_size                   494
 #define VoltageDeltaMeasurement_size             6
 #define VoltageMeasurement_size                  9
+#define WATERMARK200SSMeasurement_size           9
+#define WATERMARK200TSMeasurement_size           9
 #define WiFiCommand_size                         629
 #define YFS210CMeasurement_size                  9
 #define adcValue_size                            6

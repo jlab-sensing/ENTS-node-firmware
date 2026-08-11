@@ -51,6 +51,11 @@ enum SensorType {
   D10_FLOW = 20;
   D10_VOLUME_ELAPSED = 21;
   D10_TIME_ELAPSED = 22;
+
+  /** Irrometer Watermark 200SS measurements */
+  WATERMARK200SS_SOIL_TENSION = 23;
+  /** Irrometer Watermark 200TS measurements */
+  WATERMARK200TS_SOIL_TEMPERATURE = 24;
 }
 
 enum SensorError {

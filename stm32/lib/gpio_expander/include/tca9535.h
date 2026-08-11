@@ -40,6 +40,8 @@ extern "C" {
 
 #define TCA9535_MEM_ADDRESS_SIZE 1  // 1 byte memory address
 
+#define TCA9535_MEM_ADDRESS_SIZE 1 // 1 byte memory address
+
 /************************** I2C Registers *************************************/
 #define TCA9535_INPUT_REG0 0x00  // Input status register
 #define TCA9535_INPUT_REG1 0x01  // Input status register

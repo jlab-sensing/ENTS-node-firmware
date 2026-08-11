@@ -66,7 +66,10 @@ size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   status =
       EncodeDoubleMeasurement(meta, waterPressMeas.pressure,
                               SensorType_SEN0257_PRESSURE, data, &data_len);
-
+  if (status != SENSOR_OK) {
+    return -1;
+  }
+  
   // return number of bytes in serialized measurement
   return data_len;
 }

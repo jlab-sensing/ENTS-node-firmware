@@ -52,6 +52,8 @@ const char *SensorType_name(SensorType v) {
         case SensorType_EDU0157_PRESSURE: return "EDU0157_PRESSURE";
         case SensorType_EDU0157_TEMP: return "EDU0157_TEMP";
         case SensorType_EDU0157_HUMIDITY: return "EDU0157_HUMIDITY";
+        case SensorType_WATERMARK200SS_SOIL_TENSION: return "WATERMARK200SS_SOIL_TENSION";
+        case SensorType_WATERMARK200TS_SOIL_TEMPERATURE: return "WATERMARK200TS_SOIL_TEMPERATURE";
     }
     return "unknown";
 }
