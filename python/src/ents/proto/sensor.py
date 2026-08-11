@@ -181,11 +181,11 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Flow rate",
             "unit": "gal/min",
         },
-        SensorType.D10_VOLUME_ELAPSED : {
+        SensorType.D10_VOLUME_ELAPSED: {
             "name": "Volume Elapsed",
             "unit": "gal",
         },
-        SensorType.D10_TIME_ELAPSED : {
+        SensorType.D10_TIME_ELAPSED: {
             "name": "Time Elapsed",
             "unit": "s",
         },

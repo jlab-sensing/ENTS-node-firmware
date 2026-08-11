@@ -27,7 +27,8 @@
 #define FLOW_AVG_COUNT 5
 
 // Variables
-extern volatile uint32_t pulse_count; // Managed by GPIO interrupt in stm32wlxx_it.c
+extern volatile uint32_t
+    pulse_count;  // Managed by GPIO interrupt in stm32wlxx_it.c
 static volatile float last_flow_lpm = 0;
 static SysTime_t currentTime;
 static SysTime_t lastTime;
