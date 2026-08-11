@@ -38,7 +38,7 @@ void UserConfigStart(unsigned int timeout, unsigned int checkInterval) {
 
   uint32_t devAddr = 0;
   GetDevAddr(&devAddr);
-  snprintf(ssid, sizeof(ssid), "ents-%08lX", devAddr);
+  snprintf(ssid, sizeof(ssid), "ents-%08X", devAddr);
 
   ControllerWiFiHost(ssid, pass);
   ControllerUserConfigStart();
