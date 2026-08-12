@@ -484,7 +484,7 @@ class Ui_MainWindow:
                 QtWidgets.QMessageBox.information(
                     self.centralwidget, "Success", "Configurations saved successfully."
                 )
-            except Exception as e:
+            except OSError as e:
                 QtWidgets.QMessageBox.critical(
                     self.centralwidget, "Error", f"Failed to save configurations: {e}"
                 )
@@ -646,7 +646,7 @@ class Ui_MainWindow:
                     self.centralwidget, "Success", "Configuration loaded successfully."
                 )
 
-            except Exception as e:
+            except OSError as e:
                 QtWidgets.QMessageBox.critical(
                     self.centralwidget, "Error", f"Failed to load configuration: {e}"
                 )

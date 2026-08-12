@@ -60,25 +60,25 @@ class TestNodeSimulator(unittest.TestCase):
 
     def test_power(self):
         sim = NodeSimulator(1, 2, "power")
-        ts = int(datetime(2025, 5, 7).astimezone.timestamp())
+        ts = int(datetime(2025, 5, 7).astimezone().timestamp())
         sim.measure(ts)
         sim.send_next(self.url)
 
     def test_teros12(self):
         sim = NodeSimulator(1, 2, "teros12")
-        ts = int(datetime(2025, 5, 7).astimezone.timestamp())
+        ts = int(datetime(2025, 5, 7).astimezone().timestamp())
         sim.measure(ts)
         sim.send_next(self.url)
 
     def test_teros21(self):
         sim = NodeSimulator(1, 2, "teros21")
-        ts = int(datetime(2025, 5, 7).astimezone.timestamp())
+        ts = int(datetime(2025, 5, 7).astimezone().timestamp())
         sim.measure(ts)
         sim.send_next(self.url)
 
     def test_bme280(self):
         sim = NodeSimulator(1, 2, "bme280")
-        ts = int(datetime(2025, 5, 7).astimezone.timestamp())
+        ts = int(datetime(2025, 5, 7).astimezone().timestamp())
         sim.measure(ts)
         sim.send_next(self.url)
 
