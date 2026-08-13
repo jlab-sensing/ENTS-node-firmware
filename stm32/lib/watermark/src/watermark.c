@@ -20,56 +20,57 @@
 #include "transcoder.h"
 #include "userConfig.h"
 
-void Watermark200Init(EnabledSensorMultiple sensor) {
+void Watermark200Init(EnabledSensorMultiple *sensor) {
   MX_ADC_Init();
   // map adc
-  if (sensor.index) {
-    if (sensor.index == 16) {
-      GPIO_InitTypeDef GPIO_InitStruct = {0};  // channel 0
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  if (sensor->index) {
+    if (sensor->index == 16) {
+      // channel 0
       GPIO_InitStruct.Pin = GPIO_PIN_13;
       HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     }
-    if (sensor.index == 21) {
-      GPIO_InitTypeDef GPIO_InitStruct = {0};  // channel 1
+    if (sensor->index == 21) {
+      // channel 1
       GPIO_InitStruct.Pin = GPIO_PIN_14;
       HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     }
-    if (sensor.index == 22) {
-      GPIO_InitTypeDef GPIO_InitStruct = {0};  // channel 2
+    if (sensor->index == 22) {
+      // channel 2
       GPIO_InitStruct.Pin = GPIO_PIN_3;
       HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     }
-    if (sensor.index == 24) {
-      GPIO_InitTypeDef GPIO_InitStruct = {0};  // channel 3
+    if (sensor->index == 24) {
+      // channel 3
       GPIO_InitStruct.Pin = GPIO_PIN_4;
       HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     }
-    if (sensor.index == 18) {
-      GPIO_InitTypeDef GPIO_InitStruct = {0};  // channel 11
+    if (sensor->index == 18) {
+      // channel 11
       GPIO_InitStruct.Pin = GPIO_PIN_15;
-      GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-      GPIO_InitStruct.Pull = GPIO_NOPULL;
       HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
     }
   }
 }
 
-double Watermark200SS_GetMeasurement(EnabledSensorMultiple sensor) {
+double Watermark200SS_GetMeasurement(EnabledSensorMultiple *sensor) {
   uint32_t value_raw = 0;
   double value_voltage = 0.0;
   double tension_kPa = 0.0;
 
   // 0 - 239 kPa from 0 - 2.8 V :: kPa = Volts / 0.0117
   uint32_t channel = 0;
-  if (sensor.index == 16) {
+  if (sensor->index == 16) {
     channel = ADC_CHANNEL_0;
-  } else if (sensor.index == 21) {
+  } else if (sensor->index == 21) {
     channel = ADC_CHANNEL_1;
-  } else if (sensor.index == 22) {
+  } else if (sensor->index == 22) {
     channel = ADC_CHANNEL_2;
-  } else if (sensor.index == 24) {
+  } else if (sensor->index == 24) {
     channel = ADC_CHANNEL_3;
-  } else if (sensor.index == 18) {
+  } else if (sensor->index == 18) {
     channel = ADC_CHANNEL_11;
   }
   value_raw = ADC_Convert_Single(channel);
@@ -79,21 +80,21 @@ double Watermark200SS_GetMeasurement(EnabledSensorMultiple sensor) {
   return tension_kPa;
 }
 
-double Watermark200TS_GetMeasurement(EnabledSensorMultiple sensor) {
+double Watermark200TS_GetMeasurement(EnabledSensorMultiple *sensor) {
   uint32_t value_raw = 0;
   double value_voltage = 0.0;
   double temperature_f = 0.0;
   double WMTemp_C = 0.0;
   uint32_t channel = 0;
-  if (sensor.index == 16) {
+  if (sensor->index == 16) {
     channel = ADC_CHANNEL_0;
-  } else if (sensor.index == 21) {
+  } else if (sensor->index == 21) {
     channel = ADC_CHANNEL_1;
-  } else if (sensor.index == 22) {
+  } else if (sensor->index == 22) {
     channel = ADC_CHANNEL_2;
-  } else if (sensor.index == 24) {
+  } else if (sensor->index == 24) {
     channel = ADC_CHANNEL_3;
-  } else if (sensor.index == 18) {
+  } else if (sensor->index == 18) {
     channel = ADC_CHANNEL_11;
   }
   value_raw = ADC_Convert_Single(channel);
@@ -104,17 +105,17 @@ double Watermark200TS_GetMeasurement(EnabledSensorMultiple sensor) {
 
   return WMTemp_C;
 }
-size_t Watermark200SS_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
-                              EnabledSensorMultiple sensor) {
+size_t Watermark200SS_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple *sensor) {
   double WM_kPA = 0.0;
   WM_kPA = Watermark200SS_GetMeasurement(sensor);
-  const UserConfiguration* cfg = UserConfigGet();
+  const UserConfiguration *cfg = UserConfigGet();
 
   // metadata
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = sensor.cell_id;
+  meta.cell_id = sensor->cell_id;
 
   size_t data_len = 0;
   SensorStatus status = SENSOR_OK;
@@ -130,17 +131,17 @@ size_t Watermark200SS_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
   return data_len;
 }
 
-size_t Watermark200TS_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
-                              EnabledSensorMultiple sensor) {
+size_t Watermark200TS_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple *sensor) {
   double temp_c = 0.0;
   temp_c = Watermark200TS_GetMeasurement(sensor);
-  const UserConfiguration* cfg = UserConfigGet();
+  const UserConfiguration *cfg = UserConfigGet();
 
   // metadata
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = sensor.cell_id;
+  meta.cell_id = sensor->cell_id;
 
   size_t data_len = 0;
   SensorStatus status = SENSOR_OK;

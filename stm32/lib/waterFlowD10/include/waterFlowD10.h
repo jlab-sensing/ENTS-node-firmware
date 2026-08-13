@@ -57,7 +57,8 @@ D10Measurement FlowD10GetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatFlowD10_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t WatFlowD10_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                          EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

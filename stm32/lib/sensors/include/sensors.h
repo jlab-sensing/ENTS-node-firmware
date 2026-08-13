@@ -10,11 +10,11 @@
 
 #include "fifo.h"
 #include "lora_app.h"
+#include "soil_power_sensor.pb.h"
 #include "stm32_seq.h"
 #include "stm32_systime.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
-#include "soil_power_sensor.pb.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,11 +64,8 @@ extern "C" {
  * @return Number of bytes in data
  */
 typedef size_t (*SensorsPrototypeMeasure)(uint8_t *data, SysTime_t ts,
-                                          uint32_t idx);
-
-
-typedef size_t (*SensorsPrototypeMeasureMultiple)(uint8_t *data, SysTime_t ts,
-                                          uint32_t idx, EnabledSensorMultiple sensor);
+                                          uint32_t idx,
+                                          EnabledSensorMultiple *sensor);
 
 /**
  * @brief Registers the measurement task with the sequencer
@@ -95,7 +92,7 @@ void SensorsStop(void);
  *
  * @return Index of callback in internal array, -1 indicates an error
  */
-int SensorsAdd(SensorsPrototypeMeasure cb);
+int SensorsAdd(SensorsPrototypeMeasure cb, EnabledSensorMultiple *sensor);
 
 /**
  * @brief Manually add a measurement to the upload queue.
@@ -107,8 +104,6 @@ int SensorsAdd(SensorsPrototypeMeasure cb);
  * @param data Serialized measurement data.
  * @param data_len Length of serialized measurement data.
  */
-
- int SensorsAddMultiple(SensorsPrototypeMeasureMultiple cb, EnabledSensorMultiple sensor);
 void SensorsAddMeasurement(uint8_t *data, size_t data_len);
 
 /**

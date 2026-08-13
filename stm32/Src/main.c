@@ -144,68 +144,68 @@ int main(void) {
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_multiple_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors_multiple[i].enabled_sensor;
-    EnabledSensorMultiple sensor_ctx = cfg->enabled_sensors_multiple[i];
+    EnabledSensorMultiple * sensor_ctx = &(cfg->enabled_sensors_multiple[i]);
     if (sensor == EnabledSensor_Voltage) {
       ADC_init();
-      SensorsAdd(ADC_measureVoltage);
+      SensorsAdd(ADC_measureVoltage, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Voltage Enabled!\n");
     }
     if (sensor == EnabledSensor_Current) {
       ADC_init();
-      SensorsAdd(ADC_measureCurrent);
+      SensorsAdd(ADC_measureCurrent, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Current Enabled!\n");
     }
     if (sensor == EnabledSensor_Teros12) {
       APP_LOG(TS_OFF, VLEVEL_M, "Teros12 Enabled!\n");
-      SensorsAdd(Teros12Measure);
+      SensorsAdd(Teros12Measure, sensor_ctx);
     }
     if (sensor == EnabledSensor_Teros21) {
-      SensorsAdd(Teros21Measure);
+      SensorsAdd(Teros21Measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Teros21 Enabled!\n");
     }
     if (sensor == EnabledSensor_BME280) {
       BME280Init();
-      SensorsAdd(BME280Measure);
+      SensorsAdd(BME280Measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "BME280 Enabled!\n");
     }
     if (sensor == EnabledSensor_WATERMARK200SS) {
       APP_LOG(TS_OFF, VLEVEL_M, "WATERMARK200SS Enabled!\n");
       Watermark200Init(sensor_ctx);
-      SensorsAddMultiple(Watermark200SS_measure, sensor_ctx);
+      SensorsAdd(Watermark200SS_measure, sensor_ctx);
     }
     if (sensor == EnabledSensor_WATERMARK200TS) {
       APP_LOG(TS_OFF, VLEVEL_M, "WATERMARK200TS Enabled!\n");
       Watermark200Init(sensor_ctx);
-      SensorsAddMultiple(Watermark200TS_measure, sensor_ctx);
+      SensorsAdd(Watermark200TS_measure, sensor_ctx);
     }
     if (sensor == EnabledSensor_Phytos31) {
       Phytos31Init();
-      SensorsAdd(Phytos31_measure);
+      SensorsAdd(Phytos31_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Phytos31 Enabled!\n");
     }
     if (sensor == EnabledSensor_SEN0308) {
       CapSoilInit();
-      SensorsAdd(SEN0308_measure);
+      SensorsAdd(SEN0308_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "SEN0308 Cap Soil Sensor Enabled!\n");
     }
     if (sensor == EnabledSensor_SEN0257) {
       PressureInit();
-      SensorsAdd(WatPress_measure);
+      SensorsAdd(WatPress_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "SEN0257 Water Pressure Sensor Enabled!\n");
     }
     if (sensor == EnabledSensor_YFS210C) {
       FlowYFS210CInit();
-      SensorsAdd(WatFlowYFS210C_measure);
+      SensorsAdd(WatFlowYFS210C_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "YFS210C Flow Meter Enabled!\n");
     }
     if (sensor == EnabledSensor_D10) {
       FlowD10Init();
-      SensorsAdd(WatFlowD10_measure);
+      SensorsAdd(WatFlowD10_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Water flow D10 enabled!\n");
     }
     if (sensor == EnabledSensor_PCAP02) {
       pcap02_init();
-      SensorsAdd(pcap02_measure);
+      SensorsAdd(pcap02_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "PCAP02 Enabled!\n");
     }
     // TODO add support for dummy sensor

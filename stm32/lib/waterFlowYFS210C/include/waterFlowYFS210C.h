@@ -24,6 +24,7 @@ extern "C" {
 #include <stdlib.h>
 
 #include "ads.h"
+#include "sensors.h"
 
 extern volatile unsigned long pulse_count;
 
@@ -59,7 +60,8 @@ YFS210CMeasurement FlowYFS210CGetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatFlowYFS210C_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t WatFlowYFS210C_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

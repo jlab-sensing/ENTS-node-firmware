@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Data recorder for Soil Power Sensor
 
 The recorder controls the SPS firmware and a Keithley 2400 Source

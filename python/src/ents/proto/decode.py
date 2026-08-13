@@ -69,7 +69,7 @@ def decode_measurement(data: bytes, raw: bool = True) -> dict:
 
     # process raw
     # convert measurements to hPa, C, and %
-    if not raw and  meta_dict["type"] == "bme280":
+    if not raw and meta_dict["type"] == "bme280":
         meta_dict["data"]["pressure"] /= 10.0
         meta_dict["data"]["temperature"] /= 100.0
         meta_dict["data"]["humidity"] /= 1000.0

@@ -43,7 +43,8 @@ SEN0308Measurement SEN0308GetMeasurement() {
   return capSoil;
 }
 
-size_t SEN0308_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
+size_t SEN0308_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
+                       EnabledSensorMultiple* sensor) {
   // get timestamp
   SEN0308Measurement capSoil;
 
@@ -55,7 +56,7 @@ size_t SEN0308_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  meta.cell_id = sensor->cell_id;
 
   // variables for the next block
   size_t data_len = 0;

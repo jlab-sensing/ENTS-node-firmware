@@ -15,10 +15,10 @@
 extern "C" {
 #endif
 
-#include <soil_power_sensor.pb.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "sensors.h"
 #include "stm32_systime.h"
 
 /**
@@ -34,7 +34,7 @@ extern "C" {
  * @return   void
  ******************************************************************************
  */
-void Watermark200Init(EnabledSensorMultiple sensor);
+void Watermark200Init(EnabledSensorMultiple *sensor);
 
 /**
  ******************************************************************************
@@ -46,8 +46,8 @@ void Watermark200Init(EnabledSensorMultiple sensor);
  * @return   void
  ******************************************************************************
  */
-double Watermark200TS_GetMeasurement(EnabledSensorMultiple sensor);
-double Watermark200SS_GetMeasurement(EnabledSensorMultiple sensor);
+double Watermark200TS_GetMeasurement(EnabledSensorMultiple *sensor);
+double Watermark200SS_GetMeasurement(EnabledSensorMultiple *sensor);
 
 /**
  * @brief Read all three soil tensiometers and the soil temperature sensor and
@@ -55,10 +55,10 @@ double Watermark200SS_GetMeasurement(EnabledSensorMultiple sensor);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t Watermark200SS_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
-                              EnabledSensorMultiple sensor);
-size_t Watermark200TS_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
-                              EnabledSensorMultiple sensor);
+size_t Watermark200SS_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple *sensor);
+size_t Watermark200TS_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

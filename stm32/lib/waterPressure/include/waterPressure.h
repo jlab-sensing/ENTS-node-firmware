@@ -21,8 +21,9 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "transcoder.h"
+#include "sensors.h"
 #include "systime.h"
+#include "transcoder.h"
 
 /**
  ******************************************************************************
@@ -57,7 +58,8 @@ SEN0257Measurement PressureGetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatPress_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t WatPress_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                        EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

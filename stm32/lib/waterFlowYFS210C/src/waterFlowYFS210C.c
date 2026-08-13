@@ -93,7 +93,8 @@ YFS210CMeasurement FlowYFS210CGetMeasurement() {
   return flowMeas;
 }
 
-size_t WatFlowYFS210C_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
+size_t WatFlowYFS210C_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple* sensor) {
   // get timestamp
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
   YFS210CMeasurement flowMeas = {};
@@ -110,7 +111,7 @@ size_t WatFlowYFS210C_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  meta.cell_id = sensor->cell_id;
 
   // encode measurement
   size_t data_len = 0;

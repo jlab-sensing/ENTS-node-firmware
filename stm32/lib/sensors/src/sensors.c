@@ -39,9 +39,7 @@
 
 /** Array for holding function callbacks */
 static SensorsPrototypeMeasure callback_arr[MAX_SENSORS];
-static SensorsPrototypeMeasureMultiple callback_arr_multiple[MAX_SENSORS];
-static EnabledSensorMultiple callback_sensor_arr[MAX_SENSORS];
-static int callback_multiple_assigned[MAX_SENSORS] = {0};
+static EnabledSensorMultiple *callback_arr_context[MAX_SENSORS];
 
 /** Length of @ref callback_arr */
 static unsigned int callback_arr_len = 0;
@@ -97,7 +95,7 @@ void SensorsStop(void) {
   UTIL_TIMER_Stop(&MeasureTimer);
 }
 
-int SensorsAdd(SensorsPrototypeMeasure cb) {
+int SensorsAdd(SensorsPrototypeMeasure cb, EnabledSensorMultiple *sensor) {
   // check for out of range error
   if (callback_arr_len >= MAX_SENSORS) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error: Too many sensors added!\r\n");
@@ -106,26 +104,12 @@ int SensorsAdd(SensorsPrototypeMeasure cb) {
 
   // store callback in array
   callback_arr[callback_arr_len] = cb;
+  callback_arr_context[callback_arr_len] = sensor;
 
   // return index and increment
   return callback_arr_len++;
 }
 
-int SensorsAddMultiple(SensorsPrototypeMeasureMultiple cb, EnabledSensorMultiple sensor) {
-  // check for out of range error
-  if (callback_arr_len >= MAX_SENSORS) {
-    APP_LOG(TS_OFF, VLEVEL_M, "Error: Too many sensors added!\r\n");
-    return -1;
-  }
-
-  // store callback in array
-  callback_arr_multiple[callback_arr_len] = cb;
-  callback_sensor_arr[callback_arr_len] = sensor;
-  callback_multiple_assigned[callback_arr_len] = 1;
-
-  // return index and increment
-  return callback_arr_len++;
-}
 void SensorsMeasure(void) {
   // buffer to store measurements
   uint8_t buffer[kBufferSize];
@@ -144,11 +128,8 @@ void SensorsMeasure(void) {
     // callback function to identify which (if any) sensor it is in the case of
     // multiple of the same sensor type.
 
-    if(callback_multiple_assigned[i]){
-      buffer_len = callback_arr_multiple[i](buffer, ts, i, callback_sensor_arr[i]);
-    } else {
-      buffer_len = callback_arr[i](buffer, ts, i);
-    }
+    buffer_len = callback_arr[i](buffer, ts, i, callback_arr_context[i]);
+
     meas_idx++;
 
     if (buffer_len == ((size_t)-1)) {

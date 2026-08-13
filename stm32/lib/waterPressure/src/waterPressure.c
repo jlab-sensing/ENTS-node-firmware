@@ -50,7 +50,8 @@ SEN0257Measurement PressureGetMeasurement(void) {
   return waterPressMeas;
 }
 
-size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
+size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
+                        EnabledSensorMultiple* sensor) {
   // get timestamp
   SEN0257Measurement waterPressMeas = {};
 
@@ -62,7 +63,7 @@ size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  meta.cell_id = sensor->cell_id;
 
   size_t data_len = 0;
   SensorStatus status = SENSOR_OK;
