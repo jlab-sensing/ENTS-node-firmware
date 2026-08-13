@@ -16,15 +16,14 @@
 #include "board.h"
 #include "gpio.h"
 #include "i2c.h"
-#include "main.h"
 #include "lora_app.h"
+#include "main.h"
 #include "sys_app.h"
 #include "usart.h"
 /////////
+#include "LmHandler.h"
 #include "LmHandlerTypes.h"
 #include "payload.h"
-#include "LmHandler.h"
-
 
 /**
  * @brief User application buffer
@@ -35,7 +34,6 @@ static uint8_t AppDataBuffer[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
  * @brief User application data structure
  */
 static LmHandlerAppData_t AppData = {0, 0, AppDataBuffer};
-
 
 ///////////
 
@@ -60,14 +58,15 @@ int main(void) {
 
   // NOTE: MX_I2C1_Init() must be called prior to AS7343Init();.
   LoRaWAN_Init();
-//   AS7343LEDOn(); // Turning LED on for better readings with inadequate light source
-    // AppData.BufferSize = 3;
-    // AppData.Buffer[0] = 1;
-    // AppData.Buffer[1] = 2;
-    // AppData.Buffer[2] = 3;
+  //   AS7343LEDOn(); // Turning LED on for better readings with inadequate
+  //   light source
+  // AppData.BufferSize = 3;
+  // AppData.Buffer[0] = 1;
+  // AppData.Buffer[1] = 2;
+  // AppData.Buffer[2] = 3;
 
-    // AppData.Port = LORAWAN_SPS_MEAS_GENERIC_PORT;
-    // LmHandlerErrorStatus_t lmstatus;
+  // AppData.Port = LORAWAN_SPS_MEAS_GENERIC_PORT;
+  // LmHandlerErrorStatus_t lmstatus;
 
   while (1) {
     HAL_Delay(1000);
@@ -86,23 +85,21 @@ int main(void) {
     //   APP_LOG(TS_OFF, VLEVEL_M, "No data to send\r\n");
     //   return;
     // }
-    
-    
+
     // if (LmHandlerIsBusy()) {
     // APP_LOG(TS_ON, VLEVEL_M, "LmHandler is busy\r\n");
     // HAL_Delay(1000);
     // continue;
-  // }
-
-  
-  // lmstatus =
-  //       LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, false);
-  //   if (lmstatus == LORAMAC_HANDLER_SUCCESS) {
-  //     APP_LOG(TS_ON, VLEVEL_L, "SEND REQUEST\r\n");
-  //   } else {
-  //     APP_LOG(TS_OFF, VLEVEL_M, "Could not send request\r\n");
-  //     APP_LOG(TS_OFF, VLEVEL_M, "LmHandlerSend status = %d\r\n", lmstatus);
     // }
 
+    // lmstatus =
+    //       LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE,
+    //       false);
+    //   if (lmstatus == LORAMAC_HANDLER_SUCCESS) {
+    //     APP_LOG(TS_ON, VLEVEL_L, "SEND REQUEST\r\n");
+    //   } else {
+    //     APP_LOG(TS_OFF, VLEVEL_M, "Could not send request\r\n");
+    //     APP_LOG(TS_OFF, VLEVEL_M, "LmHandlerSend status = %d\r\n", lmstatus);
+    // }
   }
 }

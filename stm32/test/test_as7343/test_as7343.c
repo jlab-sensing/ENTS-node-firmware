@@ -31,9 +31,9 @@ void test_init(void) {
 }
 
 void test_measure_spectral_data(void) {
-  //tests readings on channel 0 TODO: Add more channels to the test  
+  // tests readings on channel 0 TODO: Add more channels to the test
   AS7343Data sensorReadings = {};
-  
+
   AS7343GetMeasurement(&sensorReadings);
 
   TEST_ASSERT_GREATER_THAN(0, sensorReadings.channelCombined[0]);

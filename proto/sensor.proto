@@ -56,7 +56,7 @@ enum SensorType {
   WATERMARK200SS_SOIL_TENSION = 23;
   /** Irrometer Watermark 200TS measurements */
   WATERMARK200TS_SOIL_TEMPERATURE = 24;
-  
+
   /** AS7343  measurements */
   AS7343_SPECTRAL_DATA = 25;
 }
