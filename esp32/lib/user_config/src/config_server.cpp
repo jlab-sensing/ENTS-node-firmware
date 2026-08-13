@@ -265,7 +265,9 @@ void handleSave() {
 
   // Prepare success message
   String successMessage = "Configuration saved successfully!\\n";
-  successMessage += "The new configuration will apply after a few seconds. You may disconnect from the ESP32's wifi network now.";
+  successMessage +=
+      "The new configuration will apply after a few seconds. You may "
+      "disconnect from the ESP32's wifi network now.";
   String successJson = "{\"success\":\"" + successMessage + "\"}";
   server.send(200, "application/json", successJson);
 }
