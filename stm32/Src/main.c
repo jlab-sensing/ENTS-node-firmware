@@ -144,6 +144,7 @@ int main(void) {
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_multiple_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors_multiple[i].enabled_sensor;
+    EnabledSensorMultiple sensor_ctx = cfg->enabled_sensors_multiple[i];
     if (sensor == EnabledSensor_Voltage) {
       ADC_init();
       SensorsAdd(ADC_measureVoltage);
@@ -166,6 +167,16 @@ int main(void) {
       BME280Init();
       SensorsAdd(BME280Measure);
       APP_LOG(TS_OFF, VLEVEL_M, "BME280 Enabled!\n");
+    }
+    if (sensor == EnabledSensor_WATERMARK200SS) {
+      APP_LOG(TS_OFF, VLEVEL_M, "WATERMARK200SS Enabled!\n");
+      Watermark200Init(sensor_ctx);
+      SensorsAddMultiple(Watermark200SS_measure, sensor_ctx);
+    }
+    if (sensor == EnabledSensor_WATERMARK200TS) {
+      APP_LOG(TS_OFF, VLEVEL_M, "WATERMARK200TS Enabled!\n");
+      Watermark200Init(sensor_ctx);
+      SensorsAddMultiple(Watermark200TS_measure, sensor_ctx);
     }
     if (sensor == EnabledSensor_Phytos31) {
       Phytos31Init();
@@ -191,11 +202,6 @@ int main(void) {
       FlowD10Init();
       SensorsAdd(WatFlowD10_measure);
       APP_LOG(TS_OFF, VLEVEL_M, "Water flow D10 enabled!\n");
-    }
-    if (sensor == EnabledSensor_WATERMARK200SS) {
-      Watermark200SSVA3_Init();
-      SensorsAdd(Watermark200SSVA3_measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "Watermark 200SS-VA3 Enabled!\n");
     }
     if (sensor == EnabledSensor_PCAP02) {
       pcap02_init();

@@ -15,6 +15,7 @@
 extern "C" {
 #endif
 
+#include <soil_power_sensor.pb.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,7 +34,7 @@ extern "C" {
  * @return   void
  ******************************************************************************
  */
-void Watermark200SSVA3_Init(void);
+void Watermark200Init(EnabledSensorMultiple sensor);
 
 /**
  ******************************************************************************
@@ -45,12 +46,8 @@ void Watermark200SSVA3_Init(void);
  * @return   void
  ******************************************************************************
  */
-void Watermark200SSVA3_GetMeasurement(void);
-
-double Watermark200SSVA3_GetWM1(void);
-double Watermark200SSVA3_GetWM2(void);
-double Watermark200SSVA3_GetWM3(void);
-double Watermark200SSVA3_GetWMTemp(void);
+double Watermark200TS_GetMeasurement(EnabledSensorMultiple sensor);
+double Watermark200SS_GetMeasurement(EnabledSensorMultiple sensor);
 
 /**
  * @brief Read all three soil tensiometers and the soil temperature sensor and
@@ -58,7 +55,10 @@ double Watermark200SSVA3_GetWMTemp(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t Watermark200SSVA3_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t Watermark200SS_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple sensor);
+size_t Watermark200TS_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple sensor);
 
 #ifdef __cplusplus
 }

@@ -14,6 +14,7 @@
 #include "stm32_systime.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
+#include "soil_power_sensor.pb.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,6 +66,10 @@ extern "C" {
 typedef size_t (*SensorsPrototypeMeasure)(uint8_t *data, SysTime_t ts,
                                           uint32_t idx);
 
+
+typedef size_t (*SensorsPrototypeMeasureMultiple)(uint8_t *data, SysTime_t ts,
+                                          uint32_t idx, EnabledSensorMultiple sensor);
+
 /**
  * @brief Registers the measurement task with the sequencer
  *
@@ -102,6 +107,8 @@ int SensorsAdd(SensorsPrototypeMeasure cb);
  * @param data Serialized measurement data.
  * @param data_len Length of serialized measurement data.
  */
+
+ int SensorsAddMultiple(SensorsPrototypeMeasureMultiple cb, EnabledSensorMultiple sensor);
 void SensorsAddMeasurement(uint8_t *data, size_t data_len);
 
 /**
