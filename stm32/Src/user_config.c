@@ -1,8 +1,10 @@
 #include "user_config.h"
 
-#include "controller/power.h"
+#include "sys_app.h"
+#include "userConfig.h"
 #include "controller/wifi.h"
 #include "controller/wifi_userconfig.h"
+#include "controller/power.h"
 #include "stm32_seq.h"
 #include "stm32_timer.h"
 #include "sys_app.h"

@@ -1,13 +1,13 @@
 /**
  ******************************************************************************
- * @file    waterFlow.c
- * @author  Caden Jacobs
+ * @file     waterFlowD10.h
+ * @author   Eric Tran & Jack Lin
+ * @brief    This file contains all the function prototypes for
+ *           the waterFlowD10.c file.
  *
- * @brief   This library is designed to read measurements from a Water Flow
- *Sensor
- *          https://www.danomsk.ru/upload/iblock/43d/193917_3b664efb7b37f7ae8ea1eea40978a265.pdf
- *
- * @date    7/31/2025
+ *           This library is designed to read measurements from a Water Flow
+ * Sensor that has 1 pulse per gallon output
+ * @date     5/20/2026
  ******************************************************************************
  */
 
@@ -38,7 +38,7 @@ static bool irrigating;
 static SysTime_t currentTime;
 static SysTime_t lastTime;
 
-void FlowInit() {
+void FlowD10Init() {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   __HAL_RCC_GPIOx_CLK_ENABLE(D10_GPIO_Port);
@@ -65,7 +65,7 @@ void FlowInit() {
   irrigating = false;
 }
 
-D10Measurement FlowGetMeasurement() {
+D10Measurement FlowD10GetMeasurement() {
   // get time
   currentTime = SysTimeGet();
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
@@ -101,11 +101,11 @@ D10Measurement FlowGetMeasurement() {
   return returnValue;
 }
 
-size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
+size_t WatFlowD10_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   // get timestamp
   D10Measurement flowMeas = {};
 
-  flowMeas = FlowGetMeasurement();
+  flowMeas = FlowD10GetMeasurement();
 
   /// read measurement
   const UserConfiguration* cfg = UserConfigGet();

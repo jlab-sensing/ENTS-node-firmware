@@ -41,16 +41,11 @@
 #include "teros21.h"
 #include "userConfig.h"
 #include "user_config.h"
-#include "waterFlow.h"
+#include "waterFlowD10.h"
+#include "waterFlowYFS210C.h"
 #include "waterPressure.h"
+#include "watermark.h"
 #include "wifi.h"
-
-// Board configuration - define ONLY ONE of these
-// Comment these out to disable sensors
-#define DEFAULT
-// #define USE_CAP_SOIL_SENSOR
-// #define USE_WATER_PRESSURE_SENSOR
-// #define USE_FLOW_METER_SENSOR
 
 /**
  * @brief  The application entry point.
@@ -150,33 +145,9 @@ int main(void) {
   for (int i = 0; i < cfg->enabled_sensors_multiple_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors_multiple[i].enabled_sensor;
     if (sensor == EnabledSensor_Voltage) {
-#ifdef DEFAULT
       ADC_init();
       SensorsAdd(ADC_measureVoltage);
       APP_LOG(TS_OFF, VLEVEL_M, "Voltage Enabled!\n");
-#endif
-
-#ifdef USE_FLOW_METER_SENSOR
-      FlowInit();
-      SensorsAdd(WatFlow_measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "Flow Meter Enabled!\n");
-#endif
-
-#ifdef USE_WATER_PRESSURE_SENSOR
-      PressureInit();
-      SensorsAdd(WatPress_measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "Water Pressure Sensor Enabled!\n");
-#endif
-
-#ifdef USE_CAP_SOIL_SENSOR
-      CapSoilInit();
-      SensorsAdd(SEN0308_measure);
-      APP_LOG(TS_OFF, VLEVEL_M, "Cap Soil Sensor Enabled!\n");
-#endif
-
-#ifdef USE_PHYTOS31_SENSOR
-
-#endif
     }
     if (sensor == EnabledSensor_Current) {
       ADC_init();
@@ -196,26 +167,36 @@ int main(void) {
       SensorsAdd(BME280Measure);
       APP_LOG(TS_OFF, VLEVEL_M, "BME280 Enabled!\n");
     }
-    // if (sensor == EnabledSensor_Phytos31) {
-    //   Phytos31Init();
-    //   SensorsAdd(Phytos31_measure);
-    //   APP_LOG(TS_OFF, VLEVEL_M, "Phytos31 Enabled!\n");
-    // }
-    // if (sensor == EnabledSensor_SEN0308) {
-    //   CapSoilInit();
-    //   SensorsAdd(SEN0308_measure);
-    //   APP_LOG(TS_OFF, VLEVEL_M, "SEN0308 Cap Soil Sensor Enabled!\n");
-    // }
-    // if (sensor == EnabledSensor_SEN0257) {
-    //   PressureInit();
-    //   SensorsAdd(WatPress_measure);
-    //   APP_LOG(TS_OFF, VLEVEL_M, "SEN0257 Water Pressure Sensor Enabled!\n");
-    // }
-    // if (sensor == EnabledSensor_YFS210C) {
-    //   FlowInit();
-    //   SensorsAdd(WatFlow_measure);
-    //   APP_LOG(TS_OFF, VLEVEL_M, "YFS210C Flow Meter Enabled!\n");
-    // }
+    if (sensor == EnabledSensor_Phytos31) {
+      Phytos31Init();
+      SensorsAdd(Phytos31_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Phytos31 Enabled!\n");
+    }
+    if (sensor == EnabledSensor_SEN0308) {
+      CapSoilInit();
+      SensorsAdd(SEN0308_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "SEN0308 Cap Soil Sensor Enabled!\n");
+    }
+    if (sensor == EnabledSensor_SEN0257) {
+      PressureInit();
+      SensorsAdd(WatPress_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "SEN0257 Water Pressure Sensor Enabled!\n");
+    }
+    if (sensor == EnabledSensor_YFS210C) {
+      FlowYFS210CInit();
+      SensorsAdd(WatFlowYFS210C_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "YFS210C Flow Meter Enabled!\n");
+    }
+    if (sensor == EnabledSensor_D10) {
+      FlowD10Init();
+      SensorsAdd(WatFlowD10_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Water flow D10 enabled!\n");
+    }
+    if (sensor == EnabledSensor_WATERMARK200SS) {
+      Watermark200SSVA3_Init();
+      SensorsAdd(Watermark200SSVA3_measure);
+      APP_LOG(TS_OFF, VLEVEL_M, "Watermark 200SS-VA3 Enabled!\n");
+    }
     if (sensor == EnabledSensor_PCAP02) {
       pcap02_init();
       SensorsAdd(pcap02_measure);

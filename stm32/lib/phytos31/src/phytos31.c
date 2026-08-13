@@ -31,7 +31,7 @@ phytos_measurements Phytos31GetMeasurement() {
   return measurements;
 }
 
-size_t Phytos31_measure(uint8_t *data, SysTime_t ts) {
+size_t Phytos31_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   phytos_measurements measurement;
 
   // read voltage
