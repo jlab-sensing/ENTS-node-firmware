@@ -1,10 +1,8 @@
 #include "user_config.h"
 
-#include "sys_app.h"
-#include "userConfig.h"
+#include "controller/power.h"
 #include "controller/wifi.h"
 #include "controller/wifi_userconfig.h"
-#include "controller/power.h"
 #include "stm32_seq.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
@@ -36,6 +34,8 @@ void UserConfigStart(unsigned int timeout, unsigned int checkInterval) {
     APP_LOG(TS_OFF, VLEVEL_M, "---------------------------\n");
     UserConfigPrint();
     APP_LOG(TS_OFF, VLEVEL_M, "\n");
+  } else {
+    APP_LOG(TS_OFF, VLEVEL_M, "\nNo existing user configuration in FRAM.\n");
   }
 
   uint32_t devAddr = 0;
