@@ -180,6 +180,18 @@ message D10Measurement {
   uint32 timeElapsed = 3;
 }
 
+/* WATERMARK200SS Soil Tension Sensor */
+message WATERMARK200SSMeasurement {
+  // Soil tension (kPa or cb)
+  double soil_tension = 1;
+}
+
+/* WATERMARK200TS Soil Temperature Sensor */
+message WATERMARK200TSMeasurement {
+  // Temperature in celcius
+  double temperature = 1;
+}
+
 /* Spectral Sensor */
 message AS7343Measurement {
   // voltage
@@ -203,7 +215,9 @@ message Measurement {
     YFS210CMeasurement yfs210c = 9;
     PCAP02Measurement pcap02 = 10;
     D10Measurement d10 = 11;
-    AS7343Measurement AS7343 = 12;
+    WATERMARK200SSMeasurement watermark200ss = 12;
+    WATERMARK200TSMeasurement watermark200ts = 13;
+    AS7343Measurement AS7343 = 14;
   }
 }
 
@@ -470,7 +484,9 @@ enum EnabledSensor {
   YFS210C = 8;
   PCAP02 = 9;
   D10 = 10;
-  AS7343 = 11;
+  WATERMARK200SS = 11;
+  WATERMARK200TS = 12;
+  AS7343 = 13;
 }
 
 enum Uploadmethod {

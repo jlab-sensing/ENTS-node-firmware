@@ -23,6 +23,7 @@ extern "C" {
 #include <stdlib.h>
 
 #include "ads.h"
+#include "sensors.h"
 
 typedef struct {
   double voltage;
@@ -63,7 +64,8 @@ SEN0308Measurement SEN0308GetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t SEN0308_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t SEN0308_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                       EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

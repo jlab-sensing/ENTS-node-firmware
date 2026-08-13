@@ -88,6 +88,10 @@
       margin: 0;
     }
 
+    .sensor-warning {
+      color: red;
+    }
+
     /* Error/success messages */
     .error {
       color: red;
@@ -279,9 +283,9 @@
               without quotes) or leave blank to use the default '0' address. Valid SDI-12 addresses: ['0'-'9'=48-57,
               'A'-'Z'=65-90, 'a'-'z'=97-122].</li>
             <li>For I2C sensors, leave blank to use the default sensor address, or enter the non left-shifted 7-bit
-              address in decimal. Non-decimal input (such as hexadecimal) is not supported.</li>
-            <li>For onboard analog sensing (such as the Irrometer Watermark 200SS), you mey enter either the ADC channel
-              number or leave blank to use the default ADC channel.</li>
+              address in hexadecimal.</li>
+            <li>For onboard analog sensing (such as the Irrometer Watermark 200SS), enter the pin number corresponding
+              to the 40 pin header.</li>
             <li>For digital sensors (such as pulse output water meters or frequency/PWM output flow meters), you may
               enter either the pin number or leave blank to use the default pin.</li>
           </ul>
@@ -393,17 +397,120 @@
             <option value="YFS210C">YFS210C Water Flow Meter</option>
             <option value="PCAP02">PCAP02 Capacitance Sensor</option>
             <option value="D10">D10 Water Meter</option>
+            <option value="WATERMARK200SS">Watermark 200SS Soil Moisture Sensor</option>
+            <option value="WATERMARK200TS">Watermark 200TS Temperature Sensor</option>
           </select>
           <label for="sensor_cell_id_${i}">Cell ID (Sensor ${i})</label>
           <input type="number" id="sensor_cell_id_${i}" name="sensor_cell_id_${i}" min="0"
             placeholder="Enter Cell ID (positive integer) or leave blank for Default Cell ID">
           <label for="sensor_index_${i}">Index (Sensor ${i})</label>
-          <input type="text" id="sensor_index_${i}" name="sensor_index_${i}"
-            placeholder="Enter Index (positive integer or single character) or leave blank for default index">
+          <input type="text" id="sensor_index_${i}" name="sensor_index_${i}" list="sensor_index_options_${i}"
+    placeholder="Enter Index or leave blank for default">
+  <datalist id="sensor_index_options_${i}"></datalist>
+  <div id="sensor_warning_${i}" class="sensor-warning"></div>
         `;
 
         sensor_selection_list.appendChild(sensor_selection);
       }
+
+      const adc_allowed = ["21", "22", "24", "18"];
+      const digital_allowed = ["21", "22", "24", "18"]; // Add TCA 9535 once sensors support.
+      const SENSORS = {
+        Voltage: {
+          type: "i2c",
+          defaultIndex: "0x40",
+          validIndexes: ["0x40"], // need to add others once i find out
+          conflicts: ["SEN0308"]
+        },
+
+        Current: {
+          type: "i2c",
+          defaultIndex: "0x40",
+          validIndexes: ["0x40"],
+          conflicts: ["SEN0308"]
+        },
+
+        Teros12: {
+          type: "sdi-12",
+          defaultIndex: "0",
+          validIndexes: [],
+          conflicts: []
+        },
+
+        Teros21: {
+          type: "sdi-12",
+          defaultIndex: "0",
+          validIndexes: [],
+          conflicts: []
+        },
+
+        BME280: {
+          type: "i2c",
+          defaultIndex: "0x77",
+          validIndexes: ["0x77", "0x76"],
+          conflicts: []
+        },
+
+        Phytos31: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: adc_allowed,
+          conflicts: []
+        },
+
+        SEN0308: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: adc_allowed,
+          conflicts: ["Voltage", "Current"]
+        },
+
+        SEN0257: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: adc_allowed,
+          conflicts: []
+        },
+
+        YFS210C: {
+          type: "digital",
+          defaultIndex: "",
+          validIndexes: digital_allowed,
+          conflicts: ["PCAP02"]
+        },
+
+        PCAP02: {
+          type: "i2c",
+          defaultIndex: "0x28",
+          validIndexes: ["0x28"],
+          conflicts: ["YFS210C"]
+        },
+
+        D10: {
+          type: "digital",
+          defaultIndex: "",
+          validIndexes: digital_allowed,
+          conflicts: []
+        },
+        WATERMARK200SS: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: adc_allowed,
+          conflicts: []
+        },
+
+        WATERMARK200TS: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: adc_allowed,
+          conflicts: []
+        }
+      };
+
+      const disallowed_pins = []; // update when jack confirms how digital will be handled.
+      const sdi12_allowed = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+      ];
 
       // DOM Elements
       const modal = document.getElementById("configModal");
@@ -413,7 +520,178 @@
       const closeBtn = document.getElementsByClassName("close")[0];
       const errorDisplay = document.getElementById('errorDisplay');
       const configForm = document.getElementById("configForm");
+      sensor_selection_list.addEventListener(
+        "change",
+        (event) => {
 
+          if (event.target.id.startsWith("sensor_dropdown_")) {
+
+            const i = Number(
+              event.target.id.split("_").pop()
+            );
+
+            updateSensorIndex(i);
+            validateIndex(i);
+          }
+        }
+      );
+
+      sensor_selection_list.addEventListener(
+        "input",
+        (event) => {
+
+          if (event.target.id.startsWith("sensor_index_")) {
+
+            const i = Number(
+              event.target.id.split("_").pop()
+            );
+
+            validateIndex(i);
+          }
+        }
+      );
+
+
+      function validateSensorIndex(sensorNum) {
+        updateIndexOptions(sensorNum);
+      }
+      function validateIndex(sensorNum) {
+
+        let warning = '';
+
+        const sensorName =
+          document.getElementById(`sensor_dropdown_${sensorNum}`).value;
+
+        const sensor = SENSORS[sensorName];
+
+        if (!sensor)
+          return;
+
+
+        const index =
+          document.getElementById(`sensor_index_${sensorNum}`).value;
+        // duplicate check
+        for (let i = 1; i <= 16; i++) {
+
+          if (i === sensorNum)
+            continue;
+
+          if (
+            document.getElementById(`sensor_dropdown_${i}`).value === null
+          ) continue;
+          const otherSensorName =
+            document.getElementById(`sensor_dropdown_${i}`).value;
+
+          const otherSensor =
+            SENSORS[otherSensorName];
+          const otherIndex =
+            document.getElementById(`sensor_index_${i}`).value;
+          if (!otherSensor) continue;
+          if (
+            otherSensor &&
+            (otherSensor.type === sensor.type ||
+              sensor.type === "adc" && otherSensor.type === "digital" ||
+              sensor.type === "digital" && otherSensor.type === "adc") &&
+            otherIndex === index && index !== null &&
+            !(sensorName === "Voltage" && otherSensorName === "Current") &&
+            !(otherSensorName === "Voltage" && sensorName === "Current") //unusual circumstance where same index is allowed
+          ) {
+            warning +=
+              `Duplicate sensor index with Sensor ${i}. `;
+          }
+          if (otherSensor && sensor.conflicts.includes(otherSensorName)) {
+            warning +=
+              `Sensor ${sensorNum} (${sensorName}) conflicts with Sensor ${i} (${otherSensorName}). `;
+          }
+        }
+        if (sensor.type === 'sdi-12' && index !== '' && !sdi12_allowed.includes(index)) {
+          warning +=
+            'This may not be a valid SDI-12 address. ';
+        }
+        if (
+          sensor.type === 'i2c' &&
+          sensor.validIndexes &&
+          !sensor.validIndexes.includes(index)
+        ) {
+          warning +=
+            'This may not be a valid I2C address for this device. ';
+        }
+        if (sensor.type === 'adc') {
+          if (!sensor.validIndexes.includes(index)) {
+            warning += "This is not a valid ADC pin. "
+          }
+          else if (index === "21") {
+            warning += "This pin will conflict with any SPI devices. "
+          }
+          else if (index === "16") {
+            warning += "This pin will conflict with user button and TCA interrupt. "
+          }
+        }
+        if (
+          sensor.type === 'digital'
+        ) {
+          if (!sensor.validIndexes.includes(index)) {
+            warning += "This is not a valid digital pin. "
+          }
+          else if (index === "21") {
+            warning += "This pin will conflict with any SPI devices. "
+          }
+          else if (index === "16") {
+            warning += "This pin will conflict with user button and TCA interrupt. "
+          }
+        }
+
+        setSensorWarning(sensorNum, warning);
+      }
+      function setSensorWarning(sensorNum, message) {
+        const warning =
+          document.getElementById(`sensor_warning_${sensorNum}`);
+
+        if (message) {
+          warning.textContent = message;
+          warning.style.display = "block";
+        } else {
+          warning.textContent = "";
+          warning.style.display = "none";
+        }
+      }
+      function updateSensorIndex(sensorNum) {
+
+        const sensor =
+          SENSORS[
+          document.getElementById(
+            `sensor_dropdown_${sensorNum}`
+          ).value
+          ];
+
+        const datalist =
+          document.getElementById(
+            `sensor_index_options_${sensorNum}`
+          );
+
+        datalist.innerHTML = "";
+
+        if (!sensor?.validIndexes) {
+          document.getElementById(`sensor_index_${sensorNum}`).value = '';
+          return;
+        }
+        else {
+          document.getElementById(`sensor_index_${sensorNum}`).value = sensor.defaultIndex;
+        }
+
+
+        sensor.validIndexes.forEach(index => {
+
+          const option =
+            document.createElement("option");
+
+          option.value = index;
+
+          datalist.appendChild(option);
+        });
+
+
+      }
       // Show modal with success message
       function showSuccessModal(message) {
         modalTitle.textContent = "Success!";
@@ -444,6 +722,7 @@
 
         try {
           const formData = new FormData(configForm);
+          console.log(JSON.stringify(Object.fromEntries(formData.entries())))
           console.log(formData);
 
           const response = await fetch('/save', {
@@ -482,9 +761,9 @@
         try {
           const response = await fetch('/config');
           if (!response.ok) throw new Error("Failed to fetch configuration");
-
           const config = await response.json();
 
+          console.log(config);
           // Fill standard fields
           const fields = [
             "logger_id",
@@ -500,12 +779,21 @@
           ];
 
           // Append sensor fields
-          for (let i = 1; i <= 16; i++) { // Number of sensors listed here may not exceed the limit defined in the protobuf options file.
-            fields.push(`sensor_dropdown_${i}`);
-            fields.push(`sensor_cell_id_${i}`);
-            fields.push(`sensor_index_${i}`);
-          }
+          // Fill sensor fields
+          console.log("count:", config.enabled_sensors_multiple_count);
+          console.log("sensors:", config.enabled_sensors_multiple);
+          for (let i = 0; i < config.enabled_sensors_multiple_count; i++) {
+            const sensor = config.enabled_sensors_multiple[i];
+            console.log(document.getElementById("sensor_dropdown_1"));
+            document.getElementById(`sensor_dropdown_${i + 1}`).value =
+              sensor.sensor_type;
 
+            document.getElementById(`sensor_cell_id_${i + 1}`).value =
+              sensor.sensor_cell_id;
+
+            document.getElementById(`sensor_index_${i + 1}`).value =
+              sensor.sensor_index;
+          }
           fields.forEach(key => {
             const field = document.getElementById(key);
             if (field && config[key] !== undefined) {

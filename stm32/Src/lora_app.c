@@ -505,7 +505,6 @@ static void SendTxData(void) {
     } else {
       APP_LOG(TS_OFF, VLEVEL_M,
               "Could not sync clock, retrying on next tx\r\n");
-      clock_synced = true;
     }
     // otherwise return
     return;
@@ -570,9 +569,9 @@ static void SendTxData(void) {
   //  AppData.BufferSize = (uint8_t) size;
   //}
 
-  APP_LOG(TS_ON, VLEVEL_M, "Payload: ");
+  APP_LOG(TS_ON, VLEVEL_M, "Payload (%d): ", AppData.BufferSize);
   for (int i = 0; i < AppData.BufferSize; i++) {
-    APP_LOG(TS_OFF, VLEVEL_M, "%x ", AppData.Buffer[i]);
+    APP_LOG(TS_OFF, VLEVEL_M, "%02X ", AppData.Buffer[i]);
   }
   APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
   APP_LOG(TS_ON, VLEVEL_M, "%d\r\n", AppData.BufferSize);

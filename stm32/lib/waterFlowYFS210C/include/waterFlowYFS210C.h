@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file     waterFlow.h
+ * @file     waterFlowYFS210C.h
  * @author   Caden Jacobs
  * @brief    This file contains all the function prototypes for
- *           the waterFlow.c file.
+ *           the waterFlowYFS210C.c file.
  *
  *           This library is designed to read measurements from a Water Flow
  *           Sensor
@@ -13,8 +13,8 @@
  ******************************************************************************
  */
 
-#ifndef LIB_WATERFLOW_INCLUDE_WATERFLOW_H_
-#define LIB_WATERFLOW_INCLUDE_WATERFLOW_H_
+#ifndef LIB_WATERFLOW_INCLUDE_WATERFLOWYFS210C_H_
+#define LIB_WATERFLOW_INCLUDE_WATERFLOWYFS210C_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +24,7 @@ extern "C" {
 #include <stdlib.h>
 
 #include "ads.h"
+#include "sensors.h"
 
 extern volatile unsigned long pulse_count;
 
@@ -35,7 +36,7 @@ extern volatile unsigned long pulse_count;
  * @return   HAL_StatusTypeDef
  ******************************************************************************
  */
-void FlowInit(void);
+void FlowYFS210CInit(void);
 
 /**
  ******************************************************************************
@@ -46,7 +47,7 @@ void FlowInit(void);
  * @return   measurements
  ******************************************************************************
  */
-YFS210CMeasurement FlowGetMeasurement(void);
+YFS210CMeasurement FlowYFS210CGetMeasurement(void);
 
 /**
  * @brief Read water Flow sensor and serialize measurement
@@ -59,10 +60,11 @@ YFS210CMeasurement FlowGetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatFlow_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t WatFlowYFS210C_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // LIB_WATERFLOW_INCLUDE_WATERFLOW_H_
+#endif  // LIB_WATERFLOW_INCLUDE_WATERFLOWYFS210C_H_

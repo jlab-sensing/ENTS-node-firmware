@@ -39,6 +39,7 @@
 
 /** Array for holding function callbacks */
 static SensorsPrototypeMeasure callback_arr[MAX_SENSORS];
+static EnabledSensorMultiple *callback_arr_context[MAX_SENSORS];
 
 /** Length of @ref callback_arr */
 static unsigned int callback_arr_len = 0;
@@ -85,6 +86,7 @@ void SensorsInit(void) {
 
 void SensorsStart(void) {
   // start the timer
+  APP_LOG(TS_OFF, VLEVEL_H, "Sensor measurement timer started.\r\n");
   UTIL_TIMER_Start(&MeasureTimer);
   SensorsRun(NULL);
 }
@@ -94,7 +96,7 @@ void SensorsStop(void) {
   UTIL_TIMER_Stop(&MeasureTimer);
 }
 
-int SensorsAdd(SensorsPrototypeMeasure cb) {
+int SensorsAdd(SensorsPrototypeMeasure cb, EnabledSensorMultiple *sensor) {
   // check for out of range error
   if (callback_arr_len >= MAX_SENSORS) {
     APP_LOG(TS_OFF, VLEVEL_M, "Error: Too many sensors added!\r\n");
@@ -103,6 +105,7 @@ int SensorsAdd(SensorsPrototypeMeasure cb) {
 
   // store callback in array
   callback_arr[callback_arr_len] = cb;
+  callback_arr_context[callback_arr_len] = sensor;
 
   // return index and increment
   return callback_arr_len++;
@@ -125,7 +128,9 @@ void SensorsMeasure(void) {
     // SensorsAdd() since the callback order is used by the sensor measurement
     // callback function to identify which (if any) sensor it is in the case of
     // multiple of the same sensor type.
-    buffer_len = callback_arr[i](buffer, ts, i);
+
+    buffer_len = callback_arr[i](buffer, ts, i, callback_arr_context[i]);
+
     meas_idx++;
 
     if (buffer_len == ((size_t)-1)) {
@@ -155,7 +160,7 @@ void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
   if (status == FRAM_BUFFER_FULL) {
     APP_LOG(TS_ON, VLEVEL_M, "Error: TX Buffer full!\r\n");
   } else if (status != FRAM_OK) {
-    APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer!\r\n");
+    APP_LOG(TS_ON, VLEVEL_M, "Error: General FRAM buffer! %d\r\n", status);
   }
 }
 

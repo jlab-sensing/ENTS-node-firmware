@@ -7,7 +7,6 @@ TODO:
 from datetime import datetime
 
 import pandas as pd
-
 import requests
 
 
@@ -42,7 +41,7 @@ class BackendClient:
 
         self.base_url = base_url
 
-    def get(self, endpoint: str, params: dict = None) -> dict:
+    def get(self, endpoint: str, params: dict | None = None) -> dict:
         """Get request to the API.
 
         Args:

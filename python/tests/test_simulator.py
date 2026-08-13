@@ -6,10 +6,9 @@ localhost:8080. Ensure there is not another process using this port.
 """
 
 import unittest
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-from multiprocessing import Process
 from datetime import datetime, timedelta
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from multiprocessing import Process
 from time import sleep
 
 from ents.simulator.node import NodeSimulator
@@ -20,7 +19,6 @@ class Backend(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         """Override to not print to stdout"""
-        pass
 
     def do_POST(self):
         """Return 200 from a POST request"""
@@ -62,25 +60,25 @@ class TestNodeSimulator(unittest.TestCase):
 
     def test_power(self):
         sim = NodeSimulator(1, 2, "power")
-        ts = int(datetime(2025, 5, 7).timestamp())
+        ts = int(datetime(2025, 5, 7).astimezone().timestamp())
         sim.measure(ts)
         sim.send_next(self.url)
 
     def test_teros12(self):
         sim = NodeSimulator(1, 2, "teros12")
-        ts = int(datetime(2025, 5, 7).timestamp())
+        ts = int(datetime(2025, 5, 7).astimezone().timestamp())
         sim.measure(ts)
         sim.send_next(self.url)
 
     def test_teros21(self):
         sim = NodeSimulator(1, 2, "teros21")
-        ts = int(datetime(2025, 5, 7).timestamp())
+        ts = int(datetime(2025, 5, 7).astimezone().timestamp())
         sim.measure(ts)
         sim.send_next(self.url)
 
     def test_bme280(self):
         sim = NodeSimulator(1, 2, "bme280")
-        ts = int(datetime(2025, 5, 7).timestamp())
+        ts = int(datetime(2025, 5, 7).astimezone().timestamp())
         sim.measure(ts)
         sim.send_next(self.url)
 
@@ -90,7 +88,7 @@ class TestNodeSimulator(unittest.TestCase):
         """
 
         sim = NodeSimulator(1, 2, "bme280")
-        ts_start = datetime(2025, 5, 7)
+        ts_start = datetime(2025, 5, 7).astimezone()
 
         for i in range(2000):
             ts = int((ts_start + timedelta(days=i)).timestamp())
