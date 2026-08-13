@@ -86,6 +86,7 @@ void SensorsInit(void) {
 
 void SensorsStart(void) {
   // start the timer
+  APP_LOG(TS_OFF, VLEVEL_H, "Sensor measurement timer started.\r\n");
   UTIL_TIMER_Start(&MeasureTimer);
   SensorsRun(NULL);
 }

@@ -2,7 +2,7 @@
 shopt -s globstar
 # format c code
 echo "Formattting stm32 C code..."
-clang-format.exe --fallback-style=Google -i --verbose \
+clang-format --fallback-style=Google -i --verbose \
   stm32/Src/examples/*.c \
   stm32/lib/**/*.h \
   stm32/lib/**/*.c \
@@ -11,13 +11,13 @@ clang-format.exe --fallback-style=Google -i --verbose \
 echo "Done."
 
 echo "Formattting esp32 C++ code..."
-clang-format.exe --fallback-style=Google -i --verbose \
+clang-format --fallback-style=Google -i --verbose \
   esp32/**/*.cpp \
   esp32/**/*.hpp
 echo "Done."
 
 echo "Formatting protobuf code..."
-clang-format.exe --style=Google -i --verbose \
+clang-format --style=Google -i --verbose \
   proto/c/include/transcoder.h \
   proto/c/src/transcoder.c \
   proto/**/*.proto
