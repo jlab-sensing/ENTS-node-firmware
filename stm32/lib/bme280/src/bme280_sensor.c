@@ -133,7 +133,8 @@ BME280Status BME280MeasureAll(BME280Data *data) {
   return rslt;
 }
 
-size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
+size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor) {
   // read sensor
   BME280Data sens_data;
 
@@ -151,7 +152,7 @@ size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  meta.cell_id = sensor->cell_id;
 
   SensorStatus sen_status = SENSOR_OK;
   size_t data_len = 0;
