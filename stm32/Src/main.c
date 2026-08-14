@@ -209,6 +209,11 @@ int main(void) {
       SensorsAdd(pcap02_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "PCAP02 Enabled!\n");
     }
+    if (sensor == EnabledSensor_AS7343) {
+      AS7343Init();
+      SensorsAdd(AS7343Measure, sensor_ctx);
+      APP_LOG(TS_OFF, VLEVEL_M, "AS7343 Enabled!\n");
+    }
     // TODO add support for dummy sensor
   }
 

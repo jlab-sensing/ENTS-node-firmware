@@ -119,7 +119,8 @@ void AS7343LEDOff(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                     EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

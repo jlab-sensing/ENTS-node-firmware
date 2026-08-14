@@ -211,7 +211,8 @@ void AS7343LEDOff(void) {
   APP_LOG(TS_OFF, VLEVEL_M, "LED off\n");
 }
 
-size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
+size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                     EnabledSensorMultiple *sensor) {
   // read sensor
   AS7343Data sens_data = {};
   AS7343GetMeasurement(&sens_data);
@@ -222,7 +223,7 @@ size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  meta.cell_id = sensor->cell_id;
 
   SensorStatus sen_status = SENSOR_OK;
   size_t data_size = 0;
