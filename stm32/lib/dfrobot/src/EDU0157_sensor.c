@@ -1,5 +1,3 @@
-#include "EDU0157_sensor.h"
-
 /** @file EDU0157_sensor.c
  *
  * @brief EDU0157 sensor implementation
@@ -11,6 +9,8 @@
  *
  *
  */
+
+#include "EDU0157_sensor.h"
 
 /**
  * @brief Required time between measurements
@@ -26,15 +26,18 @@ static uint32_t period = 0;
  */
 static struct EDU0157_dev dev;
 static uint8_t dev_addr = DFR_DEVICE_ADDR;
+
+// Converts "NESW" to degrees clockwise from north.
+// Returns -1 on error.
 static int direction_to_int(const char *dir) {
   if (strcmp(dir, "N") == 0) return 0;
-  if (strcmp(dir, "NE") == 0) return 1;
-  if (strcmp(dir, "E") == 0) return 2;
-  if (strcmp(dir, "SE") == 0) return 3;
-  if (strcmp(dir, "S") == 0) return 4;
-  if (strcmp(dir, "SW") == 0) return 5;
-  if (strcmp(dir, "W") == 0) return 6;
-  if (strcmp(dir, "NW") == 0) return 7;
+  if (strcmp(dir, "NE") == 0) return 45;
+  if (strcmp(dir, "E") == 0) return 90;
+  if (strcmp(dir, "SE") == 0) return 135;
+  if (strcmp(dir, "S") == 0) return 180;
+  if (strcmp(dir, "SW") == 0) return 225;
+  if (strcmp(dir, "W") == 0) return 270;
+  if (strcmp(dir, "NW") == 0) return 315;
 
   return -1;
 }
@@ -72,7 +75,8 @@ int EDU0157MeasureAll(EDU0157Data *sensor_data) {
 
   return 1;
 }
-size_t EDU0157Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
+size_t EDU0157Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor) {
   EDU0157Data sensor_data = {};
   int status = EDU0157MeasureAll(&sensor_data);
   if (status <= 0) {
@@ -84,11 +88,12 @@ size_t EDU0157Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  meta.cell_id = sensor->cell_id;
 
   SensorStatus sen_status;
   size_t data_len = 0;
 
+  // wind speed
   sen_status =
       EncodeDoubleMeasurement(meta, sensor_data.wind_speed,
                               SensorType_EDU0157_WIND_SPEED, data, &data_len);
@@ -96,35 +101,45 @@ size_t EDU0157Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
-  // wd
+
+  // wind direction
   sen_status = EncodeUint32Measurement(meta, sensor_data.wind_direction,
                                        SensorType_EDU0157_WIND_DIRECTION, data,
                                        &data_len);
-  if (sen_status != SENSOR_OK) return -1;
+  if (sen_status != SENSOR_OK) {
+    return -1;
+  }
   SensorsAddMeasurement(data, data_len);
 
-  // alttideu
+  // altitude
   sen_status = EncodeDoubleMeasurement(
       meta, sensor_data.altitude, SensorType_EDU0157_ALTITUDE, data, &data_len);
-  if (sen_status != SENSOR_OK) return -1;
+  if (sen_status != SENSOR_OK) {
+    return -1;
+  }
   SensorsAddMeasurement(data, data_len);
 
   // pressure
   sen_status = EncodeDoubleMeasurement(
       meta, sensor_data.pressure, SensorType_EDU0157_PRESSURE, data, &data_len);
-  if (sen_status != SENSOR_OK) return -1;
+  if (sen_status != SENSOR_OK) {
+    return -1;
+  }
   SensorsAddMeasurement(data, data_len);
 
   // temp
   sen_status = EncodeDoubleMeasurement(
       meta, sensor_data.temperature, SensorType_EDU0157_TEMP, data, &data_len);
-  if (sen_status != SENSOR_OK) return -1;
+  if (sen_status != SENSOR_OK) {
+    return -1;
+  }
   SensorsAddMeasurement(data, data_len);
 
   // relative humidity
   sen_status = EncodeDoubleMeasurement(
       meta, sensor_data.humidity, SensorType_EDU0157_HUMIDITY, data, &data_len);
-  if (sen_status != SENSOR_OK) return -1;
-  SensorsAddMeasurement(data, data_len);
+  if (sen_status != SENSOR_OK) {
+    return -1;
+  }
   return data_len;
 }

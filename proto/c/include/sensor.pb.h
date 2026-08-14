@@ -48,7 +48,7 @@ typedef enum _SensorType {
     SensorType_WATERMARK200SS_SOIL_TENSION = 23,
     /* * Irrometer Watermark 200TS measurements */
     SensorType_WATERMARK200TS_SOIL_TEMPERATURE = 24,
-        /* * EDU0157 weather station measurements */
+    /* * EDU0157 weather station measurements */
     SensorType_EDU0157_WIND_SPEED = 25,
     SensorType_EDU0157_WIND_DIRECTION = 26,
     SensorType_EDU0157_ALTITUDE = 27,
@@ -130,8 +130,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _SensorType_MIN SensorType_NONE
-#define _SensorType_MAX SensorType_WATERMARK200TS_SOIL_TEMPERATURE
-#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_WATERMARK200TS_SOIL_TEMPERATURE+1))
+#define _SensorType_MAX SensorType_EDU0157_HUMIDITY
+#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_EDU0157_HUMIDITY+1))
 const char *SensorType_name(SensorType v);
 
 #define _SensorError_MIN SensorError_OK

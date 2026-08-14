@@ -41,7 +41,8 @@ int EDU0157Init(void);
  * @param uint32_t idx Index of the measurement
  * @return size_t,-1 if failed
  */
-size_t EDU0157Measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t EDU0157Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor);
 
 /**
  * @brief Measure all sensor data from the EDU0157 sensor and store it in the

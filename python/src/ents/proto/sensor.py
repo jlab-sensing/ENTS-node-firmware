@@ -159,7 +159,7 @@ def get_sensor_data(meas_type: int) -> dict:
         },
         SensorType.EDU0157_WIND_DIRECTION: {
             "name": "Wind Direction",
-            "unit": "N/A",
+            "unit": "degrees E of N",
         },
         SensorType.EDU0157_ALTITUDE: {
             "name": "Altitude",
@@ -175,7 +175,7 @@ def get_sensor_data(meas_type: int) -> dict:
         },
         SensorType.EDU0157_HUMIDITY: {
             "name": "Humidity",
-            "unit": "%RH",
+            "unit": "%",
         },
         SensorType.D10_FLOW: {
             "name": "Flow rate",

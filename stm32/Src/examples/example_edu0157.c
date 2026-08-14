@@ -21,44 +21,10 @@
 #include "sys_app.h"
 #include "usart.h"
 
-extern I2C_HandleTypeDef hi2c1;
-
-void I2C_Scan(void) {
-  APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Scanning I2C bus...\r\n");
-
-  uint8_t found = 0;
-
-  for (uint8_t addr = 1; addr < 128; addr++) {
-    HAL_StatusTypeDef result;
-
-    result = HAL_I2C_IsDeviceReady(&hi2c1,
-                                   addr << 1,  // HAL expects 8-bit address
-                                   3,          // retries
-                                   100         // timeout (ms)
-    );
-
-    if (result == HAL_OK) {
-      APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Found device at 0x%02X\r\n", addr);
-      found++;
-    }
-  }
-
-  if (found == 0) {
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "No I2C devices found.\r\n");
-  } else {
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Scan complete. %d device(s) found.\r\n",
-            found);
-  }
-}
-
 // user includes
 #include "EDU0157_sensor.h"
 
-#ifndef DELAY
-#define DELAY 1000
-#endif
-
-HAL_StatusTypeDef rc;
+void I2C_Scan(void);
 
 int main(void) {
   /* Reset peripherals and initialize HAL */
@@ -87,7 +53,7 @@ int main(void) {
           __FILE__, __DATE__, __TIME__);
 
   while (1) {
-    HAL_Delay(DELAY);
+    HAL_Delay(1000);
     EDU0157Data data = {};
 
     int status = EDU0157MeasureAll(&data);
@@ -105,5 +71,33 @@ int main(void) {
     } else {
       APP_LOG(TS_OFF, VLEVEL_ALWAYS, "failed to read \r\n");
     }
+  }
+}
+
+void I2C_Scan(void) {
+  APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Scanning I2C bus...\r\n");
+
+  uint8_t found = 0;
+
+  for (uint8_t addr = 1; addr < 128; addr++) {
+    HAL_StatusTypeDef result;
+
+    result = HAL_I2C_IsDeviceReady(&hi2c1,
+                                   addr << 1,  // HAL expects 8-bit address
+                                   3,          // retries
+                                   100         // timeout (ms)
+    );
+
+    if (result == HAL_OK) {
+      APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Found device at 0x%02X\r\n", addr);
+      found++;
+    }
+  }
+
+  if (found == 0) {
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "No I2C devices found.\r\n");
+  } else {
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Scan complete. %d device(s) found.\r\n",
+            found);
   }
 }
