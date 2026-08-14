@@ -12,10 +12,10 @@ metadata fields.
 from google.protobuf.json_format import MessageToDict, ParseDict
 
 from .sensor_pb2 import (
-    SensorMeasurement,
     RepeatedSensorMeasurements,
-    SensorType,
     RepeatedSensorResponses,
+    SensorMeasurement,
+    SensorType,
 )
 
 

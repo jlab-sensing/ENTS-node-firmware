@@ -10,9 +10,8 @@ Still need to fill in with common functions:
 Can pull from personal scripts from SenSys (jtmadden)
 """
 
-import pandas as pd
-
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # matplotlib formatting
 # plt.rcParams["font.size"] = 7
@@ -28,7 +27,7 @@ def plot_data(data: list[pd.DataFrame], name, **kwargs):
         name: Column or measurement name
     """
 
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     for d in data:
         ax.plot(d["timestamp"], d[name], **kwargs)
 

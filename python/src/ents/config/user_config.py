@@ -16,18 +16,20 @@ Key features:
 @date 2024-10-10
 """
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QInputDialog
 import json
 import os
+import re  # For validating URL input
 import sys
+
 import serial
 import serial.tools.list_ports
-import re  # For validating URL input
-from ..proto import encode_user_configuration, decode_user_configuration
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QInputDialog
+
+from ..proto import decode_user_configuration, encode_user_configuration
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow:
     def setupUi(self, MainWindow):
         """
         @brief Sets up the user interface components.
@@ -421,9 +423,8 @@ class Ui_MainWindow(object):
                 api_port = 0
 
             # Validate user input on case of WiFi
-            if upload_method == "WiFi":
-                if not self.lineEdit_WiFi_SSID.text():
-                    raise ValueError("WiFi SSID cannot be empty.")
+            if upload_method == "WiFi" and not self.lineEdit_WiFi_SSID.text():
+                raise ValueError("WiFi SSID cannot be empty.")
 
             # Construct the configuration dictionary to be saved in json file
             configuration = {
@@ -483,7 +484,7 @@ class Ui_MainWindow(object):
                 QtWidgets.QMessageBox.information(
                     self.centralwidget, "Success", "Configurations saved successfully."
                 )
-            except Exception as e:
+            except OSError as e:
                 QtWidgets.QMessageBox.critical(
                     self.centralwidget, "Error", f"Failed to save configurations: {e}"
                 )
@@ -645,7 +646,7 @@ class Ui_MainWindow(object):
                     self.centralwidget, "Success", "Configuration loaded successfully."
                 )
 
-            except Exception as e:
+            except OSError as e:
                 QtWidgets.QMessageBox.critical(
                     self.centralwidget, "Error", f"Failed to load configuration: {e}"
                 )
