@@ -195,7 +195,7 @@ message WATERMARK200TSMeasurement {
 /* Spectral Sensor */
 message AS7343Measurement {
   // voltage
-  uint32 channel_combined = 1;
+  uint32 count = 1;
 }
 
 /* Top level measurement message */
@@ -217,7 +217,7 @@ message Measurement {
     D10Measurement d10 = 11;
     WATERMARK200SSMeasurement watermark200ss = 12;
     WATERMARK200TSMeasurement watermark200ts = 13;
-    AS7343Measurement AS7343 = 14;
+    AS7343Measurement as7343 = 14;
   }
 }
 

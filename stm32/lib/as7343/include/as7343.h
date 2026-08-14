@@ -20,14 +20,13 @@
 
 #include "as7343_defs.h"
 #include "i2c.h"
-#include "stm32_systime.h"
 #include "sensors.h"
+#include "stm32_systime.h"
 
 typedef struct {
-  uint16_t channelLow[18];
-  uint16_t channelHigh[18];
-  uint16_t channelCombined[18];
-
+  uint16_t channelLow[ksfAS7343NumChannels];
+  uint16_t channelHigh[ksfAS7343NumChannels];
+  uint16_t channelCombined[ksfAS7343NumChannels];
 } AS7343Data;
 
 /*! CPP guard */
@@ -122,6 +121,9 @@ void AS7343LEDOff(void);
  */
 size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
                      EnabledSensorMultiple *sensor);
+
+// TODO: Add function to print AS7343Data in a human readable format (take note
+// of )
 
 #ifdef __cplusplus
 }

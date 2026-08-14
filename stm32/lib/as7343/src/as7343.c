@@ -22,8 +22,6 @@
 #include "transcoder.h"
 #include "userConfig.h"
 
-static volatile AS7343Data sensorReadings = {};
-
 // private functions
 unsigned char I2C_ReadRegister(unsigned char I2CAddress,
                                unsigned char deviceRegisterAddress);
@@ -135,6 +133,12 @@ int8_t AS7343Init(void) {
 }
 
 void AS7343GetMeasurement(AS7343Data *channelData) {
+  // TODO: Convert to a singular burst read of all 18 16-bit data registers.
+  // Consider changing AS7343Data to a union (18 16-bit, 36 8-bit) to make it
+  // easer to perform a burst read of the 18 16-bit data registers (36 uint8_t),
+  // then perform any necessary byte ordering fixes. Can also use an array of
+  // uint16_t and cast the array to uint8_t for the I2C read (then fix the byte
+  // ordering).
   for (int i = 0; i < ksfAS7343NumChannels; i++) {
     channelData->channelLow[i] = I2C_ReadRegister(
         kAS7343Addr,
@@ -226,31 +230,46 @@ size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
   meta.cell_id = sensor->cell_id;
 
   SensorStatus sen_status = SENSOR_OK;
-  size_t data_size = 0;
-  size_t data_length = 0;
+  size_t data_len = 0;
 
-  // spectral data sensor measurement
-  SensorMeasurement sensorMeasurement[18] = {SensorMeasurement_init_zero};
+  // Channel readout order (auto_smux=3)
+  // Note: VIS and FD are re-read and remain the same between cycles
+  // because the data registers are latched upon reading ASTATUS 0x94.
+  // Cycle 1: FZ, FY, FXL, NIR, 2xVIS, FD
+  // Cycle 2: F2, F3, F4, F6, 2xVIS, FD
+  // Cycle 3: F1, F7, F8, F5, 2xVIS, FD
+  SensorType s[] = {SensorType_AS7343_SPECTRAL_FZ_450NM,
+                    SensorType_AS7343_SPECTRAL_FY_555NM,
+                    SensorType_AS7343_SPECTRAL_FXL_600NM,
+                    SensorType_AS7343_SPECTRAL_NIR_855NM,
+                    SensorType_AS7343_SPECTRAL_VIS,
+                    SensorType_AS7343_SPECTRAL_FD,
+                    SensorType_AS7343_SPECTRAL_F2_425NM,
+                    SensorType_AS7343_SPECTRAL_F3_475NM,
+                    SensorType_AS7343_SPECTRAL_F4_515NM,
+                    SensorType_AS7343_SPECTRAL_F6_640NM,
+                    SensorType_AS7343_SPECTRAL_VIS,
+                    SensorType_AS7343_SPECTRAL_FD,
+                    SensorType_AS7343_SPECTRAL_F1_405NM,
+                    SensorType_AS7343_SPECTRAL_F7_690NM,
+                    SensorType_AS7343_SPECTRAL_F8_745NM,
+                    SensorType_AS7343_SPECTRAL_F5_550NM,
+                    SensorType_AS7343_SPECTRAL_VIS,
+                    SensorType_AS7343_SPECTRAL_FD};
+  for (int channel = 0; channel < ksfAS7343NumChannels; channel++) {
+    sen_status = EncodeUint32Measurement(
+        meta, sens_data.channelCombined[channel], s[channel], data, &data_len);
+    if (sen_status != SENSOR_OK) {
+      return -1;
+    }
 
-  for (int i = 0; i < 18; i++) {
-    sensorMeasurement[i].type = SensorType_AS7343_SPECTRAL_DATA;
-
-    sensorMeasurement[i].which_value = SensorMeasurement_unsigned_int_tag;
-    sensorMeasurement[i].value.unsigned_int = sens_data.channelCombined[i];
-
-    sensorMeasurement[i].idx = i;
+    // The last measurement is provided to the caller function
+    // (SensorsMeasure()) to encode.
+    if (channel == (ksfAS7343NumChannels - 1)) break;
+    SensorsAddMeasurement(data, data_len);
   }
 
-  // encoding
-  sen_status = EncodeRepeatedSensorMeasurements(meta, sensorMeasurement, 18,
-                                                data, data_size, &data_length);
-
-  if (sen_status != SENSOR_OK) {
-    return -1;
-  }
-  SensorsAddMeasurement(data, data_length);
-
-  return data_length;
+  return data_len;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

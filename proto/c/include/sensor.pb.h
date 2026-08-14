@@ -48,8 +48,21 @@ typedef enum _SensorType {
     SensorType_WATERMARK200SS_SOIL_TENSION = 23,
     /* * Irrometer Watermark 200TS measurements */
     SensorType_WATERMARK200TS_SOIL_TEMPERATURE = 24,
-    /* * AS7343  measurements */
-    SensorType_AS7343_SPECTRAL_DATA = 25
+    /* * AS7343 measurements */
+    SensorType_AS7343_SPECTRAL_F1_405NM = 25,
+    SensorType_AS7343_SPECTRAL_F2_425NM = 26,
+    SensorType_AS7343_SPECTRAL_FZ_450NM = 27,
+    SensorType_AS7343_SPECTRAL_F3_475NM = 28,
+    SensorType_AS7343_SPECTRAL_F4_515NM = 29,
+    SensorType_AS7343_SPECTRAL_FY_555NM = 30,
+    SensorType_AS7343_SPECTRAL_F5_550NM = 31,
+    SensorType_AS7343_SPECTRAL_FXL_600NM = 32,
+    SensorType_AS7343_SPECTRAL_F6_640NM = 33,
+    SensorType_AS7343_SPECTRAL_F7_690NM = 34,
+    SensorType_AS7343_SPECTRAL_F8_745NM = 35,
+    SensorType_AS7343_SPECTRAL_NIR_855NM = 36,
+    SensorType_AS7343_SPECTRAL_VIS = 37,
+    SensorType_AS7343_SPECTRAL_FD = 38
 } SensorType;
 
 typedef enum _SensorError {
@@ -125,8 +138,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _SensorType_MIN SensorType_NONE
-#define _SensorType_MAX SensorType_AS7343_SPECTRAL_DATA
-#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_AS7343_SPECTRAL_DATA+1))
+#define _SensorType_MAX SensorType_AS7343_SPECTRAL_FD
+#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_AS7343_SPECTRAL_FD+1))
 const char *SensorType_name(SensorType v);
 
 #define _SensorError_MIN SensorError_OK

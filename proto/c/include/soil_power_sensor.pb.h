@@ -316,7 +316,7 @@ typedef struct _WATERMARK200TSMeasurement {
 /* Spectral Sensor */
 typedef struct _AS7343Measurement {
     /* voltage */
-    uint32_t channel_combined;
+    uint32_t count;
 } AS7343Measurement;
 
 /* Top level measurement message */
@@ -338,7 +338,7 @@ typedef struct _Measurement {
         D10Measurement d10;
         WATERMARK200SSMeasurement watermark200ss;
         WATERMARK200TSMeasurement watermark200ts;
-        AS7343Measurement AS7343;
+        AS7343Measurement as7343;
     } measurement;
 } Measurement;
 
@@ -709,7 +709,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define D10Measurement_timeElapsed_tag           3
 #define WATERMARK200SSMeasurement_soil_tension_tag 1
 #define WATERMARK200TSMeasurement_temperature_tag 1
-#define AS7343Measurement_channel_combined_tag   1
+#define AS7343Measurement_count_tag              1
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -723,7 +723,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define Measurement_d10_tag                      11
 #define Measurement_watermark200ss_tag           12
 #define Measurement_watermark200ts_tag           13
-#define Measurement_AS7343_tag                   14
+#define Measurement_as7343_tag                   14
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -904,7 +904,7 @@ X(a, STATIC,   SINGULAR, DOUBLE,   temperature,       1)
 #define WATERMARK200TSMeasurement_DEFAULT NULL
 
 #define AS7343Measurement_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   channel_combined,   1)
+X(a, STATIC,   SINGULAR, UINT32,   count,             1)
 #define AS7343Measurement_CALLBACK NULL
 #define AS7343Measurement_DEFAULT NULL
 
@@ -922,7 +922,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10)
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,d10,measurement.d10),  11) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ss,measurement.watermark200ss),  12) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ts,measurement.watermark200ts),  13) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,AS7343,measurement.AS7343),  14)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,as7343,measurement.as7343),  14)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -938,7 +938,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,AS7343,measurement.AS7343),  14)
 #define Measurement_measurement_d10_MSGTYPE D10Measurement
 #define Measurement_measurement_watermark200ss_MSGTYPE WATERMARK200SSMeasurement
 #define Measurement_measurement_watermark200ts_MSGTYPE WATERMARK200TSMeasurement
-#define Measurement_measurement_AS7343_MSGTYPE AS7343Measurement
+#define Measurement_measurement_as7343_MSGTYPE AS7343Measurement
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
