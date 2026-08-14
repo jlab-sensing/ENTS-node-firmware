@@ -21,6 +21,7 @@
 #include "as7343_defs.h"
 #include "i2c.h"
 #include "stm32_systime.h"
+#include "sensors.h"
 
 typedef struct {
   uint16_t channelLow[18];

@@ -230,7 +230,7 @@ size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
   size_t data_length = 0;
 
   // spectral data sensor measurement
-  SensorMeasurement sensorMeasurement[18] = SensorMeasurement_init_zero;
+  SensorMeasurement sensorMeasurement[18] = {SensorMeasurement_init_zero};
 
   for (int i = 0; i < 18; i++) {
     sensorMeasurement[i].type = SensorType_AS7343_SPECTRAL_DATA;
