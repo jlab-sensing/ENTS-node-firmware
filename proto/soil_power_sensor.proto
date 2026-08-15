@@ -192,6 +192,12 @@ message WATERMARK200TSMeasurement {
   double temperature = 1;
 }
 
+/* ALS-MPM-2F Water Level Sensor */
+message ALSMPM2FMeasurement {
+  // voltage
+  double voltage = 1;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -211,6 +217,7 @@ message Measurement {
     D10Measurement d10 = 11;
     WATERMARK200SSMeasurement watermark200ss = 12;
     WATERMARK200TSMeasurement watermark200ts = 13;
+    ALSMPM2FMeasurement waterLevel = 14;
   }
 }
 
@@ -479,6 +486,7 @@ enum EnabledSensor {
   D10 = 10;
   WATERMARK200SS = 11;
   WATERMARK200TS = 12;
+  ALSMPM2F = 13;
 }
 
 enum Uploadmethod {

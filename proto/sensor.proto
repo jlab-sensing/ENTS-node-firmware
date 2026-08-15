@@ -56,6 +56,9 @@ enum SensorType {
   WATERMARK200SS_SOIL_TENSION = 23;
   /** Irrometer Watermark 200TS measurements */
   WATERMARK200TS_SOIL_TEMPERATURE = 24;
+
+  /** ALS-MPM-2F measurements */
+  ALSMPM2F_WATER_LEVEL = 25;
 }
 
 enum SensorError {
