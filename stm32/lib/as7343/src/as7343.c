@@ -22,8 +22,10 @@
 #include "transcoder.h"
 #include "userConfig.h"
 
-// private functions
+/*Private function prototypes*/
 unsigned char I2C_ReadRegister(unsigned char I2CAddress,
+                               unsigned char deviceRegisterAddress);
+unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
                                unsigned char deviceRegisterAddress);
 unsigned char I2C_WriteReg(unsigned char I2CAddress,
                            unsigned char deviceRegisterAddress, uint8_t data);
@@ -139,16 +141,39 @@ void AS7343GetMeasurement(AS7343Data *channelData) {
   // then perform any necessary byte ordering fixes. Can also use an array of
   // uint16_t and cast the array to uint8_t for the I2C read (then fix the byte
   // ordering).
-  for (int i = 0; i < ksfAS7343NumChannels; i++) {
-    channelData->channelLow[i] = I2C_ReadRegister(
-        kAS7343Addr,
-        ksfAS7343RegData0 + (2 * i));  // gets the low byte of the channel
-    channelData->channelHigh[i] = I2C_ReadRegister(
-        kAS7343Addr, ksfAS7343RegData0 +
-                         ((2 * i) + 1));  // gets the high byte of the channel
-    channelData->channelCombined[i] =
-        (channelData->channelLow[i] | ((channelData->channelHigh[i]) << 8));
+
+  
+  // for (int i = 0; i < ksfAS7343NumChannels; i++) {
+  //   channelData->channelLow[i] = I2C_ReadRegister(
+  //       kAS7343Addr,
+  //       ksfAS7343RegData0 + (2 * i));  // gets the low byte of the channel
+  //   channelData->channelHigh[i] = I2C_ReadRegister(
+  //       kAS7343Addr, ksfAS7343RegData0 +
+  //                        ((2 * i) + 1));  // gets the high byte of the channel
+  //   channelData->channelCombined[i] =
+  //       (channelData->channelLow[i] | ((channelData->channelHigh[i]) << 8));
+  // }
+
+  HAL_StatusTypeDef ret;
+  uint8_t registerAddress = ksfAS7343RegData0;
+  // start condition
+  ret = HAL_I2C_Master_Transmit(
+      &hi2c1, kAS7343Addr << 1, &registerAddress, 1,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
+    return;
   }
+
+  // get byte
+  ret = HAL_I2C_Master_Receive(
+      &hi2c1, kAS7343Addr << 1, (uint8_t *) channelData, ksfAS7343NumChannels * 2,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
+    return;
+  }
+  
 }
 
 void AS7343Active(void) {
@@ -272,7 +297,9 @@ size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
   return data_len;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+/*Private Functions*/
+
+
 unsigned char I2C_ReadRegister(unsigned char I2CAddress,
                                unsigned char deviceRegisterAddress) {
   HAL_StatusTypeDef ret;
@@ -300,6 +327,35 @@ unsigned char I2C_ReadRegister(unsigned char I2CAddress,
 
   return *data;
 }
+
+unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
+                               unsigned char deviceRegisterAddress) {
+  HAL_StatusTypeDef ret;
+
+  I2CAddress = I2CAddress << 1;  // use 8-bit address
+  uint8_t *data = &deviceRegisterAddress;
+
+  // start condition
+  ret = HAL_I2C_Master_Transmit(
+      &hi2c1, I2CAddress, data, 36,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
+    return ERROR;
+  }
+
+  // get byte
+  ret = HAL_I2C_Master_Receive(
+      &hi2c1, I2CAddress, data, 36,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
+    return ERROR;
+  }
+
+  return *data;
+}
+
 
 unsigned char I2C_WriteReg(unsigned char I2CAddress,
                            unsigned char deviceRegisterAddress, uint8_t data) {

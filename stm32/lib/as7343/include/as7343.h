@@ -23,11 +23,25 @@
 #include "sensors.h"
 #include "stm32_systime.h"
 
-typedef struct {
-  uint16_t channelLow[ksfAS7343NumChannels];
-  uint16_t channelHigh[ksfAS7343NumChannels];
-  uint16_t channelCombined[ksfAS7343NumChannels];
+// typedef struct {
+//   uint16_t channelLow[ksfAS7343NumChannels];
+//   uint16_t channelHigh[ksfAS7343NumChannels];
+//   uint16_t channelCombined[ksfAS7343NumChannels];
+// } AS7343Data;
+
+typedef union{
+  // uint8_t halfChannel[ksfAS7343NumChannels * 2]; // HAL_I2C commands use 8 bits
+  uint16_t channelCombined[ksfAS7343NumChannels]; // used to access full channeldata
 } AS7343Data;
+
+
+// typedef union {
+//   struct {
+//     uint16_t channelLow : 8;
+//     uint16_t channelHigh : 8
+//   };
+//   uint8_t channel[36];
+// } AS7343DataTest;
 
 /*! CPP guard */
 #ifdef __cplusplus
