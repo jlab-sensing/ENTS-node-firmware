@@ -194,7 +194,7 @@ message WATERMARK200TSMeasurement {
 
 /* Spectral Sensor */
 message AS7343Measurement {
-  // voltage
+  // count
   uint32 count = 1;
 }
 

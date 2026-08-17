@@ -174,60 +174,60 @@ def get_sensor_data(meas_type: int) -> dict:
             "unit": "C",
         },
         SensorType.AS7343_SPECTRAL_F1_405NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_F2_425NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_FZ_450NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_F3_475NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_F4_515NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_FY_555NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_F5_550NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_FXL_600NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_F6_640NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_F7_690NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_F8_745NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_NIR_855NM: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_VIS: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
         SensorType.AS7343_SPECTRAL_FD: {
-            "name": "Spectral Data",
-            "unit": "uW/cm^2",
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
         },
     }
 
