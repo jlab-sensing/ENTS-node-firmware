@@ -35,14 +35,6 @@ typedef union{
 } AS7343Data;
 
 
-// typedef union {
-//   struct {
-//     uint16_t channelLow : 8;
-//     uint16_t channelHigh : 8
-//   };
-//   uint8_t channel[36];
-// } AS7343DataTest;
-
 /*! CPP guard */
 #ifdef __cplusplus
 extern "C" {

@@ -49,7 +49,6 @@ int main(void) {
     HAL_Delay(1000);
 
     AS7343Data sensorReadings = {};
-//     AS7343DataTest sensorReadings = {};
     APP_LOG(TS_OFF, VLEVEL_M, "Getting Measurements\r\n");
     AS7343GetMeasurement(&sensorReadings);
 
@@ -80,7 +79,11 @@ int main(void) {
     APP_LOG(TS_OFF, VLEVEL_M, "NIR: %hu\r\n",
             sensorReadings.channelCombined[CH_NIR_855NM]);  // NIR
     APP_LOG(TS_OFF, VLEVEL_M, "VIS: %hu\r\n",
-            (sensorReadings.channelCombined[CH_VIS_1]) +  (sensorReadings.channelCombined[CH_VIS_2]) +  (sensorReadings.channelCombined[CH_VIS_3]) );  // NIR
-    AS7343LEDOff();
+            ((sensorReadings.channelCombined[CH_VIS_1]) +
+             (sensorReadings.channelCombined[CH_VIS_2]) +
+             (sensorReadings.channelCombined[CH_VIS_3])) /
+                3);  // approx Total visible light
+
+    //     AS7343LEDOff();
   }
 }
