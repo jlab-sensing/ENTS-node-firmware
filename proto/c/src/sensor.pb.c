@@ -48,6 +48,20 @@ const char *SensorType_name(SensorType v) {
         case SensorType_D10_TIME_ELAPSED: return "D10_TIME_ELAPSED";
         case SensorType_WATERMARK200SS_SOIL_TENSION: return "WATERMARK200SS_SOIL_TENSION";
         case SensorType_WATERMARK200TS_SOIL_TEMPERATURE: return "WATERMARK200TS_SOIL_TEMPERATURE";
+        case SensorType_AS7343_SPECTRAL_F1_405NM: return "AS7343_SPECTRAL_F1_405NM";
+        case SensorType_AS7343_SPECTRAL_F2_425NM: return "AS7343_SPECTRAL_F2_425NM";
+        case SensorType_AS7343_SPECTRAL_FZ_450NM: return "AS7343_SPECTRAL_FZ_450NM";
+        case SensorType_AS7343_SPECTRAL_F3_475NM: return "AS7343_SPECTRAL_F3_475NM";
+        case SensorType_AS7343_SPECTRAL_F4_515NM: return "AS7343_SPECTRAL_F4_515NM";
+        case SensorType_AS7343_SPECTRAL_FY_555NM: return "AS7343_SPECTRAL_FY_555NM";
+        case SensorType_AS7343_SPECTRAL_F5_550NM: return "AS7343_SPECTRAL_F5_550NM";
+        case SensorType_AS7343_SPECTRAL_FXL_600NM: return "AS7343_SPECTRAL_FXL_600NM";
+        case SensorType_AS7343_SPECTRAL_F6_640NM: return "AS7343_SPECTRAL_F6_640NM";
+        case SensorType_AS7343_SPECTRAL_F7_690NM: return "AS7343_SPECTRAL_F7_690NM";
+        case SensorType_AS7343_SPECTRAL_F8_745NM: return "AS7343_SPECTRAL_F8_745NM";
+        case SensorType_AS7343_SPECTRAL_NIR_855NM: return "AS7343_SPECTRAL_NIR_855NM";
+        case SensorType_AS7343_SPECTRAL_VIS: return "AS7343_SPECTRAL_VIS";
+        case SensorType_AS7343_SPECTRAL_FD: return "AS7343_SPECTRAL_FD";
     }
     return "unknown";
 }

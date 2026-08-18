@@ -1,0 +1,373 @@
+/**
+ ******************************************************************************
+ * @file     as7343.c
+ * @author   Eric Tran
+ * @brief    Sensor driver for the as7343 sensor.
+ *
+ *           This library is designed to read measurements from a Multi-Spectral
+ * Sensor
+ *           https://github.com/sparkfun/SparkFun_AS7343_Arduino_Library/blob/main/examples/Example_01_BasicReadings/Example_01_BasicReadings.ino
+ * @date     7/3/2026
+ ******************************************************************************
+ */
+
+#include "as7343.h"
+
+#include "i2c.h"
+#include "sys_app.h"
+
+// user includes
+#include "sensor.h"
+#include "sensors.h"
+#include "transcoder.h"
+#include "userConfig.h"
+
+/*Private function prototypes*/
+unsigned char I2C_ReadRegister(unsigned char I2CAddress,
+                               unsigned char deviceRegisterAddress);
+unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
+                               unsigned char deviceRegisterAddress);
+unsigned char I2C_WriteReg(unsigned char I2CAddress,
+                           unsigned char deviceRegisterAddress, uint8_t data);
+
+///////////////////////////////////////////////////////////////////////////////////
+
+int8_t AS7343Init(void) {
+  // HAL_StatusTypeDef ret;
+  APP_LOG(TS_OFF, VLEVEL_M, "Starting Init\r\n");
+  HAL_Delay(1);  // wait atleast 200uS on initial power up
+
+  // immediately resets the sensor
+  sfe_as7343_reg_control_t controlReg = {0};
+  controlReg.sw_reset = 1;
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Reseting Sensor\r\n");
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegControl, controlReg.byte) ==
+      ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during reset\r\n");
+    return ERROR;
+  }
+
+  HAL_Delay(1);
+  controlReg.sw_reset = 0;
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Clearing Reset Bit\r\n");
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegControl, controlReg.byte) ==
+      ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during reset\r\n");
+    return ERROR;
+  }
+
+  // enables the sensor, waking it up from sleep
+  sfe_as7343_reg_enable_t enableReg = {0};
+  enableReg.pon = 1;
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Enabling Sensor\r\n");
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegEnable, enableReg.byte) == ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during power up\r\n");
+    return ERROR;
+  }
+
+  // configuring the sensor
+  sfe_as7343_reg_cfg20_t autoSmux = {0};
+  autoSmux.auto_smux = 3;  // setting auto_smux to oversee 18 channels
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Enabling Audo Smux\r\n");
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegCfg20, autoSmux.byte) == ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during Configuring auto smux\r\n");
+    return ERROR;
+  }
+
+  sfe_as7343_reg_astep_t aStep = {0};
+  aStep.astep_l = 0x57;
+  aStep.astep_h = 0x02;
+
+  I2C_WriteReg(
+      kAS7343Addr, ksfAS7343RegAStep,
+      aStep.word);  // integration time per step with 2.78(n+1)uS per count
+  I2C_WriteReg(kAS7343Addr, ksfAS7343RegATime,
+               0x0A);  // total steps in integration
+
+  I2C_WriteReg(kAS7343Addr, ksfAS7343RegWTime, 0x5E);
+
+  // Verifying i2c connection to sensor
+  sfe_as7343_reg_cfg0_t regBank = {0};
+  regBank.reg_bank =
+      1;  // setting reg_bank bit so registers 0x20 to 0x7F are accessible
+
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegCfg0, regBank.byte) == ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during register bank change\r\n");
+    return ERROR;
+  }
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Verifying I2C connection\r\n");
+  if (I2C_ReadRegister(kAS7343Addr, ksfAS7343RegID) != kDefaultAS7343DeviceID) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Unexpected device ID %x \n",
+            I2C_ReadRegister(kAS7343Addr, ksfAS7343RegID));
+
+    // Clearing regBank bit to allow for normal operations
+    regBank.reg_bank =
+        0;  // clearing reg_bank bit so registers 0x80 and above are accessible
+
+    if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegCfg0, regBank.byte) == ERROR) {
+      APP_LOG(TS_OFF, VLEVEL_M, "Error occured clearing register bank bit\r\n");
+      return ERROR;
+    }
+
+    return ERROR;
+  }
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Connection Verified. Device ID: %x\r\n",
+          I2C_ReadRegister(kAS7343Addr, ksfAS7343RegID));
+
+  // Clearing regBank bit to allow for normal operations
+  regBank.reg_bank =
+      0;  // clearing reg_bank bit so registers 0x80 and above are accessible
+
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegCfg0, regBank.byte) == ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured clearing register bank bit\r\n");
+    return ERROR;
+  }
+
+  AS7343Active();
+
+  return SUCCESS;
+}
+
+void AS7343GetMeasurement(AS7343Data *channelData) {
+  // TODO: Convert to a singular burst read of all 18 16-bit data registers.
+  // Consider changing AS7343Data to a union (18 16-bit, 36 8-bit) to make it
+  // easer to perform a burst read of the 18 16-bit data registers (36 uint8_t),
+  // then perform any necessary byte ordering fixes. Can also use an array of
+  // uint16_t and cast the array to uint8_t for the I2C read (then fix the byte
+  // ordering).
+
+  
+  // for (int i = 0; i < ksfAS7343NumChannels; i++) {
+  //   channelData->channelLow[i] = I2C_ReadRegister(
+  //       kAS7343Addr,
+  //       ksfAS7343RegData0 + (2 * i));  // gets the low byte of the channel
+  //   channelData->channelHigh[i] = I2C_ReadRegister(
+  //       kAS7343Addr, ksfAS7343RegData0 +
+  //                        ((2 * i) + 1));  // gets the high byte of the channel
+  //   channelData->channelCombined[i] =
+  //       (channelData->channelLow[i] | ((channelData->channelHigh[i]) << 8));
+  // }
+
+  HAL_StatusTypeDef ret;
+  uint8_t registerAddress = ksfAS7343RegData0;
+  // start condition
+  ret = HAL_I2C_Master_Transmit(
+      &hi2c1, kAS7343Addr << 1, &registerAddress, 1,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
+    return;
+  }
+
+  // get byte
+  ret = HAL_I2C_Master_Receive(
+      &hi2c1, kAS7343Addr << 1, (uint8_t *) channelData, ksfAS7343NumChannels * 2,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
+    return;
+  }
+  
+}
+
+void AS7343Active(void) {
+  sfe_as7343_reg_enable_t enableReg = {0};
+  enableReg.sp_en = 1;
+
+  unsigned char currentConfiguration = I2C_ReadRegister(
+      kAS7343Addr, ksfAS7343RegEnable);  // stores current byte data
+  enableReg.byte =
+      enableReg.byte |
+      currentConfiguration;  // ensures that current byte data stays intact
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Activating AS7343r\n");
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegEnable, enableReg.byte) == ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during setting sp_en\n");
+    return;
+  }
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Finished Activation");
+}
+
+void AS7343Idle(void) {
+  sfe_as7343_reg_enable_t enableReg = {0};
+  enableReg.sp_en = 0;
+
+  unsigned char currentConfiguration = I2C_ReadRegister(
+      kAS7343Addr, ksfAS7343RegEnable);  // stores current byte data
+  enableReg.byte =
+      enableReg.byte |
+      currentConfiguration;  // ensures that current byte data stays intact
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Setting AS7343r to idle\n");
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegEnable, enableReg.byte) == ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during clearing sp_en\n");
+    return;
+  }
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Finished state transition\n");
+}
+
+void AS7343LEDOn(void) {
+  sfe_as7343_reg_led_t LED = {0};
+  LED.led_act = 1;
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Turning on LED\n");
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegLed, LED.byte) == ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during Enabling LED\r\n");
+    return;
+  }
+
+  APP_LOG(TS_OFF, VLEVEL_M, "LED ON\n");
+}
+
+void AS7343LEDOff(void) {
+  sfe_as7343_reg_led_t LED = {0};
+  LED.led_act = 0;
+
+  APP_LOG(TS_OFF, VLEVEL_M, "Turning off LED\n");
+  if (I2C_WriteReg(kAS7343Addr, ksfAS7343RegLed, LED.byte) == ERROR) {
+    APP_LOG(TS_OFF, VLEVEL_M, "Error occured during Enabling LED\r\n");
+    return;
+  }
+
+  APP_LOG(TS_OFF, VLEVEL_M, "LED off\n");
+}
+
+size_t AS7343Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                     EnabledSensorMultiple *sensor) {
+  // read sensor
+  AS7343Data sens_data = {};
+  AS7343GetMeasurement(&sens_data);
+
+  const UserConfiguration *cfg = UserConfigGet();
+
+  // metadata
+  Metadata meta = Metadata_init_zero;
+  meta.ts = ts.Seconds;
+  meta.logger_id = cfg->logger_id;
+  meta.cell_id = sensor->cell_id;
+
+  SensorStatus sen_status = SENSOR_OK;
+  size_t data_len = 0;
+
+  // Channel readout order (auto_smux=3)
+  // Note: VIS and FD are re-read and remain the same between cycles
+  // because the data registers are latched upon reading ASTATUS 0x94.
+  // Cycle 1: FZ, FY, FXL, NIR, 2xVIS, FD
+  // Cycle 2: F2, F3, F4, F6, 2xVIS, FD
+  // Cycle 3: F1, F7, F8, F5, 2xVIS, FD
+  SensorType s[] = {SensorType_AS7343_SPECTRAL_FZ_450NM,
+                    SensorType_AS7343_SPECTRAL_FY_555NM,
+                    SensorType_AS7343_SPECTRAL_FXL_600NM,
+                    SensorType_AS7343_SPECTRAL_NIR_855NM,
+                    SensorType_AS7343_SPECTRAL_VIS,
+                    SensorType_AS7343_SPECTRAL_FD,
+                    SensorType_AS7343_SPECTRAL_F2_425NM,
+                    SensorType_AS7343_SPECTRAL_F3_475NM,
+                    SensorType_AS7343_SPECTRAL_F4_515NM,
+                    SensorType_AS7343_SPECTRAL_F6_640NM,
+                    SensorType_AS7343_SPECTRAL_VIS,
+                    SensorType_AS7343_SPECTRAL_FD,
+                    SensorType_AS7343_SPECTRAL_F1_405NM,
+                    SensorType_AS7343_SPECTRAL_F7_690NM,
+                    SensorType_AS7343_SPECTRAL_F8_745NM,
+                    SensorType_AS7343_SPECTRAL_F5_550NM,
+                    SensorType_AS7343_SPECTRAL_VIS,
+                    SensorType_AS7343_SPECTRAL_FD};
+  for (int channel = 0; channel < ksfAS7343NumChannels; channel++) {
+    sen_status = EncodeUint32Measurement(
+        meta, sens_data.channelCombined[channel], s[channel], data, &data_len);
+    if (sen_status != SENSOR_OK) {
+      return -1;
+    }
+
+    // The last measurement is provided to the caller function
+    // (SensorsMeasure()) to encode.
+    if (channel == (ksfAS7343NumChannels - 1)) break;
+    SensorsAddMeasurement(data, data_len);
+  }
+
+  return data_len;
+}
+
+/*Private Functions*/
+
+
+unsigned char I2C_ReadRegister(unsigned char I2CAddress,
+                               unsigned char deviceRegisterAddress) {
+  HAL_StatusTypeDef ret;
+
+  I2CAddress = I2CAddress << 1;  // use 8-bit address
+  uint8_t *data = &deviceRegisterAddress;
+
+  // start condition
+  ret = HAL_I2C_Master_Transmit(
+      &hi2c1, I2CAddress, data, 1,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
+    return ERROR;
+  }
+
+  // get byte
+  ret = HAL_I2C_Master_Receive(
+      &hi2c1, I2CAddress, data, 1,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
+    return ERROR;
+  }
+
+  return *data;
+}
+
+unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
+                               unsigned char deviceRegisterAddress) {
+  HAL_StatusTypeDef ret;
+
+  I2CAddress = I2CAddress << 1;  // use 8-bit address
+  uint8_t *data = &deviceRegisterAddress;
+
+  // start condition
+  ret = HAL_I2C_Master_Transmit(
+      &hi2c1, I2CAddress, data, 36,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
+    return ERROR;
+  }
+
+  // get byte
+  ret = HAL_I2C_Master_Receive(
+      &hi2c1, I2CAddress, data, 36,
+      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
+    return ERROR;
+  }
+
+  return *data;
+}
+
+
+unsigned char I2C_WriteReg(unsigned char I2CAddress,
+                           unsigned char deviceRegisterAddress, uint8_t data) {
+  HAL_StatusTypeDef ret;
+  I2CAddress = I2CAddress << 1;  // use 8-bit address
+
+  ret = HAL_I2C_Mem_Write(&hi2c1, I2CAddress, deviceRegisterAddress,
+                          I2C_MEMADD_SIZE_8BIT, &data, 1, HAL_MAX_DELAY);
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on write data\r\n");
+    return ERROR;
+  }
+
+  return SUCCESS;
+}

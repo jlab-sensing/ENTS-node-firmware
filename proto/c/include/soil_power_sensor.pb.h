@@ -24,7 +24,8 @@ typedef enum _EnabledSensor {
     EnabledSensor_PCAP02 = 9,
     EnabledSensor_D10 = 10,
     EnabledSensor_WATERMARK200SS = 11,
-    EnabledSensor_WATERMARK200TS = 12
+    EnabledSensor_WATERMARK200TS = 12,
+    EnabledSensor_AS7343 = 13
 } EnabledSensor;
 
 typedef enum _Uploadmethod {
@@ -312,6 +313,12 @@ typedef struct _WATERMARK200TSMeasurement {
     double temperature;
 } WATERMARK200TSMeasurement;
 
+/* Spectral Sensor */
+typedef struct _AS7343Measurement {
+    /* voltage */
+    uint32_t count;
+} AS7343Measurement;
+
 /* Top level measurement message */
 typedef struct _Measurement {
     /* Metadata */
@@ -331,6 +338,7 @@ typedef struct _Measurement {
         D10Measurement d10;
         WATERMARK200SSMeasurement watermark200ss;
         WATERMARK200TSMeasurement watermark200ts;
+        AS7343Measurement as7343;
     } measurement;
 } Measurement;
 
@@ -478,8 +486,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _EnabledSensor_MIN EnabledSensor_Voltage
-#define _EnabledSensor_MAX EnabledSensor_WATERMARK200TS
-#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_WATERMARK200TS+1))
+#define _EnabledSensor_MAX EnabledSensor_AS7343
+#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_AS7343+1))
 const char *EnabledSensor_name(EnabledSensor v);
 
 #define _Uploadmethod_MIN Uploadmethod_LoRa
@@ -563,6 +571,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 
 
 
+
 #define Response_resp_ENUMTYPE Response_ResponseType
 
 
@@ -611,6 +620,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define D10Measurement_init_default              {0, 0, 0}
 #define WATERMARK200SSMeasurement_init_default   {0}
 #define WATERMARK200TSMeasurement_init_default   {0}
+#define AS7343Measurement_init_default           {0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
@@ -644,6 +654,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define D10Measurement_init_zero                 {0, 0, 0}
 #define WATERMARK200SSMeasurement_init_zero      {0}
 #define WATERMARK200TSMeasurement_init_zero      {0}
+#define AS7343Measurement_init_zero              {0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
@@ -698,6 +709,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define D10Measurement_timeElapsed_tag           3
 #define WATERMARK200SSMeasurement_soil_tension_tag 1
 #define WATERMARK200TSMeasurement_temperature_tag 1
+#define AS7343Measurement_count_tag              1
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -711,6 +723,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define Measurement_d10_tag                      11
 #define Measurement_watermark200ss_tag           12
 #define Measurement_watermark200ts_tag           13
+#define Measurement_as7343_tag                   14
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -890,6 +903,11 @@ X(a, STATIC,   SINGULAR, DOUBLE,   temperature,       1)
 #define WATERMARK200TSMeasurement_CALLBACK NULL
 #define WATERMARK200TSMeasurement_DEFAULT NULL
 
+#define AS7343Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   count,             1)
+#define AS7343Measurement_CALLBACK NULL
+#define AS7343Measurement_DEFAULT NULL
+
 #define Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,power,measurement.power),   2) \
@@ -903,7 +921,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,yfs210c,measurement.yfs210c),   
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,pcap02,measurement.pcap02),  10) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,d10,measurement.d10),  11) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ss,measurement.watermark200ss),  12) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ts,measurement.watermark200ts),  13)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ts,measurement.watermark200ts),  13) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,as7343,measurement.as7343),  14)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -919,6 +938,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ts,measurement.water
 #define Measurement_measurement_d10_MSGTYPE D10Measurement
 #define Measurement_measurement_watermark200ss_MSGTYPE WATERMARK200SSMeasurement
 #define Measurement_measurement_watermark200ts_MSGTYPE WATERMARK200TSMeasurement
+#define Measurement_measurement_as7343_MSGTYPE AS7343Measurement
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
@@ -1058,6 +1078,7 @@ extern const pb_msgdesc_t PCAP02Measurement_msg;
 extern const pb_msgdesc_t D10Measurement_msg;
 extern const pb_msgdesc_t WATERMARK200SSMeasurement_msg;
 extern const pb_msgdesc_t WATERMARK200TSMeasurement_msg;
+extern const pb_msgdesc_t AS7343Measurement_msg;
 extern const pb_msgdesc_t Measurement_msg;
 extern const pb_msgdesc_t Response_msg;
 extern const pb_msgdesc_t Esp32Command_msg;
@@ -1093,6 +1114,7 @@ extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 #define D10Measurement_fields &D10Measurement_msg
 #define WATERMARK200SSMeasurement_fields &WATERMARK200SSMeasurement_msg
 #define WATERMARK200TSMeasurement_fields &WATERMARK200TSMeasurement_msg
+#define AS7343Measurement_fields &AS7343Measurement_msg
 #define Measurement_fields &Measurement_msg
 #define Response_fields &Response_msg
 #define Esp32Command_fields &Esp32Command_msg
@@ -1109,6 +1131,7 @@ extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 
 /* Maximum encoded size of messages (where known) */
 /* RepeatedPowerDeltas_size depends on runtime parameters */
+#define AS7343Measurement_size                   6
 #define BME280Measurement_size                   23
 #define CurrentDeltaMeasurement_size             6
 #define CurrentMeasurement_size                  9

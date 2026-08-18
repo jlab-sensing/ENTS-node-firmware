@@ -173,6 +173,62 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Soil Temperature",
             "unit": "C",
         },
+        SensorType.AS7343_SPECTRAL_F1_405NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_F2_425NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_FZ_450NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_F3_475NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_F4_515NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_FY_555NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_F5_550NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_FXL_600NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_F6_640NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_F7_690NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_F8_745NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_NIR_855NM: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_VIS: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
+        SensorType.AS7343_SPECTRAL_FD: {
+            "name": "Wavelength Magnitude",
+            "unit": "Count",
+        },
     }
 
     meta = SENSOR_DATA[SensorType.Value(meas_type)]
