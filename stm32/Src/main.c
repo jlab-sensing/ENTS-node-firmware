@@ -128,7 +128,7 @@ int main(void) {
   APP_LOG(TS_OFF, VLEVEL_M, "WARNING: TEST_USER_CONFIG is enabled!\n");
 #endif  // TEST_USER_CONFIG
 
-  UserConfigStart(120, 5);
+  UserConfigStart(5);
   const UserConfiguration* cfg = UserConfigGet();
 
   // initialize the user config interrupt
