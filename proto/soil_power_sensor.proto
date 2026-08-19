@@ -192,7 +192,23 @@ message WATERMARK200TSMeasurement {
   double temperature = 1;
 }
 
-/* ALS-MPM-2F Water Level Sensor */
+/* EDU0157 Weather Station */
+message EDU0157Measurement {
+  // wind speed m/s
+  double wind_speed = 1;
+  // wind direction degrees east of north
+  uint32 wind_direction = 2;
+  // altitude m
+  double altitude = 3;
+  // pressure hPa
+  double pressure = 4;
+  // degrees C
+  double temperature = 5;
+  // % relative humidity
+  double humidity = 6;
+}
+
+/* ALS-MPM-2F (TL-136 / GL-136) Water Level Sensor */
 message ALSMPM2FMeasurement {
   // meters converted from adc
   double meters = 1;
@@ -217,7 +233,8 @@ message Measurement {
     D10Measurement d10 = 11;
     WATERMARK200SSMeasurement watermark200ss = 12;
     WATERMARK200TSMeasurement watermark200ts = 13;
-    ALSMPM2FMeasurement waterLevel = 14;
+    EDU0157Measurement edu0157 = 14;
+    ALSMPM2FMeasurement waterLevel = 15;
   }
 }
 
@@ -486,7 +503,8 @@ enum EnabledSensor {
   D10 = 10;
   WATERMARK200SS = 11;
   WATERMARK200TS = 12;
-  ALSMPM2F = 13;
+  EDU0157 = 13;
+  ALSMPM2F = 14;
 }
 
 enum Uploadmethod {

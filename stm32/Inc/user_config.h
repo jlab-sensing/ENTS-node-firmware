@@ -19,10 +19,9 @@ extern "C" {
 /**
  * @brief Starts the user config webserver
  * 
- * @param timeout Timeout in seconds to stop the server after inactivity.
  * @param checkInterval Interval at which the esp32 is checked for new configurations.
  */
-void UserConfigStart(unsigned int timeout, unsigned int checkInterval);
+void UserConfigStart(unsigned int checkInterval);
 
 /**
  * @brief Stops the user config webserver after timeout.

@@ -51,7 +51,8 @@ ALSMPM2FMeasurement WatLevelGetMeasurement() {
   return waterLevelMeas;
 }
 
-size_t WatLevel_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
+size_t WatLevel_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor) {
   // get timestamp
   ALSMPM2FMeasurement waterLevelMeas = {};
 

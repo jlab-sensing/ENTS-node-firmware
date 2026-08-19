@@ -39,6 +39,183 @@ enum SensorType {
   ...
 ```
 
+Also add it to `soil_power_sensor.proto`:
+
+New message
+```
+message BME280Measurement {
+  // pressure
+  uint32 pressure = 1;
+  // temperature
+  int32 temperature = 2;
+  // humidity
+  uint32 humidity = 3;
+}
+```
+New entry to the end of the `Measurement` message:
+```
+/* Top level measurement message */
+message Measurement {
+  // Metadata
+  MeasurementMetadata meta = 1;
+
+  // Possible measurements
+  oneof measurement {
+    PowerMeasurement power = 2;
+    Teros12Measurement teros12 = 3;
+    Phytos31Measurement phytos31 = 4;
+    BME280Measurement bme280 = 5;
+    Teros21Measurement teros21 = 6;
+    SEN0308Measurement sen0308 = 7;
+    SEN0257Measurement sen0257 = 8;
+    YFS210CMeasurement yfs210c = 9;
+    PCAP02Measurement pcap02 = 10;
+    D10Measurement d10 = 11;
+    WATERMARK200SSMeasurement watermark200ss = 12;
+    WATERMARK200TSMeasurement watermark200ts = 13;
+    EDU0157Measurement edu0157 = 14;
+  }
+}
+```
+
+Add to the end of `EnabledSensor`:
+```
+enum EnabledSensor {
+  Voltage = 0;
+  Current = 1;
+  Teros12 = 2;
+  Teros21 = 3;
+  BME280 = 4;
+  Phytos31 = 5;
+  SEN0308 = 6;
+  SEN0257 = 7;
+  YFS210C = 8;
+  PCAP02 = 9;
+  D10 = 10;
+  WATERMARK200SS = 11;
+  WATERMARK200TS = 12;
+  EDU0157 = 13;
+}
+```
+
+##### Regenerate the Protobuf Files
+In the `proto/` folder, use the `make` command to build the generated C code and Python code based on the updated `*.proto` files.
+
+*Note*: The generated Python files might not pass the linter. When linting, use `ruff check python --fix` to apply fixes to the Python files.
+
+*Note*: In `python/src/ents/proto/soil_power_sensor_pb2.py` you may need to make the import on line 25 relative by prepending `from .` to the beginning of the line like so: `from . import sensor_pb2 as sensor__pb2`
+
+##### Updating Protobuf-dependent Files
+The following files should be updated:
+- `esp32/data/index.html` : Add the sensor to the sensor selection list using the `EnabledSensor` name, and give the entry a brief description for the user to read when selecting sensors. Additionally, add the sensor to the local input validation.
+```
+<select name="selected_sensor_${i}" id="sensor_dropdown_${i}">
+    <option value="">none</option>
+    <option value="Voltage">ADS1219 Voltage</option>
+    <option value="Current">ADS1219 Current</option>
+    <option value="Teros12">Teros12 Soil Moisture Sensor</option>
+    <option value="Teros21">Teros21 Soil Tensiometer</option>
+    <option value="BME280">BME280 Temperature, Humidity, Barometric Pressure</option>
+    <option value="Phytos31">Phytos31 Leaf Wetness Sensor</option>
+    <option value="SEN0308">SEN0308 Capacitive Soil Moisture Sensor</option>
+    <option value="SEN0257">SEN0257 Water Pressure Sensor</option>
+    <option value="YFS210C">YFS210C Water Flow Meter</option>
+    <option value="PCAP02">PCAP02 Capacitance Sensor</option>
+    <option value="D10">D10 Water Meter</option>
+    <option value="WATERMARK200SS">Watermark 200SS Soil Moisture Sensor</option>
+    <option value="WATERMARK200TS">Watermark 200TS Temperature Sensor</option>
+    <option value="EDU0157">EDU0157 Weather Sensor</option>
+</select>
+...
+const SENSORS = {
+    Voltage: {
+      type: "i2c",
+      defaultIndex: "0x40",
+      validIndexes: ["0x40"], // need to add others once i find out
+      conflicts: ["SEN0308"]
+    },
+    ...
+```
+- `esp32/lib/user_config/src/config_server.cpp` : Add `EnabledSensor_{sensorname}` to the switch case to parse the provided index appropriately (based on whether it is to be interpreted as an I2C address, SDI-12 address, ADC / GPIO pin number, etc) and add the default index/address.
+```
+// Apply sensor index default or user-provided value.
+switch (config.enabled_sensors_multiple[config.enabled_sensors_multiple_count].enabled_sensor) {
+    case EnabledSensor_Teros12:
+    case EnabledSensor_Teros21:
+    // SDI-12: Index field may hold an ASCII character indicating sensor address.
+        if (selected_sensor_index == "") {
+          // Default SDI-12 address is '0'
+          config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+              .index = '0';
+        } else {
+          config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
+              .index = selected_sensor_index.c_str()[0];
+        }
+        break;
+    case EnabledSensor_BME280:
+    case EnabledSensor_PCAP02:
+    case EnabledSensor_Voltage:
+    case EnabledSensor_Current:
+    case EnabledSensor_EDU0157:
+```
+
+#### Implementation
+
+This part is entirely up to you. We recommend using I2C or SDI12 sensors for better support. In the case of other sensors (analog, SPI, UART), we recommend wrapping them in a Arduino framework microcontroller and interfacing with the stm32 over I2C.
+
+In addition to your implementation (in `stm32/lib/<new_library>/`), you should also update/add the following:
+- `stm32/Src/examples/example_<new_library>.c` : It is recommended to create an example program that reads the sensor and prints it to serial.
+- `stm32/Src/main.c` : Include the library at the top of this file, and also add its initialization and measurement function to the for loop which builds the sensor measurement list.
+```
+// configure enabled sensors
+  for (int i = 0; i < cfg->enabled_sensors_multiple_count; i++) {
+    EnabledSensor sensor = cfg->enabled_sensors_multiple[i].enabled_sensor;
+    EnabledSensorMultiple* sensor_ctx = &(cfg->enabled_sensors_multiple[i]);
+    if (sensor == EnabledSensor_Voltage) {
+      ADC_init();
+      SensorsAdd(ADC_measureVoltage, sensor_ctx);
+      APP_LOG(TS_OFF, VLEVEL_M, "Voltage Enabled!\n");
+    }
+    if (sensor == EnabledSensor_Current) {
+      ADC_init();
+      SensorsAdd(ADC_measureCurrent, sensor_ctx);
+      APP_LOG(TS_OFF, VLEVEL_M, "Current Enabled!\n");
+    }
+    ...
+```
+- `stm32/test/test_<new_library>/test_<new_library>.c` : Add a test harness that can be added to the `platformio.ini` file to test the functionality of the library on subsequent builds. Useful for catching regressions.
+- `stm32/platformio.ini` : Add an environment for the example program. Additionally, add the test harness to the [TODO] `test_filter` for hardware verification.
+```
+[env:example_watermark200SSVA3]
+build_src_filter = +<*> -<.git/> -<main.c> -<examples/**> +<examples/example_watermark200SSVA3.c>
+```
+
+#### Updating the Python module
+
+The python module is responsible for decoding the sensor measuremnts and providing other baked in metdata. See the following [bme280 example](https://github.com/jlab-sensing/ENTS-node-firmware/blob/e174cd829de5b36758efc08350ed5bb71eb321a0/python/src/ents/proto/decode.py#L73-L76) for reference. This allows integer values to be sent and converted to floats for user convenience. This is not necessary for sensor data that is scaled properly or does not require post-processing.
+
+```
+if meta_dict["type"] == "bme280":
+    meta_dict["data"]["pressure"] /= 10.0
+    meta_dict["data"]["temperature"] /= 100.0
+    meta_dict["data"]["humidity"] /= 1000.0
+```
+
+In `python/src/ents/proto/sensor.py` add an entry to the SENSOR_DATA dictionary in `get_sensor_data()` to provide a human name for the measurement and the units. These are used for parsing and displaying the data on a graph.
+```
+SENSOR_DATA = {
+    SensorType.POWER_VOLTAGE: {
+        "name": "Voltage",
+        "unit": "mV",
+    },
+    SensorType.POWER_CURRENT: {
+        "name": "Current",
+        "unit": "uA",
+    },
+    ...
+```
+TODO: Users can update the `encode_user_configuration()` function (and add an encode function?) in `python/src/ents/proto/encode.py`.
+
 #### Publishing the Release
 
 1. Update [changelog](https://github.com/jlab-sensing/ENTS-node-firmware/blob/main/CHANGELOG.md) (what changed & links to issues and PRs). In this step, the changelog should be labeled as "Unreleased".
@@ -51,22 +228,6 @@ enum SensorType {
 8. Wait for the Python action to run. This will automatically create a GitHub release for you.
 9. Copy over the changelog to the newly created release on GitHub.
 10. Check the [ents Python package](https://pypi.org/project/ents/) to see if it updated correctly. The [Release History](https://pypi.org/project/ents/#history) tab should show you the updated version and corrected timestamp.
-
-#### Implementation
-
-This part is entirely up to you. We recommend using I2C or SDI12 sensors for better support. In the case of other sensors (analog, SPI, UART), we recommend wrapping them in a Arduino framework microcontroller and interfacing with the stm32 over I2C. 
-
-#### Updating the Python module
-
-The python module is responsible for decoding the sensor measuremnts and providing other baked in metdata. See the following [bme280 example](https://github.com/jlab-sensing/ENTS-node-firmware/blob/e174cd829de5b36758efc08350ed5bb71eb321a0/python/src/ents/proto/decode.py#L73-L76) for reference. This allows integer values to be sent and converted to floats for user convenience.
-
-```
-if meta_dict["type"] == "bme280":
-    meta_dict["data"]["pressure"] /= 10.0
-    meta_dict["data"]["temperature"] /= 100.0
-    meta_dict["data"]["humidity"] /= 1000.0
-```
-
 
 ### New Sensor Interface (V2)
 
