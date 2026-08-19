@@ -16,17 +16,20 @@ firmware versions for a hardware version.
 - Wifi user config through the ESP32 fixed to properly work with the multiple sensors scheme [#347](pr347)
 - All existing sensors updated to use user-deisgnated per-sensor Cell ID (or default Cell ID) [#353](pr353)
 - Added new sensors:
-    - Watermark 200SS
-    - Watermark 200TS
+    - Watermark 200SS Soil Tension Sensor
+    - Watermark 200TS Soil Temperature Sensor
+    - DFRobot EDU1057 Lark Weather Station
 
 ### Updated
 
 - Teros12 outputs in percentage rather than decimal
 - `lora_app.c` modified to retry LoRa clock sync if unsuccessful on the first try.
+- Fixed BME280 code reading only 0 output [#355](pr355).
 
 [pr308]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/308
 [pr347]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/347
 [pr353]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/353
+[pr355]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/355
 
 ## [2.3.7] - 2026-02-03
 
