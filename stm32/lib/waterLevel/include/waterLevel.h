@@ -21,7 +21,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ads.h"
+#include "sensors.h"
 
 #define WATER_LEVEL_SCALING_FACTOR 0.0102
 #define WATER_LEVEL_BIAS -0.662

@@ -18,7 +18,6 @@
 
 #include "adc.h"
 #include "sensor.h"
-#include "sensors.h"
 #include "transcoder.h"
 #include "userConfig.h"
 
@@ -34,7 +33,6 @@ void WaterLevelInit() {
 
 ALSMPM2FMeasurement WatLevelGetMeasurement() {
   ALSMPM2FMeasurement waterLevelMeas;
-  waterLevelMeas.meters = ADC_readVoltage();
 
   uint32_t value_raw = 0;
   double value_voltage = 0.0;
@@ -42,11 +40,14 @@ ALSMPM2FMeasurement WatLevelGetMeasurement() {
   uint32_t channel = ADC_CHANNEL_3;
   value_raw = ADC_Convert_Single(channel);
   value_voltage = (double)value_raw * 3.3 / ((1 << 12) - 1);
-  waterLevelMeas.meters = value_voltage / 0.0117;
+
+  // TODO FIX (undo) SCALE FACTOR / 0.0117
 
   // Calibration/conversion from adc to meters with 150 ohm resistor
+  // V_0m = 4 mA * 150 Ohm = 600 mV
+  // V_2m = 20 mA * 150 Ohm = 3000 mV
   waterLevelMeas.meters =
-      (waterLevelMeas.meters * WATER_LEVEL_SCALING_FACTOR) + WATER_LEVEL_BIAS;
+      (value_voltage * WATER_LEVEL_SCALING_FACTOR) + WATER_LEVEL_BIAS;
 
   return waterLevelMeas;
 }
