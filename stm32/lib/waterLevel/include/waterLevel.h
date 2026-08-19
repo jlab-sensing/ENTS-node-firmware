@@ -5,7 +5,8 @@
  * @brief    This file contains all the function prototypes for
  *           the waterLevel.c file.
  *
- *           This library is designed to read measurements from a ALS-MPM-2F water level sensor
+ *           This library is designed to read measurements from a ALS-MPM-2F
+ * water level sensor
  * @date     8/14/2026
  ******************************************************************************
  */

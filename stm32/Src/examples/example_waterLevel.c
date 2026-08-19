@@ -34,8 +34,8 @@
 #include "rtc.h"
 #include "sdi12.h"
 #include "sys_app.h"
-#include "waterLevel.h"
 #include "userConfig.h"
+#include "waterLevel.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -141,8 +141,7 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
     measurement = WatLevelGetMeasurement();
-    reading_len = snprintf(output, sizeof(output),
-                           "Voltage: %.4f A\r\n",
+    reading_len = snprintf(output, sizeof(output), "Voltage: %.4f A\r\n",
                            measurement.meters);
 
     HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,

@@ -5,7 +5,7 @@
  *
  * @brief   This library is designed to read measurements from an ALS-MPM-2F
  *          water level sensor
- * 
+ *
  * @date    8/14/2026
  ******************************************************************************
  */
@@ -16,15 +16,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "adc.h"
 #include "sensor.h"
 #include "sensors.h"
 #include "transcoder.h"
 #include "userConfig.h"
-#include "adc.h"
 
-void WaterLevelInit() { 
-
-   MX_ADC_Init();
+void WaterLevelInit() {
+  MX_ADC_Init();
   // map adc
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -37,7 +36,6 @@ ALSMPM2FMeasurement WatLevelGetMeasurement() {
   ALSMPM2FMeasurement waterLevelMeas;
   waterLevelMeas.meters = ADC_readVoltage();
 
-
   uint32_t value_raw = 0;
   double value_voltage = 0.0;
 
@@ -47,8 +45,8 @@ ALSMPM2FMeasurement WatLevelGetMeasurement() {
   waterLevelMeas.meters = value_voltage / 0.0117;
 
   // Calibration/conversion from adc to meters with 150 ohm resistor
-    waterLevelMeas.meters = (waterLevelMeas.meters * WATER_LEVEL_SCALING_FACTOR) + WATER_LEVEL_BIAS;
-
+  waterLevelMeas.meters =
+      (waterLevelMeas.meters * WATER_LEVEL_SCALING_FACTOR) + WATER_LEVEL_BIAS;
 
   return waterLevelMeas;
 }
@@ -77,7 +75,7 @@ size_t WatLevel_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
-  
+
   // return number of bytes in serialized measurement
   return data_len;
 }
