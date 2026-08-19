@@ -11,11 +11,11 @@ Each type of measurement has a corresponding encoding function as follows:
 """
 
 from .soil_power_sensor_pb2 import (
+    EnabledSensor,
     Measurement,
     Response,
-    UserConfiguration,
-    EnabledSensor,
     Uploadmethod,
+    UserConfiguration,
 )
 
 
