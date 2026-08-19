@@ -209,7 +209,7 @@ int main(void) {
       SensorsAdd(pcap02_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "PCAP02 Enabled!\n");
     }
-    if (sensor = EnabledSensor_EDU0157) {
+    if (sensor == EnabledSensor_EDU0157) {
       EDU0157Init();
       SensorsAdd(EDU0157Measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "EDU0157 Enabled!\n");
