@@ -8,6 +8,7 @@
 #include "sys_app.h"
 #include "userConfig.h"
 #include "utilities_def.h"
+#include "status_led.h"
 
 static UTIL_TIMER_Object_t UserConfigStopTimer = {};
 static UTIL_TIMER_Object_t UserConfigCheckTimer = {};

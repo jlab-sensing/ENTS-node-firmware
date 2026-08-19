@@ -24,6 +24,7 @@
 #include "app_lorawan.h"
 
 // userland
+#include "EDU0157_sensor.h"
 #include "adc.h"
 #include "ads.h"
 #include "bme280_sensor.h"
@@ -144,7 +145,7 @@ int main(void) {
   // configure enabled sensors
   for (int i = 0; i < cfg->enabled_sensors_multiple_count; i++) {
     EnabledSensor sensor = cfg->enabled_sensors_multiple[i].enabled_sensor;
-    EnabledSensorMultiple * sensor_ctx = &(cfg->enabled_sensors_multiple[i]);
+    EnabledSensorMultiple* sensor_ctx = &(cfg->enabled_sensors_multiple[i]);
     if (sensor == EnabledSensor_Voltage) {
       ADC_init();
       SensorsAdd(ADC_measureVoltage, sensor_ctx);
@@ -207,6 +208,11 @@ int main(void) {
       pcap02_init();
       SensorsAdd(pcap02_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "PCAP02 Enabled!\n");
+    }
+    if (sensor = EnabledSensor_EDU0157) {
+      EDU0157Init();
+      SensorsAdd(EDU0157Measure, sensor_ctx);
+      APP_LOG(TS_OFF, VLEVEL_M, "EDU0157 Enabled!\n");
     }
     // TODO add support for dummy sensor
   }

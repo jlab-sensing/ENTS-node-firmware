@@ -48,6 +48,12 @@ const char *SensorType_name(SensorType v) {
         case SensorType_D10_TIME_ELAPSED: return "D10_TIME_ELAPSED";
         case SensorType_WATERMARK200SS_SOIL_TENSION: return "WATERMARK200SS_SOIL_TENSION";
         case SensorType_WATERMARK200TS_SOIL_TEMPERATURE: return "WATERMARK200TS_SOIL_TEMPERATURE";
+        case SensorType_EDU0157_WIND_SPEED: return "EDU0157_WIND_SPEED";
+        case SensorType_EDU0157_WIND_DIRECTION: return "EDU0157_WIND_DIRECTION";
+        case SensorType_EDU0157_ALTITUDE: return "EDU0157_ALTITUDE";
+        case SensorType_EDU0157_PRESSURE: return "EDU0157_PRESSURE";
+        case SensorType_EDU0157_TEMP: return "EDU0157_TEMP";
+        case SensorType_EDU0157_HUMIDITY: return "EDU0157_HUMIDITY";
     }
     return "unknown";
 }

@@ -192,6 +192,22 @@ message WATERMARK200TSMeasurement {
   double temperature = 1;
 }
 
+/* EDU0157 Weather Station */
+message EDU0157Measurement {
+  // wind speed m/s
+  double wind_speed = 1;
+  // wind direction degrees east of north
+  uint32 wind_direction = 2;
+  // altitude m
+  double altitude = 3;
+  // pressure hPa
+  double pressure = 4;
+  // degrees C
+  double temperature = 5;
+  // % relative humidity
+  double humidity = 6;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -211,6 +227,7 @@ message Measurement {
     D10Measurement d10 = 11;
     WATERMARK200SSMeasurement watermark200ss = 12;
     WATERMARK200TSMeasurement watermark200ts = 13;
+    EDU0157Measurement edu0157 = 14;
   }
 }
 
@@ -479,6 +496,7 @@ enum EnabledSensor {
   D10 = 10;
   WATERMARK200SS = 11;
   WATERMARK200TS = 12;
+  EDU0157 = 13;
 }
 
 enum Uploadmethod {
