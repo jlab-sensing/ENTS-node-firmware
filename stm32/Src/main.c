@@ -231,6 +231,8 @@ int main(void) {
     Error_Handler();
   }
 
+  UserConfigSetupStop(120);
+
 #ifdef SAVE_TO_MICROSD
   ControllerMicroSDUserConfig(cfg, SAVE_TO_MICROSD_FILENAME);
 #endif
