@@ -194,8 +194,8 @@ message WATERMARK200TSMeasurement {
 
 /* ALS-MPM-2F Water Level Sensor */
 message ALSMPM2FMeasurement {
-  // voltage
-  double voltage = 1;
+  // meters converted from adc
+  double meters = 1;
 }
 
 /* Top level measurement message */

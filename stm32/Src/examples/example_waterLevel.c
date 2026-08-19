@@ -143,7 +143,7 @@ int main(void) {
     measurement = WatLevelGetMeasurement();
     reading_len = snprintf(output, sizeof(output),
                            "Voltage: %.4f A\r\n",
-                           measurement.voltage);
+                           measurement.meters);
 
     HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,
                       HAL_MAX_DELAY);

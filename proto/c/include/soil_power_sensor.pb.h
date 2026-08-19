@@ -315,8 +315,8 @@ typedef struct _WATERMARK200TSMeasurement {
 
 /* ALS-MPM-2F Water Level Sensor */
 typedef struct _ALSMPM2FMeasurement {
-    /* voltage */
-    double voltage;
+    /* meters converted from adc */
+    double meters;
 } ALSMPM2FMeasurement;
 
 /* Top level measurement message */
@@ -709,7 +709,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define D10Measurement_timeElapsed_tag           3
 #define WATERMARK200SSMeasurement_soil_tension_tag 1
 #define WATERMARK200TSMeasurement_temperature_tag 1
-#define ALSMPM2FMeasurement_voltage_tag          1
+#define ALSMPM2FMeasurement_meters_tag           1
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -904,7 +904,7 @@ X(a, STATIC,   SINGULAR, DOUBLE,   temperature,       1)
 #define WATERMARK200TSMeasurement_DEFAULT NULL
 
 #define ALSMPM2FMeasurement_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           1)
+X(a, STATIC,   SINGULAR, DOUBLE,   meters,            1)
 #define ALSMPM2FMeasurement_CALLBACK NULL
 #define ALSMPM2FMeasurement_DEFAULT NULL
 

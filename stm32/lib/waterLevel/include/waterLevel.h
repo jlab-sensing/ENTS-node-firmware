@@ -22,6 +22,9 @@ extern "C" {
 
 #include "ads.h"
 
+#define WATER_LEVEL_SCALING_FACTOR 0.0102
+#define WATER_LEVEL_BIAS -0.662
+
 /**
  ******************************************************************************
  * @brief    Wrapper function for the ADC initilization.
@@ -30,11 +33,11 @@ extern "C" {
  * @return   HAL_StatusTypeDef
  ******************************************************************************
  */
-HAL_StatusTypeDef WaterLevelInit(void);
+void WaterLevelInit(void);
 
 /**
  ******************************************************************************
- * @brief    Returns both the raw voltage value and a calibrated measurement
+ * @brief    Returns both thecalibrated measurement
  *           from a water level sensor.
  *
  * @param    void
@@ -47,10 +50,7 @@ ALSMPM2FMeasurement WatLevelGetMeasurement(void);
  * @brief Read water Level sensor and serialize measurement
  *
  * The voltage output of the water Level is measured. A calibration is
- * applied to convert voltage into a leaf wetness measurement.
- *
- * Current voltage and Level are the same value, until a calibration
- * is obtained.
+ * applied to convert voltage into a water depth measurement.
  *
  *
  * @see SensorsPrototypeMeasure
