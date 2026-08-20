@@ -69,4 +69,4 @@ jobs:
           PLATFORMIO_AUTH_TOKEN: ${{ secrets.PLATFORMIO_AUTH_TOKEN }}
         # --test-port should point to the CP2102N that handles USB-TTL communication between
         # the build server and the onboard STM32.
-        run: pio remote test -e tests --test-port /dev/ttyUSB0-f ${{ matrix.test }}
+        run: pio remote test -e tests --test-port /dev/ttyUSB0 -f ${{ matrix.test }}
