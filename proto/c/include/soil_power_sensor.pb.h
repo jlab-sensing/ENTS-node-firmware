@@ -334,6 +334,8 @@ typedef struct _EDU0157Measurement {
 typedef struct _ALSMPM2FMeasurement {
     /* meters converted from adc */
     double meters;
+    /* voltage (can infer current, used for manual depth scaling adjustment) */
+    double voltage;
 } ALSMPM2FMeasurement;
 
 /* Top level measurement message */
@@ -640,7 +642,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define WATERMARK200SSMeasurement_init_default   {0}
 #define WATERMARK200TSMeasurement_init_default   {0}
 #define EDU0157Measurement_init_default          {0, 0, 0, 0, 0, 0}
-#define ALSMPM2FMeasurement_init_default         {0}
+#define ALSMPM2FMeasurement_init_default         {0, 0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
@@ -675,7 +677,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define WATERMARK200SSMeasurement_init_zero      {0}
 #define WATERMARK200TSMeasurement_init_zero      {0}
 #define EDU0157Measurement_init_zero             {0, 0, 0, 0, 0, 0}
-#define ALSMPM2FMeasurement_init_zero            {0}
+#define ALSMPM2FMeasurement_init_zero            {0, 0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
@@ -737,6 +739,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define EDU0157Measurement_temperature_tag       5
 #define EDU0157Measurement_humidity_tag          6
 #define ALSMPM2FMeasurement_meters_tag           1
+#define ALSMPM2FMeasurement_voltage_tag          2
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -942,7 +945,8 @@ X(a, STATIC,   SINGULAR, DOUBLE,   humidity,          6)
 #define EDU0157Measurement_DEFAULT NULL
 
 #define ALSMPM2FMeasurement_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, DOUBLE,   meters,            1)
+X(a, STATIC,   SINGULAR, DOUBLE,   meters,            1) \
+X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           2)
 #define ALSMPM2FMeasurement_CALLBACK NULL
 #define ALSMPM2FMeasurement_DEFAULT NULL
 
@@ -1173,7 +1177,7 @@ extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 
 /* Maximum encoded size of messages (where known) */
 /* RepeatedPowerDeltas_size depends on runtime parameters */
-#define ALSMPM2FMeasurement_size                 9
+#define ALSMPM2FMeasurement_size                 18
 #define BME280Measurement_size                   23
 #define CurrentDeltaMeasurement_size             6
 #define CurrentMeasurement_size                  9

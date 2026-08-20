@@ -212,6 +212,8 @@ message EDU0157Measurement {
 message ALSMPM2FMeasurement {
   // meters converted from adc
   double meters = 1;
+  // voltage (can infer current, used for manual depth scaling adjustment)
+  double voltage = 2;
 }
 
 /* Top level measurement message */

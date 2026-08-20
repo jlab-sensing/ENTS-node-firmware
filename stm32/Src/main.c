@@ -216,7 +216,7 @@ int main(void) {
       APP_LOG(TS_OFF, VLEVEL_M, "EDU0157 Enabled!\n");
     }
     if (sensor == EnabledSensor_ALSMPM2F) {
-      WaterLevelInit();
+      WaterLevelInit(sensor_ctx);
       SensorsAdd(WatLevel_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "ALSMPM2F (TL136 / GL136) Enabled!\n");
     }
