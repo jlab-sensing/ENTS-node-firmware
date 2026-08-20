@@ -228,6 +228,7 @@ TODO: Users can update the `encode_user_configuration()` function (and add an en
 8. Wait for the Python action to run. This will automatically create a GitHub release for you.
 9. Copy over the changelog to the newly created release on GitHub.
 10. Check the [ents Python package](https://pypi.org/project/ents/) to see if it updated correctly. The [Release History](https://pypi.org/project/ents/#history) tab should show you the updated version and corrected timestamp.
+11. On the [backend](https://github.com/jlab-sensing/ENTS-backend), update the [requirements.txt](https://github.com/jlab-sensing/ENTS-backend/blob/main/backend/requirements.txt) file to use the latest version of the published Python package.
 
 ### New Sensor Interface (V2)
 
