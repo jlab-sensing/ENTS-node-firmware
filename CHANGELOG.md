@@ -18,7 +18,8 @@ firmware versions for a hardware version.
 - Added new sensors:
     - Watermark 200SS Soil Tension Sensor
     - Watermark 200TS Soil Temperature Sensor
-    - DFRobot EDU1057 Lark Weather Station
+    - DFRobot EDU1057 Lark Weather Station [#339](pr339)
+    - ALS-MPM-2F (TL-136 / GL-136) Water Level Sensor [#356](pr356)
 
 ### Updated
 
@@ -27,9 +28,11 @@ firmware versions for a hardware version.
 - Fixed BME280 code reading only 0 output [#355](pr355).
 
 [pr308]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/308
+[pr339]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/339
 [pr347]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/347
 [pr353]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/353
 [pr355]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/355
+[pr356]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/356
 
 ## [2.3.7] - 2026-02-03
 
