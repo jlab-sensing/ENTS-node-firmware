@@ -44,6 +44,7 @@
 #include "user_config.h"
 #include "waterFlowD10.h"
 #include "waterFlowYFS210C.h"
+#include "waterLevel.h"
 #include "waterPressure.h"
 #include "watermark.h"
 #include "wifi.h"
@@ -213,6 +214,11 @@ int main(void) {
       EDU0157Init();
       SensorsAdd(EDU0157Measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "EDU0157 Enabled!\n");
+    }
+    if (sensor == EnabledSensor_ALSMPM2F) {
+      WaterLevelInit(sensor_ctx);
+      SensorsAdd(WatLevel_measure, sensor_ctx);
+      APP_LOG(TS_OFF, VLEVEL_M, "ALSMPM2F (TL136 / GL136) Enabled!\n");
     }
     // TODO add support for dummy sensor
   }

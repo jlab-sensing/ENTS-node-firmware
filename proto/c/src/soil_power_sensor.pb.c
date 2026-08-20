@@ -69,6 +69,9 @@ PB_BIND(WATERMARK200TSMeasurement, WATERMARK200TSMeasurement, AUTO)
 PB_BIND(EDU0157Measurement, EDU0157Measurement, AUTO)
 
 
+PB_BIND(ALSMPM2FMeasurement, ALSMPM2FMeasurement, AUTO)
+
+
 PB_BIND(Measurement, Measurement, AUTO)
 
 
@@ -124,6 +127,7 @@ const char *EnabledSensor_name(EnabledSensor v) {
         case EnabledSensor_WATERMARK200SS: return "WATERMARK200SS";
         case EnabledSensor_WATERMARK200TS: return "WATERMARK200TS";
         case EnabledSensor_EDU0157: return "EDU0157";
+        case EnabledSensor_ALSMPM2F: return "ALSMPM2F";
     }
     return "unknown";
 }

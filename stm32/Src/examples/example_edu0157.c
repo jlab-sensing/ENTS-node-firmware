@@ -94,10 +94,6 @@ void I2C_Scan(void) {
     }
   }
 
-  if (found == 0) {
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "No I2C devices found.\r\n");
-  } else {
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Scan complete. %d device(s) found.\r\n",
-            found);
-  }
+  APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Scan complete. %d device(s) found.\r\n",
+          found);
 }

@@ -197,6 +197,14 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Soil Temperature",
             "unit": "C",
         },
+        SensorType.ALSMPM2F_WATER_LEVEL: {
+            "name": "Water Level",
+            "unit": "m",
+        },
+        SensorType.ALSMPM2F_VOLTAGE: {
+            "name": "Voltage",
+            "unit": "V",
+        },
     }
 
     meta = SENSOR_DATA[SensorType.Value(meas_type)]

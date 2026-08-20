@@ -232,6 +232,7 @@ void handleSave() {
       case EnabledSensor_SEN0257:
       case EnabledSensor_SEN0308:
       case EnabledSensor_Phytos31:
+      case EnabledSensor_ALSMPM2F:
         // Onboard analog: Index field may hold the ADC channel.
 
         // TODO: Choose default channels and map user inputs to alt channels
