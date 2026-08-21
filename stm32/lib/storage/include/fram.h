@@ -45,29 +45,33 @@ extern "C" {
  * @{
  */
 
-#define USER_DATA_PAGE_ADDRESS 0x07
-#define CELL_ID_MEMORY_ADDRESS 0x00
-#define LOGGER_ID_MEMORY_ADDRESS 0x08
-#define LORA_GATEWAY_EUI_MEMORY_ADDRESS 0x10
-#define LORA_APPLICATION_EUI_MEMORY_ADDRESS 0x17
-#define LORA_END_DEVICE_EUI_MEMORY_ADDRESS 0x1f
-#define LOGGING_INTERVAL_IN_SECONDS_MEMORY_ADDRESS 0x27
-#define UPLOAD_INTERVAL_IN_MINUTES_MEMORY_ADDRESS 0x29
+// FRAM Memory Map
+#ifndef FRAM_BUFFER_START
+/** Starting address of buffer, which is INCLUSIVE */
+#define FRAM_BUFFER_START 0
+#endif /* FRAM_BUFFER_START */
+
+#ifndef FRAM_BUFFER_END
+/** Ending address of buffer, which is INCLUSIVE */
+#define FRAM_BUFFER_END 1769
+#endif /* FRAM_BUFFER_END */
+
+// FRAM metadata are uint16_t
+#define FRAM_BUFFER_READ_ADDR (FRAM_BUFFER_END + 1)
+#define FRAM_BUFFER_WRITE_ADDR (FRAM_BUFFER_READ_ADDR + 2)
+#define FRAM_BUFFER_LEN_ADDR (FRAM_BUFFER_WRITE_ADDR + 2)
+
+// Address for storing the user config data length in FRAM.
+#define USER_CONFIG_LEN_ADDR (FRAM_BUFFER_LEN_ADDR + 2)
+// Starting address for user config data in FRAM.
+#define USER_CONFIG_START_ADDRESS (USER_CONFIG_LEN_ADDR + 2)
+
+// -----
 
 #define DUMP_FRAM_DISPLAY_HEX 0
 #define DUMP_FRAM_DISPLAY_DECIMAL 1
 #define DUMP_FRAM_OMIT_NONE 0
 #define DUMP_FRAM_OMIT_JUNK 1
-
-typedef struct user_configurations {
-  uint64_t cell_ID;
-  uint64_t logger_ID;
-  uint64_t gateway_EUI;
-  uint64_t application_EUI;
-  uint64_t end_device_EUI;
-  uint16_t logging_interval;
-  uint16_t upload_interval;
-} configuration;
 
 /** Status codes for the Fram library*/
 typedef enum {
