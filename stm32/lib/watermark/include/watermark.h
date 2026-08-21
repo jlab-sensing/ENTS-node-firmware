@@ -20,7 +20,6 @@ extern "C" {
 
 #include "sensors.h"
 #include "stm32_systime.h"
-#include "watermark_thermistor.h"
 
 // Reading temperature can be done using the Watermark adapter or a resistor
 // divider. The Watermark 200TS is a 10 kOhm NTC thermistor.
@@ -32,6 +31,7 @@ extern "C" {
 #error Enable only one of the Watermark 200TS measurement modes in watermark.h.
 #endif
 
+#ifdef WATERMARK_200TS_RESISTOR_DIVIDER
 #define WATERMARK_200TS_RESISTOR_DIVIDER_MIN_TEMPERATURE_C -55
 #define WATERMARK_200TS_RESISTOR_DIVIDER_MAX_TEMPERATURE_C 150
 
@@ -40,6 +40,7 @@ extern "C" {
 // 4700 43C
 // 10000 25C
 #define WATERMARK_200TS_RESISTOR_DIVIDER_FIXED_R 3300
+#endif
 
 /**
  ******************************************************************************
