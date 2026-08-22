@@ -41,22 +41,6 @@ FramStatus FramRead(FramAddr addr, size_t len, uint8_t *data) {
 
 FramAddr FramSize(void) { return FramInterface.size; }
 
-HAL_StatusTypeDef ConfigureSettings(configuration c) {
-  HAL_StatusTypeDef status = HAL_OK;
-
-  // TODO(GSOC student) implement user config write
-
-  return status;
-}
-
-configuration ReadSettings(void) {
-  configuration c = {};
-
-  // TODO(GSOC student) implement user config read
-
-  return c;
-}
-
 FramStatus FramDump(uint16_t linesize, uint8_t displayformat, uint8_t omitjunk,
                     uint8_t printdelay_ms, uint16_t startaddress,
                     uint16_t endaddress) {
