@@ -25,20 +25,58 @@
 // Measured when the sensor is at atmospheric pressure (not submerged)
 const double AtmosphericOffset = 2.065;
 
-void PressureInit() {
+void PressureInit(EnabledSensorMultiple* sensor) {
   MX_ADC_Init();
-
-  // B14 == p21 == channel 1
+  // map adc
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Pin = GPIO_PIN_14;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  if (sensor->index) {
+    if (sensor->index == 16) {
+      // channel 0
+      GPIO_InitStruct.Pin = GPIO_PIN_13;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    }
+    if (sensor->index == 21) {
+      // channel 1
+      GPIO_InitStruct.Pin = GPIO_PIN_14;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    }
+    if (sensor->index == 22) {
+      // channel 2
+      GPIO_InitStruct.Pin = GPIO_PIN_3;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    }
+    if (sensor->index == 24) {
+      // channel 3
+      GPIO_InitStruct.Pin = GPIO_PIN_4;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    }
+    if (sensor->index == 18) {
+      // channel 11
+      GPIO_InitStruct.Pin = GPIO_PIN_15;
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    }
+  }
 }
 
-SEN0257Measurement PressureGetMeasurement(void) {
+SEN0257Measurement PressureGetMeasurement(EnabledSensorMultiple* sensor) {
   SEN0257Measurement waterPressMeas;
-  uint32_t value_raw = ADC_Convert_Single(ADC_CHANNEL_1);
+
+  uint32_t channel = 0;
+  if (sensor->index == 16) {
+    channel = ADC_CHANNEL_0;
+  } else if (sensor->index == 21) {
+    channel = ADC_CHANNEL_1;
+  } else if (sensor->index == 22) {
+    channel = ADC_CHANNEL_2;
+  } else if (sensor->index == 24) {
+    channel = ADC_CHANNEL_3;
+  } else if (sensor->index == 18) {
+    channel = ADC_CHANNEL_11;
+  }
+
+  uint32_t value_raw = ADC_Convert_Single(channel);
   double value_voltage = (double)value_raw * 3.3 / ((1 << 12) - 1);
 
   waterPressMeas.voltage = value_voltage;
@@ -56,7 +94,7 @@ size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
   SEN0257Measurement waterPressMeas = {};
 
   /// read voltage
-  waterPressMeas = PressureGetMeasurement();
+  waterPressMeas = PressureGetMeasurement(sensor);
   const UserConfiguration* cfg = UserConfigGet();
 
   // metadata
