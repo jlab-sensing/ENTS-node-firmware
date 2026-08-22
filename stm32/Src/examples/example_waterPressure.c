@@ -32,67 +32,20 @@
 
 #include "ads.h"
 #include "rtc.h"
-#include "sdi12.h"
 #include "sys_app.h"
-#include "waterFlowYFS210C.h"
 #include "waterPressure.h"
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /**
  * @brief  The application entry point.
  * @retval int
  */
 int main(void) {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick.
    */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-  /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -101,58 +54,28 @@ int main(void) {
   // MX_LPUART1_UART_Init();
   MX_I2C1_Init();
 
-  /*Initialize timer and RTC*/
-  /*Have to be initilized in example files because LoRaWan cannot be initialized
-   * like in main*/
-  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-  // UTIL_TIMER_Init();
   SystemApp_Init();
   UserConfigLoad();
 
-  // TIMER_IF_Init();
-  /* USER CODE BEGIN 2 */
+  APP_LOG(TS_OFF, VLEVEL_ALWAYS,
+          "Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n", __DATE__,
+          __TIME__);
 
-  // Print the compilation time at startup
-  char info_str[100];
-  int info_len;
-  info_len = snprintf(info_str, sizeof(info_str),
-                      "Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n",
-                      __DATE__, __TIME__);
-  HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
-
-  /* USER CODE BEGIN 2 */
-  PressureInit();
-  // FlowInit();
-  //  TIMER_IF_Init();
-  //  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-  //  UTIL_TIMER_Init();
-
-  char output[50];
+  UserConfiguration cfg = UserConfiguration_init_zero;
+  cfg.enabled_sensors_multiple_count = 1;         // not used in this example
+  cfg.enabled_sensors_multiple[0].cell_id = 200;  // not used in this example
+  cfg.enabled_sensors_multiple[0].enabled_sensor = EnabledSensor_SEN0257;
+  cfg.enabled_sensors_multiple[0].index = 21;  // ADC channel 1, pin 21
+  PressureInit(&(cfg.enabled_sensors_multiple[0]));
 
   SEN0257Measurement measurement;
   size_t reading_len;
 
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1) {
-    /* USER CODE END WHILE */
+    measurement = PressureGetMeasurement(&(cfg.enabled_sensors_multiple[0]));
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Voltage: %.4f V\r\nPressure: %.4f kPa\r\n",
+            measurement.voltage, measurement.pressure);
 
-    /* USER CODE BEGIN 3 */
-    measurement = PressureGetMeasurement();
-    reading_len = snprintf(output, sizeof(output),
-                           "Voltage: %.4f V\nPressure: %.4f kPa\r\n",
-                           measurement.voltage, measurement.pressure);
-
-    HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,
-                      HAL_MAX_DELAY);
-
-    for (int i = 0; i < 1000000; i++) {
-      asm("nop");
-    }
+    HAL_Delay(1000);
   }
-  /* USER CODE END 3 */
 }
-
-/* USER CODE BEGIN 4 */
