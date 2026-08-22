@@ -23,8 +23,8 @@ extern "C" {
 
 // Reading temperature can be done using the Watermark adapter or a resistor
 // divider. The Watermark 200TS is a 10 kOhm NTC thermistor.
-// #define WATERMARK_200TS_VA3_ADAPTER
-#define WATERMARK_200TS_RESISTOR_DIVIDER
+#define WATERMARK_200TS_VA3_ADAPTER
+// #define WATERMARK_200TS_RESISTOR_DIVIDER
 
 #if defined(WATERMARK_200TS_VA3_ADAPTER) && \
     defined(WATERMARK_200TS_RESISTOR_DIVIDER)
