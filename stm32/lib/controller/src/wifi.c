@@ -6,8 +6,17 @@
 /** Timeout for i2c communication with esp32, in communication.h */
 extern unsigned int g_controller_i2c_timeout;
 
+/** Flag to track if the WiFi controller has been initialized */
+static bool wifi_initialized = false;
+
+void ControllerWiFiSetInitialized(void) { wifi_initialized = true; }
+
 ControllerStatus WiFiCommandTransaction(const WiFiCommand *input,
                                         WiFiCommand *output) {
+  if (!wifi_initialized) {
+    return CONTROLLER_ERROR;
+  }
+
   // get reference to tx and rx buffers
   Buffer *tx = ControllerTx();
   Buffer *rx = ControllerRx();
