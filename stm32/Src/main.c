@@ -186,12 +186,12 @@ int main(void) {
       APP_LOG(TS_OFF, VLEVEL_M, "Phytos31 Enabled!\n");
     }
     if (sensor == EnabledSensor_SEN0308) {
-      CapSoilInit();
+      CapSoilInit(sensor_ctx);
       SensorsAdd(SEN0308_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "SEN0308 Cap Soil Sensor Enabled!\n");
     }
     if (sensor == EnabledSensor_SEN0257) {
-      PressureInit();
+      PressureInit(sensor_ctx);
       SensorsAdd(WatPress_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "SEN0257 Water Pressure Sensor Enabled!\n");
     }
