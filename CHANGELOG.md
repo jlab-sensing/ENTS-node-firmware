@@ -12,15 +12,13 @@ firmware versions for a hardware version.
 
 ### Added
 
-- Additional information on web userconfig interface [#308](pr308)
-- Added new sensors:
-    - Watermark 200SS
-    - Watermark 200TS
+- Solenoid functionality via downlink
+    - Currently the payload message has one field with 00 and 01 corresponding to close and open respectively
+- Easier extraction of the downlink payload through lora_downlink.h/c
 
 ### Updated
 
-- Teros12 outputs in percentage rather than decimal
-- `lora_app.c` modified to retry LoRa clock sync if unsuccessful on the first try.
+- `lora_app.c` onRXData fport switch statement modified to incorporate solenoid.  
 
 [pr308]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/308
 
