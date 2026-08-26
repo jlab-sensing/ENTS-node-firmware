@@ -72,6 +72,10 @@ typedef enum TxEventType_e {
 } TxEventType_t;
 
 /* USER CODE BEGIN PTD */
+typedef enum {
+  SOLENOID = 3,
+} FPortUsage;
+
 
 /* USER CODE END PTD */
 
@@ -463,15 +467,17 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
         APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
         break;
 
-      case 3:
-        if((appData->Buffer[0] == 0x00) && (appData->BufferSize == 1)){
+      case SOLENOID:
+        if((appData->Buffer[0] == 0x00) && (appData->BufferSize == 2)){
+          SolenoidParameter *solenoid = {appData->Buffer[2], SOLENOID_OFF};
           // APP_LOG(TS_OFF, VLEVEL_H, "Closing solenoid, Message received: %02X", appData->Buffer[0]);
-          SolenoidClose();
+          SolenoidClose(solenoid);
 
         }
-        else if ((appData->Buffer[0] == 0x01) && (appData->BufferSize == 1)){
+        else if ((appData->Buffer[0] == 0x01) && (appData->BufferSize == 2)){
           // APP_LOG(TS_OFF, VLEVEL_H, "Opening solenoid, Message received: %02X", appData->Buffer[0]);
-          SolenoidOpen();
+          SolenoidParameter *solenoid = {appData->Buffer[2], SOLENOID_ON};
+          SolenoidOpen(solenoid);
         }
 
         break;

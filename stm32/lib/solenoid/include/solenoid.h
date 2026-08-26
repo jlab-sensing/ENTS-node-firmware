@@ -24,11 +24,18 @@ extern "C" {
 
 #include "ads.h"
 
+#define SOLENOID_MAX 5
+
 /** States of the solenoid */
 typedef enum {
   SOLENOID_OFF,
   SOLENOID_ON,
 } StatusSolenoid;
+
+typedef struct {
+  uint8_t pin;
+  StatusSolenoid state;
+} SolenoidParameter;
 
 /**
  ******************************************************************************
@@ -38,7 +45,7 @@ typedef enum {
  * @return   HAL_StatusTypeDef
  ******************************************************************************
  */
-void SolenoidInit(void);
+void SolenoidInit(EnabledSensorMultiple* sensor);
 
 /**
  ******************************************************************************
@@ -49,7 +56,7 @@ void SolenoidInit(void);
  * @return   measurements
  ******************************************************************************
  */
-void SolenoidOpen(void);
+void SolenoidOpen(uint8_t pinNumber);
 
 /**
  * @brief Read water Flow sensor and serialize measurement
@@ -63,7 +70,7 @@ void SolenoidOpen(void);
  *
  * @see SensorsPrototypeMeasure
  */
-void SolenoidClose(void);
+void SolenoidClose(uint8_t pinNumber);
 
 
 

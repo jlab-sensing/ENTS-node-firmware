@@ -38,14 +38,16 @@ int main(void) {
                       __DATE__, __TIME__);
   HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
 
-  SolenoidInit();
+  SolenoidParameter *solenoidTest = {3, SOLENOID_OFF};
+  SolenoidInit(solenoidTest);
 
   char output[30];
 
   size_t reading_len;
 
+
   while (1) {
-    SolenoidOpen();
+    SolenoidOpen(solenoidTest);
 
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_RESET) {
       reading_len = snprintf(output, sizeof(output), "Solenoid Open\r\n");
@@ -61,7 +63,7 @@ int main(void) {
     HAL_Delay(5000);  // 5000 ms = 5 seconds
 
     // Close solenoid
-    SolenoidClose();
+    SolenoidClose(solenoidTest);
 
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_SET) {
       reading_len = snprintf(output, sizeof(output), "Solenoid Closed\r\n");

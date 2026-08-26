@@ -21,36 +21,116 @@
 #include "stm32wlxx_hal_def.h"
 
 static StatusSolenoid Solenoid;
+static uint8_t activeSolenoids = 0;
+SolenoidParameter *solenoid[SOLENOID_MAX];
 
-void SolenoidInit() {
+void SolenoidInit(SolenoidParameter *solenoid) {
   __HAL_RCC_GPIOA_CLK_ENABLE();  // Enable GPIOA clock
-
+  __HAL_RCC_GPIOB_CLK_ENABLE();  // Enable GPIOB clock
+  
   // Use Pin PA10 to toggle solenoid
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;  // Push-pull output
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  if (solenoid->pin) {
+    if (solenoid->pin == 5) {
+      GPIO_InitStruct.Pin = GPIO_PIN_9;
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);  // LOW = Relay OFF
+    }
+    if (solenoid->pin == 3) {
+      // original solenoid pin used
+      GPIO_InitStruct.Pin = GPIO_PIN_10;
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay OFF
+    }
+    if (solenoid->pin == 15) {
+      GPIO_InitStruct.Pin = GPIO_PIN_9;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);  // LOW = Relay OFF
+    }
+    if (solenoid->pin == 23) {
+      GPIO_InitStruct.Pin = GPIO_PIN_10;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay OFF
+    }
+    if (solenoid->pin == 19) {
+      GPIO_InitStruct.Pin = GPIO_PIN_15;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);  // LOW = Relay OFF
+    }
 
-  // Set up interrupt
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;  // Push-pull output
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 
-  // Init state of Solenoid
-  SolenoidClose();
-  Solenoid = SOLENOID_OFF;
+    // Init state of Solenoid
+    solenoid->state = SOLENOID_OFF;
+
+  }
 
 }
 
-void SolenoidOpen(void) {
-  printf("SOLENOID_OPEN: Setting PA10 to HIGH (Relay ON)\n");
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);  // HIGH = Relay ON
-  Solenoid = SOLENOID_ON;
+void SolenoidOpen(SolenoidParameter *solenoid) {
+  printf("SOLENOID_OPEN: Setting %i to HIGH (Relay ON)\n", solenoid->pin);
+  switch(solenoid->pin)
+  {
+    case 5:
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);  // HIGH = Relay ON
+      solenoid->state = SOLENOID_ON;
+      break;
+
+    case 3:
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);  // HIGH = Relay ON
+      solenoid->state = SOLENOID_ON;
+      break;
+
+    case 15:
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);  // HIGH = Relay ON
+      solenoid->state = SOLENOID_ON;
+      break;
+
+    case 23:
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);  // HIGH = Relay ON
+      solenoid->state = SOLENOID_ON;
+      break;
+
+    case 19:
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);  // HIGH = Relay ON
+      solenoid->state = SOLENOID_ON;
+      break;
+
+  }
 }
 
-void SolenoidClose(void) {
-  printf("SOLENOID_CLOSE: Setting PA10 to LOW (Relay OFF)\n");
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay OFF
-  Solenoid = SOLENOID_OFF;
+void SolenoidClose(SolenoidParameter *solenoid) {
+  printf("SOLENOID_OPEN: Setting %i to LOW (Relay ON)\n", solenoid->pin);
+  switch(solenoid->pin)
+  {
+    case 5:
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);  // LOW = Relay OFF
+      solenoid->state = SOLENOID_OFF;
+      break;
+
+    case 3:
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay OFF
+      solenoid->state = SOLENOID_OFF;
+      break;
+
+    case 15:
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);  // LOW = Relay OFF
+      solenoid->state = SOLENOID_OFF;
+      break;
+
+    case 23:
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay OFF
+      solenoid->state = SOLENOID_OFF;
+      break;
+
+    case 19:
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);  // LOW = Relay OFF
+      solenoid->state = SOLENOID_OFF;
+      break;
+
+  }
 }
 
 
