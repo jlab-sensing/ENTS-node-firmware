@@ -62,9 +62,18 @@ extern "C" {
 #define FRAM_BUFFER_LEN_ADDR (FRAM_BUFFER_WRITE_ADDR + 2)
 
 // Address for storing the user config data length in FRAM.
-#define USER_CONFIG_LEN_ADDR (FRAM_BUFFER_LEN_ADDR + 2)
+#define USER_CONFIG_LEN_ADDR (FRAM_BUFFER_WRITE_ADDR + 2)
 // Starting address for user config data in FRAM.
 #define USER_CONFIG_START_ADDRESS (USER_CONFIG_LEN_ADDR + 2)
+
+#define USER_CONFIG_LEN_MAX UserConfiguration_size
+
+#define USER_CONFIG_CRC_ADDR (USER_CONFIG_START_ADDRESS+USER_CONFIG_LEN_MAX)
+
+
+#define USER_BU_LEN_ADDR (USER_CONFIG_CRC_ADDR+4)
+#define USER_BU_START_ADDR (USER_BU_LEN_ADDR+2)
+#define USER_BU_CRC_ADDR (USER_BU_START_ADDR+USER_CONFIG_LEN_MAX)
 
 // -----
 
