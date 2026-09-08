@@ -284,24 +284,7 @@ const UserConfiguration *UserConfigGet(void) {
 #endif  // TEST_USER_CONFIG
 }
 
-uint16_t crc16(const uint8_t *data, size_t length) {
-    uint16_t crc = 0xFFFF; 
-    for (size_t i = 0; i < length; i++) {
-        crc ^= (uint16_t)data[i] << 8;
-        for (int j = 0; j < 8; j++) {
-            if (crc & 0x8000) {
-                crc = (crc << 1) ^ 0x533A; 
-            } else {
-                crc <<= 1;
-            }
-        }
-    }
-    return crc;
-}
-
 UserConfigStatus UserConfigSave(const UserConfiguration *config) {
-
-  //CONSTRUCT HEADER + CALC CRC
   if (config == NULL) {
     return USERCONFIG_NULL_CONFIG;
   }
@@ -314,58 +297,18 @@ UserConfigStatus UserConfigSave(const UserConfiguration *config) {
 
   // Write the length of the encoded data to FRAM
   uint8_t length_buf[2] = {(encoded_length >> 8) & 0xFF, encoded_length & 0xFF};
-
-  uint16_t crc_new = crc16(encoded_data,encoded_length);
-  
-
-  //WRITE IN BACKUP
-  
   UserConfigStatus status =
-      UserConfig_WriteToFRAM(USER_BU_LEN_ADDR, length_buf, 2);
+      UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
   if (status != USERCONFIG_OK) {
     return status;
   }
 
   // Write the encoded data to FRAM
-  status = UserConfig_WriteToFRAM(USER_BU_START_ADDR, encoded_data,
+  status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, encoded_data,
                                   encoded_length);
   if (status != USERCONFIG_OK) {
     return status;
   }
-
-  //CHECK CRC
-uint8_t read_data[UserConfiguration_size];
-  UserConfig_ReadFromFRAM(USER_BU_START_ADDR,encoded_length,read_data);
-  if(crc16(read_data,encoded_length) == crc_new){
-      //IF GOOD WRITE
-        UserConfigStatus status =
-          UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
-        if (status != USERCONFIG_OK) {
-        return status;
-        }
-
-        // Write the encoded data to FRAM
-        status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, encoded_data,
-                                      encoded_length);
-        if (status != USERCONFIG_OK) {
-        return status;
-        }
-
-      //CHECK PRIMARY
-
-  }else{
-      //IF NOT GOOD EXIT
-
-      return USERCONFIG_FRAM_ERROR;
-  }
-
-
-
-
-
-
-
-  //IF NOT GOOD REWRITE UNTIL GOOD
 
   return USERCONFIG_OK;
 }
