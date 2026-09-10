@@ -173,6 +173,7 @@ void handleSave() {
       case EnabledSensor_PCAP02:
       case EnabledSensor_Voltage:
       case EnabledSensor_Current:
+      case EnabledSensor_EDU0157:
         // I2C: Index field may hold the non-left shifted 7 bit address
         // (decimal, not hexadecimal).
 
@@ -207,6 +208,12 @@ void handleSave() {
                                                 .enabled_sensors_multiple_count]
                   .index = 0x40;
               break;
+            case EnabledSensor_EDU0157:
+              config
+                  .enabled_sensors_multiple[config
+                                                .enabled_sensors_multiple_count]
+                  .index = 0x42;
+              break;
             default:
               break;
           }
@@ -225,6 +232,7 @@ void handleSave() {
       case EnabledSensor_SEN0257:
       case EnabledSensor_SEN0308:
       case EnabledSensor_Phytos31:
+      case EnabledSensor_ALSMPM2F:
         // Onboard analog: Index field may hold the ADC channel.
 
         // TODO: Choose default channels and map user inputs to alt channels

@@ -29,22 +29,22 @@ extern "C" {
  ******************************************************************************
  * @brief    Wrapper function for the ADC initilization.
  *
- * @param    void
+ * @param    EnabledSensorMultiple* sensor context, index field specifies ADC
  * @return   void
  ******************************************************************************
  */
-void PressureInit(void);
+void PressureInit(EnabledSensorMultiple *sensor);
 
 /**
  ******************************************************************************
  * @brief    Returns both the raw voltage value and a calibrated measurement
  *           from a water pressure sensor.
  *
- * @param    void
+ * @param    EnabledSensorMultiple* sensor context, index field specifies ADC
  * @return   measurements
  ******************************************************************************
  */
-SEN0257Measurement PressureGetMeasurement(void);
+SEN0257Measurement PressureGetMeasurement(EnabledSensorMultiple *sensor);
 
 /**
  * @brief Read water pressure sensor and serialize measurement

@@ -8,12 +8,46 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
-## Unreleased
+## [Unreleased] - 2026-XX-XX
 
 ### Added
 
+- Watermark 200TS soil temperature sensor (thermistor) added option to read the temperature using a resistor divider [#360](pr360).
 - Added new sensor:
     - AS7343
+
+### Updated
+
+- SEN0257 and SEN0308 now use the sensor context (index) to determine which ADC channel to sample [#361](pr361).
+
+[pr360]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/360
+[pr361]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/361
+
+## [2.3.12] - 2026-08-19
+
+### Added
+
+- Additional information on web userconfig interface [#308](pr308)
+- Wifi user config through the ESP32 fixed to properly work with the multiple sensors scheme [#347](pr347)
+- All existing sensors updated to use user-deisgnated per-sensor Cell ID (or default Cell ID) [#353](pr353)
+- Added new sensors:
+    - Watermark 200SS Soil Tension Sensor
+    - Watermark 200TS Soil Temperature Sensor
+    - DFRobot EDU1057 Lark Weather Station [#339](pr339)
+    - ALS-MPM-2F (TL-136 / GL-136) Water Level Sensor [#356](pr356)
+
+### Updated
+
+- Teros12 outputs in percentage rather than decimal
+- `lora_app.c` modified to retry LoRa clock sync if unsuccessful on the first try.
+- Fixed BME280 code reading only 0 output [#355](pr355).
+
+[pr308]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/308
+[pr339]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/339
+[pr347]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/347
+[pr353]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/353
+[pr355]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/355
+[pr356]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/356
 
 ## [2.3.7] - 2026-02-03
 

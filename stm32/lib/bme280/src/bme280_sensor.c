@@ -104,16 +104,17 @@ BME280Status BME280MeasureAll(BME280Data *data) {
     return rslt;
   }
 
+  /* Check if measurement is still in progress */
   if (status_reg & BME280_STATUS_MEAS_DONE)
   {
     /* Measurement time delay given to read sample */
     dev.delay_us(period, dev.intf_ptr);
+  }
 
-    /* Read compensated data */
-    rslt = bme280_get_sensor_data(BME280_ALL, data, &dev);
-    if (rslt != BME280_OK) {
-      return rslt;
-    }
+  /* Read compensated data */
+  rslt = bme280_get_sensor_data(BME280_ALL, data, &dev);
+  if (rslt != BME280_OK) {
+    return rslt;
   }
 
   // adjust based on defines

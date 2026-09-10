@@ -1,16 +1,16 @@
 /**
  ******************************************************************************
- * @file    waterPressure.c
- * @author  Caden Jacobs
+ * @file    waterLevel.c
+ * @author  Eric Tran
  *
- * @brief   This library is designed to read measurements from a water pressure
- *          sensor from DFRobot.
- *          https://wiki.dfrobot.com/Gravity__Water_Pressure_Sensor_SKU__SEN0257
- * @date    4/23/2025
+ * @brief   This library is designed to read measurements from an ALS-MPM-2F
+ *          water level sensor
+ *
+ * @date    8/14/2026
  ******************************************************************************
  */
 
-#include "waterPressure.h"
+#include "waterLevel.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,14 +18,10 @@
 
 #include "adc.h"
 #include "sensor.h"
-#include "sensors.h"
 #include "transcoder.h"
 #include "userConfig.h"
 
-// Measured when the sensor is at atmospheric pressure (not submerged)
-const double AtmosphericOffset = 2.065;
-
-void PressureInit(EnabledSensorMultiple* sensor) {
+void WaterLevelInit(EnabledSensorMultiple* sensor) {
   MX_ADC_Init();
   // map adc
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -60,9 +56,8 @@ void PressureInit(EnabledSensorMultiple* sensor) {
   }
 }
 
-SEN0257Measurement PressureGetMeasurement(EnabledSensorMultiple* sensor) {
-  SEN0257Measurement waterPressMeas;
-
+ALSMPM2FMeasurement WatLevelGetMeasurement(EnabledSensorMultiple* sensor) {
+  ALSMPM2FMeasurement measurement = {0};
   uint32_t channel = 0;
   if (sensor->index == 16) {
     channel = ADC_CHANNEL_0;
@@ -75,26 +70,22 @@ SEN0257Measurement PressureGetMeasurement(EnabledSensorMultiple* sensor) {
   } else if (sensor->index == 18) {
     channel = ADC_CHANNEL_11;
   }
-
   uint32_t value_raw = ADC_Convert_Single(channel);
-  double value_voltage = (double)value_raw * 3.3 / ((1 << 12) - 1);
+  measurement.voltage = (double)value_raw * 3.3 / ((1 << 12) - 1);
 
-  waterPressMeas.voltage = value_voltage;
+#ifdef WATER_LEVEL_DISABLE_CALIBRATION
+  measurement.meters = WATER_LEVEL_VOLTAGE_TO_METERS(measurement.voltage);
+#else
+  measurement.meters =
+      (measurement.voltage * WATER_LEVEL_SCALING_FACTOR) + WATER_LEVEL_BIAS;
+#endif
 
-  // Calibration: 250kPa range with 0.5V-4.5V output
-  // Pressure (kPa) = (Vout - Voffset) * (250kPa / (4.5V - 0.5V))
-  // Simplified: Pressure (kPa) = (Vout - Voffset) * 62.5
-  waterPressMeas.pressure = (waterPressMeas.voltage - 0.5) * 62.5 + 33.8;
-  return waterPressMeas;
+  return measurement;
 }
 
-size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
+size_t WatLevel_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
                         EnabledSensorMultiple* sensor) {
-  // get timestamp
-  SEN0257Measurement waterPressMeas = {};
-
-  /// read voltage
-  waterPressMeas = PressureGetMeasurement(sensor);
+  ALSMPM2FMeasurement measurement = WatLevelGetMeasurement(sensor);
   const UserConfiguration* cfg = UserConfigGet();
 
   // metadata
@@ -106,18 +97,18 @@ size_t WatPress_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
   size_t data_len = 0;
   SensorStatus status = SENSOR_OK;
 
-  // voltage
-  status = EncodeDoubleMeasurement(meta, waterPressMeas.voltage,
-                                   SensorType_SEN0257_VOLTAGE, data, &data_len);
+  // voltage as measured (for manual depth scaling adjustment)
+  status = EncodeDoubleMeasurement(
+      meta, measurement.voltage, SensorType_ALSMPM2F_VOLTAGE, data, &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
 
-  // pressure
+  // depth in meters
   status =
-      EncodeDoubleMeasurement(meta, waterPressMeas.pressure,
-                              SensorType_SEN0257_PRESSURE, data, &data_len);
+      EncodeDoubleMeasurement(meta, measurement.meters,
+                              SensorType_ALSMPM2F_WATER_LEVEL, data, &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }

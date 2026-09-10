@@ -399,6 +399,8 @@
             <option value="D10">D10 Water Meter</option>
             <option value="WATERMARK200SS">Watermark 200SS Soil Moisture Sensor</option>
             <option value="WATERMARK200TS">Watermark 200TS Temperature Sensor</option>
+            <option value="EDU0157">EDU0157 Weather Sensor</option>
+            <option value="ALSMPM2F">ALSMPM2F (TL136 / GL136) Water Level Sensor</option>
           </select>
           <label for="sensor_cell_id_${i}">Cell ID (Sensor ${i})</label>
           <input type="number" id="sensor_cell_id_${i}" name="sensor_cell_id_${i}" min="0"
@@ -492,6 +494,7 @@
           validIndexes: digital_allowed,
           conflicts: []
         },
+
         WATERMARK200SS: {
           type: "adc",
           defaultIndex: "",
@@ -500,6 +503,20 @@
         },
 
         WATERMARK200TS: {
+          type: "adc",
+          defaultIndex: "",
+          validIndexes: adc_allowed,
+          conflicts: []
+        },
+
+        EDU0157: {
+          type: "i2c",
+          defaultIndex: "0x42",
+          validIndexes: ["0x42"],
+          conflicts: []
+        },
+
+        ALSMPM2F: {
           type: "adc",
           defaultIndex: "",
           validIndexes: adc_allowed,
@@ -800,32 +817,6 @@
               field.value = config[key];
             }
           });
-
-          // // Handle enabled_sensors list
-          // const sensorMap = {
-          //   "Voltage": "voltage_enabled",
-          //   "Current": "current_enabled",
-          //   "Teros12": "teros12_enabled",
-          //   "Teros21": "teros21_enabled",
-          //   "BME280": "bme280_enabled",
-          //   "Phytos31": "Phytos31_enabled",
-          //   "SEN0308": "SEN0308_enabled",
-          //   "SEN0257": "SEN0257_enabled",
-          //   "YFS210C": "YFS210C_enabled",
-          //   "PCAP02": "PCAP02_enabled"
-          // };
-
-          // // Enable those in config
-          // if (Array.isArray(config.enabled_sensors)) {
-          //   config.enabled_sensors.forEach(sensorName => {
-          //     const id = sensorMap[sensorName];
-          //     if (id) {
-          //       const cb = document.getElementById(id);
-          //       if (cb) cb.checked = true;
-          //     }
-          //   });
-          // }
-
         } catch (err) {
           console.error("Error loading config:", err);
           showError("Could not load configuration from device.");

@@ -8,6 +8,7 @@
 #include "sys_app.h"
 #include "userConfig.h"
 #include "utilities_def.h"
+#include "status_led.h"
 
 static UTIL_TIMER_Object_t UserConfigStopTimer = {};
 static UTIL_TIMER_Object_t UserConfigCheckTimer = {};
@@ -15,7 +16,7 @@ static UTIL_TIMER_Object_t UserConfigCheckTimer = {};
 void UserConfigStopEvent(void* context);
 void UserConfigCheckEvent(void* context);
 
-void UserConfigStart(unsigned int timeout, unsigned int checkInterval) {
+void UserConfigStart(unsigned int checkInterval) {
   // variables to store WiFi host info
   char ssid[255] = {};
   char ip[16] = {};
@@ -99,7 +100,6 @@ void UserConfigStart(unsigned int timeout, unsigned int checkInterval) {
   UserConfigPrint();
   APP_LOG(TS_OFF, VLEVEL_M, "\n");
 
-  UserConfigSetupStop(timeout);
   UserConfigSetupCheck(checkInterval);
 }
 

@@ -50,11 +50,14 @@ int main(void) {
   MX_I2C1_Init();
   MX_USART2_UART_Init();
 
-  // init bme280
-  BME280Init();
-
   APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Example BME280 (%s), compile on %s %s\r\n",
           __FILE__, __DATE__, __TIME__);
+
+  // init bme280
+  BME280Status rslt = BME280Init();
+  if (rslt != BME280_OK) {
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Failed to initialize BME280: %d\r\n", rslt);
+  }
 
   // Infinite loop
   while (1) {
@@ -70,7 +73,8 @@ int main(void) {
     }
 
     APP_LOG(TS_OFF, VLEVEL_ALWAYS,
-            "Pressure: %u, Temperature: %d, Humidity: %u\r\n", data.pressure,
-            data.temperature, data.humidity);
+            "Pressure: %u Pa, Temperature: %d * 0.01 deg C, Humidity: %u * "
+            "0.001 %%RH\r\n",
+            data.pressure, data.temperature, data.humidity);
   }
 }
