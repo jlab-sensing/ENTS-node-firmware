@@ -29,11 +29,12 @@
 //   uint16_t channelCombined[ksfAS7343NumChannels];
 // } AS7343Data;
 
-typedef union{
-  // uint8_t halfChannel[ksfAS7343NumChannels * 2]; // HAL_I2C commands use 8 bits
-  uint16_t channelCombined[ksfAS7343NumChannels]; // used to access full channeldata
+typedef union {
+  // uint8_t halfChannel[ksfAS7343NumChannels * 2]; // HAL_I2C commands use 8
+  // bits
+  uint16_t
+      channelCombined[ksfAS7343NumChannels];  // used to access full channeldata
 } AS7343Data;
-
 
 /*! CPP guard */
 #ifdef __cplusplus
