@@ -57,7 +57,22 @@ typedef enum _SensorType {
     SensorType_EDU0157_HUMIDITY = 30,
     /* * ALS-MPM-2F (TL-136 / GL-136) measurements */
     SensorType_ALSMPM2F_WATER_LEVEL = 31,
-    SensorType_ALSMPM2F_VOLTAGE = 32
+    SensorType_ALSMPM2F_VOLTAGE = 32,
+    /* * AS7343 measurements */
+    SensorType_AS7343_SPECTRAL_F1_405NM = 33,
+    SensorType_AS7343_SPECTRAL_F2_425NM = 34,
+    SensorType_AS7343_SPECTRAL_FZ_450NM = 35,
+    SensorType_AS7343_SPECTRAL_F3_475NM = 36,
+    SensorType_AS7343_SPECTRAL_F4_515NM = 37,
+    SensorType_AS7343_SPECTRAL_FY_555NM = 38,
+    SensorType_AS7343_SPECTRAL_F5_550NM = 39,
+    SensorType_AS7343_SPECTRAL_FXL_600NM = 40,
+    SensorType_AS7343_SPECTRAL_F6_640NM = 41,
+    SensorType_AS7343_SPECTRAL_F7_690NM = 42,
+    SensorType_AS7343_SPECTRAL_F8_745NM = 43,
+    SensorType_AS7343_SPECTRAL_NIR_855NM = 44,
+    SensorType_AS7343_SPECTRAL_VIS = 45,
+    SensorType_AS7343_SPECTRAL_FD = 46
 } SensorType;
 
 typedef enum _SensorError {
@@ -133,8 +148,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _SensorType_MIN SensorType_NONE
-#define _SensorType_MAX SensorType_ALSMPM2F_VOLTAGE
-#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_ALSMPM2F_VOLTAGE+1))
+#define _SensorType_MAX SensorType_AS7343_SPECTRAL_FD
+#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_AS7343_SPECTRAL_FD+1))
 const char *SensorType_name(SensorType v);
 
 #define _SensorError_MIN SensorError_OK

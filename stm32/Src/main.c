@@ -48,6 +48,7 @@
 #include "waterPressure.h"
 #include "watermark.h"
 #include "wifi.h"
+#include "as7343.h"
 
 /**
  * @brief  The application entry point.
@@ -219,6 +220,11 @@ int main(void) {
       WaterLevelInit(sensor_ctx);
       SensorsAdd(WatLevel_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "ALSMPM2F (TL136 / GL136) Enabled!\n");
+    }
+    if (sensor == EnabledSensor_AS7343) {
+      AS7343Init();
+      SensorsAdd(AS7343Measure, sensor_ctx);
+      APP_LOG(TS_OFF, VLEVEL_M, "AS7343 Enabled!\n");
     }
     // TODO add support for dummy sensor
   }
