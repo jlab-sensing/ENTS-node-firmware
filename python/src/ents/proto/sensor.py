@@ -12,10 +12,10 @@ metadata fields.
 from google.protobuf.json_format import MessageToDict, ParseDict
 
 from .sensor_pb2 import (
-    SensorMeasurement,
     RepeatedSensorMeasurements,
-    SensorType,
     RepeatedSensorResponses,
+    SensorMeasurement,
+    SensorType,
 )
 
 
@@ -153,15 +153,39 @@ def get_sensor_data(meas_type: int) -> dict:
             "name": "Capacitance Ratio",
             "unit": "pF/pF",
         },
+        SensorType.EDU0157_WIND_SPEED: {
+            "name": "Wind Speed",
+            "unit": "m/s",
+        },
+        SensorType.EDU0157_WIND_DIRECTION: {
+            "name": "Wind Direction",
+            "unit": "degrees E of N",
+        },
+        SensorType.EDU0157_ALTITUDE: {
+            "name": "Altitude",
+            "unit": "m",
+        },
+        SensorType.EDU0157_PRESSURE: {
+            "name": "Pressure",
+            "unit": "hPa",
+        },
+        SensorType.EDU0157_TEMP: {
+            "name": "Temperature",
+            "unit": "C",
+        },
+        SensorType.EDU0157_HUMIDITY: {
+            "name": "Humidity",
+            "unit": "%",
+        },
         SensorType.D10_FLOW: {
             "name": "Flow rate",
             "unit": "gal/min",
         },
-        SensorType.D10_VOLUME_ELAPSED : {
+        SensorType.D10_VOLUME_ELAPSED: {
             "name": "Volume Elapsed",
             "unit": "gal",
         },
-        SensorType.D10_TIME_ELAPSED : {
+        SensorType.D10_TIME_ELAPSED: {
             "name": "Time Elapsed",
             "unit": "s",
         },
@@ -172,6 +196,14 @@ def get_sensor_data(meas_type: int) -> dict:
         SensorType.WATERMARK200TS_SOIL_TEMPERATURE: {
             "name": "Soil Temperature",
             "unit": "C",
+        },
+        SensorType.ALSMPM2F_WATER_LEVEL: {
+            "name": "Water Level",
+            "unit": "m",
+        },
+        SensorType.ALSMPM2F_VOLTAGE: {
+            "name": "Voltage",
+            "unit": "V",
         },
     }
 

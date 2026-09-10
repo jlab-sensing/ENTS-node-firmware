@@ -74,8 +74,9 @@ String getConfigJson() {
     json +=
         EnabledSensor_name(config.enabled_sensors_multiple[i].enabled_sensor);
     json += "\",\"sensor_cell_id\":";
-    json += String(config.enabled_sensors_multiple[i].cell_id) + ",\"sensor_index\":";
-    json += String(config.enabled_sensors_multiple[i].index) ;
+    json += String(config.enabled_sensors_multiple[i].cell_id) +
+            ",\"sensor_index\":";
+    json += String(config.enabled_sensors_multiple[i].index);
     json += "}";
   }
   json += "],";

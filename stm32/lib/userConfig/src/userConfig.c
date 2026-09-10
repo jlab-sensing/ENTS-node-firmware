@@ -330,6 +330,9 @@ void UserConfigPrintAny(const UserConfiguration *config) {
     APP_PRINTF(
         "Enabled Sensor %d: %s\r\n", i + 1,
         EnabledSensor_name(config->enabled_sensors_multiple[i].enabled_sensor));
+    APP_PRINTF("\tCell ID: %d\r\n",
+               config->enabled_sensors_multiple[i].cell_id);
+    APP_PRINTF("\tIndex: %d\r\n", config->enabled_sensors_multiple[i].index);
   }
 
   char float_str[100];

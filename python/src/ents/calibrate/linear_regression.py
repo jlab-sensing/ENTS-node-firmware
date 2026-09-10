@@ -1,12 +1,12 @@
 import numpy as np
+from scipy.stats import norm
 from sklearn import linear_model
 from sklearn.metrics import (
     mean_absolute_error,
+    mean_absolute_percentage_error,
     mean_squared_error,
     r2_score,
-    mean_absolute_percentage_error,
 )
-from scipy.stats import norm
 
 
 def linear_regression(meas: list, actual: list):

@@ -36,8 +36,16 @@ PayloadStatus FormatPayload(uint8_t* buffer, size_t size, size_t* length) {
       return PAYLOAD_ERROR;
     }
 
+    APP_LOG(TS_ON, VLEVEL_H, "FramPeek(idx=%d, data=0x%p, length=%d): 0x",
+            meas_count, buffer, *((uint8_t*)length));
+    for (uint8_t i = 0; i < *((uint8_t*)length); i++) {
+      APP_LOG(TS_OFF, VLEVEL_H, " %02X", buffer[i]);
+    }
+    APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
+
     // decode measurement
-    sensor_status = DecodeSensorMeasurement(buffer, *length, &meas[meas_count++]);
+    sensor_status =
+        DecodeSensorMeasurement(buffer, *((uint8_t*)length), &meas[meas_count++]);
     if (sensor_status != SENSOR_OK) {
       APP_LOG(TS_ON, VLEVEL_M,
               "Error decoding sensor measurement from buffer. SensorStatus = %d\r\n", sensor_status);

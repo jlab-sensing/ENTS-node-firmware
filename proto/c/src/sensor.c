@@ -152,6 +152,7 @@ SensorStatus FormatRepeatedSensorMeasurements(
 SensorStatus EncodeSensorMeasurement(const SensorMeasurement *meas, uint8_t *buffer, size_t *size) {
     // create output stream
     pb_ostream_t ostream = pb_ostream_from_buffer(buffer, 256);
+
     // encode message and check rc
     bool status = pb_encode(&ostream, SensorMeasurement_fields, meas);
     if (!status) {

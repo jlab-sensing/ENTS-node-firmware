@@ -1,5 +1,4 @@
 from .client import BackendClient
-
 from .plots import plot_data
 
 __all__ = [

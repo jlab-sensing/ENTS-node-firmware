@@ -45,7 +45,6 @@ int main(void) {
 
   size_t reading_len;
 
-
   while (1) {
     SolenoidOpen(solenoidTest);
 

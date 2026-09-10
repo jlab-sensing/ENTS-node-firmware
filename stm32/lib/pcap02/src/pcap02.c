@@ -805,7 +805,8 @@ size_t pcap02_measure_capacitance(pcap02_result_t *result) {
   return 1;
 }
 
-size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
+size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor) {
   pcap02_result_t result;
 
   // read sensor
@@ -819,7 +820,7 @@ size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  meta.cell_id = sensor->cell_id;
 
   // encode measuremnet
   size_t data_len = 0;

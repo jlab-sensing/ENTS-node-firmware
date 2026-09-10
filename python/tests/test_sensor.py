@@ -3,12 +3,12 @@
 import unittest
 
 from ents.proto.sensor import (
-    encode_sensor_measurement,
-    encode_repeated_sensor_measurements,
-    decode_sensor_measurement,
     decode_repeated_sensor_measurements,
-    update_repeated_metadata,
+    decode_sensor_measurement,
+    encode_repeated_sensor_measurements,
+    encode_sensor_measurement,
     get_sensor_data,
+    update_repeated_metadata,
 )
 
 

@@ -11,14 +11,14 @@
  */
 
 #include "solenoid.h"
-#include "utilities_def.h"
-#include "stm32_seq.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "stm32_seq.h"
 #include "stm32wlxx_hal_def.h"
+#include "utilities_def.h"
 
 static StatusSolenoid Solenoid;
 static uint8_t activeSolenoids = 0;
@@ -27,7 +27,7 @@ SolenoidParameter *solenoid[SOLENOID_MAX];
 void SolenoidInit(SolenoidParameter *solenoid) {
   __HAL_RCC_GPIOA_CLK_ENABLE();  // Enable GPIOA clock
   __HAL_RCC_GPIOB_CLK_ENABLE();  // Enable GPIOB clock
-  
+
   // Use Pin PA10 to toggle solenoid
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   if (solenoid->pin) {
@@ -64,15 +64,12 @@ void SolenoidInit(SolenoidParameter *solenoid) {
 
     // Init state of Solenoid
     solenoid->state = SOLENOID_OFF;
-
   }
-
 }
 
 void SolenoidOpen(SolenoidParameter *solenoid) {
   printf("SOLENOID_OPEN: Setting %i to HIGH (Relay ON)\n", solenoid->pin);
-  switch(solenoid->pin)
-  {
+  switch (solenoid->pin) {
     case 5:
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);  // HIGH = Relay ON
       solenoid->state = SOLENOID_ON;
@@ -97,14 +94,12 @@ void SolenoidOpen(SolenoidParameter *solenoid) {
       HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);  // HIGH = Relay ON
       solenoid->state = SOLENOID_ON;
       break;
-
   }
 }
 
 void SolenoidClose(SolenoidParameter *solenoid) {
   printf("SOLENOID_OPEN: Setting %i to LOW (Relay ON)\n", solenoid->pin);
-  switch(solenoid->pin)
-  {
+  switch (solenoid->pin) {
     case 5:
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);  // LOW = Relay OFF
       solenoid->state = SOLENOID_OFF;
@@ -129,18 +124,16 @@ void SolenoidClose(SolenoidParameter *solenoid) {
       HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);  // LOW = Relay OFF
       solenoid->state = SOLENOID_OFF;
       break;
-
   }
 }
-
 
 /* Private funct*/
 // static void SolenoidUpdate(void);
 
 // void SolenoidUpdate(void)
 // {
-//   // TODO parse the files from downlink.c/h into here, for now it is just a simple toggle
-//   if(Solenoid == SOLENOID_OFF)
+//   // TODO parse the files from downlink.c/h into here, for now it is just a
+//   simple toggle if(Solenoid == SOLENOID_OFF)
 //   {
 //     SolenoidOpen();
 //   } else if (Solenoid == SOLENOID_ON)

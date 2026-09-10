@@ -31,7 +31,8 @@ phytos_measurements Phytos31GetMeasurement() {
   return measurements;
 }
 
-size_t Phytos31_measure(uint8_t *data, SysTime_t ts) {
+size_t Phytos31_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                        EnabledSensorMultiple *sensor) {
   phytos_measurements measurement;
 
   // read voltage
@@ -41,8 +42,9 @@ size_t Phytos31_measure(uint8_t *data, SysTime_t ts) {
   const UserConfiguration *cfg = UserConfigGet();
 
   // encode measurement
-  size_t data_len = EncodePhytos31Measurement(
-      ts.Seconds, cfg->logger_id, cfg->cell_id, adc_voltage_float, 0.0, data);
+  size_t data_len =
+      EncodePhytos31Measurement(ts.Seconds, cfg->logger_id, sensor->cell_id,
+                                adc_voltage_float, 0.0, data);
 
   // return number of bytes in serialized measurement
   return data_len;

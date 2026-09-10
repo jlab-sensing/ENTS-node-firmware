@@ -92,14 +92,16 @@ HAL_StatusTypeDef ADC_probe(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t ADC_measureVoltage(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t ADC_measureVoltage(uint8_t *data, SysTime_t ts, uint32_t idx,
+                          EnabledSensorMultiple *sensor);
 
 /**
  * @brief Measures the voltage channel.
  *
  * @see SensorsPrototypeMeasure
  */
-size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx,
+                          EnabledSensorMultiple *sensor);
 
 /**
  * @}

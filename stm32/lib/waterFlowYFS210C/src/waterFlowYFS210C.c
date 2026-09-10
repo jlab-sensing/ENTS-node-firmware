@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    waterFlow.c
+ * @file    waterFlowYFS210C.c
  * @author  Caden Jacobs
  *
  * @brief   This library is designed to read measurements from a Water Flow
@@ -11,7 +11,7 @@
  ******************************************************************************
  */
 
-#include "waterFlow.h"
+#include "waterFlowYFS210C.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +27,8 @@
 #define FLOW_AVG_COUNT 5
 
 // Variables
-extern volatile uint32_t pulse_count; // Managed by GPIO interrupt in stm32wlxx_it.c
+extern volatile uint32_t
+    pulse_count;  // Managed by GPIO interrupt in stm32wlxx_it.c
 static volatile float last_flow_lpm = 0;
 static SysTime_t currentTime;
 static SysTime_t lastTime;
@@ -38,7 +39,7 @@ static uint8_t flow_index = 0;
 // there are 450 pulses. Therefore the calibration factor becomes [450/60 = 7.5]
 const float calibration_factor = 7.5;
 
-void FlowInit() {
+void FlowYFS210CInit() {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   __HAL_RCC_GPIOx_CLK_ENABLE(YFS201C_GPIO_Port);
@@ -61,7 +62,7 @@ void FlowInit() {
   lastTime = currentTime;
 }
 
-YFS210CMeasurement FlowGetMeasurement() {
+YFS210CMeasurement FlowYFS210CGetMeasurement() {
   // get time
   currentTime = SysTimeGet();
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
@@ -92,13 +93,14 @@ YFS210CMeasurement FlowGetMeasurement() {
   return flowMeas;
 }
 
-size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
+size_t WatFlowYFS210C_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple* sensor) {
   // get timestamp
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
   YFS210CMeasurement flowMeas = {};
 
   if (diff.SubSeconds >= 100) {  // If more than 0.1 seconds has passed
-    flowMeas = FlowGetMeasurement();
+    flowMeas = FlowYFS210CGetMeasurement();
   }
 
   /// read measurement
@@ -109,7 +111,7 @@ size_t WatFlow_measure(uint8_t* data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  meta.cell_id = cfg->cell_id;
+  meta.cell_id = sensor->cell_id;
 
   // encode measurement
   size_t data_len = 0;

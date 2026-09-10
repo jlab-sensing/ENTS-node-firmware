@@ -6,6 +6,7 @@
 
 #include "main.h"
 #include "pcap02_standard.h"
+#include "sensors.h"
 #include "stm32_systime.h"
 
 #define PCAP02_REFERENCE_CAPACITOR_PF 47
@@ -105,7 +106,8 @@ void pcap02_init(void);
 void pcap02_gpio_init(void);
 void pcap02_start_conversion(void);
 size_t pcap02_measure_capacitance(pcap02_result_t *result);
-size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t pcap02_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor);
 
 uint16_t pcap02_sram_write_firmware(uint8_t *firmware, uint16_t offset_bytes,
                                     uint16_t length_bytes);

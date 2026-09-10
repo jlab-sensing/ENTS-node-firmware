@@ -72,8 +72,6 @@ void SolenoidOpen(uint8_t pinNumber);
  */
 void SolenoidClose(uint8_t pinNumber);
 
-
-
 #ifdef __cplusplus
 }
 #endif

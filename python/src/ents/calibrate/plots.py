@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-from scipy.stats import norm
 import numpy as np
+from scipy.stats import norm
 
 
 def plot_measurements(actual: list, meas: list, title: str = "", block: bool = False):
@@ -13,7 +13,7 @@ def plot_measurements(actual: list, meas: list, title: str = "", block: bool = F
         block: Wait for plot to close
     """
 
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(actual, meas, s=3)
     ax.set_xlabel("Actual")
     ax.set_ylabel("Measured")
@@ -31,7 +31,7 @@ def plot_calib(raw: list, pred: list, title: str = "", block: bool = False):
         block: Wait for plot to close
     """
 
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(raw, pred, s=3)
     ax.set_xlabel("Raw measurements")
     ax.set_ylabel("Predicted measurements")
@@ -51,7 +51,7 @@ def plot_residuals(pred: list, residuals: list, title: str = "", block: bool = F
         block: Wait for plot to close
     """
 
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(pred, residuals)
     ax.axhline(y=0, color="r", linestyle="--")
     ax.set_xlabel("Predicted measurement")
@@ -74,7 +74,7 @@ def plot_residuals_hist(residuals: list, title: str = "", block: bool = False):
     normdist_x = np.linspace(mu - 3 * std, mu + 3 * std, 100)
     normdist_y = norm.pdf(normdist_x, mu, std)
 
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.hist(residuals, bins=30, edgecolor="black")
     ax.plot(normdist_x, normdist_y, color="r")
     ax.set_xlabel("Residuals")

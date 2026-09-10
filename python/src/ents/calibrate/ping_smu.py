@@ -31,9 +31,9 @@ def ping_smu(host, port):
 
         # Return True if connection successful
         return True
-    except Exception as e:
+    except OSError as e:
         # Connection failed
-        print(f"Error: {e}")
+        print(f"Socket Error: {e}")
         return False
 
 

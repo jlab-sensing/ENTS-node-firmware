@@ -20,6 +20,7 @@ extern "C" {
 #include <stdlib.h>
 
 #include "ads.h"
+#include "sensors.h"
 
 /**
  * @ingroup stm32
@@ -76,7 +77,8 @@ phytos_measurements Phytos31GetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t Phytos31_measure(uint8_t *data, SysTime_t ts);
+size_t Phytos31_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                        EnabledSensorMultiple *sensor);
 
 /**
  * @}
