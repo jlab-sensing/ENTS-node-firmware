@@ -13,10 +13,14 @@ firmware versions for a hardware version.
 ### Added
 
 - Watermark 200TS soil temperature sensor (thermistor) added option to read the temperature using a resistor divider [#360](pr360).
+- Solenoid functionality via downlink
+    - Currently the payload message has one field with 00 and 01 corresponding to close and open respectively
+- Easier extraction of the downlink payload through lora_downlink.h/c
 
 ### Updated
 
 - SEN0257 and SEN0308 now use the sensor context (index) to determine which ADC channel to sample [#361](pr361).
+- `lora_app.c` onRXData fport switch statement modified to incorporate solenoid.  
 
 [pr360]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/360
 [pr361]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/361

@@ -42,6 +42,9 @@
 #include "userConfig.h"
 #include "user_config.h"
 
+#include "solenoid.h"
+#include "lora_downlink.h"
+
 /* USER CODE END Includes */
 
 /* External variables
@@ -69,6 +72,10 @@ typedef enum TxEventType_e {
 } TxEventType_t;
 
 /* USER CODE BEGIN PTD */
+typedef enum {
+  SOLENOID = 3,
+} FPortUsage;
+
 
 /* USER CODE END PTD */
 
@@ -442,6 +449,10 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
         "NbGateways:0x%02X\r\n",
         params->IsMcpsIndication, params->Status, params->LinkCheck,
         params->DemodMargin, params->NbGateways);
+
+        // saving downlink appData
+        saveNewDownlinkData(appData);
+
         // CommissioningParams skipped.
     switch (appData->Port) {
       // TODO add cases for incoming data on ports
@@ -454,6 +465,21 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
           APP_LOG(TS_OFF, VLEVEL_H, "%02X", appData->Buffer[i]);
         }
         APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
+        break;
+
+      case SOLENOID:
+        if((appData->Buffer[0] == 0x00) && (appData->BufferSize == 2)){
+          SolenoidParameter *solenoid = {appData->Buffer[2], SOLENOID_OFF};
+          // APP_LOG(TS_OFF, VLEVEL_H, "Closing solenoid, Message received: %02X", appData->Buffer[0]);
+          SolenoidClose(solenoid);
+
+        }
+        else if ((appData->Buffer[0] == 0x01) && (appData->BufferSize == 2)){
+          // APP_LOG(TS_OFF, VLEVEL_H, "Opening solenoid, Message received: %02X", appData->Buffer[0]);
+          SolenoidParameter *solenoid = {appData->Buffer[2], SOLENOID_ON};
+          SolenoidOpen(solenoid);
+        }
+
         break;
     }
   }
