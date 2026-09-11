@@ -57,7 +57,6 @@ const double r_lookup[] = {
     272.43,    265.8,     259.36,    253.1,     247.02,    241.12,    235.38,
     229.8,     224.38,    219.12,    214,       209.02,    204.17,    199.47,
     194.89,    190.43,    186.1};
-double v_lookup[sizeof(r_lookup) / sizeof(double)];
 #endif
 
 void Watermark200Init(EnabledSensorMultiple *sensor) {
@@ -93,13 +92,6 @@ void Watermark200Init(EnabledSensorMultiple *sensor) {
       HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
     }
   }
-#ifdef WATERMARK_200TS_RESISTOR_DIVIDER
-  // Calculate voltage lookup table given the fixed resistor value
-  const double R = WATERMARK_200TS_RESISTOR_DIVIDER_FIXED_R;
-  for (int i = 0; i < (sizeof(v_lookup) / sizeof(double)); i++) {
-    v_lookup[i] = 3.3 * R / (R + v_lookup[i]);
-  }
-#endif
 }
 
 double Watermark200SS_GetMeasurement(EnabledSensorMultiple *sensor) {
@@ -152,17 +144,21 @@ double Watermark200TS_GetMeasurement(EnabledSensorMultiple *sensor) {
   temperature_f = 50.68 * (value_voltage - 0.490) + 20;
   WMTemp_C = (temperature_f - 32) * 5.0 / 9.0;
 #elif defined WATERMARK_200TS_RESISTOR_DIVIDER
-  // Search through the voltage table until we find an entry matching
-  // the voltage we measured. Then, assume linear relationship between
+const double R = WATERMARK_200TS_RESISTOR_DIVIDER_FIXED_R;
+  double thermistor_resistance = 3.3 * R / value_voltage - R;
+
+  // Search through the resistance table until we find an entry matching
+  // the resistance we measured. Then, assume linear relationship between
   // neighboring entries.
-  for (int i = 0; i < (sizeof(v_lookup) / sizeof(double)); i++) {
-    // Note: NTC thermistor, search forward and stop when entry exceeds.
-    if (value_voltage < v_lookup[i]) {
+  for (int i = 0; i < (sizeof(r_lookup) / sizeof(double)); i++) {
+    // Note: NTC thermistor, search forward temperatures, stop when resistance is below
+    if (thermistor_resistance > r_lookup[i]) {
       if (i == 0) {
         // Below minimum temperature (voltage) range, outside of table.
         WMTemp_C = WATERMARK_200TS_RESISTOR_DIVIDER_MIN_TEMPERATURE_C;
         break;
-      }
+      } else {
+      // Resistance (and temperature) is between the current and previous index.
 
       // Add the offset to the previous index to obtain the temperature that
       // was overshot. Find where the measurement is in between the two entries
@@ -171,10 +167,11 @@ double Watermark200TS_GetMeasurement(EnabledSensorMultiple *sensor) {
 
       WMTemp_C =
           (i - 1 + WATERMARK_200TS_RESISTOR_DIVIDER_T_OFFSET_C) +
-          ((value_voltage - v_lookup[i - 1]) / (v_lookup[i] - v_lookup[i - 1]));
+          ((thermistor_resistance - r_lookup[i - 1]) / (r_lookup[i] - r_lookup[i - 1]));
       break;
+      }
     }
-    if (i == (sizeof(v_lookup) / sizeof(double))) {
+    if (i == (sizeof(r_lookup) / sizeof(double))) {
       // Above maximum temperature (voltage) range, outside of table.
       WMTemp_C = WATERMARK_200TS_RESISTOR_DIVIDER_MAX_TEMPERATURE_C;
       break;
