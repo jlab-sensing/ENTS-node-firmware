@@ -73,12 +73,7 @@ ALSMPM2FMeasurement WatLevelGetMeasurement(EnabledSensorMultiple* sensor) {
   uint32_t value_raw = ADC_Convert_Single(channel);
   measurement.voltage = (double)value_raw * 3.3 / ((1 << 12) - 1);
 
-#ifdef WATER_LEVEL_DISABLE_CALIBRATION
   measurement.meters = WATER_LEVEL_VOLTAGE_TO_METERS(measurement.voltage);
-#else
-  measurement.meters =
-      (measurement.voltage * WATER_LEVEL_SCALING_FACTOR) + WATER_LEVEL_BIAS;
-#endif
 
   return measurement;
 }
