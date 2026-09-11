@@ -144,31 +144,33 @@ double Watermark200TS_GetMeasurement(EnabledSensorMultiple *sensor) {
   temperature_f = 50.68 * (value_voltage - 0.490) + 20;
   WMTemp_C = (temperature_f - 32) * 5.0 / 9.0;
 #elif defined WATERMARK_200TS_RESISTOR_DIVIDER
-const double R = WATERMARK_200TS_RESISTOR_DIVIDER_FIXED_R;
+  const double R = WATERMARK_200TS_RESISTOR_DIVIDER_FIXED_R;
   double thermistor_resistance = 3.3 * R / value_voltage - R;
 
   // Search through the resistance table until we find an entry matching
   // the resistance we measured. Then, assume linear relationship between
   // neighboring entries.
   for (int i = 0; i < (sizeof(r_lookup) / sizeof(double)); i++) {
-    // Note: NTC thermistor, search forward temperatures, stop when resistance is below
+    // Note: NTC thermistor, search forward temperatures, stop when resistance
+    // is below
     if (thermistor_resistance > r_lookup[i]) {
       if (i == 0) {
         // Below minimum temperature (voltage) range, outside of table.
         WMTemp_C = WATERMARK_200TS_RESISTOR_DIVIDER_MIN_TEMPERATURE_C;
         break;
       } else {
-      // Resistance (and temperature) is between the current and previous index.
+        // Resistance (and temperature) is between the current and previous
+        // index.
 
-      // Add the offset to the previous index to obtain the temperature that
-      // was overshot. Find where the measurement is in between the two entries
-      // (units V/V), and add that to the temperature assuming a linear
-      // relationship between the two neighboring entries (1C * V/V).
+        // Add the offset to the previous index to obtain the temperature that
+        // was overshot. Find where the measurement is in between the two
+        // entries (units V/V), and add that to the temperature assuming a
+        // linear relationship between the two neighboring entries (1C * V/V).
 
-      WMTemp_C =
-          (i - 1 + WATERMARK_200TS_RESISTOR_DIVIDER_T_OFFSET_C) +
-          ((thermistor_resistance - r_lookup[i - 1]) / (r_lookup[i] - r_lookup[i - 1]));
-      break;
+        WMTemp_C = (i - 1 + WATERMARK_200TS_RESISTOR_DIVIDER_T_OFFSET_C) +
+                   ((thermistor_resistance - r_lookup[i - 1]) /
+                    (r_lookup[i] - r_lookup[i - 1]));
+        break;
       }
     }
     if (i == (sizeof(r_lookup) / sizeof(double))) {
