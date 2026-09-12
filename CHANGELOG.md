@@ -8,7 +8,20 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
-## 2.3.12
+## [Unreleased] - 2026-XX-XX
+
+### Added
+
+- Watermark 200TS soil temperature sensor (thermistor) added option to read the temperature using a resistor divider [#360](pr360).
+
+### Updated
+
+- SEN0257 and SEN0308 now use the sensor context (index) to determine which ADC channel to sample [#361](pr361).
+
+[pr360]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/360
+[pr361]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/361
+
+## [2.3.12] - 2026-08-19
 
 ### Added
 
