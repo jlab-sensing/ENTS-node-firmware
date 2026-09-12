@@ -18,7 +18,7 @@
 // Stores each byte received via UART interrupt.
 static uint8_t charRx;
 // Receive buffer for encoded configuration data.
-static uint8_t RX_Buffer[RX_BUFFER_SIZE];
+static uint8_t RX_Buffer[UserConfiguration_size];
 // Acknowledgment message sent to the GUI.
 uint8_t ack[] = "ACK";
 // Static variable to store the loaded user configuration in RAM
@@ -127,7 +127,7 @@ void UserConfig_InterruptHandler(void) {
       index = 0;
       length_received = true;
 
-      if (data_length > RX_BUFFER_SIZE) {
+      if (data_length > sizeof(RX_Buffer)) {
         uint8_t error_msg[] = "Data too large";
         HAL_UART_Transmit(&huart2, error_msg, strlen((char *)error_msg),
                           HAL_MAX_DELAY);

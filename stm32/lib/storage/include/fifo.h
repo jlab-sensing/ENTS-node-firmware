@@ -57,16 +57,6 @@ extern "C" {
  * @{
  */
 
-#ifndef FRAM_BUFFER_START
-/** Starting address of buffer, which is INCLUSIVE */
-#define FRAM_BUFFER_START 0
-#endif /* FRAM_BUFFER_START */
-
-#ifndef FRAM_BUFFER_END
-/** Ending address of buffer, which is INCLUSIVE */
-#define FRAM_BUFFER_END 1769
-#endif /* FRAM_BUFFER_END */
-
 #if FRAM_BUFFER_START > FRAM_BUFFER_END
 #error "Buffer end address must be greater than buffer start address"
 #endif
