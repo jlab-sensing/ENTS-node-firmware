@@ -13,6 +13,8 @@ firmware versions for a hardware version.
 ### Added
 
 - Watermark 200TS soil temperature sensor (thermistor) added option to read the temperature using a resistor divider [#360](pr360).
+- Added new sensor:
+    - AS7343
 
 ### Updated
 

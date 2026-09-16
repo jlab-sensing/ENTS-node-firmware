@@ -24,6 +24,6 @@ clang-format --style=Google -i --verbose \
 echo "Done."
 
 # format python code
-echo "Formattting Python code..."
+echo "Formatting Python code..."
 black python
 echo "Done."

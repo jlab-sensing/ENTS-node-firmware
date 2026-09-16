@@ -216,6 +216,12 @@ message ALSMPM2FMeasurement {
   double voltage = 2;
 }
 
+/* Spectral Sensor */
+message AS7343Measurement {
+  // count
+  uint32 count = 1;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -237,6 +243,7 @@ message Measurement {
     WATERMARK200TSMeasurement watermark200ts = 13;
     EDU0157Measurement edu0157 = 14;
     ALSMPM2FMeasurement waterLevel = 15;
+    AS7343Measurement as7343 = 16;
   }
 }
 
@@ -507,6 +514,7 @@ enum EnabledSensor {
   WATERMARK200TS = 12;
   EDU0157 = 13;
   ALSMPM2F = 14;
+  AS7343 = 15;
 }
 
 enum Uploadmethod {
