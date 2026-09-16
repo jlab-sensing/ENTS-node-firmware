@@ -257,6 +257,7 @@ void ErrorHandler(void) {
   // first disconnect, then retry until connected to wifi
   do {
     Disconnect();
+    HAL_Delay(5000);
   } while (!Esp32Init());
 
   ResumeUploads();
