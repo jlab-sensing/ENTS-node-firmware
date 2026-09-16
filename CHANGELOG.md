@@ -17,9 +17,11 @@ firmware versions for a hardware version.
 ### Updated
 
 - SEN0257 and SEN0308 now use the sensor context (index) to determine which ADC channel to sample [#361](pr361).
+- Fixed FRAM addresses to prevent user configuration overwrites [#362](pr362).
 
 [pr360]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/360
 [pr361]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/361
+[pr362]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/362
 
 ## [2.3.12] - 2026-08-19
 

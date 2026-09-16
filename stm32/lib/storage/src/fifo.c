@@ -14,10 +14,6 @@
 #include "usart.h"
 #include "userConfig.h"  // need to know the userconfig start and length in order to put the FRAM buffer after it
 
-static const uint16_t FRAM_BUFFER_READ_ADDR = USER_CONFIG_START_ADDRESS + 2;
-static const uint16_t FRAM_BUFFER_WRITE_ADDR = FRAM_BUFFER_READ_ADDR + 2;
-static const uint16_t FRAM_BUFFER_LEN_ADDR = FRAM_BUFFER_WRITE_ADDR + 2;
-
 // head and tail
 static uint16_t read_addr;
 static uint16_t write_addr;
