@@ -142,7 +142,12 @@ void SensorsMeasure(void) {
 
 void SensorsAddMeasurement(uint8_t *buffer, size_t buffer_len) {
 #ifdef SAVE_TO_MICROSD
-  ControllerMicroSDSave(buffer, buffer_len);
+  // Disable microSD saves when calling SensorsAddMeasurement() for now because
+  // it is not guaranteed that the added measurement in the buffer is of a
+  // compatible measurement type for the microSD code (requires the old format
+  // for now).
+  
+  //ControllerMicroSDSave(buffer, buffer_len);
 #endif
 
   // add to tx buffer
