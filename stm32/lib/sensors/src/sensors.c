@@ -132,7 +132,7 @@ void SensorsMeasure(void) {
     APP_LOG(TS_ON, VLEVEL_M, "Buffer: ");
 
     for (int j = 0; j < buffer_len; j++) {
-      APP_LOG(TS_OFF, VLEVEL_M, "%x", buffer[j]);
+      APP_LOG(TS_OFF, VLEVEL_M, "%02X", buffer[j]);
     }
     APP_LOG(TS_OFF, VLEVEL_M, "\r\n");
 

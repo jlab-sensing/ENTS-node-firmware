@@ -71,7 +71,7 @@ size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
 
   // This is the same underlying data that will be saved to FRAM + uploaded.
   // This old format is not saved to FRAM or uploaded.
-  size_t data_len = EncodeTeros12Measurement(
+  data_len = EncodeTeros12Measurement(
       ts.Seconds, cfg->logger_id, cfg->cell_id, sens_data.vwc, vwc_adj,
       sens_data.temp, sens_data.ec, data);
 
