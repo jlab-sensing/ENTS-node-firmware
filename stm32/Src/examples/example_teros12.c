@@ -61,6 +61,8 @@ int main(void) {
              data.addr, data.vwc, data.temp, data.ec);
 
     APP_PRINTF("%s\r\n", print_buffer);
+    ControllerMicroSDSave((uint8_t *)print_buffer, strlen(print_buffer));
+
 
     // Sleep
     for (int i = 0; i <= 4000000; i++) {

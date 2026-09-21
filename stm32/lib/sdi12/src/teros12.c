@@ -61,39 +61,12 @@ size_t Teros12Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   meta.cell_id = cfg->cell_id;
 
   // variables for the next block
-  size_t data_len = 0;
-  SensorStatus sen_status = SENSOR_OK;
+  //size_t data_len = 0;
+  //SensorStatus sen_status = SENSOR_OK;
 
-  // vwc
-  sen_status = EncodeDoubleMeasurement(meta, sens_data.vwc,
-                                       SensorType_TEROS12_VWC, data, &data_len);
-  if (sen_status != SENSOR_OK) {
-    return -1;
-  }
-  SensorsAddMeasurement(data, data_len);
-
-  // vwc_adj
-  sen_status = EncodeDoubleMeasurement(
-      meta, vwc_adj, SensorType_TEROS12_VWC_ADJ, data, &data_len);
-  if (sen_status != SENSOR_OK) {
-    return -1;
-  }
-  SensorsAddMeasurement(data, data_len);
-
-  // temp
-  sen_status = EncodeDoubleMeasurement(
-      meta, sens_data.temp, SensorType_TEROS12_TEMP, data, &data_len);
-  if (sen_status != SENSOR_OK) {
-    return -1;
-  }
-  SensorsAddMeasurement(data, data_len);
-
-  // ec
-  sen_status = EncodeUint32Measurement(meta, sens_data.ec,
-                                       SensorType_TEROS12_EC, data, &data_len);
-  if (sen_status != SENSOR_OK) {
-    return -1;
-  }
+  size_t data_len = EncodeTeros12Measurement(
+      ts.Seconds, cfg->logger_id, cfg->cell_id, sens_data.vwc, vwc_adj,
+      sens_data.temp, sens_data.ec, data);
 
   return data_len;
 }

@@ -193,7 +193,7 @@ void Upload(void) {
                 "Error with HTTP code! Likely error with measurement format or "
                 "backend.\r\n");
       }
-
+      break;
       // give up after max retries and tirgger error handler
       if (retries >= max_retries) {
         APP_LOG(TS_ON, VLEVEL_M, "Max retries reached! Stopping upload.\r\n");

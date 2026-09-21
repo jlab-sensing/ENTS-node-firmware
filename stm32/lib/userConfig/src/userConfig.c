@@ -15,6 +15,8 @@
 
 #include "sys_app.h"
 
+#define TEST_USER_CONFIG  // Uncomment this line to enable test configuration
+
 // Stores each byte received via UART interrupt.
 static uint8_t charRx;
 // Receive buffer for encoded configuration data.
@@ -31,18 +33,18 @@ static bool checked;
 #ifdef TEST_USER_CONFIG
 const static UserConfiguration testConfig = {
     .logger_id = 200,
-    .cell_id = 200,
-    .Upload_method = Uploadmethod_WiFi,
+    .cell_id = 839,
+    .Upload_method = Uploadmethod_LoRa,
     .Upload_interval = 10,
-    .enabled_sensors_count = 2,
-    .enabled_sensors = {EnabledSensor_Voltage, EnabledSensor_Current},
+    .enabled_sensors_count = 1,
+    .enabled_sensors = {EnabledSensor_Teros12},
     // calibration values are taken from 2.2.3-033
     .Voltage_Slope = -0.00039326,
     .Voltage_Offset = 4.92916378e-05,
     .Current_Slope = -1.18693164e-10,
     .Current_Offset = 4.14518594e-05,
-    .WiFi_SSID = "HARE_Lab",
-    .WiFi_Password = "",
+    .WiFi_SSID = "Stevesie-O",
+    .WiFi_Password = "SteveWifi",
     .API_Endpoint_URL = "http://dirtviz.jlab.ucsc.edu/api/sensor/",
     // port is not used
     .API_Endpoint_Port = 80};
