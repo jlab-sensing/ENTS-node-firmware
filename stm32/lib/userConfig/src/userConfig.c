@@ -284,33 +284,121 @@ const UserConfiguration *UserConfigGet(void) {
 #endif  // TEST_USER_CONFIG
 }
 
+uint16_t crc16(const uint8_t *data, size_t length) {
+  uint16_t crc = 0xFFFF;
+  for (size_t i = 0; i < length; i++) {
+    crc ^= (uint16_t)data[i] << 8;
+    for (int j = 0; j < 8; j++) {
+      if (crc & 0x8000) {
+        crc = (crc << 1) ^ 0x533A;
+      } else {
+        crc <<= 1;
+      }
+    }
+  }
+  return crc;
+}
 UserConfigStatus UserConfigSave(const UserConfiguration *config) {
+  // CONSTRUCT HEADER + CALC CRC
   if (config == NULL) {
     return USERCONFIG_NULL_CONFIG;
   }
-
   uint8_t encoded_data[UserConfiguration_size];
   size_t encoded_length = EncodeUserConfiguration(config, encoded_data);
   if (encoded_length == -1) {
     return USERCONFIG_ENCODE_ERROR;
   }
-
   // Write the length of the encoded data to FRAM
   uint8_t length_buf[2] = {(encoded_length >> 8) & 0xFF, encoded_length & 0xFF};
+
+  uint16_t crc_new = crc16(encoded_data, encoded_length);
+  uint8_t crc_buf[2] = {(crc_new >> 8) & 0xFF, crc_new & 0xFF};
+
+  // WRITE IN BACKUP
+
   UserConfigStatus status =
-      UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
+      UserConfig_WriteToFRAM(USER_BU_LEN_ADDR, length_buf, 2);
+  if (status != USERCONFIG_OK) {
+    return status;
+  }
+  UserConfigStatus status =
+      UserConfig_WriteToFRAM(USER_BU_CRC_ADDR, crc_buf, 2);
   if (status != USERCONFIG_OK) {
     return status;
   }
 
   // Write the encoded data to FRAM
-  status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, encoded_data,
-                                  encoded_length);
+  status =
+      UserConfig_WriteToFRAM(USER_BU_START_ADDR, encoded_data, encoded_length);
   if (status != USERCONFIG_OK) {
     return status;
   }
 
-  return USERCONFIG_OK;
+  // CHECK CRC
+  uint8_t read_data[UserConfiguration_size];
+  UserConfig_ReadFromFRAM(USER_BU_START_ADDR, encoded_length, read_data);
+  if (crc16(read_data, encoded_length) == crc_new) {
+    // IF GOOD WRITE
+    UserConfigStatus status =
+        UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+    UserConfigStatus status =
+        UserConfig_WriteToFRAM(USER_CONFIG_CRC_ADDR, crc_buf, 2);
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+
+    // Write the encoded data to FRAM
+    status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, encoded_data,
+                                    encoded_length);
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+
+    // CHECK PRIMARY
+    status = UserConfig_ReadFromFRAM(USER_CONFIG_START_ADDRESS, encoded_length,
+                                     read_data);
+
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+    if (crc16(read_data, encoded_length) == crc_new) {
+      // crc16 is good.
+      return USERCONFIG_OK;
+    }
+
+    // attempt to save again.
+
+    // Write the encoded data to FRAM
+    status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, encoded_data,
+                                    encoded_length);
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+
+    // CHECK PRIMARY
+    status = UserConfig_ReadFromFRAM(USER_CONFIG_START_ADDRESS, encoded_length,
+                                     read_data);
+
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+    if (crc16(read_data, encoded_length) == crc_new) {
+      // crc16 is good.
+      return USERCONFIG_OK;
+    } else {
+      return USERCONFIG_FRAM_ERROR;
+    }
+  }
+}
+else {
+  // IF NOT GOOD EXIT
+  return USERCONFIG_FRAM_ERROR;
+}
+// code should not read here.
+return USERCONFIG_FRAM_ERROR;
 }
 
 void UserConfigPrintAny(const UserConfiguration *config) {
