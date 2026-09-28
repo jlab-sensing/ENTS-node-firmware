@@ -232,23 +232,44 @@ UserConfigStatus UserConfig_ReadFromFRAM(uint16_t fram_addr, uint16_t length,
   return (status == FRAM_OK) ? USERCONFIG_OK : USERCONFIG_FRAM_ERROR;
 }
 
+// calculates crc16 checksum
+uint16_t crc16(const uint8_t *data, size_t length) {
+  uint16_t crc = 0xFFFF;
+  for (size_t i = 0; i < length; i++) {
+    crc ^= (uint16_t)data[i] << 8;
+    for (int j = 0; j < 8; j++) {
+      if (crc & 0x8000) {
+        crc = (crc << 1) ^ 0x533A;
+      } else {
+        crc <<= 1;
+      }
+    }
+  }
+  return crc;
+}
 // Load user configuration data from FRAM to RAM
 UserConfigStatus UserConfigLoad(void) {
 #ifdef TEST_USER_CONFIG
   return USERCONFIG_OK;
 #else
   uint16_t data_length = 0;
+  uint16_t data_crc = 0;
   uint8_t length_buf[2];
+  uint8_t crc_buf[2];
 
   // Read the length of the user configuration data from FRAM
   if (UserConfig_ReadFromFRAM(USER_CONFIG_LEN_ADDR, 2, length_buf) !=
       USERCONFIG_OK) {
     return USERCONFIG_FRAM_ERROR;
   }
+  if (UserConfig_ReadFromFRAM(USER_CONFIG_CRC_ADDR, 2, crc_buf) !=
+      USERCONFIG_OK) {
+    return USERCONFIG_FRAM_ERROR;
+  }
 
   // Convert length bytes to integer
   data_length = (length_buf[0] << 8) | length_buf[1];
-
+  data_crc = (crc_buf[0] << 8) | crc_buf[1];
   if (data_length == 0) {
     return USERCONFIG_EMPTY_CONFIG;
   }
@@ -262,6 +283,9 @@ UserConfigStatus UserConfigLoad(void) {
   if (UserConfig_ReadFromFRAM(USER_CONFIG_START_ADDRESS, data_length,
                               RX_Buffer) != USERCONFIG_OK) {
     return USERCONFIG_FRAM_ERROR;
+  }
+  if (crc16(RX_Buffer, data_length) != data_crc) {
+    return USERCONFIG_CRC_ERROR;
   }
 
   // Decode the user configuration from RX_Buffer into loadedConfig struct
@@ -284,19 +308,72 @@ const UserConfiguration *UserConfigGet(void) {
 #endif  // TEST_USER_CONFIG
 }
 
-uint16_t crc16(const uint8_t *data, size_t length) {
-  uint16_t crc = 0xFFFF;
-  for (size_t i = 0; i < length; i++) {
-    crc ^= (uint16_t)data[i] << 8;
-    for (int j = 0; j < 8; j++) {
-      if (crc & 0x8000) {
-        crc = (crc << 1) ^ 0x533A;
-      } else {
-        crc <<= 1;
-      }
+UserConfigStatus UserConfigLoadBackup() {
+  uint8_t read_data[UserConfiguration_size];
+  size_t read_length;
+  uint8_t length_buf[2];
+  uint8_t crc_buf[2];
+  uint16_t read_crc;
+  UserConfig_ReadFromFRAM(USER_BU_CRC_ADDR, 2, crc_buf);
+  UserConfig_ReadFromFRAM(USER_BU_LEN_ADDR, 2, length_buf);
+  read_length = (length_buf[0] << 8) | length_buf[1];
+  read_crc = (crc_buf[0] << 8) | crc_buf[1];
+  APP_PRINTF("read_len: %d, read_crc: 0x%04X\n", read_length, read_crc);
+  if (read_length == 0) {
+    return USERCONFIG_EMPTY_CONFIG;
+  }
+
+  // check the length for errors
+  if (read_length > UserConfiguration_size) {
+    return USERCONFIG_FRAM_ERROR;
+  }
+
+  UserConfigStatus status =
+      UserConfig_ReadFromFRAM(USER_BU_START_ADDR, read_length, read_data);
+  if (status != USERCONFIG_OK) {
+    APP_PRINTF("read_error\n");
+    return status;
+  }
+  UserConfiguration check_config = UserConfiguration_init_zero;
+  if (DecodeUserConfiguration(read_data, read_length, &check_config) !=
+      USERCONFIG_OK) {
+    APP_PRINTF("decode_error\n");
+    // Return an error if decoding fails
+    return USERCONFIG_DECODE_ERROR;
+  }
+
+  if (crc16(read_data, read_length) == read_crc) {
+    // IF GOOD WRITE
+    status = UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+    status = UserConfig_WriteToFRAM(USER_CONFIG_CRC_ADDR, crc_buf, 2);
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+
+    // Write the encoded data to FRAM
+    status = UserConfig_WriteToFRAM(USER_CONFIG_START_ADDRESS, read_data,
+                                    read_length);
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+
+    // CHECK PRIMARY (overwrites prev)
+    status = UserConfig_ReadFromFRAM(USER_CONFIG_START_ADDRESS, read_length,
+                                     read_data);
+
+    if (status != USERCONFIG_OK) {
+      return status;
+    }
+    if (crc16(read_data, read_length) == read_crc) {
+      // crc16 is good.
+
+      return USERCONFIG_OK;
     }
   }
-  return crc;
+  return USERCONFIG_CRC_ERROR;
 }
 UserConfigStatus UserConfigSave(const UserConfiguration *config) {
   // CONSTRUCT HEADER + CALC CRC
@@ -321,8 +398,7 @@ UserConfigStatus UserConfigSave(const UserConfiguration *config) {
   if (status != USERCONFIG_OK) {
     return status;
   }
-  UserConfigStatus status =
-      UserConfig_WriteToFRAM(USER_BU_CRC_ADDR, crc_buf, 2);
+  status = UserConfig_WriteToFRAM(USER_BU_CRC_ADDR, crc_buf, 2);
   if (status != USERCONFIG_OK) {
     return status;
   }
@@ -338,14 +414,13 @@ UserConfigStatus UserConfigSave(const UserConfiguration *config) {
   uint8_t read_data[UserConfiguration_size];
   UserConfig_ReadFromFRAM(USER_BU_START_ADDR, encoded_length, read_data);
   if (crc16(read_data, encoded_length) == crc_new) {
+    APP_PRINTF("enc_len: %d, enc_crc: 0x%04X\n", encoded_length, crc_new);
     // IF GOOD WRITE
-    UserConfigStatus status =
-        UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
+    status = UserConfig_WriteToFRAM(USER_CONFIG_LEN_ADDR, length_buf, 2);
     if (status != USERCONFIG_OK) {
       return status;
     }
-    UserConfigStatus status =
-        UserConfig_WriteToFRAM(USER_CONFIG_CRC_ADDR, crc_buf, 2);
+    status = UserConfig_WriteToFRAM(USER_CONFIG_CRC_ADDR, crc_buf, 2);
     if (status != USERCONFIG_OK) {
       return status;
     }
@@ -391,14 +466,11 @@ UserConfigStatus UserConfigSave(const UserConfiguration *config) {
     } else {
       return USERCONFIG_FRAM_ERROR;
     }
+  } else {
+    // IF NOT GOOD EXIT
+    return USERCONFIG_CRC_ERROR;
   }
-}
-else {
-  // IF NOT GOOD EXIT
   return USERCONFIG_FRAM_ERROR;
-}
-// code should not read here.
-return USERCONFIG_FRAM_ERROR;
 }
 
 void UserConfigPrintAny(const UserConfiguration *config) {
