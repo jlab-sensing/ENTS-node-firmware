@@ -177,3 +177,51 @@ void SensorsRun(void *arg) {
   // trigger task to run
   UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_Measurement), CFG_SEQ_Prio_0);
 }
+
+GPIO_TypeDef *SensorIndexToGPIOBus(uint32_t pin){
+  if (pin) {
+    if (pin == 16) {
+      // channel 0
+      return GPIOB;
+    }
+    if (pin == 21) {
+      // channel 1
+      return GPIOB;
+    }
+    if (pin == 22) {
+      // channel 2
+      return GPIOB;
+    }
+    if (pin == 24) {
+      // channel 3
+      return GPIOB;
+    }
+    if (pin == 18) {
+      // channel 11
+      return GPIOA;
+    }
+}
+uint32_t SensorIndexToGPIOPin(uint32_t pin){
+  if (pin) {
+    if (pin == 16) {
+      // channel 0
+      return GPIO_PIN_13;
+    }
+    if (pin == 21) {
+      // channel 1
+      return GPIO_PIN_14;
+    }
+    if (pin == 22) {
+      // channel 2
+      return GPIO_PIN_3;
+    }
+    if (pin == 24) {
+      // channel 3
+      return GPIO_PIN_4;
+    }
+    if (pin == 18) {
+      // channel 11
+      return GPIO_PIN_15;
+    }
+}
+

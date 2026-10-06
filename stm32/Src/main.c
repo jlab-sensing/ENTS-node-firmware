@@ -201,7 +201,7 @@ int main(void) {
       APP_LOG(TS_OFF, VLEVEL_M, "YFS210C Flow Meter Enabled!\n");
     }
     if (sensor == EnabledSensor_D10) {
-      FlowD10Init();
+      FlowD10Init(sensor_ctx);
       SensorsAdd(WatFlowD10_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Water flow D10 enabled!\n");
     }

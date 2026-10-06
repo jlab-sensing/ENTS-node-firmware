@@ -119,7 +119,20 @@ size_t SensorsMeasureTest(uint8_t *data);
 /**
  * @}
  */
-
+/**
+ * @brief util for fetching gpio pin / add tca9535 later
+ * 
+ * @param index gpio pin index
+ * @return  gpio pin
+ */
+uint32_t SensorIndexToGPIOPin(uint32_t pin);
+/**
+ * @brief gpio bus from index pin
+ * 
+ * @param index gpio pin index
+ * @return  gpio bus
+ */
+GPIO_TypeDef *SensorIndexToGPIOBus(uint32_t pin);
 #ifdef __cplusplus
 }
 #endif

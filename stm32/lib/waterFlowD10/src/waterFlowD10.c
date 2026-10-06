@@ -38,19 +38,22 @@ static bool irrigating;
 static SysTime_t currentTime;
 static SysTime_t lastTime;
 
-void FlowD10Init() {
+void FlowD10Init(EnabledSensorMultiple *sensor) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-  __HAL_RCC_GPIOx_CLK_ENABLE(D10_GPIO_Port);
-
+  
+  __HAL_RCC_GPIOx_CLK_ENABLE(SensorIndexToGPIOBus(sensor->index));
+if (sensor->index) {
+      GPIO_InitStruct.Pin = SensorIndexToGPIOPin(sensor->index);
+      HAL_GPIO_Init(SensorIndexToGPIOBus(sensor->index), &GPIO_InitStruct);
+    }
   // reset pins
-  HAL_GPIO_WritePin(D10_GPIO_Port, D10_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SensorIndexToGPIOBus(sensor->index), SensorIndexToGPIOPin(sensor->index), GPIO_PIN_RESET);
 
-  // Configure PIN 9 on Port B (GPIO input)
-  GPIO_InitStruct.Pin = D10_Pin;
+
+  GPIO_InitStruct.Pin = SensorIndexToGPIOPin(sensor->index);
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(D10_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SensorIndexToGPIOBus(sensor->index), &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(D10_EXTI_IRQn, 0, 0);
