@@ -18,10 +18,12 @@ firmware versions for a hardware version.
 
 - SEN0257 and SEN0308 now use the sensor context (index) to determine which ADC channel to sample [#361](pr361).
 - Fixed FRAM addresses to prevent user configuration overwrites [#362](pr362).
+- Updated user documentation and added instructions for setting up a SenseCAP M2 LoRaWAN gateway [#369](pr369).
 
 [pr360]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/360
 [pr361]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/361
 [pr362]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/362
+[pr369]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/369
 
 ## [2.3.12] - 2026-08-19
 
