@@ -36,14 +36,46 @@ unsigned char I2C_WriteReg(unsigned char I2CAddress,
 
 ////////////////////////////////////////////
 
-SEN0257Measurement sen0575WorkingTime(void)
+HAL_StatusTypeDef sen0575Init(void)
 {
-
+  return 0;
 }
 
-SEN0257Measurement sen0575RainfallCumulative(void)
-{
+// SEN0257Measurement sen0575WorkingTime(void)
+// {
 
+// }
+
+uint32_t sen0575RainfallCumulative(void)
+{
+  uint8_t data[4];
+
+  HAL_StatusTypeDef ret;
+  uint8_t registerAddress = SEN0575_I2C_REG_CUMULATIVE_RAINFALL;
+    
+  // start condition
+  ret = HAL_I2C_Master_Transmit(
+  &hi2c1, SEN0575_DEVICE_ADDRESS << 1, &registerAddress, 1,
+  HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
+  }
+
+  // get byte
+  ret = HAL_I2C_Master_Receive(
+  &hi2c1, SEN0575_DEVICE_ADDRESS << 1, (uint8_t *)data,
+  4, // gets 4 bytes
+  HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+  if (ret != HAL_OK) {
+      APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
+  }
+
+  uint32_t cumulativeRainfall = ((uint32_t)data[0] | 
+  (uint32_t)data[1] << 8 |
+  (uint32_t)data[2] << 16 |
+  (uint32_t)data[3] << 24); 
+
+  return cumulativeRainfall;
 }
 
 uint32_t sen0575RainfallRaw(void)

@@ -96,6 +96,7 @@ HAL_StatusTypeDef sen0575Init(void);
  * @return   time
  ******************************************************************************
  */
+
 // TODO: create a measurement type in the protobuff for sen0575
 SEN0257Measurement sen0575WorkingTime(void);
 
@@ -107,7 +108,7 @@ SEN0257Measurement sen0575WorkingTime(void);
  * @return   measurements
  ******************************************************************************
  */
-SEN0257Measurement sen0575RainfallCumulative(void);
+uint32_t sen0575RainfallCumulative(void);
 
 /**
  ******************************************************************************
@@ -139,4 +140,5 @@ size_t WatPress_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
 }
 #endif
 
-#endif  _SEN0575_H
+#endif  /*_SEN0575_H*/
+
