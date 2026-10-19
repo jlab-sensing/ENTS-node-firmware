@@ -4,6 +4,7 @@ import os
 import argparse
 from datetime import datetime
 import logging
+from pathlib import Path
 
 import statsmodels.api as sm
 from statsmodels.formula.api import ols, mixedlm
@@ -13,13 +14,21 @@ import seaborn as sns
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-
 import matplotlib.pyplot as plt
+from yaml import safe_load
 
 from ents.dirtviz import BackendClient, plot_data
 
 
 logger = logging.getLogger(__name__)
+
+
+def load_yaml(filename: str) -> dict:
+    path = Path(filename)
+    with path.open("r", encoding="utf-8") as f:
+        data = safe_load(f)
+
+    return data
 
 
 def main(plots, output, _format):
@@ -30,186 +39,15 @@ def main(plots, output, _format):
         output: Output directory for plots.
     """
 
-    # span of data
-    start_date = datetime(2025, 11, 1)
-    end_date = datetime(2026, 1, 19)
+    soil_types = load_yaml("soil_types.yaml")
+    cells = load_yaml("gt_cells.yaml")
+
+    start_date = cells["start"]
+    end_date = cells["end"]
+    cell_map = cells["cells"]
+
     logger.info(f"Using data from {start_date} to {end_date}.")
 
-
-
-    soil_types = {
-        "gt_black": {
-            "desc": "Georgia natural black soil.",
-            "sand": 0.7322,
-            "silt": 0.1206,
-            "clay": 0.1472,
-            "om": 0.02,
-        },
-
-        "gt_black_inorganics": {
-            "desc": "Black to red texture.",
-            "sand": 0.349,
-            "silt": 0.33301,
-            "clay": 0.3180,
-            "om": 0.02,
-        },
-
-        "gt_black_inorganics_compost": {
-            "desc": "Black to red texture and om.",
-            "sand": 0.329,
-            "silt": 0.333,
-            "clay": 0.338,
-            "om": 0.009,
-        },
-
-        "gt_red": {
-            "desc": "Georgia natural red soil.",
-            "sand": 0.4789,
-            "silt": 0.3053,
-            "clay": 0.2158,
-            "om": 0.01,
-        },
-
-        # TODO Update
-        "gt_red_compost": {
-            "desc": "Red to black om.",
-            "sand": 0.3498,
-            "silt": 0.3195,
-            "clay": 0.3307,
-            "om": 0.02,
-        },
-
-        # TODO upate
-        "gt_red_compost_inorganics": {
-            "desc": "Red to black texture.",
-            "sand": 0.712,
-            "silt": 0.141,
-            "clay": 0.147,
-            "om": 0.01,
-        },
-
-        "synth": {
-            "desc": "Synthetic soil.",
-            "sand": 0.3476,
-            "silt": 0.3221,
-            "clay": 0.3303,
-            "om": 0.11,
-        },
-    }
-
-    cell_map = {
-        ## Black Soil
-
-        # No amendments
-        "gt_black_none_1": {
-            "soil": "gt_black",
-            "bme280": "gt_bme280",
-        },
-        "gt_black_none_2": {
-            "soil": "gt_black",
-            "bme280": "gt_bme280",
-        },
-        "gt_black_none_3": {
-            "soil": "gt_black",
-            "bme280": "gt_bme280",
-        },
-
-        # Adding inorganics
-        "gt_black_inorganics_1": {
-            "soil": "gt_black_inorganics",
-            "bme280": "gt_bme280",
-        },
-        "gt_black_inorganics_2": {
-            "soil": "gt_black_inorganics",
-            "bme280": "gt_bme280",
-        },
-        "gt_black_inorganics_3": {
-            "soil": "gt_black_inorganics",
-            "bme280": "gt_bme280",
-        },
-        
-        # Adding inorganics and compost
-        "gt_black_inorganics_compost_1": {
-            "soil": "gt_black_inorganics_compost",
-            "bme280": "gt_bme280",
-        },
-        "gt_black_inorganics_compost_2": {
-            "soil": "gt_black_inorganics_compost",
-            "bme280": "gt_bme280",
-        },
-        "gt_black_inorganics_compost_3": {
-            "soil": "gt_black_inorganics_compost",
-            "bme280": "gt_bme280",
-        },
-
-
-        "gt_red_none_1": {
-            "soil": "gt_red",
-            "bme280": "gt_bme280",
-        },
-        "gt_red_none_2": {
-            "soil": "gt_red",
-            "bme280": "gt_bme280",
-        },
-        "gt_red_none_3": {
-            "soil": "gt_red",
-            "bme280": "gt_bme280",
-        },
-        
-        "gt_red_compost_1": {
-            "soil": "gt_red_compost",
-            "bme280": "gt_bme280",
-        },
-        "gt_red_compost_2": {
-            "soil": "gt_red_compost",
-            "bme280": "gt_bme280",
-        },
-        "gt_red_compost_3": {
-            "soil": "gt_red_compost",
-            "bme280": "gt_bme280",
-        },
-        
-        "gt_red_compost_inorganics_1": {
-            "soil": "gt_red_compost_inorganics",
-            "bme280": "gt_bme280",
-        },
-        "gt_red_compost_inorganics_2": {
-            "soil": "gt_red_compost_inorganics",
-            "bme280": "gt_bme280",
-        },
-        "gt_red_compost_inorganics_3": {
-            "soil": "gt_red_compost_inorganics",
-            "bme280": "gt_bme280",
-        },
-
-        "gt_synth_none_1": {
-            "soil": "synth",
-            "bme280": "gt_bme280",
-        },
-        "gt_synth_none_2": {
-            "soil": "synth",
-            "bme280": "gt_bme280",
-        },
-        "gt_synth_none_3": {
-            "soil": "synth",
-            "bme280": "gt_bme280",
-        },
-        
-        # Exclude control
-        #"gt_synth_auto_1": {
-        #    "soil": "synth",
-        #    "bme280": "gt_bme280",
-        #},
-        #"gt_synth_auto_2": {
-        #    "soil": "synth",
-        #    "bme280": "gt_bme280",
-        #},
-        #"gt_synth_auto_3": {
-        #    "soil": "synth",
-        #    "bme280": "gt_bme280",
-        #},
-
-    }
 
     api = BackendClient()
 
