@@ -1,0 +1,103 @@
+## Black Soil
+
+start: 2025-11-01
+end: 2026-01-19
+
+cells:
+  # No amendments
+  gt_black_none_1:
+    soil: gt_black
+    bme280: gt_bme280
+    # Dates are quoted so they load as strings (as in the original dicts)
+    incubation:
+      start: 2026-06-01
+      end: 2026-08-01
+    open:
+      start: 2026-06-01
+      end: 2026-08-01
+    closed:
+      start: 2026-06-01
+      end: 2026-08-01
+  gt_black_none_2:
+    soil: gt_black
+    bme280: gt_bme280
+  gt_black_none_3:
+    soil: gt_black
+    bme280: gt_bme280
+
+  # Adding inorganics
+  gt_black_inorganics_1:
+    soil: gt_black_inorganics
+    bme280: gt_bme280
+  gt_black_inorganics_2:
+    soil: gt_black_inorganics
+    bme280: gt_bme280
+  gt_black_inorganics_3:
+    soil: gt_black_inorganics
+    bme280: gt_bme280
+
+  # Adding inorganics and compost
+  gt_black_inorganics_compost_1:
+    soil: gt_black_inorganics_compost
+    bme280: gt_bme280
+  gt_black_inorganics_compost_2:
+    soil: gt_black_inorganics_compost
+    bme280: gt_bme280
+  gt_black_inorganics_compost_3:
+    soil: gt_black_inorganics_compost
+    bme280: gt_bme280
+
+  ## Red Soil
+
+  gt_red_none_1:
+    soil: gt_red
+    bme280: gt_bme280
+  gt_red_none_2:
+    soil: gt_red
+    bme280: gt_bme280
+  gt_red_none_3:
+    soil: gt_red
+    bme280: gt_bme280
+
+  gt_red_compost_1:
+    soil: gt_red_compost
+    bme280: gt_bme280
+  gt_red_compost_2:
+    soil: gt_red_compost
+    bme280: gt_bme280
+  gt_red_compost_3:
+    soil: gt_red_compost
+    bme280: gt_bme280
+
+  gt_red_compost_inorganics_1:
+    soil: gt_red_compost_inorganics
+    bme280: gt_bme280
+  gt_red_compost_inorganics_2:
+    soil: gt_red_compost_inorganics
+    bme280: gt_bme280
+  gt_red_compost_inorganics_3:
+    soil: gt_red_compost_inorganics
+    bme280: gt_bme280
+
+  ## Synthetic Soil
+
+  gt_synth_none_1:
+    soil: synth
+    bme280: gt_bme280
+  gt_synth_none_2:
+    soil: synth
+    bme280: gt_bme280
+  gt_synth_none_3:
+    soil: synth
+    bme280: gt_bme280
+
+  # Excluded control
+  # gt_synth_auto_1:
+  #   soil: synth
+  #   bme280: gt_bme280
+  # gt_synth_auto_2:
+  #   soil: synth
+  #   bme280: gt_bme280
+  # gt_synth_auto_3:
+  #   soil: synth
+  #   bme280: gt_bme280
