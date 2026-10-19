@@ -5,6 +5,7 @@ import argparse
 from datetime import datetime
 import logging
 from pathlib import Path
+from dataclasses import dataclass
 
 import statsmodels.api as sm
 from statsmodels.formula.api import ols, mixedlm
@@ -22,6 +23,7 @@ from ents.dirtviz import BackendClient, plot_data
 
 logger = logging.getLogger(__name__)
 
+META_COLS = ["name", "type", "timestamp"]
 
 def load_yaml(filename: str) -> dict:
     path = Path(filename)
@@ -31,16 +33,48 @@ def load_yaml(filename: str) -> dict:
     return data
 
 
-def main(plots, output, _format):
-    """Run an evaluation.
+def fill_dates(cell_dict: dict) -> dict:
+    """Fills in date ranges for each of the cell ranges.
+
+    Makes the dates for the different "states" of the cells fully formed with
+    start and dates.
 
     Args:
-        plots: Show sensor plots if true.
-        output: Output directory for plots.
+        cell_dict: Cell dictionary
+
+    Return
+        Reference to cell_dict
     """
 
+    start = cell_dict["start"]
+    end = cell_dict["end"]
+
+
+    for attr in cell_dict["cells"].values():
+        # incubation
+        if "start" not in attr["incubation"]:
+            attr["incubation"]["start"] = start
+        if "end" not in attr["incubation"]:
+            attr["incubation"]["end"] = attr["open"]["end"]
+
+        if "start" not in attr["open"]:
+            attr["open"]["start"] = attr["incubation"]["end"]
+        if "end" not in attr["open"]:
+            attr["open"]["end"] = attr["closed"]["end"]
+
+        if "start" not in attr["closed"]:
+            attr["closed"]["start"] = attr["open"]["end"]
+        if "end" not in attr["closed"]:
+            attr["closed"]["end"] = end
+
+    return cell_dict
+
+
+
+def get_data() -> dict:
     soil_types = load_yaml("soil_types.yaml")
-    cells = load_yaml("gt_cells.yaml")
+    cells = load_yaml("test_cells.yaml")
+    cells = fill_dates(cells)
 
     start_date = cells["start"]
     end_date = cells["end"]
@@ -52,6 +86,9 @@ def main(plots, output, _format):
     api = BackendClient()
 
     all_dfs_list = []
+    incubation_dfs_list = []
+    open_dfs_list = []
+    closed_dfs_list = []
 
     for name, attr in cell_map.items():
         logging.info(f"Getting data for {name}.")
@@ -115,64 +152,187 @@ def main(plots, output, _format):
 
         all_dfs_list.append(cell_data)
 
+        # Filter based on start/end timestamp
+        slice_range = lambda key: cell_data[
+            (pd.Timestamp(attr[key]["start"]) <= cell_data["timestamp"])
+            & (cell_data["timestamp"] <= pd.Timestamp(attr[key]["end"]))
+        ]
+
+        incubation_dfs_list.append(slice_range("incubation"))
+        open_dfs_list.append(slice_range("open"))
+        closed_dfs_list.append(slice_range("closed"))
 
 
-
-    def show(name: str):
-        """Show a matplotlib figure.
-
-        Handles displaying and saving matplotlib figures. Name is used for the
-        filepath of the images.
-
-        Args:
-            name: Name of image.
-        """
-
-        plt.tight_layout()
-        plt.show(block=False)
-
-        if output:
-            cwd = os.getcwd()
-            directory = os.path.join(cwd, output)
-            os.makedirs(directory, exist_ok=True)
-            path = os.path.join(directory, f"{name}.{_format}")
-            logging.debug(f"Saving to {path}")
-            plt.savefig(path)
-
-    # expected columns that can be used
-    # i    p    timestamp  v ec  raw_vwc   temp    vwc   name type  sand  silt om
-
-
-    category_labels = ["name", "type", "sand", "silt", "clay", "om"]
-    meas_labels = ["i", "v", "p", "ec", "raw_vwc", "vwc", "temp",
-                   "temperature", "pressure", "humidity"]
-
-    # parameters
-    target_label = "v"
-    time_covariate_labels = ["raw_vwc"]
-    categorical_covariate_labels = []
-    #group_label = "name"
-
-    # plot data
-    #if plots:
-    #    for label in meas_labels:
-    #        plot_data(all_dfs_list, label)
 
     # combine data, reset index
     all_data = pd.concat(all_dfs_list, axis=0, ignore_index=True)
+    incubation_data = pd.concat(incubation_dfs_list, axis=0, ignore_index=True)
+    open_data = pd.concat(open_dfs_list, axis=0, ignore_index=True)
+    closed_data = pd.concat(closed_dfs_list, axis=0, ignore_index=True)
 
 
-    print(f"\nSample data\n\n{all_data}\n")
+    data = {
+        "all": all_data,
+        "incubation": incubation_data,
+        "open": open_data,
+        "closed": closed_data
+    }
+
+    return data
 
 
-    # all statistics
-    all_stats = all_data.describe()
-    print(f"\nDataset\n\n{all_stats}\n")
+def run_pca(df: pd.DataFrame, feature_cols: list[str],
+            n_components: int = 5, random_state: int = 42) -> PCAResult:
+    """Standardize the features and fit a PCA. Pure computation, no I/O."""
+    # Standardize to zero mean / unit variance so large-valued features
+    # don't dominate the components
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(df[feature_cols].values)
+ 
+    pca = PCA(n_components=n_components, random_state=random_state)
+    pcs = pca.fit_transform(X_scaled)
+ 
+    pc_names = [f"PC{i + 1}" for i in range(pcs.shape[1])]
+ 
+    scores = pd.DataFrame(pcs, columns=pc_names, index=df.index)
+    scores[META_COLS] = df[META_COLS]
+ 
+    cumulative = np.cumsum(pca.explained_variance_ratio_)
+    explained = pd.DataFrame({
+        "PC": pc_names,
+        "eigenvalues": pca.explained_variance_,
+        "explained_variance_ratio": pca.explained_variance_ratio_,
+        "cumulative": cumulative,
+    })
+ 
+    loadings = pd.DataFrame(pca.components_.T, columns=pc_names, index=feature_cols)
+ 
+    # Note: if the 5 kept components never reach 95%, this returns 1.
+    n_95 = int(np.argmax(cumulative >= 0.95) + 1)
+ 
+    return PCAResult(pca, scaler, feature_cols, pc_names,
+                     scores, explained, loadings, n_95)
+  
+ 
+def print_pca_results(result: PCAResult, n_loading_pcs: int = 4) -> None:
+    print(result.explained.to_string(index=False))
+    print(f"\nComponents needed for 95% variance: {result.n_95}")
+ 
+    print(f"\nLoadings (first {n_loading_pcs} PCs):")
+    print(result.loadings.iloc[:, :n_loading_pcs].round(3))
+ 
+ 
+ 
+def plot_scree(ax: plt.Axes, result: PCAResult) -> None:
+    """Scree plot: variance ratios on the left axis, eigenvalues on the right."""
+    pca = result.pca
+    ratios = pca.explained_variance_ratio_
+    eigenvalues = pca.explained_variance_
+    x = np.arange(1, len(result.pc_names) + 1)
+ 
+    ax.bar(x, ratios, alpha=0.7, label="Individual ratio")
+    ax.plot(x, np.cumsum(ratios), "o-", color="red", label="Cumulative ratio")
+    ax.axhline(0.95, color="gray", ls="--", lw=1)
+    ax.set_xlabel("Principal component")
+    ax.set_ylabel("Explained variance ratio")
+    ax.set_title("Scree plot")
+    ax.set_ylim(0, 1.05)
+ 
+    # Total variance across *all* components (ratio = eigenvalue / total_var),
+    # so the eigenvalue axis lines up with the ratio axis even when only a
+    # subset of components is kept.
+    total_var = eigenvalues.sum() / ratios.sum()
+ 
+    ax2 = ax.twinx()
+    ax2.plot(x, eigenvalues, "s--", color="green", label="Eigenvalue")
+    ax2.axhline(1, color="green", ls=":", lw=1, alpha=0.6)  # Kaiser criterion
+    ax2.set_ylabel("Eigenvalue", color="green")
+    ax2.tick_params(axis="y", labelcolor="green")
+    ax2.set_ylim(0, 1.05 * total_var)
+ 
+    h1, l1 = ax.get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+    ax.legend(h1 + h2, l1 + l2, loc="center right")
+ 
+ 
+def plot_scores(ax: plt.Axes, result: PCAResult, by: str = "type") -> None:
+    """PC1 vs PC2 scores, colored by a metadata column."""
+    ratios = result.pca.explained_variance_ratio_
+    for label, grp in result.scores.groupby(by):
+        ax.scatter(grp["PC1"], grp["PC2"], s=4, alpha=0.4, label=label)
+    ax.set_xlabel(f"PC1 ({ratios[0]:.1%})")
+    ax.set_ylabel(f"PC2 ({ratios[1]:.1%})")
+    ax.set_title(f"PCA scores by {by}")
+    ax.legend(markerscale=4)
+ 
+ 
+def plot_loadings(ax: plt.Axes, result: PCAResult) -> None:
+    """Biplot-style loading arrows for PC1 vs PC2."""
+    for feat in result.feature_cols:
+        lx, ly = result.loadings.loc[feat, "PC1"], result.loadings.loc[feat, "PC2"]
+        ax.arrow(0, 0, lx, ly, head_width=0.02, color="tab:red", alpha=0.7)
+        ax.text(lx * 1.08, ly * 1.08, feat, fontsize=9)
+    ax.set_xlim(-1.1, 1.1)
+    ax.set_ylim(-1.1, 1.1)
+    ax.axhline(0, color="gray", lw=0.5)
+    ax.axvline(0, color="gray", lw=0.5)
+    ax.set_xlabel("PC1 loading")
+    ax.set_ylabel("PC2 loading")
+    ax.set_title("Feature loadings")
+    ax.set_aspect("equal")
+ 
+ 
+def plot_pca_summary(result: PCAResult) -> plt.Figure:
+    """Compose the three PCA subplots into one figure."""
+    fig, axes = plt.subplots(1, 3, figsize=(20, 6))
+    plot_scree(axes[0], result)
+    plot_scores(axes[1], result, by="type")
+    plot_loadings(axes[2], result)
+    fig.tight_layout()
+    return fig
+ 
+ 
+def plot_pairplot(df: pd.DataFrame, feature_cols: list[str],
+                  n_sample: int = 2000, random_state: int = 42) -> sns.PairGrid:
+    """Pairplot of the raw features, subsampled for speed."""
+    plot_df = df[feature_cols + ["type"]].sample(
+        n=min(n_sample, len(df)), random_state=random_state
+    )
+    g = sns.pairplot(
+        plot_df,
+        vars=feature_cols,
+        hue="type",
+        corner=True,                 # lower triangle only, halves the panels
+        diag_kind="kde",
+        plot_kws={"s": 6, "alpha": 0.4, "linewidth": 0},
+        diag_kws={"common_norm": False, "fill": True},
+        height=1.6,
+    )
+    g.figure.suptitle("Pairplot of sensor and soil parameters", y=1.02)
+    return g
+
+
+@dataclass
+class PCAResult:
+    """Everything produced by a PCA run, so printing/plotting need no refit."""
+
+    pca: PCA
+    scaler: StandardScaler
+    feature_cols: list[str]
+    pc_names: list[str]
+    scores: pd.DataFrame       # PC scores + metadata columns
+    explained: pd.DataFrame    # eigenvalues / variance ratios per PC
+    loadings: pd.DataFrame     # features x PCs
+    n_95: int                  # components needed for 95% variance
 
 
 
 
-
+def analyze(data: dict, key: str):
+    print(f"Dataset '{key}'")
+    print(f"\nSample data for '{key}'\n\n{data[key]}\n")
+    stats = data[key].describe()
+    print(f"\nDataset\n\n{stats}\n")
 
     #
     # Select features
@@ -184,301 +344,38 @@ def main(plots, output, _format):
         "sand", "silt", "clay", "om",
     ]
 
-    df = all_data[feature_cols + ["name", "type", "timestamp"]].copy()
+    df = data[key][feature_cols + META_COLS].copy()
 
     # PCA can't handle NaNs / infs
     df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=feature_cols)
 
-    X = df[feature_cols].values
 
 
-    #
-    # Scale data to 0-1 to prevent large values from dominating results
-    #
+    result = run_pca(df, feature_cols, n_components=5)
+    print_pca_results(result)
 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    #
-    # Fit PCA (keep all components first to inspect variance)
-    #
-    pca = PCA(n_components=5, random_state=42)
-    pcs = pca.fit_transform(X_scaled)
-
-    pc_names = [f"PC{i+1}" for i in range(pcs.shape[1])]
-    pca_df = pd.DataFrame(pcs, columns=pc_names, index=df.index)
-    pca_df[["name", "type", "timestamp"]] = df[["name", "type", "timestamp"]]
-
-    #
-    # Explained variance
-    #
-    explained = pd.DataFrame({
-        "PC": pc_names,
-        "eigenvalues": pca.explained_variance_,
-        "explained_variance_ratio": pca.explained_variance_ratio_,
-        "cumulative": np.cumsum(pca.explained_variance_ratio_),
-    })
-    print(explained.to_string(index=False))
-
-    n_95 = np.argmax(np.cumsum(pca.explained_variance_ratio_) >= 0.95) + 1
-    print(f"\nComponents needed for 95% variance: {n_95}")
-
-
-    # 
-    # Loadings
-    #
-
-    loadings = pd.DataFrame(
-        pca.components_.T,
-        columns=pc_names,
-        index=feature_cols,
-    )
-    print("\nLoadings (first 4 PCs):")
-    print(loadings.iloc[:, :4].round(3))
+    summary_fig = plot_pca_summary(result)
+    pair_grid = plot_pairplot(df, feature_cols)
 
 
 
 
-    # 
-    # plots
-    #
+def main(plots, output, _format):
+    """Run an evaluation.
+
+    Args:
+        plots: Show sensor plots if true.
+        output: Output directory for plots.
+    """
 
 
-    _, axes = plt.subplots(1, 3, figsize=(20, 6))
+    data = get_data()
 
-    # 6a. Scree plot with eigenvalues on a second y-axis
-    eigenvalues = pca.explained_variance_
-    total_var = eigenvalues.sum()
-    x = np.arange(1, len(pc_names) + 1)
-
-    ax = axes[0]
-    ax.bar(x, pca.explained_variance_ratio_, alpha=0.7, label="Individual ratio")
-    ax.plot(x, np.cumsum(pca.explained_variance_ratio_),
-            "o-", color="red", label="Cumulative ratio")
-    ax.axhline(0.95, color="gray", ls="--", lw=1)
-    ax.set_xlabel("Principal component")
-    ax.set_ylabel("Explained variance ratio")
-    ax.set_title("Scree plot")
-    ax.set_ylim(0, 1.05)
-
-    # Second y-axis: eigenvalues
-    ax2 = ax.twinx()
-    ax2.plot(x, eigenvalues, "s--", color="green", label="Eigenvalue")
-    ax2.axhline(1, color="green", ls=":", lw=1, alpha=0.6)   # Kaiser criterion line
-    ax2.set_ylabel("Eigenvalue", color="green")
-    ax2.tick_params(axis="y", labelcolor="green")
-    ax2.set_ylim(0, 1.05 * total_var)   # same scale as the ratio axis (ratio = eigenvalue / total_var)
-
-    # Combine legends from both axes
-    h1, l1 = ax.get_legend_handles_labels()
-    h2, l2 = ax2.get_legend_handles_labels()
-    ax.legend(h1 + h2, l1 + l2, loc="center right")
-
-
-    # 6b. Scores colored by sensor type
-    ax = axes[1]
-    for t, grp in pca_df.groupby("type"):
-        ax.scatter(grp["PC1"], grp["PC2"], s=4, alpha=0.4, label=t)
-    ax.set_xlabel(f"PC1 ({pca.explained_variance_ratio_[0]:.1%})")
-    ax.set_ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%})")
-    ax.set_title("PCA scores by type")
-    ax.legend(markerscale=4)
-
-    # 6c. Biplot-style loading arrows
-    ax = axes[2]
-    for feat in feature_cols:
-        x, y = loadings.loc[feat, "PC1"], loadings.loc[feat, "PC2"]
-        ax.arrow(0, 0, x, y, head_width=0.02, color="tab:red", alpha=0.7)
-        ax.text(x * 1.08, y * 1.08, feat, fontsize=9)
-    ax.set_xlim(-1.1, 1.1)
-    ax.set_ylim(-1.1, 1.1)
-    ax.axhline(0, color="gray", lw=0.5)
-    ax.axvline(0, color="gray", lw=0.5)
-    ax.set_xlabel("PC1 loading")
-    ax.set_ylabel("PC2 loading")
-    ax.set_title("Feature loadings")
-    ax.set_aspect("equal")
-
-    plt.tight_layout()
-    plt.show(block=False)
-
-
-
-    # Subsample for speed (36k rows x 196 panels is very slow)
-    n_sample = 2000
-    plot_df = df[feature_cols + ["type"]].sample(n=min(n_sample, len(df)), random_state=42)
-
-    g = sns.pairplot(
-        plot_df,
-        vars=feature_cols,
-        hue="type",
-        corner=True,                 # lower triangle only, halves the panels
-        diag_kind="kde",             # or "hist"
-        plot_kws={"s": 6, "alpha": 0.4, "linewidth": 0},
-        diag_kws={"common_norm": False, "fill": True},
-        height=1.6,
-    )
-    g.figure.suptitle("Pairplot of sensor and soil parameters", y=1.02)
-    plt.show(block=False)
-
-    input("Press enter to close figures...")
-
-
-
+    analyze(data, "incubation")
+    analyze(data, "open")
+    analyze(data, "closed")
 
     return 0
-
-
-
-
-
-    def plot_boxplot(meas: str, group: str):
-        """Plot a boxplot of a measurement in a group.
-
-
-        Args:
-            meas: Measurement column.
-            group: Grouping column.
-        """
-
-        # boxplot of type
-        _, ax = plt.subplots()
-
-        groups = [g[meas].values for _, g in all_data.groupby(group)]
-        labels = all_data[group].unique()
-        ax.boxplot(groups, tick_labels=labels)
-        ax.set_ylabel(meas)
-        show(f"boxplot_{group}_{meas}")
-
-
-    type_stats = all_data.groupby("type").describe()
-    for label in meas_labels:
-        plot_boxplot(label, "type")
-
-    # Uncomment to see individual cell boxplots
-    #name_stats = all_data.groupby("name").describe()
-    #for label in meas_labels:
-    #    plot_boxplot(label, "name")
-
-
-
-
-    # TODO 
-    # Plot the distribution of measurements
-
-    ## BAD CODE
-    ## plot max
-    #if plots:
-    #    _, ax = plt.subplots()
-    #    ax.hist(name_stats["v"]["mean"], edgecolor="black", bins=10)
-    #    ax.set_xlabel("Voltage (mV)")
-    #    ax.set_ylabel("Frequency")
-    #    plt.tight_layout()
-    #    plt.show(block=False)
-
-
-
-
-    # Colinearity checks
-
-    # Multicollinearity check
-    X = all_data[meas_labels]
-    X = sm.add_constant(X)
-    vif = pd.DataFrame({
-        "variable": X.columns,
-        "VIF": [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
-    })
-    print("\n\nChecking multicollinearity:")
-    print("\tRules of thumb for variation inflation factor:")
-    print("\tVIF > 5\t\tModerate")
-    print("\tVIF > 10\tSevere")
-    print("\tVIF = inf\tLinear dependence")
-    print()
-    print(vif)
-
-    if plots:
-        _, ax = plt.subplots()
-        sns.heatmap(all_data[meas_labels].corr(), ax=ax, annot=True)
-        show("collinearity")
-
-
-
-    # look into the following
-    # organic matter
-    # characteristics (sand, silt, clay)
-    #formula = "v ~ ec + raw_vwc + temp + sand"
-    #formula = "v ~ sand + silt + om"
-    formula = f"{target_label} ~ "
-    formula += " + ".join(time_covariate_labels)
-    if categorical_covariate_labels:
-        formula += " + "
-        formula += " + ".join([f"C({c})" for c in categorical_covariate_labels])
-    print(f"\nUsing formula:\n\n\t{formula}")
-
-
-    # OLS Model
-    
-    def ols_agg(stat: str, fn: str):
-        """Run ordinary least squares on aggregated data.
-
-        Args:
-            stat: Statistic metric to aggregate on (eg. "mean")
-            fn: Model function
-        """
-
-        # format data
-        agg_dict = {"timestamp": "first"}
-        agg_dict.update({col: stat for col in meas_labels})
-        agg_dict.update({col: "first" for col in category_labels})
-        stat_data = all_data.groupby("type").agg(agg_dict).reset_index(drop=True)
-
-        # fit model
-        model = ols(fn, data=stat_data).fit()
-        print()
-        print(model.summary())
-        print()
-
-
-        # eval
-        anova = sm.stats.anova_lm(model, typ=2)
-        # Cohen's values 0.10, 0.25 and 0.40 (Cohen, 1988, pp. 285-287)
-        anova["eta_sq"] = anova["sum_sq"] / (anova["sum_sq"].sum())
-        anova["part_eta_sq"] = anova["sum_sq"] / (anova["sum_sq"] + anova.loc["Residual", "sum_sq"])
-
-        print(f"\n\nANOVA Results:\n\n{anova}\n\n")
-
-
-        # fit value plot
-        y_hat = model.fittedvalues
-
-        fig, ax = plt.subplots()
-        ax.scatter(model.model.endog, y_hat)
-        ax.set_title(f"{stat}: {fn}")
-        ax.set_xlabel("Observed")
-        ax.set_ylabel("Predicted")
-        ax.plot([model.model.endog.min(), model.model.endog.max()],
-                 [model.model.endog.min(), model.model.endog.max()])
-        show(f"ols_agg_{stat}")
-
-
-    ols_agg("mean", "v ~ raw_vwc + ec + sand + silt + om")
-    ols_agg("max", "v ~ raw_vwc + ec + sand + silt + om")
-
-
-
-    # MixedLM model
-    agg_dict = {"timestamp": "first"}
-    agg_dict.update({col: "mean" for col in meas_labels})
-    agg_dict.update({col: "first" for col in category_labels})
-    mean_data = all_data.groupby("type").agg(agg_dict).reset_index(drop=True)
-
-    model = mixedlm("v ~ raw_vwc + ec + sand + silt + temp", mean_data,
-                    groups=mean_data["type"])
-    modelf = model.fit()
-    print()
-    print(modelf.summary())
-
-
 
 
 def parse_args():
@@ -499,6 +396,7 @@ def parse_args():
     parser.add_argument(
         "-p", "--plots",
         action="store_true",
+        default=True,
         help="Display plots",
     )
 
@@ -542,4 +440,5 @@ if __name__ == "__main__":
     main(args.plots, args.output, args.format)
 
     if (args.plots):
-        input("Press enter to close figures...")
+        plt.show(block=False)
+        input("\nPress enter to close figures...")
