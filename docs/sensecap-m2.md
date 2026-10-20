@@ -1,5 +1,5 @@
 # SenseCAP M2 LoRaWAN Gateway
-The SenseCAP M2 LoRaWAN gateway is available in [4G cellular (nano SIM)](https://www.seeedstudio.com/SenseCAP-Multi-Platform-LoRaWAN-Indoor-Gateway-SX1302-4G-US915-p-5600.html) and [non-cellular models](https://www.seeedstudio.com/SenseCAP-Multi-Platform-LoRaWAN-Indoor-Gateway-SX1302-US915-p-5472.html). Follow the manufacturer's instructions in the Setup Guide to configure the gateway to upload as a LoRa Basics Station, with 
+The SenseCAP M2 LoRaWAN gateway is available in [4G cellular (nano SIM)](https://www.seeedstudio.com/SenseCAP-Multi-Platform-LoRaWAN-Indoor-Gateway-SX1302-4G-US915-p-5600.html) and [non-cellular models](https://www.seeedstudio.com/SenseCAP-Multi-Platform-LoRaWAN-Indoor-Gateway-SX1302-US915-p-5472.html).
 
 ## Instructions
 - Follow the [Quick Start](https://wiki.seeedstudio.com/quick_start_with_M2_MP/) guide to gain access to the configuration console and set up internet connectivity.
