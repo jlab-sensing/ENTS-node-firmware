@@ -4,11 +4,12 @@ This Quickstart guide explains how to get started with a prepared ENTS board (bo
 
 ## Prerequisites
 - Prepared ENTS board (board assembled and bootloader unlocked/cleared).
+    - To know if your ENTS board is prepared or not, check the back of the board. If some of the solder jumpers on the back of the board are soldered (such as JP12 for enabling the PB5 user LED), then you have a prepared ENTS board.
 - ST-LINKV3 MINIE STM32 programming tool
 - USB-TTL adapter
 - USB-C cable (C to A or C to C depending on your computer's available USB ports)
 - A computer running Windows, Linux, or MacOS.
-    - At least two available USB ports.
+    - At least two available USB ports. You can use a USB hub if you need additional USB ports.
     - VS Code with the PlatformIO extension installed (see [Installing PlatformIO](#installing-platformio))
 
 ## About selecting ports
@@ -54,8 +55,8 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - NOTE FOR UCSC: Save the ESP32's wifi MAC. The wifi MAC is made available near the tail end of the ESP32's build log, after it connects to the ESP32 but before it begins writing the firmware. The wifi MAC is required to whitelist the device on the UCSC-Devices wifi network. This is the wifi join MAC, which is not the same as the wifi AP MAC.
 - Tap the SW1 RESET button next to the USB-C port to restart the ENTS board.
 
-## 3. Register the logger on DirtViz (which performs The Things Network registration to enable LoRaWAN communication)
-- Log in to DirtViz and go to your profile's Loggers page: https://dirtviz.jlab.ucsc.edu/profile/loggers
+## 3. Register the logger on ENTS-backend (which performs The Things Network registration to enable LoRaWAN communication)
+- Log in to your instance of the ENTS-backend and go to your profile's Loggers page. For DirtViz, this would be: https://dirtviz.jlab.ucsc.edu/profile/loggers
 - Click on the "+" icon in the top right to begin adding a new logger.
     - Logger Name: Provide a unique name for the logger.
         - NOTE FOR UCSC: This should match the hardware revision and serial number of the device. See column A of the spreadsheet. Ex. 2.2.3-071
@@ -67,10 +68,10 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - Once registered, note down the logger ID which will be used to configure the ENTS board later.
     - NOTE FOR UCSC: Save the logger ID and the owner's name into the board inventory spreadsheet.
 
-## 4. Create a cell on DirtViz
-- Log in to DirtViz and go to your profile's Cells page: https://dirtviz.jlab.ucsc.edu/profile/cells
+## 4. Create a cell on ENTS-backend
+- Log in to your instance of the ENTS-backend and go to your profile's Cells page. For DirtViz, this would be: https://dirtviz.jlab.ucsc.edu/profile/cells
 - Click on the "+" icon in the top right to begin adding a new cell.
-    - Cell Name: Try to use something descriptive, since cells are sorted alphabetically in the dropdown list on DirtViz.
+    - Cell Name: Try to use something descriptive, since cells are sorted alphabetically in the dropdown list on the dashboard.
         - Example: `nu_local_open_1`
     - Location: Location of the cell. Used for your own reference.
         - Example: `WRP`
@@ -91,8 +92,8 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - Use a web browser to navigate to http://192.168.4.1
     - If you are reconfiguring an ENTS board, the board's pre-existing configuration is shown when the webpage is entered or refreshed.
 - Input the values into the userConfig interface. You can click on the expandable text above most fields to expand the help text.
-    - Logger ID: Enter the logger ID that you registered on DirtViz. You can find it on your profile's Loggers page: https://dirtviz.jlab.ucsc.edu/profile/loggers
-    - Default Cell ID: This Default Cell ID is applied to any sensors in which you do not specify a Cell ID. Enter the cell ID that you created on DirtViz. You can find it on your profile's Cells page: https://dirtviz.jlab.ucsc.edu/profile/cells
+    - Logger ID: Enter the logger ID that you registered previously. You can find it on your profile's Loggers page.
+    - Default Cell ID: This Default Cell ID is applied to any sensors in which you do not specify a Cell ID. Enter the cell ID that you created previously. You can find it on your profile's Cells page.
     - Upload method: Using LoRa requires a LoRaWAN gateway such as the [Sentrius RG191](https://www.ezurio.com/part/rg191). To get started more easily, wifi is recommended. Enterprise wifi requiring a username and password (or a login / acknowledgement portal) will not work. For best results, use an open or WPA2-PSK standard password-protected wifi network.
     - Upload Interval: The upload interval may not be less than 10 seconds. It is recommended to choose an upload interval >= 60 seconds.
     - Select the sensors that you have attached to the ENTS board.
@@ -103,8 +104,8 @@ In this guide, you will be asked to select the correct ports for uploading progr
         - These settings are only relevant if you have selected WiFi as the upload method.
         - If you are reconfiguring an ENTS board, you can check the box to reuse the wifi password that was previously entered into the device.
         - NOTE FOR UCSC: For wifi, you should use the `UCSC-Devices` SSID. You must register your devices on the portal https://wifi-devices.ucsc.edu/ and use the password provided to you after registration on the portal.
-        - API Endpoint URL: The DirtViz API endpoint URL is `http://dirtviz.jlab.ucsc.edu/api/sensor/` with the default port of 80.
-            - If your endpoint's port is not 80, you can append it to the end of your URL: http://yourendpointhere.com/api/sensor/:12345
+        - API Endpoint URL: The API endpoint URL is typically `http://<your.endpoint.here.com>/api/sensor/` (defaulting to port 80 when no port is specified). For example, DirtViz's API endpoint URL is `http://dirtviz.jlab.ucsc.edu/api/sensor/`.
+            - If your endpoint's port is not 80, you can append it to the end of your URL: http://your.endpoint.here.com/api/sensor/:12345
 - IMPORTANT: When you are done selecting your configuration, press the `Save Configuration` button at the bottom of the page.
 - Optional: To verify that the userConfig was saved successfully, you can either:
     - [A] Restart the ENTS board (tap SW1 RESET), then reconnect to the ENTS board's wifi network and see if your configuration displays correctly on the webform http://192.168.4.1
