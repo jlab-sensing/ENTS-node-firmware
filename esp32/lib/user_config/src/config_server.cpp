@@ -3,6 +3,7 @@
 #include <ArduinoLog.h>
 #include <LittleFS.h>
 #include <WebServer.h>
+#include <WiFi.h>
 
 #include "configuration.hpp"
 #include "protobuf_utils.hpp"
