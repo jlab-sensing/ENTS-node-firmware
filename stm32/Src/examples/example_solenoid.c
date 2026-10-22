@@ -28,7 +28,9 @@ int main(void) {
   MX_I2C1_Init();
   SystemApp_Init();
 
-  APP_LOG(TS_OFF, VLEVEL_H, "example_solenoid.c . Attach DC latching solenoid to pin 18 (A15) in NO position.\r\n");
+  APP_LOG(TS_OFF, VLEVEL_H,
+          "example_solenoid.c . Attach DC latching solenoid to pin 18 (A15) in "
+          "NO position.\r\n");
 
   SolenoidInit(18, SOLENOID_TYPE_LATCH_NO);
 

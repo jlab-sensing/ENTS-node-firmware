@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "sys_app.h"  // APP_LOG
 #include "tca9535.h"
-#include "sys_app.h" // APP_LOG
 
 // This library holds a Solenoid struct for every pin.
 // Can be improved / reduced.
