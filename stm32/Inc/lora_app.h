@@ -58,13 +58,13 @@ extern "C" {
  * LoRaWAN User application port
  * @note do not use 224. It is reserved for certification
  */
-#define LORAWAN_USER_APP_PORT 2
+// #define LORAWAN_USER_APP_PORT 2
 
 /*!
  * LoRaWAN Switch class application port
  * @note do not use 224. It is reserved for certification
  */
-#define LORAWAN_SWITCH_CLASS_PORT 3
+// #define LORAWAN_SWITCH_CLASS_PORT 3
 
 /*!
  * LoRaWAN default class
@@ -135,15 +135,34 @@ extern "C" {
 /* USER CODE BEGIN EC */
 
 /*!
- * LoRaWAN User application port
+ * LoRaWAN User application port OUTBOUND
  *
  * Port 1 is used for original measurement format.
  * Port 2 is used for a new generic measurement format.
+ * [not yet implemented 2026-10-21] Port 3 is used for sending a copy of the
+ * device's userconfig (protobuf).
  *
  * @note do not use 224. It is reserved for certification
  */
 #define LORAWAN_SPS_MEAS_PORT 1
 #define LORAWAN_SPS_MEAS_GENERIC_PORT 2
+#define LORAWAN_USERCONFIG_PORT 3
+
+/*!
+ * LoRaWAN User application port INBOUND
+ *
+ * Port 1 prints received ASCII chars to serial output.
+ * Port 2 changes the device's LoRaWAN class. 0=A, 1=B, 2=C.
+ * [not yet implemented 2026-10-21] Port 3 requests the device to send info to the endpoint such as userconfig, identity, or logs.
+ * Port 4 interacts with the solenoid library to control solenoids.
+ *
+ * @note do not use 224. It is reserved for certification
+ * Ports 200, 201, 202, 203, 225 should be avoided (proposed ports for FUOTA).
+ */
+#define LORAWAN_DEBUG_MESSAGE_PORT 1
+#define LORAWAN_SWITCH_CLASS_PORT 2
+#define LORAWAN_REQUEST_INFO_PORT 3
+#define LORAWAN_SOLENOID_PORT 4
 
 /* USER CODE END EC */
 

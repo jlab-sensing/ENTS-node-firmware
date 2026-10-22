@@ -16,26 +16,27 @@
 #include <stdlib.h>
 
 #include "tca9535.h"
+#include "sys_app.h" // APP_LOG
 
-// static StatusSolenoid Solenoid;
-// static uint8_t activeSolenoids = 0;
-// Solenoid *solenoid[SOLENOID_MAX];
+// This library holds a Solenoid struct for every pin.
+// Can be improved / reduced.
+static Solenoid s[40];
 
-void SolenoidInit(Solenoid *solenoid) {
+void SolenoidInit(uint8_t pin, SolenoidType type) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 
-  if (solenoid->type == SOLENOID_TYPE_HOLD_NO) {
-    solenoid->state = SOLENOID_STATE_OFF;
-  } else if (solenoid->type == SOLENOID_TYPE_HOLD_NC) {
-    solenoid->state = SOLENOID_STATE_ON;
-  } else if (solenoid->type == SOLENOID_TYPE_LATCH_NO) {
-    solenoid->state = SOLENOID_STATE_OFF;
+  if (s[pin].type == SOLENOID_TYPE_HOLD_NO) {
+    s[pin].state = SOLENOID_STATE_OFF;
+  } else if (s[pin].type == SOLENOID_TYPE_HOLD_NC) {
+    s[pin].state = SOLENOID_STATE_ON;
+  } else if (s[pin].type == SOLENOID_TYPE_LATCH_NO) {
+    s[pin].state = SOLENOID_STATE_OFF;
   }
 
-  switch (solenoid->pin) {
+  switch (pin) {
     case 3:
       __HAL_RCC_GPIOA_CLK_ENABLE();
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
@@ -144,15 +145,16 @@ void SolenoidInit(Solenoid *solenoid) {
       // invalid pin
       break;
   }
+  s[pin].initialized = true;
 }
 
-void SolenoidChangeState(Solenoid *solenoid, SolenoidState state_to_apply) {
+void SolenoidChangeState(uint8_t pin, SolenoidState state_to_apply) {
   GPIO_TypeDef *hal_port = GPIOA;
   uint16_t hal_pin = GPIO_PIN_10;
   uint8_t tca9535_port = 1;
   uint8_t tca9535_pin = 0;
 
-  if (state_to_apply == solenoid->state) {
+  if (state_to_apply == s[pin].state) {
     // Solenoid is already in the correct state.
     return;
   } else if (state_to_apply != SOLENOID_STATE_OFF &&
@@ -161,7 +163,7 @@ void SolenoidChangeState(Solenoid *solenoid, SolenoidState state_to_apply) {
     return;
   }
 
-  switch (solenoid->pin) {
+  switch (pin) {
     case 3:
       hal_port = GPIOA;
       hal_pin = GPIO_PIN_10;
@@ -248,9 +250,9 @@ void SolenoidChangeState(Solenoid *solenoid, SolenoidState state_to_apply) {
       break;
   }
 
-  if (solenoid->pin < 27) {
+  if (pin < 27) {
     // mcu
-    if (solenoid->type == SOLENOID_TYPE_LATCH_NO) {
+    if (s[pin].type == SOLENOID_TYPE_LATCH_NO) {
       HAL_GPIO_WritePin(hal_port, hal_pin, GPIO_PIN_SET);
       HAL_Delay(SOLENOID_LATCH_DELAY_MS);
       HAL_GPIO_WritePin(hal_port, hal_pin, GPIO_PIN_RESET);
@@ -264,20 +266,37 @@ void SolenoidChangeState(Solenoid *solenoid, SolenoidState state_to_apply) {
       GPIO_PIN_RESET = 0
       GPIO_PIN_SET = 1
       */
-      HAL_GPIO_WritePin(hal_port, hal_pin,
-                        (solenoid->type + state_to_apply) % 2);
+      HAL_GPIO_WritePin(hal_port, hal_pin, (s[pin].type + state_to_apply) % 2);
     }
   } else {
     // tca9535
-    if (solenoid->type == SOLENOID_TYPE_LATCH_NO) {
+    if (s[pin].type == SOLENOID_TYPE_LATCH_NO) {
       TCA9535WritePin(tca9535_port, tca9535_pin, GPIO_PIN_SET);
       HAL_Delay(SOLENOID_LATCH_DELAY_MS);
       TCA9535WritePin(tca9535_port, tca9535_pin, GPIO_PIN_RESET);
     } else {
       TCA9535WritePin(tca9535_port, tca9535_pin,
-                      (solenoid->type + state_to_apply) % 2);
+                      (s[pin].type + state_to_apply) % 2);
     }
   }
 
-  solenoid->state = state_to_apply;
+  s[pin].state = state_to_apply;
+}
+
+void SolenoidHandleCommand(LmHandlerAppData_t *appData) {
+  for (int i = 0; i < appData->BufferSize; i += 2) {
+    switch (appData->Buffer[i]) {
+      case SOLENOID_COMMAND_CLOSE:
+        SolenoidChangeState(appData->Buffer[i + 1], SOLENOID_STATE_OFF);
+        break;
+      case SOLENOID_COMMAND_OPEN:
+        SolenoidChangeState(appData->Buffer[i + 1], SOLENOID_STATE_ON);
+        break;
+      default:
+        APP_LOG(TS_OFF, VLEVEL_H,
+                "SolenoidHandleCommand: Invalid command byte.\r\n");
+        return;
+        break;
+    }
+  }
 }

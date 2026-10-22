@@ -26,56 +26,24 @@ int main(void) {
   MX_USART2_UART_Init();
   // MX_LPUART1_UART_Init();
   MX_I2C1_Init();
+  SystemApp_Init();
 
-  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-  UTIL_TIMER_Init();
-  UserConfigLoad();
+  APP_LOG(TS_OFF, VLEVEL_H, "example_solenoid.c . Attach DC latching solenoid to pin 18 (A15) in NO position.\r\n");
 
-  char info_str[100];
-  int info_len;
-  info_len = snprintf(info_str, sizeof(info_str),
-                      "Soil Power Sensor Wio-E5 firmware, compiled on %s %s\n",
-                      __DATE__, __TIME__);
-  HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
-
-  SolenoidParameter *solenoidTest = {3, SOLENOID_OFF};
-  SolenoidInit(solenoidTest);
-
-  char output[30];
-
-  size_t reading_len;
+  SolenoidInit(18, SOLENOID_TYPE_LATCH_NO);
 
   while (1) {
-    SolenoidOpen(solenoidTest);
+    // Open solenoid
+    APP_LOG(TS_OFF, VLEVEL_H, "Opening solenoid...\r\n");
+    SolenoidChangeState(18, SOLENOID_STATE_ON);
 
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_RESET) {
-      reading_len = snprintf(output, sizeof(output), "Solenoid Open\r\n");
-      HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,
-                        HAL_MAX_DELAY);
-    } else {
-      reading_len =
-          snprintf(output, sizeof(output), "Solenoid is NOT Open\r\n");
-      HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,
-                        HAL_MAX_DELAY);
-    }
-
-    HAL_Delay(5000);  // 5000 ms = 5 seconds
+    HAL_Delay(5000);
 
     // Close solenoid
-    SolenoidClose(solenoidTest);
+    APP_LOG(TS_OFF, VLEVEL_H, "Closing solenoid...\r\n");
+    SolenoidChangeState(18, SOLENOID_STATE_OFF);
 
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == GPIO_PIN_SET) {
-      reading_len = snprintf(output, sizeof(output), "Solenoid Closed\r\n");
-      HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,
-                        HAL_MAX_DELAY);
-    } else {
-      reading_len =
-          snprintf(output, sizeof(output), "Solenoid is NOT Closed\r\n");
-      HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,
-                        HAL_MAX_DELAY);
-    }
-
-    HAL_Delay(5000);  // 5000 ms = 5 seconds
+    HAL_Delay(5000);
   }
   /* USER CODE END 3 */
 }

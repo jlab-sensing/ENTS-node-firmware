@@ -22,6 +22,8 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "LmHandler.h"
+
 #ifndef SOLENOID_LATCH_DELAY_MS
 // Increase the latch time if the solenoid requires additional time to latch.
 #define SOLENOID_LATCH_DELAY_MS 500
@@ -50,7 +52,7 @@ typedef enum {
   // standard solenoid, continuously energize to open-circuit/deactivate.
   // This option is not typically used.
   SOLENOID_TYPE_HOLD_NC = 1,
-  // latching solenoid, pulse to toggle latch. Starts open/deactivated.
+  // latching solenoid, pulse to toggle latch. Starts open-circuit/deactivated.
   SOLENOID_TYPE_LATCH_NO,
 } SolenoidType;
 
@@ -60,7 +62,18 @@ typedef struct {
   uint32_t pin;  // physical pin # on the 40-pin header.
   SolenoidType type;
   SolenoidState state;  // current state
+  bool initialized;
 } Solenoid;
+
+// Downlink messages for solenoid control are an array of byte pairs:
+// 1:[solenoid_command] 2:[physical_pin_number] , 1:[] 2:[], ...
+typedef enum {
+  SOLENOID_COMMAND_CLOSE = 0,
+  SOLENOID_COMMAND_OPEN,
+  // SOLENOID_COMMAND_STATUS_REPORT, // not yet implemented
+  // SOLENOID_COMMAND_FORCE_UPDATE_STATE_CLOSE, // not yet implemented
+  // SOLENOID_COMMAND_FORCE_UPDATE_STATE_OPEN // not yet implemented
+} SolenoidCommand;
 
 /**
  ******************************************************************************
@@ -71,25 +84,37 @@ typedef struct {
  * @note     Do not reinitialize a latching solenoid while it is activated.
  *           This will result in the software state being the inverse of the
  *           physical state of the latching solenoid.
- * 
+ *
  * @pre      TCA9535Init() if using GPIO expander pins for solenoid control.
  *
- * @param    solenoid
+ * @param    pin
+ * @param    type
  * @return   void
  ******************************************************************************
  */
-void SolenoidInit(Solenoid* solenoid);
+void SolenoidInit(uint8_t pin, SolenoidType type);
 
 /**
  ******************************************************************************
  * @brief    Changes the state of the solenoid.
+ *
+ * @param    pin
+ * @param    state_to_apply
+ * @return   void
+ ******************************************************************************
+ */
+void SolenoidChangeState(uint8_t pin, SolenoidState state_to_apply);
+
+/**
+ ******************************************************************************
+ * @brief    Function for
  *
  * @param    solenoid
  * @param    state_to_apply
  * @return   void
  ******************************************************************************
  */
-void SolenoidChangeState(Solenoid* solenoid, SolenoidState state_to_apply);
+void SolenoidHandleCommand(LmHandlerAppData_t* appData);
 
 #ifdef __cplusplus
 }
