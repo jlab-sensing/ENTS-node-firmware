@@ -56,13 +56,6 @@ extern "C" {
  * @{
  */
 
-// Maximum size of the received data buffer (from protobuf definition).
-#define RX_BUFFER_SIZE UserConfiguration_size
-// Starting address for user config data in FRAM.
-#define USER_CONFIG_START_ADDRESS 1794
-// Address for storing the user config data length in FRAM.
-#define USER_CONFIG_LEN_ADDR 1792
-
 typedef enum {
   USERCONFIG_OK,
   USERCONFIG_FRAM_ERROR,

@@ -13,17 +13,23 @@ firmware versions for a hardware version.
 ### Added
 
 - Watermark 200TS soil temperature sensor (thermistor) added option to read the temperature using a resistor divider [#360](pr360).
-- Solenoid functionality via downlink
-    - Currently the payload message has one field with 00 and 01 corresponding to close and open respectively
-- Easier extraction of the downlink payload through lora_downlink.h/c
+- Solenoid functionality via downlink [#351](pr351).
+- Added instructions for setting up a SenseCAP M2 LoRaWAN gateway [#369](pr369).
+- Added quickstart guide for getting started with a prepared ENTS board [#369](pr369).
 
 ### Updated
 
 - SEN0257 and SEN0308 now use the sensor context (index) to determine which ADC channel to sample [#361](pr361).
-- `lora_app.c` onRXData fport switch statement modified to incorporate solenoid.  
+- `lora_app.c` onRXData fport switch statement modified to incorporate solenoid [#351](pr351).
+- Fixed FRAM addresses to prevent user configuration overwrites [#362](pr362).
+- Removed `test_ads` from the standard internal test suite since the ADS1219 is not built into the >=v3.0.0 ENTS boards anymore [#369](pr369).
+- Adjusted ESP32 partition table to expand program flash by reducing file system space [#369](pr369).
 
+[pr351]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/351
 [pr360]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/360
 [pr361]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/361
+[pr362]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/362
+[pr369]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/369
 
 ## [2.3.12] - 2026-08-19
 
