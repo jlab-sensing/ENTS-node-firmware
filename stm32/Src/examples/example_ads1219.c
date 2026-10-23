@@ -63,7 +63,7 @@ int main(void) {
   // SCL  SCL  100 1111
 
   UserConfiguration cfg = UserConfiguration_init_zero;
-  cfg.enabled_sensors_multiple_count = 2;  // not used in this example
+  cfg.enabled_sensors_multiple_count = 4;  // not used in this example
 
   cfg.enabled_sensors_multiple[0].cell_id = 200;  // not used in this example
   cfg.enabled_sensors_multiple[0].enabled_sensor = EnabledSensor_Current;
