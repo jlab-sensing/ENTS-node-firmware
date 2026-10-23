@@ -35,9 +35,11 @@
 #include <time.h>
 
 #include "LmhpClockSync.h"
+#include "lora_downlink.h"
 #include "lora_size.h"
 #include "payload.h"
 #include "sensors.h"
+#include "solenoid.h"
 #include "status_led.h"
 #include "userConfig.h"
 #include "user_config.h"
@@ -371,7 +373,7 @@ void LoRaWAN_Init(void) {
 
 /* USER CODE BEGIN PB_Callbacks */
 
-#if 0 // User should remove the #if 0 statement and adapt the below code
+#if 0  // User should remove the #if 0 statement and adapt the below code
 // according with his needs
 // Note: see stm32wlxx_it.c for all interrupt handlers
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
@@ -442,18 +444,82 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
         "NbGateways:0x%02X\r\n",
         params->IsMcpsIndication, params->Status, params->LinkCheck,
         params->DemodMargin, params->NbGateways);
-        // CommissioningParams skipped.
+
+    // saving downlink appData
+    saveNewDownlinkData(appData);
+
+    // CommissioningParams skipped.
+
+    APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u\r\n", appData->Port);
+    APP_LOG(TS_OFF, VLEVEL_H, "OnRxData BufferSize: %u\r\n",
+            appData->BufferSize);
+    APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Buffer (hex): ");
+    for (int i = 0; i < appData->BufferSize; i++) {
+      APP_LOG(TS_OFF, VLEVEL_H, "%02X", appData->Buffer[i]);
+    }
+    APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
+
     switch (appData->Port) {
-      // TODO add cases for incoming data on ports
-      default:
-        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u\r\n", appData->Port);
-        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData BufferSize: %u\r\n",
-                appData->BufferSize);
-        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Buffer (hex): ");
-        for (int i = 0; i < appData->BufferSize; i++) {
-          APP_LOG(TS_OFF, VLEVEL_H, "%02X", appData->Buffer[i]);
+      case LORAWAN_DEBUG_MESSAGE_PORT:
+        APP_LOG(TS_OFF, VLEVEL_H,
+                "Received downlink debug message on port %u (size %u) : %.*s\r\n",
+                appData->Port, appData->BufferSize, (char *)(appData->Buffer), appData->BufferSize);
+        break;
+
+      case LORAWAN_SWITCH_CLASS_PORT:
+        /*this port switches the class*/
+        if (appData->BufferSize == 1) {
+          switch (appData->Buffer[0]) {
+            case 0: {
+              LmHandlerRequestClass(CLASS_A);
+              break;
+            }
+            case 1: {
+              LmHandlerRequestClass(CLASS_B);
+              break;
+            }
+            case 2: {
+              LmHandlerRequestClass(CLASS_C);
+              break;
+            }
+            default:
+              break;
+          }
+        } else {
+          APP_LOG(TS_OFF, VLEVEL_H,
+                  "Received downlink message to switch class with invalid "
+                  "buffer size (%u).\r\n",
+                  appData->BufferSize);
         }
-        APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
+        break;
+
+      case LORAWAN_REQUEST_INFO_PORT:
+        APP_LOG(TS_OFF, VLEVEL_H,
+                "Received downlink message to request info from device (size "
+                "%u).\r\n",
+                appData->BufferSize);
+        APP_LOG(TS_OFF, VLEVEL_H, "NOT YET IMPLEMENTED.\r\n");
+
+        // fetch requested info
+        // send immediate TX (or enqueue?) with appropriate outbound port
+        break;
+
+        // Add cases for additional applications below. The two most common ways
+        // to make sure that the appData reaches your application are:
+
+        // 1 (Instant): Based on the port, directly call the appropriate library
+        // function to handle the appData.
+
+        // 2 (Delayed): Based on the port, save appData and set a flag that will
+        // be checked by the library code at some later time (e.g. upon the next
+        // sensor reading or upon the next scheduled solenoid check).
+
+      case LORAWAN_SOLENOID_PORT:
+        // See stm32/lib/solenoid/include/solenoid.h for command format.
+        SolenoidHandleCommand(appData);
+        break;
+
+      default:
         break;
     }
   }

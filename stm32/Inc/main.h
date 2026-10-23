@@ -28,6 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "board.h"
+#include "pin.h"
 #include "stm32wlxx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -110,6 +111,54 @@ if (GPIO_PORT == GPIOA){                      \
 #define D10_EXTI_IRQn EXTI15_10_IRQn
 
 /* USER CODE BEGIN Private defines */
+
+// Physical 40-pin header map
+#define PHYS_PIN_3_PORT GPIOA
+#define PHYS_PIN_3_PIN GPIO_PIN_10
+#define PHYS_PIN_5_PORT GPIOA
+#define PHYS_PIN_5_PIN GPIO_PIN_9
+#define PHYS_PIN_8_PORT GPIOB
+#define PHYS_PIN_8_PIN GPIO_PIN_6
+#define PHYS_PIN_10_PORT GPIOB
+#define PHYS_PIN_10_PIN GPIO_PIN_7
+#define PHYS_PIN_15_PORT GPIOB
+#define PHYS_PIN_15_PIN GPIO_PIN_9
+#define PHYS_PIN_16_PORT GPIOB
+#define PHYS_PIN_16_PIN GPIO_PIN_13
+#define PHYS_PIN_18_PORT GPIOA
+#define PHYS_PIN_18_PIN GPIO_PIN_15
+#define PHYS_PIN_19_PORT GPIOB
+#define PHYS_PIN_19_PIN GPIO_PIN_15
+#define PHYS_PIN_21_PORT GPIOB
+#define PHYS_PIN_21_PIN GPIO_PIN_14
+#define PHYS_PIN_22_PORT GPIOB
+#define PHYS_PIN_22_PIN GPIO_PIN_3
+#define PHYS_PIN_23_PORT GPIOB
+#define PHYS_PIN_23_PIN GPIO_PIN_10
+#define PHYS_PIN_24_PORT GPIOB
+#define PHYS_PIN_24_PIN GPIO_PIN_4
+
+#define PHYS_PIN_27_PORT 1
+#define PHYS_PIN_27_PIN 0
+#define PHYS_PIN_29_PORT 1
+#define PHYS_PIN_29_PIN 1
+#define PHYS_PIN_31_PORT 1
+#define PHYS_PIN_31_PIN 2
+#define PHYS_PIN_33_PORT 1
+#define PHYS_PIN_33_PIN 3
+#define PHYS_PIN_35_PORT 1
+#define PHYS_PIN_35_PIN 4
+#define PHYS_PIN_37_PORT 1
+#define PHYS_PIN_37_PIN 5
+#define PHYS_PIN_28_PORT 1
+#define PHYS_PIN_28_PIN 6
+#define PHYS_PIN_36_PORT 1
+#define PHYS_PIN_36_PIN 7
+
+
+
+
+
 
 /* USER CODE END Private defines */
 
