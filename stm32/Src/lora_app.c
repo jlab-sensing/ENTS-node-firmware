@@ -509,11 +509,7 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
         // sensor reading or upon the next scheduled solenoid check).
 
       case LORAWAN_SOLENOID_PORT:
-        // solenoid commands are in an array of command:pin byte pairs.
-        if ((appData->BufferSize == 0) || (appData->BufferSize % 2 != 0)){
-          APP_LOG(TS_OFF, VLEVEL_H, "Solenoid: Buffer size invalid (%d bytes).\r\n", appData->BufferSize);
-          break;
-        }
+        // See stm32/lib/solenoid/include/solenoid.h for command format.
         SolenoidHandleCommand(appData);
         break;
 

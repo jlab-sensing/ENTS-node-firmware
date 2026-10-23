@@ -284,19 +284,67 @@ void SolenoidChangeState(uint8_t pin, SolenoidState state_to_apply) {
 }
 
 void SolenoidHandleCommand(LmHandlerAppData_t *appData) {
-  for (int i = 0; i < appData->BufferSize; i += 2) {
-    switch (appData->Buffer[i]) {
-      case SOLENOID_COMMAND_CLOSE:
-        SolenoidChangeState(appData->Buffer[i + 1], SOLENOID_STATE_OFF);
-        break;
-      case SOLENOID_COMMAND_OPEN:
-        SolenoidChangeState(appData->Buffer[i + 1], SOLENOID_STATE_ON);
-        break;
-      default:
-        APP_LOG(TS_OFF, VLEVEL_H,
-                "SolenoidHandleCommand: Invalid command byte.\r\n");
-        return;
-        break;
+  if (appData->BufferSize == 0) {
+    APP_LOG(TS_OFF, VLEVEL_H, "SolenoidHandleCommand: Buffer empty.\r\n",
+            appData->BufferSize);
+    return;
+  }
+
+  if (appData->Buffer[0] == 1) {
+    if (appData->BufferSize != 2) {
+      APP_LOG(TS_OFF, VLEVEL_H,
+              "SolenoidHandleCommand: V1 command Buffer size invalid (%d "
+              "bytes), expected version byte + command byte.\r\n",
+              appData->BufferSize);
+      return;
     }
+
+    if (appData->Buffer[1] == SOLENOID_COMMAND_CLOSE) {
+      for (int i = 0; i < (sizeof(s) / sizeof(Solenoid)); i++) {
+        if (s->initialized) {
+          SolenoidChangeState(i, SOLENOID_STATE_OFF);
+        }
+      }
+    } else if (appData->Buffer[1] == SOLENOID_COMMAND_OPEN) {
+      for (int i = 0; i < (sizeof(s) / sizeof(Solenoid)); i++) {
+        if (s->initialized) {
+          SolenoidChangeState(i, SOLENOID_STATE_ON);
+        }
+      }
+    } else {
+      APP_LOG(
+          TS_OFF, VLEVEL_H,
+          "SolenoidHandleCommand: V1 command byte invalid command to apply %u.\r\n",
+          appData->Buffer[1]);
+    }
+  } else if (appData->Buffer[0] == 2) {
+    if ((appData->BufferSize % 2) != 1) {
+      APP_LOG(TS_OFF, VLEVEL_H,
+              "SolenoidHandleCommand: V2 command buffer size invalid (%d "
+              "bytes), expected version byte + 2n bytes.\r\n",
+              appData->BufferSize);
+      return;
+    }
+
+    for (int i = 0; i < appData->BufferSize; i += 2) {
+      switch (appData->Buffer[i]) {
+        case SOLENOID_COMMAND_CLOSE:
+          SolenoidChangeState(appData->Buffer[i + 1], SOLENOID_STATE_OFF);
+          break;
+        case SOLENOID_COMMAND_OPEN:
+          SolenoidChangeState(appData->Buffer[i + 1], SOLENOID_STATE_ON);
+          break;
+        default:
+          APP_LOG(TS_OFF, VLEVEL_H,
+                  "SolenoidHandleCommand: V2 command byte invalid command to apply "
+                  "%u, skipping.\r\n",
+                  appData->Buffer[1]);
+          break;
+      }
+    }
+  } else {
+    APP_LOG(TS_OFF, VLEVEL_H,
+            "SolenoidHandlCommand: Version byte invalid %u.\r\n",
+            appData->Buffer[0]);
   }
 }

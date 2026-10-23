@@ -65,8 +65,14 @@ typedef struct {
   bool initialized;
 } Solenoid;
 
-// Downlink messages for solenoid control are an array of byte pairs:
-// 1:[solenoid_command] 2:[physical_pin_number] , 1:[] 2:[], ...
+// ----------------------------------------------------------------------------
+
+// Downlink messages for solenoid control
+// [version_byte] [solenoid_command] [extra_arguments_1] [extra_arguments_2]...
+// version_byte = 1 --> apply solenoid_command to ALL initialized solenoid pins. Do not specify pins (no extra args).
+//                      [1] [SOLENOID_COMMAND_OPEN] // opens ALL solenoid pins
+// version_byte = 2 --> command:pin byte pairs are used to specify which command is to be applied to which pin. Must specify pins.
+//                      [2] [SOLENOID_COMMAND_OPEN] [18] [SOLENOID_COMMAND_CLOSE] [19] ... // open 18, close 19
 typedef enum {
   SOLENOID_COMMAND_CLOSE = 0,
   SOLENOID_COMMAND_OPEN,
@@ -74,6 +80,8 @@ typedef enum {
   // SOLENOID_COMMAND_FORCE_UPDATE_STATE_CLOSE, // not yet implemented
   // SOLENOID_COMMAND_FORCE_UPDATE_STATE_OPEN // not yet implemented
 } SolenoidCommand;
+
+// ----------------------------------------------------------------------------
 
 /**
  ******************************************************************************
