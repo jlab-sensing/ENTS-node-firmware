@@ -114,7 +114,7 @@ void PowerDown(void);
  *
  * @return Raw measurement from adc
  */
-HAL_StatusTypeDef Measure(int32_t *meas);
+HAL_StatusTypeDef Measure(int32_t *meas, EnabledSensorMultiple *sensor);
 
 /**
  * @brief This function reconfigures the ADS1219 based on the parameter reg_data
@@ -122,21 +122,24 @@ HAL_StatusTypeDef Measure(int32_t *meas);
  * @param reg_data
  * @return HAL_StatusTypeDef
  */
-HAL_StatusTypeDef Configure(const ConfigReg reg_data);
+HAL_StatusTypeDef Configure(const ConfigReg reg_data,
+                            EnabledSensorMultiple *sensor);
 
-HAL_StatusTypeDef ADC_init(void) {
-  const UserConfiguration *cfg = UserConfigGet();
-
-  // read calibration values
-  voltage_calibration_m = cfg->Voltage_Slope;
-  voltage_calibration_b = cfg->Voltage_Offset;
-  current_calibration_m = cfg->Current_Slope;
-  current_calibration_b = cfg->Current_Offset;
+HAL_StatusTypeDef ADC_init(EnabledSensorMultiple *sensor,
+                           double voltage_calibration_slope,
+                           double voltage_calibration_intercept,
+                           double current_calibration_slope,
+                           double current_calibration_intercept) {
+  voltage_calibration_m = voltage_calibration_slope;
+  voltage_calibration_b = voltage_calibration_intercept;
+  current_calibration_m = current_calibration_slope;
+  current_calibration_b = current_calibration_intercept;
 
   HAL_StatusTypeDef ret = HAL_OK;
 
   // Send the reset code
-  ret = HAL_I2C_Master_Transmit(&hi2c1, addrls, &cmd_reset, 1, g_timeout);
+  ret =
+      HAL_I2C_Master_Transmit(&hi2c1, sensor->index, &cmd_reset, 1, g_timeout);
   if (ret != HAL_OK) {
     return ret;
   }
@@ -147,15 +150,16 @@ HAL_StatusTypeDef ADC_init(void) {
   return ret;
 }
 
-HAL_StatusTypeDef Configure(const ConfigReg reg_data) {
+HAL_StatusTypeDef Configure(const ConfigReg reg_data,
+                            EnabledSensorMultiple *sensor) {
   HAL_StatusTypeDef ret;
   const uint8_t i2c_data[2] = {cmd_wreg, reg_data.value};
-  ret = HAL_I2C_Master_Transmit(&hi2c1, addrls, i2c_data, sizeof(i2c_data),
-                                g_timeout);
+  ret = HAL_I2C_Master_Transmit(&hi2c1, sensor->index, i2c_data,
+                                sizeof(i2c_data), g_timeout);
   return ret;
 }
 
-double ADC_readVoltage(void) {
+double ADC_readVoltage(EnabledSensorMultiple *sensor) {
   HAL_StatusTypeDef ret = HAL_OK;
   int32_t raw = 0;
   double meas = 0.0;
@@ -164,12 +168,12 @@ double ADC_readVoltage(void) {
   reg_data.bits.vref = 1;
 
   // 0x01 is single shot 0x03 is continuous
-  ret = Configure(reg_data);
+  ret = Configure(reg_data, sensor);
   if (ret != HAL_OK) {
     return -1;  // Return -1 on error
   }
 
-  ret = Measure(&raw);
+  ret = Measure(&raw, sensor);
   if (ret != HAL_OK) {
     return -1;  // Return -1 on error
   }
@@ -185,7 +189,7 @@ double ADC_readVoltage(void) {
   return meas;
 }
 
-double ADC_readCurrent(void) {
+double ADC_readCurrent(EnabledSensorMultiple *sensor) {
   HAL_StatusTypeDef ret = HAL_OK;
   int32_t raw = 0;
   double meas = 0.0;
@@ -195,12 +199,12 @@ double ADC_readCurrent(void) {
   reg_data.bits.vref = 1;
 
   // 0x21 is single shot and 0x23 is continuos
-  ret = Configure(reg_data);  // configure to read current
+  ret = Configure(reg_data, sensor);  // configure to read current
   if (ret != HAL_OK) {
     return -1;  // Return -1 on error
   }
 
-  ret = Measure(&raw);
+  ret = Measure(&raw, sensor);
   if (ret != HAL_OK) {
     return -1;  // Return -1 on error
   }
@@ -214,15 +218,15 @@ double ADC_readCurrent(void) {
   return meas;
 }
 
-HAL_StatusTypeDef probeADS12(void) {
+HAL_StatusTypeDef probeADS12(EnabledSensorMultiple *sensor) {
   HAL_StatusTypeDef ret;
-  ret = HAL_I2C_IsDeviceReady(&hi2c1, addrls, 10, 20);
+  ret = HAL_I2C_IsDeviceReady(&hi2c1, sensor->index, 10, 20);
   return ret;
 }
 
 size_t ADC_measureVoltage(uint8_t *data, SysTime_t ts, uint32_t idx,
                           EnabledSensorMultiple *sensor) {
-  double voltage = ADC_readVoltage();
+  double voltage = ADC_readVoltage(sensor);
 
   const UserConfiguration *cfg = UserConfigGet();
 
@@ -245,7 +249,7 @@ size_t ADC_measureVoltage(uint8_t *data, SysTime_t ts, uint32_t idx,
 
 size_t ADC_measureCurrent(uint8_t *data, SysTime_t ts, uint32_t idx,
                           EnabledSensorMultiple *sensor) {
-  double voltage = ADC_readCurrent();
+  double voltage = ADC_readCurrent(sensor);
 
   const UserConfiguration *cfg = UserConfigGet();
 
@@ -282,14 +286,14 @@ void PowerOff(void) {
   // HAL_GPIO_WritePin(POWERDOWN_GPIO_Port, POWERDOWN_Pin, GPIO_PIN_RESET);
 }
 
-HAL_StatusTypeDef Measure(int32_t *meas) {
+HAL_StatusTypeDef Measure(int32_t *meas, EnabledSensorMultiple *sensor) {
   HAL_StatusTypeDef ret = HAL_OK;
   uint8_t rx_data[3] = {0x00, 0x00, 0x00};
 
   PowerOn();
 
   // start conversion
-  HAL_I2C_Master_Transmit(&hi2c1, addrls, &cmd_start, 1, g_timeout);
+  HAL_I2C_Master_Transmit(&hi2c1, sensor->index, &cmd_start, 1, g_timeout);
 
   // wait for conversion
   HAL_Delay(60);
@@ -303,13 +307,14 @@ HAL_StatusTypeDef Measure(int32_t *meas) {
   HAL_Delay(60);
 
   // send read data command
-  ret = HAL_I2C_Master_Transmit(&hi2c1, addrls, &cmd_rdata, 1, g_timeout);
+  ret =
+      HAL_I2C_Master_Transmit(&hi2c1, sensor->index, &cmd_rdata, 1, g_timeout);
   if (ret != HAL_OK) {
     return -1;
   }
 
   // read 3 bytes of data
-  ret = HAL_I2C_Master_Receive(&hi2c1, addrls, rx_data, 3, g_timeout);
+  ret = HAL_I2C_Master_Receive(&hi2c1, sensor->index, rx_data, 3, g_timeout);
   if (ret != HAL_OK) {
     return -1;
   }
