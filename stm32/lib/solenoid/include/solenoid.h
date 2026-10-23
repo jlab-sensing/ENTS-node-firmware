@@ -69,10 +69,18 @@ typedef struct {
 
 // Downlink messages for solenoid control
 // [version_byte] [solenoid_command] [extra_arguments_1] [extra_arguments_2]...
-// version_byte = 1 --> apply solenoid_command to ALL initialized solenoid pins. Do not specify pins (no extra args).
-//                      [1] [SOLENOID_COMMAND_OPEN] // opens ALL solenoid pins
-// version_byte = 2 --> command:pin byte pairs are used to specify which command is to be applied to which pin. Must specify pins.
-//                      [2] [SOLENOID_COMMAND_OPEN] [18] [SOLENOID_COMMAND_CLOSE] [19] ... // open 18, close 19
+
+// version_byte = 1
+// Apply solenoid_command to ALL initialized solenoid pins.
+// Do not specify pins (no extra args).
+// Example: [1] [SOLENOID_COMMAND_OPEN]
+// ^ opens ALL solenoid pins
+
+// version_byte = 2
+// Command:Pin byte pairs specify which command is applied to which pin.
+// Must specify pins.
+// Example: [2] [SOLENOID_COMMAND_OPEN] [18] [SOLENOID_COMMAND_CLOSE] [19] ...
+// ^ open 18, close 19
 typedef enum {
   SOLENOID_COMMAND_CLOSE = 0,
   SOLENOID_COMMAND_OPEN,
@@ -100,18 +108,36 @@ typedef enum {
  * @return   void
  ******************************************************************************
  */
-void SolenoidInit(uint8_t pin, SolenoidType type);
+void SolenoidInit(uint8_t physical_pin, SolenoidType type);
 
 /**
  ******************************************************************************
  * @brief    Changes the state of the solenoid.
+ *
+ * @note     This function is blocking (SOLENOID_LATCH_DELAY_MS).
+ *           Use SolenoidChangeStateBatch() to perform bulk blocking actions.
  *
  * @param    pin
  * @param    state_to_apply
  * @return   void
  ******************************************************************************
  */
-void SolenoidChangeState(uint8_t pin, SolenoidState state_to_apply);
+void SolenoidChangeState(uint8_t physical_pin, SolenoidState state_to_apply);
+
+/**
+ ******************************************************************************
+ * @brief    Changes the states of multiple solenoid. All blocking actions
+ *           such as from toggling latching solenoids are done in bulk with a
+ *           single block.
+ *
+ * @param    number_of_pins
+ * @param    pin
+ * @param    state_to_apply
+ * @return   void
+ ******************************************************************************
+ */
+void SolenoidChangeStateBatch(uint8_t number_of_pins, uint8_t physical_pin[],
+                              SolenoidState state_to_apply[]);
 
 /**
  ******************************************************************************
@@ -128,4 +154,4 @@ void SolenoidHandleCommand(LmHandlerAppData_t* appData);
 }
 #endif
 
-#endif  // LIB_CAPSOIL_INCLUDE_CAPSOIL_H_
+#endif

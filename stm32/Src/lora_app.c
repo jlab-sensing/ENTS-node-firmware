@@ -449,11 +449,21 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
     saveNewDownlinkData(appData);
 
     // CommissioningParams skipped.
+
+    APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u\r\n", appData->Port);
+    APP_LOG(TS_OFF, VLEVEL_H, "OnRxData BufferSize: %u\r\n",
+            appData->BufferSize);
+    APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Buffer (hex): ");
+    for (int i = 0; i < appData->BufferSize; i++) {
+      APP_LOG(TS_OFF, VLEVEL_H, "%02X", appData->Buffer[i]);
+    }
+    APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
+
     switch (appData->Port) {
       case LORAWAN_DEBUG_MESSAGE_PORT:
         APP_LOG(TS_OFF, VLEVEL_H,
-                "Received downlink debug message on port %u (size %u) : %s\r\n",
-                appData->Port, appData->BufferSize, (char)(appData->Buffer));
+                "Received downlink debug message on port %u (size %u) : %.*s\r\n",
+                appData->Port, appData->BufferSize, (char *)(appData->Buffer), appData->BufferSize);
         break;
 
       case LORAWAN_SWITCH_CLASS_PORT:
@@ -488,10 +498,6 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
                 "Received downlink message to request info from device (size "
                 "%u).\r\n",
                 appData->BufferSize);
-        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Buffer (hex): ");
-        for (int i = 0; i < appData->BufferSize; i++) {
-          APP_LOG(TS_OFF, VLEVEL_H, "%02X", appData->Buffer[i]);
-        }
         APP_LOG(TS_OFF, VLEVEL_H, "NOT YET IMPLEMENTED.\r\n");
 
         // fetch requested info
@@ -514,14 +520,6 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params) {
         break;
 
       default:
-        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Port: %u\r\n", appData->Port);
-        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData BufferSize: %u\r\n",
-                appData->BufferSize);
-        APP_LOG(TS_OFF, VLEVEL_H, "OnRxData Buffer (hex): ");
-        for (int i = 0; i < appData->BufferSize; i++) {
-          APP_LOG(TS_OFF, VLEVEL_H, "%02X", appData->Buffer[i]);
-        }
-        APP_LOG(TS_OFF, VLEVEL_H, "\r\n");
         break;
     }
   }
