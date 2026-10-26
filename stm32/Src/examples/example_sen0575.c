@@ -50,9 +50,9 @@ int main(void) {
   MX_I2C1_Init();
   MX_USART2_UART_Init();
 
-  // init bme280
-//   sen0575Init();
-
+  // init sen0575
+  sen0575Init();
+D10Measurement data;
   APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Example sen0575 (%s), compile on %s %s\r\n",
           __FILE__, __DATE__, __TIME__);
 
@@ -60,8 +60,8 @@ int main(void) {
   while (1) {
     // Sleep
     HAL_Delay(DELAY);
-
-    uint32_t data;
+    APP_LOG(TS_ON, VLEVEL_ALWAYS, "print test\r\n");
+    // uint32_t data;
     data = sen0575RainfallRaw();
     APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Count: %d\r\n", data);
     // BME280Status status = BME280MeasureAll(&data);

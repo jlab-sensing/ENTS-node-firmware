@@ -86,7 +86,7 @@ extern "C" {
  * @return   void
  ******************************************************************************
  */
-HAL_StatusTypeDef sen0575Init(void);
+void sen0575Init(void);
 
 /**
  ******************************************************************************
@@ -118,23 +118,22 @@ uint32_t sen0575RainfallCumulative(void);
  * @return   bucket tip count
  ******************************************************************************
  */
-uint32_t sen0575RainfallRaw(void);
+D10Measurement sen0575RainfallRaw(void);
 
 
 
 /**
- * @brief Read water pressure sensor and serialize measurement
+ * @brief Read water Flow sensor and serialize measurement
  *
- * The voltage output of the water pressure is measured. A calibration is
- * applied to convert voltage into a leaf wetness measurement.
+ * The water Flow is measured via pulses. A calibration is applied
+ * to convert pulses into liter per minute.
  *
- * Current voltage and pressure are the same value, until a calibration
- * is obtained.
+ * As this is a digital sensor there is no voltage measurement.
  *
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatPress_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t sen0575_measure(uint8_t *data, SysTime_t ts, uint32_t idx, EnabledSensorMultiple* sensor);
 
 #ifdef __cplusplus
 }
