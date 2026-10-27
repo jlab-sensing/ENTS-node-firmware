@@ -60,7 +60,6 @@ D10Measurement data;
   while (1) {
     // Sleep
     HAL_Delay(DELAY);
-    APP_LOG(TS_ON, VLEVEL_ALWAYS, "print test\r\n");
     // uint32_t data;
     data = sen0575RainfallRaw();
     APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Count: %d\r\n", data);

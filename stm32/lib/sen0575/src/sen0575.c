@@ -27,12 +27,12 @@
 #include "stm32wlxx_hal_def.h"
 
 /*Private function prototypes*/
-unsigned char I2C_ReadRegister(unsigned char I2CAddress,
-                               unsigned char deviceRegisterAddress);
-unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
-                                      unsigned char deviceRegisterAddress);
-unsigned char I2C_WriteReg(unsigned char I2CAddress,
-                           unsigned char deviceRegisterAddress, uint8_t data);
+// unsigned char I2C_ReadRegister(unsigned char I2CAddress,
+//                                unsigned char deviceRegisterAddress);
+// unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
+//                                       unsigned char deviceRegisterAddress);
+// unsigned char I2C_WriteReg(unsigned char I2CAddress,
+//                            unsigned char deviceRegisterAddress, uint8_t data);
 
 ////////////////////////////////////////////
 #include <stdio.h>
@@ -47,13 +47,15 @@ unsigned char I2C_WriteReg(unsigned char I2CAddress,
 #include "userConfig.h"
 
 // may need to change depending on specifics of irrigation system
-#define NO_IRRIGATION_FLOW_G 1
+#define NO_IRRIGATION_FLOW_G 0
+#define RECORDING_PERIOD 86400
 
 // Variables
 extern volatile uint32_t
     pulse_count;  // Managed by GPIO interrupt in stm32wlxx_it.c
 static uint32_t previous_pulses = 0;
 static SysTime_t irrigationStartTime;
+static SysTime_t lastRainTime;
 static uint32_t irrigationStartPulseCount;
 static bool irrigating;
 
@@ -68,11 +70,11 @@ void sen0575Init() {
   // reset pins
   HAL_GPIO_WritePin(D10_GPIO_Port, D10_Pin, GPIO_PIN_RESET);
 
-  // Configure PIN 9 on Port B (GPIO input)
-  GPIO_InitStruct.Pin = D10_Pin;
+  // Configure PIN 15 on Port A (GPIO input)
+  GPIO_InitStruct.Pin = SEN0575_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(D10_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SEN0575_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(SEN0575_EXTI_IRQn, 0, 0);
@@ -83,10 +85,11 @@ void sen0575Init() {
   currentTime = SysTimeGet();
   lastTime = currentTime;
   irrigationStartTime = currentTime;
+  lastRainTime = currentTime;
   irrigationStartPulseCount = previous_pulses;
   irrigating = false;
 }
-
+// TODO rename variables and use measurement for sen0575, not D10 measurement
 D10Measurement sen0575RainfallRaw() {
   // get time
   currentTime = SysTimeGet();
@@ -94,32 +97,52 @@ D10Measurement sen0575RainfallRaw() {
   // Always calculate flow, not just every 100ms
   uint32_t pulses = pulse_count;
   uint32_t pulseDiff = pulses - previous_pulses;
+  static uint32_t lastPulseDiff = 0;
   D10Measurement returnValue = {0};
 
-  // no irrigation occuring, moving start time and pulse count forward to catch
-  // irrigation
+  // no rainfall occuring, moving start time and pulse count forward to catch
+  // rainfall
   if (pulseDiff == NO_IRRIGATION_FLOW_G && !irrigating) {
     irrigationStartPulseCount = pulses;
     irrigationStartTime = currentTime;
-  }  // ending of irrigation phase (falling edge detected)
-  else if (pulseDiff == NO_IRRIGATION_FLOW_G) {
-    // need to calculate and submit elapsed time
-    // submit currentTime - irrigationStartTime
+    previous_pulses = pulses;
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "waiting for rain\r\n");
+  }  // ending of recording period
+  else if ((currentTime.Seconds - irrigationStartTime.Seconds >= RECORDING_PERIOD)) {
+    // submitting time since last rain
     irrigating = false;
-    returnValue.timeElapsed = currentTime.Seconds - irrigationStartTime.Seconds;
+    // returnValue.timeElapsed = currentTime.Seconds - irrigationStartTime.Seconds;
+    returnValue.timeElapsed = currentTime.Seconds - lastRainTime.Seconds;
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Time since last rain %i \r\n", returnValue.timeElapsed);
+
+    // reseting the recording period
+    irrigationStartPulseCount = pulses;
+    irrigationStartTime = currentTime; // if not currently raining then set start time to now
+    previous_pulses = pulses;
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "ended recording period\r\n");
   }
-  // beginning of irrigation phase (rising edge detected) and continued
-  // irrgating phase pulses have increased from last checked period
+  // beginning of rainfall period (rising edge detected) and continued
+  // rainfall phase pulses have increased from last checked period
+  // TODO add simple debouncing so a simple change in pulses count as 1 count for consistency
   else {
-    // submit pulses - irrigationStartPulseCount
+    // submit pulses since start time and last rain time
     irrigating = true;
     returnValue.volumeElapsed = pulses - irrigationStartPulseCount;
-  }
 
-  // calculation of flow rate
-  returnValue.flow = (float)pulseDiff / ((diff.Seconds) / 60.0);
-  previous_pulses = pulses;
-  lastTime = currentTime;
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "seconds since start: % i\r\n", currentTime.Seconds - irrigationStartTime.Seconds);
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Count: % i last rain time: %i \r\n", pulseDiff, lastRainTime.Seconds);
+    // lastTime = currentTime; // time since last rain
+    if (pulseDiff != lastPulseDiff)
+    {
+      lastRainTime = currentTime; // time since last rain
+    } 
+  }
+  
+  // calculating rainfall per recording period (24 hours)
+  // TODO recalculate count to mL
+  returnValue.flow = (((float) pulseDiff / 3.0) / 0.7);  // average of 3 count per tip, 1 tip is around X ml
+
+  lastPulseDiff = pulseDiff;
   return returnValue;
 }
 
@@ -241,76 +264,76 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 /////////////////////////////////////////////////////////////////////////
 /*Private Functions*/
 
-unsigned char I2C_ReadRegister(unsigned char I2CAddress,
-                               unsigned char deviceRegisterAddress) {
-  HAL_StatusTypeDef ret;
+// unsigned char I2C_ReadRegister(unsigned char I2CAddress,
+//                                unsigned char deviceRegisterAddress) {
+//   HAL_StatusTypeDef ret;
 
-  I2CAddress = I2CAddress << 1;  // use 8-bit address
-  uint8_t *data = &deviceRegisterAddress;
+//   I2CAddress = I2CAddress << 1;  // use 8-bit address
+//   uint8_t *data = &deviceRegisterAddress;
 
-  // start condition
-  ret = HAL_I2C_Master_Transmit(
-      &hi2c1, I2CAddress, data, 1,
-      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
-  if (ret != HAL_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
-    return ERROR;
-  }
+//   // start condition
+//   ret = HAL_I2C_Master_Transmit(
+//       &hi2c1, I2CAddress, data, 1,
+//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//   if (ret != HAL_OK) {
+//     APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
+//     return ERROR;
+//   }
 
-  // get byte
-  ret = HAL_I2C_Master_Receive(
-      &hi2c1, I2CAddress, data, 1,
-      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
-  if (ret != HAL_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
-    return ERROR;
-  }
+//   // get byte
+//   ret = HAL_I2C_Master_Receive(
+//       &hi2c1, I2CAddress, data, 1,
+//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//   if (ret != HAL_OK) {
+//     APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
+//     return ERROR;
+//   }
 
-  return *data;
-}
+//   return *data;
+// }
 
-unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
-                                      unsigned char deviceRegisterAddress) {
-  HAL_StatusTypeDef ret;
+// unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
+//                                       unsigned char deviceRegisterAddress) {
+//   HAL_StatusTypeDef ret;
 
-  I2CAddress = I2CAddress << 1;  // use 8-bit address
-  uint8_t *data = &deviceRegisterAddress;
+//   I2CAddress = I2CAddress << 1;  // use 8-bit address
+//   uint8_t *data = &deviceRegisterAddress;
 
-  // start condition
-  ret = HAL_I2C_Master_Transmit(
-      &hi2c1, I2CAddress, data, 1,
-      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
-  if (ret != HAL_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
-    return ERROR;
-  }
+//   // start condition
+//   ret = HAL_I2C_Master_Transmit(
+//       &hi2c1, I2CAddress, data, 1,
+//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//   if (ret != HAL_OK) {
+//     APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
+//     return ERROR;
+//   }
 
-  // get byte
-  ret = HAL_I2C_Master_Receive(
-      &hi2c1, I2CAddress, data, 4,
-      HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
-  if (ret != HAL_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
-    return ERROR;
-  }
+//   // get byte
+//   ret = HAL_I2C_Master_Receive(
+//       &hi2c1, I2CAddress, data, 4,
+//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//   if (ret != HAL_OK) {
+//     APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
+//     return ERROR;
+//   }
 
-  return *data;
-}
+//   return *data;
+// }
 
-unsigned char I2C_WriteReg(unsigned char I2CAddress,
-                           unsigned char deviceRegisterAddress, uint8_t data) {
-  HAL_StatusTypeDef ret;
-  I2CAddress = I2CAddress << 1;  // use 8-bit address
+// unsigned char I2C_WriteReg(unsigned char I2CAddress,
+//                            unsigned char deviceRegisterAddress, uint8_t data) {
+//   HAL_StatusTypeDef ret;
+//   I2CAddress = I2CAddress << 1;  // use 8-bit address
 
-  ret = HAL_I2C_Mem_Write(&hi2c1, I2CAddress, deviceRegisterAddress,
-                          I2C_MEMADD_SIZE_8BIT, &data, 1, HAL_MAX_DELAY);
-  if (ret != HAL_OK) {
-    APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on write data\r\n");
-    return ERROR;
-  }
+//   ret = HAL_I2C_Mem_Write(&hi2c1, I2CAddress, deviceRegisterAddress,
+//                           I2C_MEMADD_SIZE_8BIT, &data, 1, HAL_MAX_DELAY);
+//   if (ret != HAL_OK) {
+//     APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on write data\r\n");
+//     return ERROR;
+//   }
 
-  return SUCCESS;
-}
+//   return SUCCESS;
+// }
 
 
 
