@@ -1,5 +1,5 @@
 /**
- * @example example_bme280.c
+ * @example example_sen0575.c
  *
  * Prints temperature, pressure, and humidity from the BME280 sensor on an
  * infinite loop.
@@ -52,7 +52,7 @@ int main(void) {
 
   // init sen0575
   sen0575Init();
-D10Measurement data;
+  SEN0575Measurement data;
   APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Example sen0575 (%s), compile on %s %s\r\n",
           __FILE__, __DATE__, __TIME__);
 
@@ -62,15 +62,6 @@ D10Measurement data;
     HAL_Delay(DELAY);
     // uint32_t data;
     data = sen0575RainfallRaw();
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Count: %d\r\n", data);
-    // BME280Status status = BME280MeasureAll(&data);
-    // if (status != BME280_STATUS_OK) {
-    //   APP_LOG(TS_OFF, VLEVEL_ALWAYS, "BME280 Error, status: %d\r\n", status);
-    //   continue;
-    // }
-
-    // APP_LOG(TS_OFF, VLEVEL_ALWAYS,
-    //         "Pressure: %u, Temperature: %d, Humidity: %u\r\n", data.pressure,
-    //         data.temperature, data.humidity);
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Volume: %f mL    lastRainTime:%i\r\n ", data.volumeElapsed, data.lastRainTime);
   }
 }

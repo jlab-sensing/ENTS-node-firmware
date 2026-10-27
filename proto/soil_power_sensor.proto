@@ -192,6 +192,14 @@ message WATERMARK200TSMeasurement {
   double temperature = 1;
 }
 
+/* SEN0575 Rain Guager */
+message SEN0575Measurement {
+  // volume in mL
+  double volumeElapsed = 1;
+  // time in seconds
+  uint32 lastRainTime = 2;
+}
+
 /* Top level measurement message */
 message Measurement {
   // Metadata
@@ -211,6 +219,7 @@ message Measurement {
     D10Measurement d10 = 11;
     WATERMARK200SSMeasurement watermark200ss = 12;
     WATERMARK200TSMeasurement watermark200ts = 13;
+    SEN0575Measurement sen0575 = 14;
   }
 }
 
@@ -479,6 +488,7 @@ enum EnabledSensor {
   D10 = 10;
   WATERMARK200SS = 11;
   WATERMARK200TS = 12;
+  SEN0575 = 13;
 }
 
 enum Uploadmethod {

@@ -5,7 +5,7 @@
  *
  * @brief   This library is designed to read data from the sen0575
  *          rainfall sensor
- *         
+ *
  * @date    10/6/2026
  ******************************************************************************
  */
@@ -13,28 +13,6 @@
 #include "sen0575.h"
 
 // user includes
-#include "sensor.h"
-#include "sensors.h"
-#include "transcoder.h"
-#include "userConfig.h"
-
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "stm32wlxx_hal_def.h"
-
-/*Private function prototypes*/
-// unsigned char I2C_ReadRegister(unsigned char I2CAddress,
-//                                unsigned char deviceRegisterAddress);
-// unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
-//                                       unsigned char deviceRegisterAddress);
-// unsigned char I2C_WriteReg(unsigned char I2CAddress,
-//                            unsigned char deviceRegisterAddress, uint8_t data);
-
-////////////////////////////////////////////
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,18 +24,28 @@
 #include "usart.h"
 #include "userConfig.h"
 
-// may need to change depending on specifics of irrigation system
-#define NO_IRRIGATION_FLOW_G 0
+#define NO_RAIN 0
 #define RECORDING_PERIOD 86400
+#define COUNT_PER_TIP 3  // currently somewhat varies and needs debouncing
+#define ML_PER_TIP 0.4
+
+/*Private function prototypes*/
+// unsigned char I2C_ReadRegister(unsigned char I2CAddress,
+//                                unsigned char deviceRegisterAddress);
+// unsigned char I2C_ChannelReadRegister(unsigned char I2CAddress,
+//                                       unsigned char deviceRegisterAddress);
+// unsigned char I2C_WriteReg(unsigned char I2CAddress,
+//                            unsigned char deviceRegisterAddress, uint8_t
+//                            data);
 
 // Variables
 extern volatile uint32_t
     pulse_count;  // Managed by GPIO interrupt in stm32wlxx_it.c
-static uint32_t previous_pulses = 0;
-static SysTime_t irrigationStartTime;
+static uint32_t start_pulses = 0;
+static SysTime_t rainStartTime;
 static SysTime_t lastRainTime;
-static uint32_t irrigationStartPulseCount;
-static bool irrigating;
+static uint32_t rainStartPulseCount;
+static bool raining;
 
 static SysTime_t currentTime;
 static SysTime_t lastTime;
@@ -65,10 +53,10 @@ static SysTime_t lastTime;
 void sen0575Init() {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  __HAL_RCC_GPIOx_CLK_ENABLE(D10_GPIO_Port);
+  __HAL_RCC_GPIOx_CLK_ENABLE(SEN0575_GPIO_Port);
 
   // reset pins
-  HAL_GPIO_WritePin(D10_GPIO_Port, D10_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SEN0575_GPIO_Port, SEN0575_Pin, GPIO_PIN_RESET);
 
   // Configure PIN 15 on Port A (GPIO input)
   GPIO_InitStruct.Pin = SEN0575_Pin;
@@ -81,77 +69,73 @@ void sen0575Init() {
   HAL_NVIC_EnableIRQ(SEN0575_EXTI_IRQn);
 
   // Get INIT Times
-  previous_pulses = pulse_count;
+  start_pulses = pulse_count;
   currentTime = SysTimeGet();
   lastTime = currentTime;
-  irrigationStartTime = currentTime;
+  rainStartTime = currentTime;
   lastRainTime = currentTime;
-  irrigationStartPulseCount = previous_pulses;
-  irrigating = false;
+  rainStartPulseCount = start_pulses;
+  raining = false;
 }
-// TODO rename variables and use measurement for sen0575, not D10 measurement
-D10Measurement sen0575RainfallRaw() {
+
+SEN0575Measurement sen0575RainfallRaw() {
   // get time
   currentTime = SysTimeGet();
   SysTime_t diff = SysTimeSub(currentTime, lastTime);
   // Always calculate flow, not just every 100ms
-  uint32_t pulses = pulse_count;
-  uint32_t pulseDiff = pulses - previous_pulses;
+  uint16_t pulses = pulse_count;
+  uint16_t pulseDiff = pulses - start_pulses;
   static uint32_t lastPulseDiff = 0;
-  D10Measurement returnValue = {0};
+  SEN0575Measurement returnValue = {0};
+
+  // used for debouncing
+  static uint16_t tipCount = 0;
 
   // no rainfall occuring, moving start time and pulse count forward to catch
   // rainfall
-  if (pulseDiff == NO_IRRIGATION_FLOW_G && !irrigating) {
-    irrigationStartPulseCount = pulses;
-    irrigationStartTime = currentTime;
-    previous_pulses = pulses;
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "waiting for rain\r\n");
+  if (pulseDiff == NO_RAIN && !raining) {
+    rainStartPulseCount = pulses;
+    rainStartTime = currentTime;
+    start_pulses = pulses;
   }  // ending of recording period
-  else if ((currentTime.Seconds - irrigationStartTime.Seconds >= RECORDING_PERIOD)) {
-    // submitting time since last rain
-    irrigating = false;
-    // returnValue.timeElapsed = currentTime.Seconds - irrigationStartTime.Seconds;
-    returnValue.timeElapsed = currentTime.Seconds - lastRainTime.Seconds;
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Time since last rain %i \r\n", returnValue.timeElapsed);
-
+  else if ((currentTime.Seconds - rainStartTime.Seconds >= RECORDING_PERIOD)) {
     // reseting the recording period
-    irrigationStartPulseCount = pulses;
-    irrigationStartTime = currentTime; // if not currently raining then set start time to now
-    previous_pulses = pulses;
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "ended recording period\r\n");
+    raining = false;
+    tipCount = 0;
+    rainStartPulseCount = pulses;
+    rainStartTime =
+        currentTime;  // if not currently raining then set start time to now
+    start_pulses = pulses;
   }
   // beginning of rainfall period (rising edge detected) and continued
   // rainfall phase pulses have increased from last checked period
-  // TODO add simple debouncing so a simple change in pulses count as 1 count for consistency
   else {
     // submit pulses since start time and last rain time
-    irrigating = true;
-    returnValue.volumeElapsed = pulses - irrigationStartPulseCount;
+    raining = true;
+    returnValue.volumeElapsed = pulses - rainStartPulseCount;
 
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "seconds since start: % i\r\n", currentTime.Seconds - irrigationStartTime.Seconds);
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Count: % i last rain time: %i \r\n", pulseDiff, lastRainTime.Seconds);
-    // lastTime = currentTime; // time since last rain
-    if (pulseDiff != lastPulseDiff)
-    {
-      lastRainTime = currentTime; // time since last rain
-    } 
+    if ((pulseDiff != lastPulseDiff) && (pulseDiff > 0)) {
+      lastRainTime = currentTime;  // time since last rain
+      tipCount += 1;
+    }
   }
-  
-  // calculating rainfall per recording period (24 hours)
-  // TODO recalculate count to mL
-  returnValue.flow = (((float) pulseDiff / 3.0) / 0.7);  // average of 3 count per tip, 1 tip is around X ml
 
+  // calculating rainfall per recording period (24 hours)
+  returnValue.volumeElapsed =
+      (((float)tipCount / COUNT_PER_TIP) *
+       ML_PER_TIP);  // average of 3 count per tip, 1 tip is around 0.4 ml
+
+  returnValue.lastRainTime = currentTime.Seconds - lastRainTime.Seconds;
   lastPulseDiff = pulseDiff;
   return returnValue;
 }
 
 size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
-                          EnabledSensorMultiple* sensor) {
+                       EnabledSensorMultiple* sensor) {
   // get timestamp
-  D10Measurement flowMeas = {};
+  SEN0575Measurement rainMeas = {};
 
-  flowMeas = sen0575RainfallRaw();
+  rainMeas = sen0575RainfallRaw();
 
   /// read measurement
   const UserConfiguration* cfg = UserConfigGet();
@@ -166,23 +150,18 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
   size_t data_len = 0;
   SensorStatus status = SENSOR_OK;
 
-  status = EncodeDoubleMeasurement(meta, flowMeas.flow, SensorType_D10_FLOW,
-                                   data, &data_len);
-  if (status != SENSOR_OK) {
-    return -1;
-  }
-
   SensorsAddMeasurement(data, data_len);
-  status =
-      EncodeUint32Measurement(meta, flowMeas.volumeElapsed,
-                              SensorType_D10_VOLUME_ELAPSED, data, &data_len);
+  status = EncodeUint32Measurement(meta, rainMeas.volumeElapsed,
+                                   SensorType_SEN0575_VOLUME_ELAPSED, data,
+                                   &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }
   SensorsAddMeasurement(data, data_len);
 
-  status = EncodeUint32Measurement(
-      meta, flowMeas.timeElapsed, SensorType_D10_TIME_ELAPSED, data, &data_len);
+  status = EncodeUint32Measurement(meta, rainMeas.lastRainTime,
+                                   SensorType_SEN0575_LAST_RAIN_TIME, data,
+                                   &data_len);
   if (status != SENSOR_OK) {
     return -1;
   }
@@ -192,19 +171,15 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 }
 
 ////////////////////////////////////////////
-// HAL_StatusTypeDef sen0575Init(void)
-// {
 
-// }
-
-
+/*unused code for i2c module*/
 // uint32_t sen0575RainfallCumulative(void)
 // {
 //   uint8_t data[4];
 
 //   HAL_StatusTypeDef ret;
 //   uint8_t registerAddress = SEN0575_I2C_REG_CUMULATIVE_RAINFALL;
-    
+
 //   // start condition
 //   ret = HAL_I2C_Master_Transmit(
 //   &hi2c1, SEN0575_DEVICE_ADDRESS << 1, &registerAddress, 1,
@@ -222,10 +197,10 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 //       APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
 //   }
 
-//   uint32_t cumulativeRainfall = ((uint32_t)data[0] | 
+//   uint32_t cumulativeRainfall = ((uint32_t)data[0] |
 //   (uint32_t)data[1] << 8 |
 //   (uint32_t)data[2] << 16 |
-//   (uint32_t)data[3] << 24); 
+//   (uint32_t)data[3] << 24);
 
 //   return cumulativeRainfall;
 // }
@@ -236,11 +211,12 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 
 //     HAL_StatusTypeDef ret;
 //     uint8_t registerAddress = SEN0575_I2C_REG_RAW_DATA;
-    
+
 //     // start condition
 //     ret = HAL_I2C_Master_Transmit(
 //     &hi2c1, SEN0575_DEVICE_ADDRESS << 1, &registerAddress, 1,
-//     HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//     HAL_MAX_DELAY);  // wait for it to end, this is internal and can not
+//     stall
 //   if (ret != HAL_OK) {
 //     APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
 //   }
@@ -249,19 +225,19 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 //     ret = HAL_I2C_Master_Receive(
 //     &hi2c1, SEN0575_DEVICE_ADDRESS << 1, (uint8_t *)data,
 //     4, // gets 4 bytes
-//     HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
-//     if (ret != HAL_OK) {
+//     HAL_MAX_DELAY);  // wait for it to end, this is internal and can not
+//     stall if (ret != HAL_OK) {
 //         APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
 //     }
 
-//     uint32_t returnedRawData = ((uint32_t)data[0] | 
+//     uint32_t returnedRawData = ((uint32_t)data[0] |
 //     (uint32_t)data[1] << 8 |
 //     (uint32_t)data[2] << 16 |
-//     (uint32_t)data[3] << 24); 
+//     (uint32_t)data[3] << 24);
 
 //     return returnedRawData;
 // }
-/////////////////////////////////////////////////////////////////////////
+
 /*Private Functions*/
 
 // unsigned char I2C_ReadRegister(unsigned char I2CAddress,
@@ -274,7 +250,8 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 //   // start condition
 //   ret = HAL_I2C_Master_Transmit(
 //       &hi2c1, I2CAddress, data, 1,
-//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not
+//       stall
 //   if (ret != HAL_OK) {
 //     APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
 //     return ERROR;
@@ -283,7 +260,8 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 //   // get byte
 //   ret = HAL_I2C_Master_Receive(
 //       &hi2c1, I2CAddress, data, 1,
-//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not
+//       stall
 //   if (ret != HAL_OK) {
 //     APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
 //     return ERROR;
@@ -302,7 +280,8 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 //   // start condition
 //   ret = HAL_I2C_Master_Transmit(
 //       &hi2c1, I2CAddress, data, 1,
-//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not
+//       stall
 //   if (ret != HAL_OK) {
 //     APP_LOG(TS_OFF, VLEVEL_M, "I2C Tx Error on read start condition\r\n");
 //     return ERROR;
@@ -311,7 +290,8 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 //   // get byte
 //   ret = HAL_I2C_Master_Receive(
 //       &hi2c1, I2CAddress, data, 4,
-//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not stall
+//       HAL_MAX_DELAY);  // wait for it to end, this is internal and can not
+//       stall
 //   if (ret != HAL_OK) {
 //     APP_LOG(TS_OFF, VLEVEL_M, "I2C Rx Error on read byte\r\n");
 //     return ERROR;
@@ -321,7 +301,8 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 // }
 
 // unsigned char I2C_WriteReg(unsigned char I2CAddress,
-//                            unsigned char deviceRegisterAddress, uint8_t data) {
+//                            unsigned char deviceRegisterAddress, uint8_t data)
+//                            {
 //   HAL_StatusTypeDef ret;
 //   I2CAddress = I2CAddress << 1;  // use 8-bit address
 
@@ -333,40 +314,4 @@ size_t sen0575_measure(uint8_t* data, SysTime_t ts, uint32_t idx,
 //   }
 
 //   return SUCCESS;
-// }
-
-
-
-
-
-
-
-// void SolenoidInit() {
-//   __HAL_RCC_GPIOA_CLK_ENABLE();  // Enable GPIOA clock
-
-//   // Use Pin PA10 to toggle solenoid
-//   GPIO_InitTypeDef GPIO_InitStruct = {0};
-//   GPIO_InitStruct.Pin = GPIO_PIN_10;
-//   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;  // Push-pull output
-//   GPIO_InitStruct.Pull = GPIO_NOPULL;
-//   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-
-//   // Set up interrupt
-//   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-//   // Init state of Solenoid
-//   SolenoidClose();
-//   Solenoid = SOLENOID_OFF;
-// }
-
-// void SolenoidOpen(void) {
-//   printf("SOLENOID_OPEN: Setting PA10 to HIGH (Relay ON)\n");
-//   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);  // HIGH = Relay ON
-//   Solenoid = SOLENOID_ON;
-// }
-
-// void SolenoidClose(void) {
-//   printf("SOLENOID_CLOSE: Setting PA10 to LOW (Relay OFF)\n");
-//   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);  // LOW = Relay OFF
-//   Solenoid = SOLENOID_OFF;
 // }
