@@ -9,6 +9,7 @@
 #define LIB_SDI12_INCLUDE_TEROS21_H_
 
 #include "sdi12.h"
+#include "sensors.h"
 #include "stm32_systime.h"
 
 #ifdef __cplusplus
@@ -65,7 +66,8 @@ SDI12Status Teros21GetMeasurement(char addr, Teros21Data *data);
  * @see SensorsPrototypeMeasure
  *
  */
-size_t Teros21Measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t Teros21Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor);
 
 /**
  * @}

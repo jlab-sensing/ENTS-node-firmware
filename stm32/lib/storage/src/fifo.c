@@ -12,10 +12,7 @@
 
 #include "sys_app.h"
 #include "usart.h"
-
-static const uint16_t FRAM_BUFFER_READ_ADDR = 0x06F0;   // 1776
-static const uint16_t FRAM_BUFFER_WRITE_ADDR = 0x06F2;  // 1778
-static const uint16_t FRAM_BUFFER_LEN_ADDR = 0x06F4;    // 1780
+#include "userConfig.h"  // need to know the userconfig start and length in order to put the FRAM buffer after it
 
 // head and tail
 static uint16_t read_addr;

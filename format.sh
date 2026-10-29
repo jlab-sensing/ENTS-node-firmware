@@ -1,5 +1,5 @@
-#!/bin/zsh
-
+#!/bin/bash
+shopt -s globstar
 # format c code
 echo "Formattting stm32 C code..."
 clang-format --fallback-style=Google -i --verbose \

@@ -34,7 +34,7 @@
 #include "rtc.h"
 #include "sdi12.h"
 #include "sys_app.h"
-#include "waterFlow.h"
+#include "waterFlowYFS210C.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -120,7 +120,7 @@ int main(void) {
   HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
-  FlowInit();
+  FlowYFS210CInit();
   // FlowInit();
   //  TIMER_IF_Init();
   //  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);

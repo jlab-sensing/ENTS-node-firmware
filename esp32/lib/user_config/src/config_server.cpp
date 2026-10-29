@@ -3,6 +3,7 @@
 #include <ArduinoLog.h>
 #include <LittleFS.h>
 #include <WebServer.h>
+#include <WiFi.h>
 
 #include "configuration.hpp"
 #include "protobuf_utils.hpp"
@@ -122,18 +123,15 @@ void handleSave() {
 
   // Iterate through all sensor form fields and extract sensor type, cell ID,
   // and index.
-  for (config.enabled_sensors_multiple_count = 0;
-       config.enabled_sensors_multiple_count <
-       enabled_sensors_multiple_max_count;
-       config.enabled_sensors_multiple_count++) {
-    String selected_sensor = server.arg(
-        "selected_sensor_" + (config.enabled_sensors_multiple_count + 1));
-    String selected_sensor_cell_id = server.arg(
-        "sensor_cell_id_" + (config.enabled_sensors_multiple_count + 1));
+  for (int i = 0; i < enabled_sensors_multiple_max_count; i++) {
+    String selected_sensor = server.arg(String("selected_sensor_") + (i + 1));
+    String selected_sensor_cell_id =
+        server.arg(String("sensor_cell_id_") + (i + 1));
     String selected_sensor_index =
-        server.arg("sensor_idx_" + (config.enabled_sensors_multiple_count + 1));
-
-    if (selected_sensor == "") break;
+        server.arg(String("sensor_index_") + (i + 1));
+    if (selected_sensor == "") {
+      continue;
+    }
 
     // iterator of type uint (instead of enum) due to inability to increment
     // enums.
@@ -176,6 +174,7 @@ void handleSave() {
       case EnabledSensor_PCAP02:
       case EnabledSensor_Voltage:
       case EnabledSensor_Current:
+      case EnabledSensor_EDU0157:
         // I2C: Index field may hold the non-left shifted 7 bit address
         // (decimal, not hexadecimal).
 
@@ -210,12 +209,18 @@ void handleSave() {
                                                 .enabled_sensors_multiple_count]
                   .index = 0x40;
               break;
+            case EnabledSensor_EDU0157:
+              config
+                  .enabled_sensors_multiple[config
+                                                .enabled_sensors_multiple_count]
+                  .index = 0x42;
+              break;
             default:
               break;
           }
         } else {
           config.enabled_sensors_multiple[config.enabled_sensors_multiple_count]
-              .index = selected_sensor_index.toInt();
+              .index = strtol(selected_sensor_index.c_str(), NULL, 0);
         }
         break;
       case EnabledSensor_D10:
@@ -228,6 +233,7 @@ void handleSave() {
       case EnabledSensor_SEN0257:
       case EnabledSensor_SEN0308:
       case EnabledSensor_Phytos31:
+      case EnabledSensor_ALSMPM2F:
         // Onboard analog: Index field may hold the ADC channel.
 
         // TODO: Choose default channels and map user inputs to alt channels
@@ -238,6 +244,7 @@ void handleSave() {
             .index = selected_sensor_index.toInt();
         break;
     }
+    config.enabled_sensors_multiple_count++;
   }
 
   // TODO: the calibration values for the ADS1219 will be stored on each AFE in
@@ -267,7 +274,9 @@ void handleSave() {
 
   // Prepare success message
   String successMessage = "Configuration saved successfully!\\n";
-  successMessage += "Please RESET the STM32 to update the configurations";
+  successMessage +=
+      "The new configuration will apply after a few seconds. You may "
+      "disconnect from the ESP32's wifi network now.";
   String successJson = "{\"success\":\"" + successMessage + "\"}";
   server.send(200, "application/json", successJson);
 }

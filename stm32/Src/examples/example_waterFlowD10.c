@@ -120,7 +120,7 @@ int main(void) {
   HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
 
   /* USER CODE BEGIN 2 */
-  FlowInit();
+  FlowD10Init();
   // FlowInit();
   //  TIMER_IF_Init();
   //  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
@@ -140,7 +140,7 @@ int main(void) {
     /* USER CODE END WHILE */
     currentTime = SysTimeGet();
     /* USER CODE BEGIN 3 */
-    measurement = FlowGetMeasurement();
+    measurement = FlowD10GetMeasurement();
     reading_len = snprintf(
         output, sizeof(output),
         "Flow, Time Elapsed, Volume Elapsed, systime: %f %u %u %u \r\n",

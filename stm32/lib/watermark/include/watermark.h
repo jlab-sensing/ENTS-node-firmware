@@ -18,7 +18,29 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "sensors.h"
 #include "stm32_systime.h"
+
+// Reading temperature can be done using the Watermark adapter or a resistor
+// divider. The Watermark 200TS is a 10 kOhm NTC thermistor.
+#define WATERMARK_200TS_VA3_ADAPTER
+// #define WATERMARK_200TS_RESISTOR_DIVIDER
+
+#if defined(WATERMARK_200TS_VA3_ADAPTER) && \
+    defined(WATERMARK_200TS_RESISTOR_DIVIDER)
+#error Enable only one of the Watermark 200TS measurement modes in watermark.h.
+#endif
+
+#ifdef WATERMARK_200TS_RESISTOR_DIVIDER
+#define WATERMARK_200TS_RESISTOR_DIVIDER_MIN_TEMPERATURE_C -55
+#define WATERMARK_200TS_RESISTOR_DIVIDER_MAX_TEMPERATURE_C 150
+
+// Choose a fixed resistor centering the range of expected readings.
+// 3300 52C
+// 4700 43C
+// 10000 25C
+#define WATERMARK_200TS_RESISTOR_DIVIDER_FIXED_R 3300
+#endif
 
 /**
  ******************************************************************************
@@ -33,7 +55,7 @@ extern "C" {
  * @return   void
  ******************************************************************************
  */
-void Watermark200SSVA3_Init(void);
+void Watermark200Init(EnabledSensorMultiple *sensor);
 
 /**
  ******************************************************************************
@@ -45,12 +67,8 @@ void Watermark200SSVA3_Init(void);
  * @return   void
  ******************************************************************************
  */
-void Watermark200SSVA3_GetMeasurement(void);
-
-double Watermark200SSVA3_GetWM1(void);
-double Watermark200SSVA3_GetWM2(void);
-double Watermark200SSVA3_GetWM3(void);
-double Watermark200SSVA3_GetWMTemp(void);
+double Watermark200TS_GetMeasurement(EnabledSensorMultiple *sensor);
+double Watermark200SS_GetMeasurement(EnabledSensorMultiple *sensor);
 
 /**
  * @brief Read all three soil tensiometers and the soil temperature sensor and
@@ -58,7 +76,10 @@ double Watermark200SSVA3_GetWMTemp(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t Watermark200SSVA3_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t Watermark200SS_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple *sensor);
+size_t Watermark200TS_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                              EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

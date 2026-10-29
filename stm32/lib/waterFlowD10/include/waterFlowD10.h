@@ -1,19 +1,18 @@
 /**
  ******************************************************************************
- * @file     waterFlow.h
- * @author   Caden Jacobs
+ * @file     waterFlowD10.h
+ * @author   Eric Tran & Jack Lin
  * @brief    This file contains all the function prototypes for
- *           the waterFlow.c file.
+ *           the waterFlowD10.c file.
  *
  *           This library is designed to read measurements from a Water Flow
- *Sensor
- *           https://www.danomsk.ru/upload/iblock/43d/193917_3b664efb7b37f7ae8ea1eea40978a265.pdf
- * @date     7/31/2025
+ * Sensor that has 1 pulse per gallon output
+ * @date     5/20/2026
  ******************************************************************************
  */
 
-#ifndef LIB_WATERFLOW_INCLUDE_WATERFLOW_H_
-#define LIB_WATERFLOW_INCLUDE_WATERFLOW_H_
+#ifndef LIB_WATERFLOW_INCLUDE_WATERFLOWD10_H_
+#define LIB_WATERFLOW_INCLUDE_WATERFLOWD10_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +21,9 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ads.h"
+#include "adc.h"
+#include "systime.h"
+#include "transcoder.h"
 
 /**
  ******************************************************************************
@@ -32,7 +33,7 @@ extern "C" {
  * @return   HAL_StatusTypeDef
  ******************************************************************************
  */
-void FlowInit(void);
+void FlowD10Init(void);
 
 /**
  ******************************************************************************
@@ -43,7 +44,7 @@ void FlowInit(void);
  * @return   measurements
  ******************************************************************************
  */
-D10Measurement FlowGetMeasurement(void);
+D10Measurement FlowD10GetMeasurement(void);
 
 /**
  * @brief Read water Flow sensor and serialize measurement
@@ -56,10 +57,11 @@ D10Measurement FlowGetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t WatFlow_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t WatFlowD10_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                          EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // LIB_WATERFLOW_INCLUDE_WATERFLOW_H_
+#endif  // LIB_WATERFLOW_INCLUDE_WATERFLOWD10_H_

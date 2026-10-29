@@ -47,31 +47,31 @@ SDI12Status Teros21GetMeasurement(char addr, Teros21Data *data) {
   return status;
 }
 
-size_t Teros21Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
+size_t Teros21Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor) {
   Teros21Data sens_data = {};
   SDI12Status status = SDI12_OK;
 
   const UserConfiguration *cfg = UserConfigGet();
-  uint32_t sensor_index = cfg->enabled_sensors_multiple[idx].index;
 
   // SDI-12 spec 1.4: 0-9 (48-57), A-Z (65-90), a-z (97-122)
   char sdi12_address = '0';
 
-  switch (sensor_index) {
+  switch (sensor->index) {
     case 0 ... 9:  // default address is '0'. Also fix common user error of not
                    // putting the ascii decimal for '0'-'9'.
-      sdi12_address = sensor_index + '0';
+      sdi12_address = sensor->index + '0';
       break;
     case '0' ... '9':
     case 'A' ... 'Z':
     case 'a' ... 'z':
-      sdi12_address = sensor_index;
+      sdi12_address = sensor->index;
       break;
     default:
       APP_LOG(TS_ON, VLEVEL_H,
               "Invalid SDI-12 address provided in the userconfig index field: "
               "0x%X ('%c')\r\n",
-              sensor_index, sensor_index);
+              sensor->index, sensor->index);
       return -1;
       break;
   }
@@ -84,11 +84,7 @@ size_t Teros21Measure(uint8_t *data, SysTime_t ts, uint32_t idx) {
   Metadata meta = Metadata_init_zero;
   meta.ts = ts.Seconds;
   meta.logger_id = cfg->logger_id;
-  if (cfg->enabled_sensors_multiple[idx].cell_id != 0) {
-    meta.cell_id = cfg->enabled_sensors_multiple[idx].cell_id;
-  } else {
-    meta.cell_id = cfg->cell_id;
-  }
+  meta.cell_id = sensor->cell_id;
 
   size_t data_len = 0;
   SensorStatus sen_status = SENSOR_OK;

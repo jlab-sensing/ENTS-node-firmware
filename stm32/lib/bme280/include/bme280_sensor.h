@@ -24,6 +24,7 @@
 #include "stm32wlxx_hal_i2c.h"
 #include "stm32wlxx_hal_def.h"
 #include "stm32_systime.h"
+#include "sensors.h"
 
 #include "bme280.h"
 
@@ -83,7 +84,8 @@ BME280Status BME280MeasureAll(BME280Data *data);
  * 
  * @see SensorsPrototypeMeasure
  */
-size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t BME280Measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                      EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

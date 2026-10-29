@@ -22,7 +22,8 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ads.h"
+#include "adc.h"
+#include "sensors.h"
 
 typedef struct {
   double voltage;
@@ -33,22 +34,22 @@ typedef struct {
 ******************************************************************************
 * @brief    Wrapper function for the ADC initilization.
 *
-* @param    void
+* @param    EnabledSensorMultiple* sensor context, index field specifies ADC
 * @return   void
 ******************************************************************************
 */
-void CapSoilInit(void);
+void CapSoilInit(EnabledSensorMultiple *sensor);
 
 /**
 ******************************************************************************
 * @brief    Returns both the raw voltage value and a calibrated measurement
 *           from a CapSoil sensor.
 *
-* @param    void
+* @param    EnabledSensorMultiple* sensor context, index field specifies ADC
 * @return   phytos_measurements
 ******************************************************************************
 */
-SEN0308Measurement SEN0308GetMeasurement(void);
+SEN0308Measurement SEN0308GetMeasurement(EnabledSensorMultiple *sensor);
 
 /**
  * @brief Read CapSoil sensor and serialize measurement
@@ -63,7 +64,8 @@ SEN0308Measurement SEN0308GetMeasurement(void);
  *
  * @see SensorsPrototypeMeasure
  */
-size_t SEN0308_measure(uint8_t *data, SysTime_t ts, uint32_t idx);
+size_t SEN0308_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
+                       EnabledSensorMultiple *sensor);
 
 #ifdef __cplusplus
 }

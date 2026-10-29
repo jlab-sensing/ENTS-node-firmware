@@ -19,25 +19,16 @@
 #include <stdio.h>
 
 // system includes
-#include "ads.h"
+#include "adc.h"
 #include "app_lorawan.h"
 #include "board.h"
 #include "gpio.h"
-#include "lptim.h"
 #include "main.h"
 #include "rtc.h"
 #include "sen0308.h"
 #include "stm32_timer.h"
 #include "sys_app.h"
 #include "usart.h"
-
-/** Delay between print statements */
-#ifndef DELAY
-#define DELAY 1000
-#endif
-
-/** Global variable for all return codes */
-HAL_StatusTypeDef rc;
 
 /**
  * @brief Entry point for battery test
@@ -59,52 +50,27 @@ int main(void) {
   MX_I2C1_Init();
 
   SystemApp_Init();
-  UserConfigLoad();
 
-  // User level initialization
+  APP_LOG(TS_OFF, VLEVEL_ALWAYS,
 
-  // Print the compilation time at startup
-  char info_str[128];
-  int info_len;
-  info_len = snprintf(
-      info_str, sizeof(info_str),
-      "Soil Power Sensor Wio-E5 firmware, test: %s, compiled on %s %s\n",
-      __FILE__, __DATE__, __TIME__);
-  HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
-  char success[] = "HAL_OK\n";
-  char failure[] = "HAL_FAIL\n";
-  char buffer[20];
-  uint8_t addr = '0';
+          "Soil Power Sensor Wio-E5 firmware, test: %s, compiled on %s %s\n",
+          __FILE__, __DATE__, __TIME__);
 
-  CapSoilInit();
-  // ADC_init();
-  char output[35];
+  UserConfiguration cfg = UserConfiguration_init_zero;
+  cfg.enabled_sensors_multiple_count = 1;         // not used in this example
+  cfg.enabled_sensors_multiple[0].cell_id = 200;  // not used in this example
+  cfg.enabled_sensors_multiple[0].enabled_sensor = EnabledSensor_SEN0308;
+  cfg.enabled_sensors_multiple[0].index = 21;  // ADC channel 1, pin 21
+  CapSoilInit(&(cfg.enabled_sensors_multiple[0]));
 
   SEN0308Measurement measurement;
-  size_t reading_len;
 
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1) {
-    /* USER CODE END WHILE */
+    measurement = SEN0308GetMeasurement(&(cfg.enabled_sensors_multiple[0]));
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS,
+            "Voltage: %.4f V\r\nSoil Humidity: %.3f%%\r\n", measurement.voltage,
+            measurement.humidity);
 
-    /* USER CODE BEGIN 3 */
-
-    measurement = SEN0308GetMeasurement();
-    reading_len = snprintf(output, sizeof(output), "Soil Humidity: %.3f%%\r\n",
-                           measurement.humidity);
-    HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,
-                      HAL_MAX_DELAY);
-    // for (int i = 0; i < 10000; i++){
-    //   asm("nop");
-    // }
-
-    // HAL_Delay(
-    //     1000);  // I guess HAL_Delay is broken somehow, don't understand why
-    for (int i = 0; i < 1000000; i++) {
-      asm("nop");
-    }
+    HAL_Delay(1000);
   }
 }

@@ -26,13 +26,12 @@
 #include "sys_app.h"
 // #include "teros12.h"
 // #include "teros21.h"
+#include "payload.h"
 #include "tim.h"
 #include "usart.h"
 #include "userConfig.h"
 #include "user_config.h"
 #include "wifi.h"
-
-#include "payload.h"
 
 /**
  * @brief Timer for uploads
@@ -133,6 +132,10 @@ void WiFiInit(void) {
   // loop until sucessful connection
   while (!Esp32Init()) {
     Disconnect();
+    // Check for new user config on ESP32 since the check
+    // timer is only active during MX_LoRaWAN_Process().
+    UserConfigCheck();
+    HAL_Delay(5000);
   }
 
   // start timers for uploading
@@ -140,8 +143,8 @@ void WiFiInit(void) {
 }
 
 void UploadEvent(void* context) {
-   // lower priority (higher value) than measure task
-  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_WiFiUpload), CFG_SEQ_Prio_1); 
+  // lower priority (higher value) than measure task
+  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_WiFiUpload), CFG_SEQ_Prio_1);
 }
 
 void Upload(void) {
@@ -429,9 +432,6 @@ bool Esp32Init(void) {
   if (!TimeSync()) {
     return false;
   }
-
-  // Stop webserver if running (timeout of 60 seconds)
-  UserConfigSetupStop(60);
 
   return true;
 }
