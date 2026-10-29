@@ -56,6 +56,9 @@ const char *SensorType_name(SensorType v) {
         case SensorType_EDU0157_HUMIDITY: return "EDU0157_HUMIDITY";
         case SensorType_ALSMPM2F_WATER_LEVEL: return "ALSMPM2F_WATER_LEVEL";
         case SensorType_ALSMPM2F_VOLTAGE: return "ALSMPM2F_VOLTAGE";
+        case SensorType_ALSMPM2F_WATER_LEVEL_PERCENT: return "ALSMPM2F_WATER_LEVEL_PERCENT";
+        case SensorType_SEN0575_VOLUME_ELAPSED: return "SEN0575_VOLUME_ELAPSED";
+        case SensorType_SEN0575_LAST_RAIN_TIME: return "SEN0575_LAST_RAIN_TIME";
     }
     return "unknown";
 }

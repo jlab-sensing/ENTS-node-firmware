@@ -57,7 +57,11 @@ typedef enum _SensorType {
     SensorType_EDU0157_HUMIDITY = 30,
     /* * ALS-MPM-2F (TL-136 / GL-136) measurements */
     SensorType_ALSMPM2F_WATER_LEVEL = 31,
-    SensorType_ALSMPM2F_VOLTAGE = 32
+    SensorType_ALSMPM2F_VOLTAGE = 32,
+    SensorType_ALSMPM2F_WATER_LEVEL_PERCENT = 33,
+    /* * SEN0575 measurements */
+    SensorType_SEN0575_VOLUME_ELAPSED = 34,
+    SensorType_SEN0575_LAST_RAIN_TIME = 35
 } SensorType;
 
 typedef enum _SensorError {
@@ -133,8 +137,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _SensorType_MIN SensorType_NONE
-#define _SensorType_MAX SensorType_ALSMPM2F_VOLTAGE
-#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_ALSMPM2F_VOLTAGE+1))
+#define _SensorType_MAX SensorType_SEN0575_LAST_RAIN_TIME
+#define _SensorType_ARRAYSIZE ((SensorType)(SensorType_SEN0575_LAST_RAIN_TIME+1))
 const char *SensorType_name(SensorType v);
 
 #define _SensorError_MIN SensorError_OK

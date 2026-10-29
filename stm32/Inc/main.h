@@ -110,6 +110,11 @@ if (GPIO_PORT == GPIOA){                      \
 #define D10_GPIO_Port GPIOA
 #define D10_EXTI_IRQn EXTI15_10_IRQn
 
+// SEN0575 rain guage
+#define SEN0575_Pin GPIO_PIN_15
+#define SEN0575_GPIO_Port GPIOA
+#define SEN0575_EXTI_IRQn EXTI15_10_IRQn
+
 /* USER CODE BEGIN Private defines */
 
 // Physical 40-pin header map

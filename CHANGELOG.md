@@ -43,6 +43,7 @@ firmware versions for a hardware version.
     - Watermark 200TS Soil Temperature Sensor
     - DFRobot EDU1057 Lark Weather Station [#339](pr339)
     - ALS-MPM-2F (TL-136 / GL-136) Water Level Sensor [#356](pr356)
+    - Added rain gauge [#373](pr373)
 
 ### Updated
 
@@ -56,6 +57,7 @@ firmware versions for a hardware version.
 [pr353]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/353
 [pr355]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/355
 [pr356]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/356
+[pr373]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/373
 
 ## [2.3.7] - 2026-02-03
 

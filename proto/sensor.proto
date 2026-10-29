@@ -68,6 +68,11 @@ enum SensorType {
   /** ALS-MPM-2F (TL-136 / GL-136) measurements */
   ALSMPM2F_WATER_LEVEL = 31;
   ALSMPM2F_VOLTAGE = 32;
+  ALSMPM2F_WATER_LEVEL_PERCENT = 33;
+
+  /** SEN0575 measurements */
+  SEN0575_VOLUME_ELAPSED = 34;
+  SEN0575_LAST_RAIN_TIME = 35;
 }
 
 enum SensorError {

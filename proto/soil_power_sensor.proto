@@ -214,6 +214,16 @@ message ALSMPM2FMeasurement {
   double meters = 1;
   // voltage (can infer current, used for manual depth scaling adjustment)
   double voltage = 2;
+  // percent of full (calculated using max height programmed on device)
+  double percent = 3;
+}
+
+/* SEN0575 Rain Gauge */
+message SEN0575Measurement {
+  // volume in mL
+  double volumeElapsed = 1;
+  // time in seconds
+  uint32 lastRainTime = 2;
 }
 
 /* Top level measurement message */
@@ -237,6 +247,7 @@ message Measurement {
     WATERMARK200TSMeasurement watermark200ts = 13;
     EDU0157Measurement edu0157 = 14;
     ALSMPM2FMeasurement waterLevel = 15;
+    SEN0575Measurement sen0575 = 16;
   }
 }
 
@@ -507,6 +518,7 @@ enum EnabledSensor {
   WATERMARK200TS = 12;
   EDU0157 = 13;
   ALSMPM2F = 14;
+  SEN0575 = 15;
 }
 
 enum Uploadmethod {
