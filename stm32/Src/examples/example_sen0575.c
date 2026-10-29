@@ -62,6 +62,7 @@ int main(void) {
     HAL_Delay(DELAY);
     // uint32_t data;
     data = sen0575RainfallRaw();
-    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Volume: %f mL    lastRainTime:%i\r\n ", data.volumeElapsed, data.lastRainTime);
+    APP_LOG(TS_OFF, VLEVEL_ALWAYS, "Volume: %f mL    lastRainTime:%i\r\n ",
+            data.volumeElapsed, data.lastRainTime);
   }
 }
