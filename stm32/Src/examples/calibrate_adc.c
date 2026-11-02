@@ -80,7 +80,16 @@ int main(void) {
   UTIL_TIMER_Init();
 
   /* USER CODE BEGIN 2 */
-  ADC_init();
+  UserConfiguration cfg = UserConfiguration_init_zero;
+  cfg.enabled_sensors_multiple_count = 4;  // not used in this example
+
+  cfg.enabled_sensors_multiple[0].cell_id = 200;  // not used in this example
+  cfg.enabled_sensors_multiple[0].enabled_sensor = EnabledSensor_Current;
+  cfg.enabled_sensors_multiple[0].index = 0x40 << 1;
+  cfg.enabled_sensors_multiple[1].cell_id = 200;  // not used in this example
+  cfg.enabled_sensors_multiple[1].enabled_sensor = EnabledSensor_Voltage;
+  cfg.enabled_sensors_multiple[1].index = 0x40 << 1;
+  ADC_init(&(cfg.enabled_sensors_multiple[0]), 1, 0, 1, 0);
 
   /* USER CODE BEGIN 2 */
   char controller_input[3];
@@ -130,8 +139,8 @@ int main(void) {
     if (controller_input[0] == '0') {
       SysTime_t ts = SysTimeGet();
 
-      double voltage = ADC_readVoltage();
-      double current = ADC_readCurrent();
+      double voltage = ADC_readVoltage(&(cfg.enabled_sensors_multiple[0]));
+      double current = ADC_readCurrent(&(cfg.enabled_sensors_multiple[0]));
 
       RepeatedSensorMeasurements measurements =
           RepeatedSensorMeasurements_init_zero;

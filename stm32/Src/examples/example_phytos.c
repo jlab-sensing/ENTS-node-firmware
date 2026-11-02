@@ -14,7 +14,6 @@
 #include <stdlib.h>
 
 // system includes
-#include "adc.h"
 #include "app_lorawan.h"
 #include "board.h"
 #include "dma.h"
@@ -75,8 +74,18 @@ int main(void) {
                       __DATE__, __TIME__);
   HAL_UART_Transmit(&huart2, (const uint8_t *)info_str, info_len, 1000);
 
+  UserConfiguration cfg = UserConfiguration_init_zero;
+  cfg.enabled_sensors_multiple_count = 2;  // not used in this example
+
+  cfg.enabled_sensors_multiple[0].cell_id = 200;  // not used in this example
+  cfg.enabled_sensors_multiple[0].enabled_sensor = EnabledSensor_Current;
+  cfg.enabled_sensors_multiple[0].index = 0x40 << 1;
+  // cfg.enabled_sensors_multiple[1].cell_id = 200;  // not used in this example
+  // cfg.enabled_sensors_multiple[1].enabled_sensor = EnabledSensor_Voltage;
+  // cfg.enabled_sensors_multiple[1].index = 0x40 << 1;
+
   /* USER CODE BEGIN 2 */
-  Phytos31Init();
+  Phytos31Init(&(cfg.enabled_sensors_multiple[0]));
   // TIMER_IF_Init();
   // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
   // UTIL_TIMER_Init();
@@ -94,7 +103,7 @@ int main(void) {
 
     /* USER CODE BEGIN 3 */
 
-    measurement = Phytos31GetMeasurement();
+    measurement = Phytos31GetMeasurement(&(cfg.enabled_sensors_multiple[0]));
     reading_len = snprintf(output, sizeof(output), "Phytos Raw: %f\r\n",
                            measurement.phytos31_raw);
     HAL_UART_Transmit(&huart2, (const uint8_t *)output, reading_len,

@@ -51,7 +51,7 @@ typedef struct {
 * @return   HAL_StatusTypeDef
 ******************************************************************************
 */
-HAL_StatusTypeDef Phytos31Init(void);
+HAL_StatusTypeDef Phytos31Init(EnabledSensorMultiple *sensor);
 
 /**
 ******************************************************************************
@@ -62,7 +62,7 @@ HAL_StatusTypeDef Phytos31Init(void);
 * @return   phytos_measurements
 ******************************************************************************
 */
-phytos_measurements Phytos31GetMeasurement(void);
+phytos_measurements Phytos31GetMeasurement(EnabledSensorMultiple *sensor);
 
 /**
  * @brief Read PHYTOS31 sensor and serialize measurement

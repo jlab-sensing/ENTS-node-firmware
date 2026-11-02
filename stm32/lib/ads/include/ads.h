@@ -53,7 +53,11 @@ extern "C" {
  * @param    void
  * @return   HAL_StatusTypeDef
  */
-HAL_StatusTypeDef ADC_init(void);
+HAL_StatusTypeDef ADC_init(EnabledSensorMultiple *sensor,
+                           double voltage_calibration_m,
+                           double voltage_calibration_b,
+                           double current_calibration_m,
+                           double current_calibration_b);
 
 /**
  * @brief    This function reads the current ADC voltage value.
@@ -65,7 +69,7 @@ HAL_StatusTypeDef ADC_init(void);
  * @param    void
  * @return   double, current ADC reading in microvolts
  */
-double ADC_readVoltage(void);
+double ADC_readVoltage(EnabledSensorMultiple *sensor);
 
 /**
  * @brief    This function reads the current ADC ampere value.
@@ -77,7 +81,7 @@ double ADC_readVoltage(void);
  * @param    void
  * @return   int32_t, current ADC reading in microamps
  */
-double ADC_readCurrent(void);
+double ADC_readCurrent(EnabledSensorMultiple *sensor);
 
 /**
  * @brief    This function probes the ADS12 to see if it is responsive.
@@ -85,7 +89,7 @@ double ADC_readCurrent(void);
  * @param    void
  * @return   HAL_StatusTypeDef
  */
-HAL_StatusTypeDef ADC_probe(void);
+HAL_StatusTypeDef ADC_probe(EnabledSensorMultiple *sensor);
 
 /**
  * @brief Measures the voltage channel.

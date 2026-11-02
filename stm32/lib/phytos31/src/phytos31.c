@@ -23,11 +23,15 @@
 #include "transcoder.h"
 #include "userConfig.h"
 
-HAL_StatusTypeDef Phytos31Init() { return ADC_init(); }
+HAL_StatusTypeDef Phytos31Init(EnabledSensorMultiple *sensor) {
+  const UserConfiguration *cfg = UserConfigGet();
+  return ADC_init(sensor, cfg->Voltage_Slope, cfg->Voltage_Offset,
+                  cfg->Current_Slope, cfg->Current_Offset);
+}
 
-phytos_measurements Phytos31GetMeasurement() {
+phytos_measurements Phytos31GetMeasurement(EnabledSensorMultiple *sensor) {
   phytos_measurements measurements;
-  measurements.phytos31_raw = ADC_readVoltage();
+  measurements.phytos31_raw = ADC_readVoltage(sensor);
   return measurements;
 }
 
@@ -36,7 +40,7 @@ size_t Phytos31_measure(uint8_t *data, SysTime_t ts, uint32_t idx,
   phytos_measurements measurement;
 
   // read voltage
-  measurement = Phytos31GetMeasurement();
+  measurement = Phytos31GetMeasurement(sensor);
   double adc_voltage_float = measurement.phytos31_raw / 1000.;
 
   const UserConfiguration *cfg = UserConfigGet();

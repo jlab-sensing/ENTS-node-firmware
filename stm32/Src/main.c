@@ -148,12 +148,16 @@ int main(void) {
     EnabledSensor sensor = cfg->enabled_sensors_multiple[i].enabled_sensor;
     EnabledSensorMultiple* sensor_ctx = &(cfg->enabled_sensors_multiple[i]);
     if (sensor == EnabledSensor_Voltage) {
-      ADC_init();
+      // TODO: Grab calibration values from ADS1219 board's onboard FRAM
+      // For now, use the single set of calibration values provided by the user config.
+      ADC_init(sensor_ctx, cfg->Voltage_Slope, cfg->Voltage_Offset, cfg->Current_Slope, cfg->Current_Offset);
       SensorsAdd(ADC_measureVoltage, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Voltage Enabled!\n");
     }
     if (sensor == EnabledSensor_Current) {
-      ADC_init();
+      // TODO: Grab calibration values from ADS1219 board's onboard FRAM
+      // For now, use the single set of calibration values provided by the user config.
+      ADC_init(sensor_ctx, cfg->Voltage_Slope, cfg->Voltage_Offset, cfg->Current_Slope, cfg->Current_Offset);
       SensorsAdd(ADC_measureCurrent, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Current Enabled!\n");
     }
@@ -181,7 +185,7 @@ int main(void) {
       SensorsAdd(Watermark200TS_measure, sensor_ctx);
     }
     if (sensor == EnabledSensor_Phytos31) {
-      Phytos31Init();
+      Phytos31Init(sensor_ctx);
       SensorsAdd(Phytos31_measure, sensor_ctx);
       APP_LOG(TS_OFF, VLEVEL_M, "Phytos31 Enabled!\n");
     }

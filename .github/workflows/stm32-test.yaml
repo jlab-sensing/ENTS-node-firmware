@@ -21,7 +21,6 @@ jobs:
       max-parallel: 1
       matrix:
         test:
-          - test_ads
           - test_fifo
           - test_fram
           - test_main
