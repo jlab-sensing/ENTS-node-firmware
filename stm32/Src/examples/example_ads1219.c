@@ -66,17 +66,17 @@ int main(void) {
   cfg.enabled_sensors_multiple_count = 4;  // not used in this example
 
   cfg.enabled_sensors_multiple[0].cell_id = 200;  // not used in this example
-  cfg.enabled_sensors_multiple[0].enabled_sensor = EnabledSensor_Current;
+  cfg.enabled_sensors_multiple[0].enabled_sensor = EnabledSensor_Voltage;
   cfg.enabled_sensors_multiple[0].index = 0x40 << 1;
   cfg.enabled_sensors_multiple[1].cell_id = 200;  // not used in this example
-  cfg.enabled_sensors_multiple[1].enabled_sensor = EnabledSensor_Voltage;
+  cfg.enabled_sensors_multiple[1].enabled_sensor = EnabledSensor_Current;
   cfg.enabled_sensors_multiple[1].index = 0x40 << 1;
 
   cfg.enabled_sensors_multiple[2].cell_id = 201;  // not used in this example
-  cfg.enabled_sensors_multiple[2].enabled_sensor = EnabledSensor_Current;
+  cfg.enabled_sensors_multiple[2].enabled_sensor = EnabledSensor_Voltage;
   cfg.enabled_sensors_multiple[2].index = 0x41 << 1;
   cfg.enabled_sensors_multiple[3].cell_id = 201;  // not used in this example
-  cfg.enabled_sensors_multiple[3].enabled_sensor = EnabledSensor_Voltage;
+  cfg.enabled_sensors_multiple[3].enabled_sensor = EnabledSensor_Current;
   cfg.enabled_sensors_multiple[3].index = 0x41 << 1;
 
   // Technically, ADC_init only needs to be called once per device.
