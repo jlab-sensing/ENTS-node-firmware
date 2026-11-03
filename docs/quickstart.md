@@ -18,11 +18,36 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - PlatformIO automatically detects the ST-LINK and uses it for uploading the program to the STM32, so the `--upload-port` argument does not need to specified for STM32-related commands.
 - If your USB to TTL adapter also uses the CP2102 chip, be sure to correctly identify which device corresponds to the Wio-E5 and which corresponds to your USB to TTL adapter. You can determine this easily by unplugging the USB to TTL adapter and running `pio device list` again to show the currently connected devices.
 
+Typical output of `pio device list`:
+
+```
+// Below is the serial communication chip for communicating + testing with the STM32.
+// You should specify this port as the --test-port when running unit tests on the STM32.
+COM32
+-----
+Hardware ID: USB VID:PID=10C4:EA60 SER=18C6AE24B9F7F011A3B81412364A576B LOCATION=1-1.4
+Description: Silicon Labs CP210x USB to UART Bridge (COM32)
+
+// Below is the STLINK programmer tool for flashing the STM32.
+// This is automatically selected when flashing, you do not need to specify it.
+COM18
+-----
+Hardware ID: USB VID:PID=0483:3754 SER=0023003A3235511237333439 LOCATION=1-1.3:x.1
+Description: STMicroelectronics STLink Virtual COM Port (COM18)
+
+// Below is the USB-TTL adapter for flashing + communicating with the ESP32.
+// You should specify this port as the --upload-port when flashing the ESP32.
+COM35
+-----
+Hardware ID: USB VID:PID=1A86:7523 SER= LOCATION=1-1.1:x.1
+Description: USB-SERIAL CH340 (COM35)
+```
+
 ## 1. Run unit tests on the STM32
 - Prerequisites:
     - Connect the STLINK to the J4 JTAG header located near the USB-C port, then connect the STLINK to your computer.
-    - Use a USB-C cable to connect the ENTS board to your computer.
-- Open a PlatformIO terminal in the `stm32/` folder and run the following command: `pio test -e --test-port COMx`
+    - Use a USB-C cable to connect the ENTS board to your computer. This provides power and a serial connection to the ENTS board.
+- Open a PlatformIO terminal in the `stm32/` folder and run the following command: `pio test -e tests --test-port COMx`
     - Replace `COMx` with the port for the Wio-E5 (identified as the CP2102 chip).
     - Example: `pio test -e tests --test-port COM10`
     - KNOWN ISSUE: If you attempt to run these tests after clearing the STM32 bootloader, the Wio-E5 will fail to respond. Use CTRL+C in the terminal running the test to cancel it, and physically disconnect/reconnect the USB cable connecting the Wio-E5 to your computer. Then, try to run the tests again.
@@ -33,11 +58,12 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - Prerequisites:
     - (Same as previous step) Connect the STLINK to the J4 JTAG header located near the USB-C port, then connect the STLINK to your computer.
     - (Same as previous step) Use a USB-C cable to connect the ENTS board to your computer.
-    - Use a USB to TTL adapter to connect the ESP32 (via the J14 header's GND, TX, and RX pins) to your computer. Be sure to connect your TTL adapter's TX pin to the ESP32's RX pin and vice versa. If you only have two USB ports available, you can disconnect the STLINK after you have finished flashing the STM32 and plug in your USB to TTL adapter.
+    - Use a USB to TTL adapter to connect the ESP32 (via the J14 header's GND, TX, and RX pins) to your computer. Be sure to connect your TTL adapter's TX pin to the ESP32's RX pin and vice versa.
 - Open a PlatformIO terminal in the `stm32/` folder and run the following command: `pio run -e stm32 -t upload -t monitor --monitor-port COMx`
     - Replace `COMx` with the port for the Wio-E5 (identified as the CP2102 chip).
     - Example: `pio run -e stm32 -t upload -t monitor --monitor-port COM10`
-- Save the Wio-E5's LoRaWAN information, which is prepended by `######`. You will need the AppEUI/JoinEUI, DevEUI, and AppKey. Only the last 4 bytes of the DevEUI (i.e. DevAddr) should vary between boards.
+    - After flashing the STM32, you can disconnect the STLINK.
+- Save the Wio-E5's LoRaWAN information, which is prepended by `######`. You will need the AppEUI/JoinEUI, DevEUI, and AppKey. Only the last 4 bytes of the DevEUI (i.e. DevAddr) should vary between boards. If you do not see this information, try pressing the SW1 RESET button near the USB-C port.
     - The monitor port can be closed with CTRL+C. Additionally, the monitor port can be opened independently of the `upload` command: `pio device monitor -b 115200 -p COMx`
     - NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI, JoinEUI (AppEUI), and AppKey.
 - Open a PlatformIO terminal in (or move your existing terminal to) the `esp32/` folder and perform/run the following:
