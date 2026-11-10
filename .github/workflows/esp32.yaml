@@ -71,4 +71,4 @@ jobs:
           find .
           \( -name "*.c" -o -name "*.h" -o -name "*.cpp" -o -name "*.hpp" \)
           -type f |
-          xargs clang-format -n -i -Werror --verbose --style=Google
+          xargs clang-format -n -i -Werror --verbose --fallback-style=Google
