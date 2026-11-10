@@ -39,7 +39,7 @@ jobs:
           path: esp32/.pio/build/
   
   static:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -61,7 +61,7 @@ jobs:
         run: pio check
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
