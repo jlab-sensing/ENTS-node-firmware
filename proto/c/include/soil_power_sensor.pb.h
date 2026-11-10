@@ -26,7 +26,8 @@ typedef enum _EnabledSensor {
     EnabledSensor_WATERMARK200SS = 11,
     EnabledSensor_WATERMARK200TS = 12,
     EnabledSensor_EDU0157 = 13,
-    EnabledSensor_ALSMPM2F = 14
+    EnabledSensor_ALSMPM2F = 14,
+    EnabledSensor_SEN0575 = 15
 } EnabledSensor;
 
 typedef enum _Uploadmethod {
@@ -336,7 +337,17 @@ typedef struct _ALSMPM2FMeasurement {
     double meters;
     /* voltage (can infer current, used for manual depth scaling adjustment) */
     double voltage;
+    /* percent of full (calculated using max height programmed on device) */
+    double percent;
 } ALSMPM2FMeasurement;
+
+/* SEN0575 Rain Gauge */
+typedef struct _SEN0575Measurement {
+    /* volume in mL */
+    double volumeElapsed;
+    /* time in seconds */
+    uint32_t lastRainTime;
+} SEN0575Measurement;
 
 /* Top level measurement message */
 typedef struct _Measurement {
@@ -359,6 +370,7 @@ typedef struct _Measurement {
         WATERMARK200TSMeasurement watermark200ts;
         EDU0157Measurement edu0157;
         ALSMPM2FMeasurement waterLevel;
+        SEN0575Measurement sen0575;
     } measurement;
 } Measurement;
 
@@ -506,8 +518,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _EnabledSensor_MIN EnabledSensor_Voltage
-#define _EnabledSensor_MAX EnabledSensor_ALSMPM2F
-#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_ALSMPM2F+1))
+#define _EnabledSensor_MAX EnabledSensor_SEN0575
+#define _EnabledSensor_ARRAYSIZE ((EnabledSensor)(EnabledSensor_SEN0575+1))
 const char *EnabledSensor_name(EnabledSensor v);
 
 #define _Uploadmethod_MIN Uploadmethod_LoRa
@@ -593,6 +605,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 
 
 
+
 #define Response_resp_ENUMTYPE Response_ResponseType
 
 
@@ -642,7 +655,8 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define WATERMARK200SSMeasurement_init_default   {0}
 #define WATERMARK200TSMeasurement_init_default   {0}
 #define EDU0157Measurement_init_default          {0, 0, 0, 0, 0, 0}
-#define ALSMPM2FMeasurement_init_default         {0, 0}
+#define ALSMPM2FMeasurement_init_default         {0, 0, 0}
+#define SEN0575Measurement_init_default          {0, 0}
 #define Measurement_init_default                 {false, MeasurementMetadata_init_default, 0, {PowerMeasurement_init_default}}
 #define Response_init_default                    {_Response_ResponseType_MIN}
 #define Esp32Command_init_default                {0, {PageCommand_init_default}}
@@ -677,7 +691,8 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define WATERMARK200SSMeasurement_init_zero      {0}
 #define WATERMARK200TSMeasurement_init_zero      {0}
 #define EDU0157Measurement_init_zero             {0, 0, 0, 0, 0, 0}
-#define ALSMPM2FMeasurement_init_zero            {0, 0}
+#define ALSMPM2FMeasurement_init_zero            {0, 0, 0}
+#define SEN0575Measurement_init_zero             {0, 0}
 #define Measurement_init_zero                    {false, MeasurementMetadata_init_zero, 0, {PowerMeasurement_init_zero}}
 #define Response_init_zero                       {_Response_ResponseType_MIN}
 #define Esp32Command_init_zero                   {0, {PageCommand_init_zero}}
@@ -740,6 +755,9 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define EDU0157Measurement_humidity_tag          6
 #define ALSMPM2FMeasurement_meters_tag           1
 #define ALSMPM2FMeasurement_voltage_tag          2
+#define ALSMPM2FMeasurement_percent_tag          3
+#define SEN0575Measurement_volumeElapsed_tag     1
+#define SEN0575Measurement_lastRainTime_tag      2
 #define Measurement_meta_tag                     1
 #define Measurement_power_tag                    2
 #define Measurement_teros12_tag                  3
@@ -755,6 +773,7 @@ const char *PowerCommand_WakeupReason_name(PowerCommand_WakeupReason v);
 #define Measurement_watermark200ts_tag           13
 #define Measurement_edu0157_tag                  14
 #define Measurement_waterLevel_tag               15
+#define Measurement_sen0575_tag                  16
 #define Response_resp_tag                        1
 #define PageCommand_file_request_tag             1
 #define PageCommand_file_descriptor_tag          2
@@ -946,9 +965,16 @@ X(a, STATIC,   SINGULAR, DOUBLE,   humidity,          6)
 
 #define ALSMPM2FMeasurement_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, DOUBLE,   meters,            1) \
-X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           2)
+X(a, STATIC,   SINGULAR, DOUBLE,   voltage,           2) \
+X(a, STATIC,   SINGULAR, DOUBLE,   percent,           3)
 #define ALSMPM2FMeasurement_CALLBACK NULL
 #define ALSMPM2FMeasurement_DEFAULT NULL
+
+#define SEN0575Measurement_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, DOUBLE,   volumeElapsed,     1) \
+X(a, STATIC,   SINGULAR, UINT32,   lastRainTime,      2)
+#define SEN0575Measurement_CALLBACK NULL
+#define SEN0575Measurement_DEFAULT NULL
 
 #define Measurement_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  meta,              1) \
@@ -965,7 +991,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,d10,measurement.d10),  11) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ss,measurement.watermark200ss),  12) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,watermark200ts,measurement.watermark200ts),  13) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,edu0157,measurement.edu0157),  14) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,waterLevel,measurement.waterLevel),  15)
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,waterLevel,measurement.waterLevel),  15) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,sen0575,measurement.sen0575),  16)
 #define Measurement_CALLBACK NULL
 #define Measurement_DEFAULT NULL
 #define Measurement_meta_MSGTYPE MeasurementMetadata
@@ -983,6 +1010,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (measurement,waterLevel,measurement.waterLeve
 #define Measurement_measurement_watermark200ts_MSGTYPE WATERMARK200TSMeasurement
 #define Measurement_measurement_edu0157_MSGTYPE EDU0157Measurement
 #define Measurement_measurement_waterLevel_MSGTYPE ALSMPM2FMeasurement
+#define Measurement_measurement_sen0575_MSGTYPE SEN0575Measurement
 
 #define Response_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    resp,              1)
@@ -1124,6 +1152,7 @@ extern const pb_msgdesc_t WATERMARK200SSMeasurement_msg;
 extern const pb_msgdesc_t WATERMARK200TSMeasurement_msg;
 extern const pb_msgdesc_t EDU0157Measurement_msg;
 extern const pb_msgdesc_t ALSMPM2FMeasurement_msg;
+extern const pb_msgdesc_t SEN0575Measurement_msg;
 extern const pb_msgdesc_t Measurement_msg;
 extern const pb_msgdesc_t Response_msg;
 extern const pb_msgdesc_t Esp32Command_msg;
@@ -1161,6 +1190,7 @@ extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 #define WATERMARK200TSMeasurement_fields &WATERMARK200TSMeasurement_msg
 #define EDU0157Measurement_fields &EDU0157Measurement_msg
 #define ALSMPM2FMeasurement_fields &ALSMPM2FMeasurement_msg
+#define SEN0575Measurement_fields &SEN0575Measurement_msg
 #define Measurement_fields &Measurement_msg
 #define Response_fields &Response_msg
 #define Esp32Command_fields &Esp32Command_msg
@@ -1177,7 +1207,7 @@ extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 
 /* Maximum encoded size of messages (where known) */
 /* RepeatedPowerDeltas_size depends on runtime parameters */
-#define ALSMPM2FMeasurement_size                 18
+#define ALSMPM2FMeasurement_size                 27
 #define BME280Measurement_size                   23
 #define CurrentDeltaMeasurement_size             6
 #define CurrentMeasurement_size                  9
@@ -1199,6 +1229,7 @@ extern const pb_msgdesc_t EnabledSensorMultiple_msg;
 #define Response_size                            2
 #define SEN0257Measurement_size                  18
 #define SEN0308Measurement_size                  18
+#define SEN0575Measurement_size                  15
 #define SOIL_POWER_SENSOR_PB_H_MAX_SIZE          Esp32Command_size
 #define Teros12Measurement_size                  33
 #define Teros21Measurement_size                  18
