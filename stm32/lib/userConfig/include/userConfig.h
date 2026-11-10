@@ -67,6 +67,7 @@ typedef enum {
   USERCONFIG_EMPTY_CONFIG,
   USERCONFIG_ENCODE_ERROR,
   USERCONFIG_NULL_CONFIG,
+  USERCONFIG_CRC_ERROR,
 } UserConfigStatus;
 
 /**
@@ -158,11 +159,18 @@ UserConfigStatus UserConfig_ReadFromFRAM(uint16_t fram_addr, uint16_t length,
 UserConfigStatus UserConfigLoad(void);
 
 /**
+ * @brief Loads Backup in case of main config failure
+ *
+ * @return USERCONFIG_OK if succesful, error code otherwise.
+ */
+UserConfigStatus UserConfigLoadBackup(void);
+/**
  * @brief Saves the configuration to FRAM.
  *
  * @param config  Pointer to the UserConfiguration structure to save.
  * @return USERCONFIG_OK if successful, error code otherwise.
  */
+
 UserConfigStatus UserConfigSave(const UserConfiguration *config);
 
 /**
