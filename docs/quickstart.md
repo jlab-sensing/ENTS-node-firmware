@@ -105,7 +105,7 @@ In this guide, you will be asked to select the correct ports for uploading progr
         - If you are reconfiguring an ENTS board, you can check the box to reuse the wifi password that was previously entered into the device.
         - NOTE FOR UCSC: For wifi, you should use the `UCSC-Devices` SSID. You must register your devices on the portal https://wifi-devices.ucsc.edu/ and use the password provided to you after registration on the portal.
         - API Endpoint URL: The API endpoint URL is typically `http://<your.endpoint.here.com>/api/sensor/` (defaulting to port 80 when no port is specified). For example, DirtViz's API endpoint URL is `http://dirtviz.jlab.ucsc.edu/api/sensor/`.
-            - If your endpoint's port is not 80, you can append it to the end of your URL: http://your.endpoint.here.com/api/sensor/:12345
+            - If your endpoint's port is not 80, you can append it to the end of your domain name: http://your.endpoint.here.com:12345/api/sensor/
 - IMPORTANT: When you are done selecting your configuration, press the `Save Configuration` button at the bottom of the page.
 - Optional: To verify that the userConfig was saved successfully, you can either:
     - [A] Restart the ENTS board (tap SW1 RESET), then reconnect to the ENTS board's wifi network and see if your configuration displays correctly on the webform http://192.168.4.1
