@@ -24,6 +24,7 @@ firmware versions for a hardware version.
 - Fixed FRAM addresses to prevent user configuration overwrites [#362](https://github.com/jlab-sensing/ENTS-node-firmware/pull/362).
 - Removed `test_ads` from the standard internal test suite since the ADS1219 is not built into the >=v3.0.0 ENTS boards anymore [#369](https://github.com/jlab-sensing/ENTS-node-firmware/pull/369) [#371](https://github.com/jlab-sensing/ENTS-node-firmware/pull/371).
 - Adjusted ESP32 partition table to expand program flash by reducing file system space [#369](https://github.com/jlab-sensing/ENTS-node-firmware/pull/369).
+- CI/CD pipeline linting and python version fixed [#384](https://github.com/jlab-sensing/ENTS-node-firmware/pull/384).
 
 ## [2.3.12] - 2026-08-19
 
