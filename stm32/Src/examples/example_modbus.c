@@ -23,7 +23,8 @@
  * @retval int
  */
 int main(void) {
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick.
+   */
   HAL_Init();
 
   /* Configure the system clock */
@@ -45,7 +46,8 @@ int main(void) {
 
     if (status == MODBUS_OK) {
       APP_LOG(TS_OFF, VLEVEL_M, "%lu: Reg0=%u, Reg1=%u, Reg2=%u, Reg3=%u\r\n",
-              read_count, registers[0], registers[1], registers[2], registers[3]);
+              read_count, registers[0], registers[1], registers[2],
+              registers[3]);
     } else {
       APP_LOG(TS_OFF, VLEVEL_M, "%lu: Modbus read failed with status %d\r\n",
               read_count, status);
