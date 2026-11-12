@@ -74,6 +74,8 @@ if (GPIO_PORT == GPIOA){                      \
 #define VBAT_DIV_2_GPIO_Port GPIOA
 #define SDI12_DIR_Pin GPIO_PIN_9
 #define SDI12_DIR_GPIO_Port GPIOB
+#define MODBUS_DE_PIN GPIO_PIN_13
+#define MODBUS_DE_GPIO_Port GPIOB
 #define USER_LED_Pin GPIO_PIN_5
 #define USER_LED_GPIO_Port GPIOB
 #define RF_CTRL3_Pin GPIO_PIN_3
