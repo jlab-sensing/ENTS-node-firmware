@@ -1,5 +1,4 @@
-"""Client interface with dirtviz.
-"""
+"""Client interface with dirtviz."""
 
 import hashlib
 import json
@@ -124,6 +123,7 @@ class BackendClient:
     def clear_cache(self) -> None:
         """Clear all cached data."""
         import shutil
+
         if self.cache_dir.exists():
             shutil.rmtree(self.cache_dir)
             self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -321,7 +321,6 @@ class BackendClient:
         simplified = simplified.rename(columns={"data": meas})
 
         return simplified
-
 
     def cell_from_id(self, cell_id: int) -> Cell | None:
         """Get a Cell object from its ID.

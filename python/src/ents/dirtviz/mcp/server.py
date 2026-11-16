@@ -233,11 +233,7 @@ def create_mcp_server(
     def prompt_compare_cells_script(
         cells: str, tag: str = "", measurement: str = "power"
     ) -> str:
-        cells_context = (
-            f"cells tagged with '{tag}'"
-            if tag
-            else f"cells: {cells}"
-        )
+        cells_context = f"cells tagged with '{tag}'" if tag else f"cells: {cells}"
         return (
             f"You are generating a multi-cell comparative plotting script for {cells_context}.\n"
             "Follow the visualization design pattern from `python/examples/power.py`:\n"

@@ -93,7 +93,6 @@ class NodeSimulator:
         """
 
         if "power" in self.sensors:
-
             voltage = self.fn(ts) * 2
             current = self.fn(ts) * 0.5
 
@@ -108,7 +107,6 @@ class NodeSimulator:
             self.measurement_buffer.append(meas)
 
         if "teros12" in self.sensors:
-
             vwc_raw = self.fn(ts) * 300 + 2500
             vwc_adj = self.fn(ts) * 0.05 + 0.2
             temp = self.fn(ts) * 5 + 25
@@ -127,7 +125,6 @@ class NodeSimulator:
             self.measurement_buffer.append(meas)
 
         if "teros21" in self.sensors:
-
             matric_pot = self.fn(ts) * 200 + 1000
             temp = self.fn(ts) * 5 + 25
 
@@ -142,7 +139,6 @@ class NodeSimulator:
             self.measurement_buffer.append(meas)
 
         if "bme280" in self.sensors:
-
             temp = self.fn(ts) * 50 + 250
             humidity = self.fn(ts) * 200 + 2000
             pressure = self.fn(ts) * 2000 + 43000
