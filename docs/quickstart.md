@@ -13,7 +13,7 @@ This Quickstart guide explains how to get started with a prepared ENTS board (bo
 
 ## Prerequisites
 
-![Prerequisites (not pictured: computer with PlatformIO)](/images/quickstart_prerequisites.png)
+![Prerequisites (not pictured: computer with PlatformIO)](/images/quickstart_prerequisites_annotated.png)
 
 - Prepared ENTS board (board assembled and bootloader unlocked/cleared).
     - To know if your ENTS board is prepared or not, check the back of the board. If some of the solder jumpers on the back of the board are soldered (such as JP12 for enabling the PB5 user LED), then you have a prepared ENTS board.
@@ -23,6 +23,7 @@ This Quickstart guide explains how to get started with a prepared ENTS board (bo
 - A computer running Windows, Linux, or MacOS.
     - At least two available USB ports. You can use a USB hub if you need additional USB ports.
     - VS Code with the PlatformIO extension installed (see [Installing PlatformIO](#installing-platformio))
+    - If you are using a [Mac with Apple silicon](https://support.apple.com/en-us/116943), you may need to [install Rosetta for compatibility with the build toolchain for the ESP32](https://support.apple.com/en-us/102527). Open a terminal and run the following command: `softwareupdate --install-rosetta`
 
 ## About selecting ports
 In this guide, you will be asked to select the correct ports for uploading programs, running tests, and opening serial monitors.
@@ -143,6 +144,9 @@ Description: USB-SERIAL CH340 (COM35)
     - NOTE FOR UCSC: Save the cell ID to the board inventory spreadsheet (to the logger(s) which upload to that cell).
 
 ## 6. Use the wifi userconfig to set device parameters
+
+![Userconfig snipped](/images/quickstart_userconfig_snipped.png)
+
 - Prerequisites:
     - Device must have the `stm32` (STM32) and `release` (ESP32) firmware flashed (done in the previous step).
 - Restart the ENTS board by tapping the SW1 RESET button next to the USB-C port.
