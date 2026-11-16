@@ -1,0 +1,38 @@
+## Black Soil
+
+start: 2025-09-01
+end: 2026-08-01
+
+cells:
+  # No amendments
+  gt_black_none_1:
+    soil: gt_black
+    bme280: gt_bme280
+    incubation:
+      end: 2025-11-24
+    open:
+      end: 2026-03-09
+    closed:
+      start: 2026-03-11
+      end: 2026-07-14
+  gt_black_none_2:
+    soil: gt_black
+    bme280: gt_bme280
+    incubation:
+      end: 2025-12-02
+    open:
+      end: 2026-03-09
+    closed:
+      start: 2026-03-11
+      end: 2026-07-04
+  # has funky data for current
+  gt_black_none_3:
+    soil: gt_black
+    bme280: gt_bme280
+    incubation:
+      end: 2025-11-23
+    open:
+      end: 2026-03-09
+    closed:
+      start: 2026-03-12
+      end: 2026-05-21

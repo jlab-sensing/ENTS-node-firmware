@@ -1,0 +1,50 @@
+gt_black:
+  desc: Georgia natural black soil.
+  sand: 0.7322
+  silt: 0.1206
+  clay: 0.1472
+  om: 0.02
+
+gt_black_inorganics:
+  desc: Black to red texture.
+  sand: 0.349
+  silt: 0.33301
+  clay: 0.3180
+  om: 0.02
+
+gt_black_inorganics_compost:
+  desc: Black to red texture and om.
+  sand: 0.329
+  silt: 0.333
+  clay: 0.338
+  om: 0.009
+
+gt_red:
+  desc: Georgia natural red soil.
+  sand: 0.4789
+  silt: 0.3053
+  clay: 0.2158
+  om: 0.01
+
+# TODO Update
+gt_red_compost:
+  desc: Red to black om.
+  sand: 0.3498
+  silt: 0.3195
+  clay: 0.3307
+  om: 0.02
+
+# TODO update
+gt_red_compost_inorganics:
+  desc: Red to black texture.
+  sand: 0.712
+  silt: 0.141
+  clay: 0.147
+  om: 0.01
+
+synth:
+  desc: Synthetic soil.
+  sand: 0.3476
+  silt: 0.3221
+  clay: 0.3303
+  om: 0.11

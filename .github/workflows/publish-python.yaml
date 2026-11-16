@@ -24,12 +24,8 @@ jobs:
     - name: Lint backend
       run: ruff check ./python
 
-    - name: Black format check
-      uses: psf/black@stable
-      with:
-        options: '--check --verbose'
-        src: './python'
-        version: '24.3.0'
+    - name: Format backend
+      run: ruff format --check ./python
 
   build:
     name: Build distribution
@@ -68,7 +64,7 @@ jobs:
     - name: Run tests
       run: >-
         cd python &&
-        pip install --user . &&
+        pip install --user .[gui,mcp,dev] &&
         python -m unittest discover tests
 
   publish-to-aws:
