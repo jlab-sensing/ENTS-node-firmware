@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-
+import pandas as pd
 from tqdm import tqdm
 
 from ents.dirtviz.client import BackendClient
-
 
 # different plots
 # - Plots for each individual tag with background lines and s
@@ -49,9 +46,6 @@ def plot_mean(ax, data: pd.DataFrame, key: str, color="blue", label : str=""):
 
 
 def plot_quantiles(ax, data: pd.DataFrame, key: str, color="blue"):
-
-    import pdb; pdb.set_trace()
-
     grouped = data.groupby(pd.Grouper("timestamp", freq="D"))[key].agg(
         [
              ("25%", lambda x: x.quantile(0.25)),
@@ -252,7 +246,7 @@ def get_data() -> pd.DataFrame:
             #    linewidth=3,
             #)
 
-        print("")
+        print()
 
         cell_data_df = pd.concat(cell_data)
         tag_data.append(cell_data_df)
@@ -269,7 +263,7 @@ def plot_individual(data: list[pd.DataFrame], key="v"):
     assert (num_plots <= len(colors))
 
     # double column
-    fig, axs = plt.subplots(num_plots, 1,
+    _, axs = plt.subplots(num_plots, 1,
                             sharey=True,
                             figsize=(7, 10),
                             )
@@ -292,7 +286,7 @@ def plot_together(data: list[pd.DataFrame], groups: list[str], key="v"):
     assert (num_plots <= len(colors))
 
     # double column
-    fig, ax = plt.subplots(1, 1,
+    _, ax = plt.subplots(1, 1,
                             sharey=True,
                             figsize=(7, 10),
                             )

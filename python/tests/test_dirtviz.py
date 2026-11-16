@@ -4,6 +4,7 @@ import unittest
 
 from ents.dirtviz.client import BackendClient, Cell
 
+
 class TestDirtviz(unittest.TestCase):
     """Unit tests for dirtviz interface."""
 

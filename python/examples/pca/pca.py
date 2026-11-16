@@ -1,25 +1,19 @@
 #!/usr/bin/env python
 
-import os
 import argparse
-from datetime import datetime
 import logging
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
-import statsmodels.api as sm
-from statsmodels.formula.api import ols, mixedlm
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
-import numpy as np
-from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 from yaml import safe_load
 
-from ents.dirtviz import BackendClient, plot_data
-
+from ents.dirtviz import BackendClient
 
 logger = logging.getLogger(__name__)
 
@@ -91,10 +85,10 @@ def get_data() -> dict:
     closed_dfs_list = []
 
     for name, attr in cell_map.items():
-        logging.info(f"Getting data for {name}.")
+        logger.info(f"Getting data for {name}.")
         cell = api.cell_from_name(name)
         if cell is None:
-            logging.warning(f"Cell '{name}' not found.")
+            logger.warning(f"Cell '{name}' not found.")
             continue
 
         # TODO Add override of global start/end date
@@ -111,9 +105,9 @@ def get_data() -> dict:
             end_date
         )
 
-        bme280_cell = api.cell_from_name(cell_map[name]["bme280"])
+        bme280_cell = api.cell_from_name(attr["bme280"])
 
-        def get_bme280_data(meas: str):
+        def get_bme280_data(meas: str, bme280_cell=bme280_cell, name=name):
             bme280 = api.sensor_data_simple(
                 bme280_cell,
                 "bme280",
@@ -123,7 +117,7 @@ def get_data() -> dict:
                 resample="hour",
             )
             if len(bme280) == 0:
-                logging.warning(f"No bme280 {meas} data found for {name}")
+                logger.warning(f"No bme280 {meas} data found for {name}")
 
             return bme280
 
@@ -153,10 +147,11 @@ def get_data() -> dict:
         all_dfs_list.append(cell_data)
 
         # Filter based on start/end timestamp
-        slice_range = lambda key: cell_data[
-            (pd.Timestamp(attr[key]["start"]) <= cell_data["timestamp"])
-            & (cell_data["timestamp"] <= pd.Timestamp(attr[key]["end"]))
-        ]
+        def slice_range(key: str, cell_data=cell_data, attr=attr):
+            return cell_data[
+                (pd.Timestamp(attr[key]["start"]) <= cell_data["timestamp"])
+                & (cell_data["timestamp"] <= pd.Timestamp(attr[key]["end"]))
+            ]
 
         incubation_dfs_list.append(slice_range("incubation"))
         open_dfs_list.append(slice_range("open"))
@@ -175,14 +170,32 @@ def get_data() -> dict:
         "all": all_data,
         "incubation": incubation_data,
         "open": open_data,
-        "closed": closed_data
+        "closed": closed_data,
     }
 
     return data
 
 
-def run_pca(df: pd.DataFrame, feature_cols: list[str],
-            n_components: int = 5, random_state: int = 42) -> PCAResult:
+@dataclass
+class PCAResult:
+    """Everything produced by a PCA run, so printing/plotting need no refit."""
+
+    pca: PCA
+    scaler: StandardScaler
+    feature_cols: list[str]
+    pc_names: list[str]
+    scores: pd.DataFrame  # PC scores + metadata columns
+    explained: pd.DataFrame  # eigenvalues / variance ratios per PC
+    loadings: pd.DataFrame  # features x PCs
+    n_95: int  # components needed for 95% variance
+
+
+def run_pca(
+    df: pd.DataFrame,
+    feature_cols: list[str],
+    n_components: int = 5,
+    random_state: int = 42,
+) -> PCAResult:
     """Standardize the features and fit a PCA. Pure computation, no I/O."""
     # Standardize to zero mean / unit variance so large-valued features
     # don't dominate the components
@@ -312,22 +325,6 @@ def plot_pairplot(df: pd.DataFrame, feature_cols: list[str],
     return g
 
 
-@dataclass
-class PCAResult:
-    """Everything produced by a PCA run, so printing/plotting need no refit."""
-
-    pca: PCA
-    scaler: StandardScaler
-    feature_cols: list[str]
-    pc_names: list[str]
-    scores: pd.DataFrame       # PC scores + metadata columns
-    explained: pd.DataFrame    # eigenvalues / variance ratios per PC
-    loadings: pd.DataFrame     # features x PCs
-    n_95: int                  # components needed for 95% variance
-
-
-
-
 def analyze(data: dict, key: str):
     print(f"Dataset '{key}'")
     print(f"\nSample data for '{key}'\n\n{data[key]}\n")
@@ -349,13 +346,11 @@ def analyze(data: dict, key: str):
     # PCA can't handle NaNs / infs
     df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=feature_cols)
 
-
-
     result = run_pca(df, feature_cols, n_components=5)
     print_pca_results(result)
 
-    summary_fig = plot_pca_summary(result)
-    pair_grid = plot_pairplot(df, feature_cols)
+    plot_pca_summary(result)
+    plot_pairplot(df, feature_cols)
 
 
 
@@ -433,7 +428,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=log_level)
 
     if args.output:
-        logging.info(f"Saving plots to '{args.output}' in '{args.format}' format")
+        logger.info(f"Saving plots to '{args.output}' in '{args.format}' format")
 
     #print(f"Verbosity level: {args.verbose}")
     #print(f"Show plots? {args.plots}")

@@ -1,20 +1,18 @@
 #!/usr/bin/env python
 
-import os
 import argparse
-from datetime import datetime
 import logging
-
-import statsmodels.api as sm
-from statsmodels.formula.api import ols, mixedlm
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-import pandas as pd
-import seaborn as sns
+import os
+from datetime import datetime
 
 import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+import statsmodels.api as sm
+from statsmodels.formula.api import mixedlm, ols
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-from ents.dirtviz import BackendClient, plot_data
-
+from ents.dirtviz import BackendClient
 
 logger = logging.getLogger(__name__)
 
@@ -213,10 +211,10 @@ def main(plots, output, _format):
     all_dfs_list = []
 
     for name, attr in cell_map.items():
-        logging.info(f"Getting data for {name}.")
+        logger.info(f"Getting data for {name}.")
         cell = api.cell_from_name(name)
         if cell is None:
-            logging.warning(f"Cell '{name}' not found.")
+            logger.warning(f"Cell '{name}' not found.")
             continue
 
         # TODO Add override of global start/end date
@@ -233,9 +231,9 @@ def main(plots, output, _format):
             end_date
         )
 
-        bme280_cell = api.cell_from_name(cell_map[name]["bme280"])
+        bme280_cell = api.cell_from_name(attr["bme280"])
 
-        def get_bme280_data(meas: str):
+        def get_bme280_data(meas: str, bme280_cell=bme280_cell, name=name):
             bme280 = api.sensor_data_simple(
                 bme280_cell,
                 "bme280",
@@ -245,7 +243,7 @@ def main(plots, output, _format):
                 resample="hour",
             )
             if len(bme280) == 0:
-                logging.warning(f"No bme280 {meas} data found for {name}")
+                logger.warning(f"No bme280 {meas} data found for {name}")
 
             return bme280
 
@@ -295,7 +293,7 @@ def main(plots, output, _format):
             directory = os.path.join(cwd, output)
             os.makedirs(directory, exist_ok=True)
             path = os.path.join(directory, f"{name}.{_format}")
-            logging.debug(f"Saving to {path}")
+            logger.debug(f"Saving to {path}")
             plt.savefig(path)
 
     # expected columns that can be used
@@ -348,7 +346,7 @@ def main(plots, output, _format):
         show(f"boxplot_{group}_{meas}")
 
 
-    type_stats = all_data.groupby("type").describe()
+    _type_stats = all_data.groupby("type").describe()
     for label in meas_labels:
         plot_boxplot(label, "type")
 
@@ -448,7 +446,7 @@ def main(plots, output, _format):
         # fit value plot
         y_hat = model.fittedvalues
 
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
         ax.scatter(model.model.endog, y_hat)
         ax.set_title(f"{stat}: {fn}")
         ax.set_xlabel("Observed")
@@ -532,7 +530,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=log_level)
 
     if args.output:
-        logging.info(f"Saving plots to '{args.output}' in '{args.format}' format")
+        logger.info(f"Saving plots to '{args.output}' in '{args.format}' format")
 
     #print(f"Verbosity level: {args.verbose}")
     #print(f"Show plots? {args.plots}")
