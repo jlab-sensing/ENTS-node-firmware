@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency:
       group: remote-test
+      queue: max
     env:
       bucket_url: https://ents-remote-tests-protobuf-lib.s3.us-west-2.amazonaws.com
       protobuf_lib: ents-protobuf-lib-${{ github.sha }}.tar.gz
