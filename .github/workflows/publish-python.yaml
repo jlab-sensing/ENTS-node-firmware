@@ -68,7 +68,7 @@ jobs:
     - name: Run tests
       run: >-
         cd python &&
-        pip install --user . &&
+        pip install --user .[gui,mcp,dev] &&
         python -m unittest discover tests
 
   publish-to-aws:
