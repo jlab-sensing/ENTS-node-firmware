@@ -27,7 +27,9 @@ firmware versions for a hardware version.
 - CI/CD pipeline linting and python version fixed [#384](pr384).
 - Updated `metrics.py` with tx and rx [#385](pr385)
 - Enabled merge queue [#386](pr386).
+- Added functionality to python dirtviz interface [#314](pr314)
 
+[pr314]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/314
 [pr351]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/351
 [pr360]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/360
 [pr361]: https://github.com/jlab-sensing/ENTS-node-firmware/pull/361
