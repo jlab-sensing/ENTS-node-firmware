@@ -161,9 +161,7 @@ class TestDirtvizMCP(unittest.TestCase):
     def test_get_cell_availability_tool(self, mock_get):
         """Test get_cell_availability tool."""
         now_iso = datetime.now(UTC).isoformat()
-        two_months_ago_iso = (
-            datetime.now(UTC) - timedelta(days=60)
-        ).isoformat()
+        two_months_ago_iso = (datetime.now(UTC) - timedelta(days=60)).isoformat()
 
         def side_effect(url, params=None):
             resp = MagicMock()
@@ -279,7 +277,9 @@ class TestDirtvizMCP(unittest.TestCase):
         """Test server instructions and scripting guide resource registration."""
         server = create_mcp_server(client=self.client)
         self.assertIsNotNone(server.instructions)
-        self.assertIn("AI Discovery & Analysis Script Synthesis Guide", server.instructions)
+        self.assertIn(
+            "AI Discovery & Analysis Script Synthesis Guide", server.instructions
+        )
         self.assertIn("BackendClient", server.instructions)
 
         if hasattr(server, "list_resources"):
@@ -306,7 +306,9 @@ class TestDirtvizMCP(unittest.TestCase):
 
             # Test prompt execution
             p_analysis = asyncio.run(
-                server.get_prompt("generate_analysis_script", {"cell": "sc_synth_open_1"})
+                server.get_prompt(
+                    "generate_analysis_script", {"cell": "sc_synth_open_1"}
+                )
             )
             analysis_text = str(p_analysis.messages[0].content)
             self.assertIn("sc_synth_open_1", analysis_text)

@@ -199,7 +199,9 @@ df_power = client.power_data(cell, start, end, resample="hour")
 df_teros = client.teros_data(cell, start, end, resample="hour")
 
 # Generic sensor measurements (columns: timestamp, data, measurement, unit)
-df_temp = client.sensor_data(cell, name="bme280", meas="BME280_TEMP", start=start, end=end)
+df_temp = client.sensor_data(
+    cell, name="bme280", meas="BME280_TEMP", start=start, end=end
+)
 ```
 
 ---

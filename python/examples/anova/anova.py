@@ -30,8 +30,6 @@ def main(plots, output, _format):
     end_date = datetime(2026, 1, 19)
     logger.info(f"Using data from {start_date} to {end_date}.")
 
-
-
     soil_types = {
         "gt_black": {
             "desc": "Georgia natural black soil.",
@@ -40,7 +38,6 @@ def main(plots, output, _format):
             "clay": 0.1472,
             "om": 0.02,
         },
-
         "gt_black_inorganics": {
             "desc": "Black to red texture.",
             "sand": 0.349,
@@ -48,7 +45,6 @@ def main(plots, output, _format):
             "clay": 0.3180,
             "om": 0.02,
         },
-
         "gt_black_inorganics_compost": {
             "desc": "Black to red texture and om.",
             "sand": 0.329,
@@ -56,7 +52,6 @@ def main(plots, output, _format):
             "clay": 0.338,
             "om": 0.009,
         },
-
         "gt_red": {
             "desc": "Georgia natural red soil.",
             "sand": 0.4789,
@@ -64,7 +59,6 @@ def main(plots, output, _format):
             "clay": 0.2158,
             "om": 0.01,
         },
-
         # TODO Update
         "gt_red_compost": {
             "desc": "Red to black om.",
@@ -73,7 +67,6 @@ def main(plots, output, _format):
             "clay": 0.3307,
             "om": 0.02,
         },
-
         # TODO upate
         "gt_red_compost_inorganics": {
             "desc": "Red to black texture.",
@@ -82,7 +75,6 @@ def main(plots, output, _format):
             "clay": 0.147,
             "om": 0.01,
         },
-
         "synth": {
             "desc": "Synthetic soil.",
             "sand": 0.3476,
@@ -94,7 +86,6 @@ def main(plots, output, _format):
 
     cell_map = {
         ## Black Soil
-
         # No amendments
         "gt_black_none_1": {
             "soil": "gt_black",
@@ -108,7 +99,6 @@ def main(plots, output, _format):
             "soil": "gt_black",
             "bme280": "gt_bme280",
         },
-
         # Adding inorganics
         "gt_black_inorganics_1": {
             "soil": "gt_black_inorganics",
@@ -122,7 +112,6 @@ def main(plots, output, _format):
             "soil": "gt_black_inorganics",
             "bme280": "gt_bme280",
         },
-        
         # Adding inorganics and compost
         "gt_black_inorganics_compost_1": {
             "soil": "gt_black_inorganics_compost",
@@ -136,8 +125,6 @@ def main(plots, output, _format):
             "soil": "gt_black_inorganics_compost",
             "bme280": "gt_bme280",
         },
-
-
         "gt_red_none_1": {
             "soil": "gt_red",
             "bme280": "gt_bme280",
@@ -150,7 +137,6 @@ def main(plots, output, _format):
             "soil": "gt_red",
             "bme280": "gt_bme280",
         },
-        
         "gt_red_compost_1": {
             "soil": "gt_red_compost",
             "bme280": "gt_bme280",
@@ -163,7 +149,6 @@ def main(plots, output, _format):
             "soil": "gt_red_compost",
             "bme280": "gt_bme280",
         },
-        
         "gt_red_compost_inorganics_1": {
             "soil": "gt_red_compost_inorganics",
             "bme280": "gt_bme280",
@@ -176,7 +161,6 @@ def main(plots, output, _format):
             "soil": "gt_red_compost_inorganics",
             "bme280": "gt_bme280",
         },
-
         "gt_synth_none_1": {
             "soil": "synth",
             "bme280": "gt_bme280",
@@ -189,21 +173,19 @@ def main(plots, output, _format):
             "soil": "synth",
             "bme280": "gt_bme280",
         },
-        
         # Exclude control
-        #"gt_synth_auto_1": {
+        # "gt_synth_auto_1": {
         #    "soil": "synth",
         #    "bme280": "gt_bme280",
-        #},
-        #"gt_synth_auto_2": {
+        # },
+        # "gt_synth_auto_2": {
         #    "soil": "synth",
         #    "bme280": "gt_bme280",
-        #},
-        #"gt_synth_auto_3": {
+        # },
+        # "gt_synth_auto_3": {
         #    "soil": "synth",
         #    "bme280": "gt_bme280",
-        #},
-
+        # },
     }
 
     api = BackendClient()
@@ -219,17 +201,9 @@ def main(plots, output, _format):
 
         # TODO Add override of global start/end date
 
-        power = api.power_data(
-            cell,
-            start_date,
-            end_date
-        )
+        power = api.power_data(cell, start_date, end_date)
 
-        teros = api.teros_data(
-            cell,
-            start_date,
-            end_date
-        )
+        teros = api.teros_data(cell, start_date, end_date)
 
         bme280_cell = api.cell_from_name(attr["bme280"])
 
@@ -272,9 +246,6 @@ def main(plots, output, _format):
 
         all_dfs_list.append(cell_data)
 
-
-
-
     def show(name: str):
         """Show a matplotlib figure.
 
@@ -299,33 +270,39 @@ def main(plots, output, _format):
     # expected columns that can be used
     # i    p    timestamp  v ec  raw_vwc   temp    vwc   name type  sand  silt om
 
-
     category_labels = ["name", "type", "sand", "silt", "clay", "om"]
-    meas_labels = ["i", "v", "p", "ec", "raw_vwc", "vwc", "temp",
-                   "temperature", "pressure", "humidity"]
+    meas_labels = [
+        "i",
+        "v",
+        "p",
+        "ec",
+        "raw_vwc",
+        "vwc",
+        "temp",
+        "temperature",
+        "pressure",
+        "humidity",
+    ]
 
     # parameters
     target_label = "v"
     time_covariate_labels = ["raw_vwc"]
     categorical_covariate_labels = []
-    #group_label = "name"
+    # group_label = "name"
 
     # plot data
-    #if plots:
+    # if plots:
     #    for label in meas_labels:
     #        plot_data(all_dfs_list, label)
 
     # combine data, reset index
     all_data = pd.concat(all_dfs_list, axis=0, ignore_index=True)
 
-
     print(f"\nSample data\n\n{all_data}\n")
-
 
     # all statistics
     all_stats = all_data.describe()
     print(f"\nDataset\n\n{all_stats}\n")
-
 
     def plot_boxplot(meas: str, group: str):
         """Plot a boxplot of a measurement in a group.
@@ -345,25 +322,21 @@ def main(plots, output, _format):
         ax.set_ylabel(meas)
         show(f"boxplot_{group}_{meas}")
 
-
     _type_stats = all_data.groupby("type").describe()
     for label in meas_labels:
         plot_boxplot(label, "type")
 
     # Uncomment to see individual cell boxplots
-    #name_stats = all_data.groupby("name").describe()
-    #for label in meas_labels:
+    # name_stats = all_data.groupby("name").describe()
+    # for label in meas_labels:
     #    plot_boxplot(label, "name")
 
-
-
-
-    # TODO 
+    # TODO
     # Plot the distribution of measurements
 
     ## BAD CODE
     ## plot max
-    #if plots:
+    # if plots:
     #    _, ax = plt.subplots()
     #    ax.hist(name_stats["v"]["mean"], edgecolor="black", bins=10)
     #    ax.set_xlabel("Voltage (mV)")
@@ -371,18 +344,17 @@ def main(plots, output, _format):
     #    plt.tight_layout()
     #    plt.show(block=False)
 
-
-
-
     # Colinearity checks
 
     # Multicollinearity check
     X = all_data[meas_labels]
     X = sm.add_constant(X)
-    vif = pd.DataFrame({
-        "variable": X.columns,
-        "VIF": [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
-    })
+    vif = pd.DataFrame(
+        {
+            "variable": X.columns,
+            "VIF": [variance_inflation_factor(X.values, i) for i in range(X.shape[1])],
+        }
+    )
     print("\n\nChecking multicollinearity:")
     print("\tRules of thumb for variation inflation factor:")
     print("\tVIF > 5\t\tModerate")
@@ -396,13 +368,11 @@ def main(plots, output, _format):
         sns.heatmap(all_data[meas_labels].corr(), ax=ax, annot=True)
         show("collinearity")
 
-
-
     # look into the following
     # organic matter
     # characteristics (sand, silt, clay)
-    #formula = "v ~ ec + raw_vwc + temp + sand"
-    #formula = "v ~ sand + silt + om"
+    # formula = "v ~ ec + raw_vwc + temp + sand"
+    # formula = "v ~ sand + silt + om"
     formula = f"{target_label} ~ "
     formula += " + ".join(time_covariate_labels)
     if categorical_covariate_labels:
@@ -410,9 +380,8 @@ def main(plots, output, _format):
         formula += " + ".join([f"C({c})" for c in categorical_covariate_labels])
     print(f"\nUsing formula:\n\n\t{formula}")
 
-
     # OLS Model
-    
+
     def ols_agg(stat: str, fn: str):
         """Run ordinary least squares on aggregated data.
 
@@ -433,15 +402,15 @@ def main(plots, output, _format):
         print(model.summary())
         print()
 
-
         # eval
         anova = sm.stats.anova_lm(model, typ=2)
         # Cohen's values 0.10, 0.25 and 0.40 (Cohen, 1988, pp. 285-287)
         anova["eta_sq"] = anova["sum_sq"] / (anova["sum_sq"].sum())
-        anova["part_eta_sq"] = anova["sum_sq"] / (anova["sum_sq"] + anova.loc["Residual", "sum_sq"])
+        anova["part_eta_sq"] = anova["sum_sq"] / (
+            anova["sum_sq"] + anova.loc["Residual", "sum_sq"]
+        )
 
         print(f"\n\nANOVA Results:\n\n{anova}\n\n")
-
 
         # fit value plot
         y_hat = model.fittedvalues
@@ -451,15 +420,14 @@ def main(plots, output, _format):
         ax.set_title(f"{stat}: {fn}")
         ax.set_xlabel("Observed")
         ax.set_ylabel("Predicted")
-        ax.plot([model.model.endog.min(), model.model.endog.max()],
-                 [model.model.endog.min(), model.model.endog.max()])
+        ax.plot(
+            [model.model.endog.min(), model.model.endog.max()],
+            [model.model.endog.min(), model.model.endog.max()],
+        )
         show(f"ols_agg_{stat}")
-
 
     ols_agg("mean", "v ~ raw_vwc + ec + sand + silt + om")
     ols_agg("max", "v ~ raw_vwc + ec + sand + silt + om")
-
-
 
     # MixedLM model
     agg_dict = {"timestamp": "first"}
@@ -467,19 +435,16 @@ def main(plots, output, _format):
     agg_dict.update({col: "first" for col in category_labels})
     mean_data = all_data.groupby("type").agg(agg_dict).reset_index(drop=True)
 
-    model = mixedlm("v ~ raw_vwc + ec + sand + silt + temp", mean_data,
-                    groups=mean_data["type"])
+    model = mixedlm(
+        "v ~ raw_vwc + ec + sand + silt + temp", mean_data, groups=mean_data["type"]
+    )
     modelf = model.fit()
     print()
     print(modelf.summary())
 
 
-
-
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="SMFC analysis script"
-    )
+    parser = argparse.ArgumentParser(description="SMFC analysis script")
 
     # Verbosity: -v, -vv, -vvv
     parser.add_argument(
@@ -492,19 +457,22 @@ def parse_args():
 
     # Optional flag to display plots
     parser.add_argument(
-        "-p", "--plots",
+        "-p",
+        "--plots",
         action="store_true",
         help="Display plots",
     )
 
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         type=str,
         help="Output directory for plots",
     )
 
     parser.add_argument(
-        "-f", "--format",
+        "-f",
+        "--format",
         type=str,
         default="jpg",
         help="File format of plots",
@@ -532,9 +500,9 @@ if __name__ == "__main__":
     if args.output:
         logger.info(f"Saving plots to '{args.output}' in '{args.format}' format")
 
-    #print(f"Verbosity level: {args.verbose}")
-    #print(f"Show plots? {args.plots}")
+    # print(f"Verbosity level: {args.verbose}")
+    # print(f"Show plots? {args.plots}")
     main(args.plots, args.output, args.format)
 
-    if (args.plots):
+    if args.plots:
         input("Press enter to close figures...")

@@ -35,7 +35,6 @@ mcp = [
 ]
 
 dev = [
-  "black",
   "ruff",
   "mcp>=1.0.0",
 ]
@@ -52,8 +51,5 @@ Issues = "https://github.com/jlab-sensing/soil-power-sensor-firmware/issues"
 
 [tool.ruff]
 exclude = [
-  "src/ents/proto/soil_power_sensor_pb2.py",
+  "src/ents/proto/*_pb2.py",
 ]
-
-[tool.black]
-exclude = ".*_pb2.py"

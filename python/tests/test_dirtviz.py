@@ -36,5 +36,6 @@ class TestDirtviz(unittest.TestCase):
         for cell in cells:
             self.assertIsInstance(cell, Cell)
 
+
 if __name__ == "__main__":
     unittest.main()

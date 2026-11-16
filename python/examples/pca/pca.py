@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 META_COLS = ["name", "type", "timestamp"]
 
+
 def load_yaml(filename: str) -> dict:
     path = Path(filename)
     with path.open("r", encoding="utf-8") as f:
@@ -43,7 +44,6 @@ def fill_dates(cell_dict: dict) -> dict:
     start = cell_dict["start"]
     end = cell_dict["end"]
 
-
     for attr in cell_dict["cells"].values():
         # incubation
         if "start" not in attr["incubation"]:
@@ -64,7 +64,6 @@ def fill_dates(cell_dict: dict) -> dict:
     return cell_dict
 
 
-
 def get_data() -> dict:
     soil_types = load_yaml("soil_types.yaml")
     cells = load_yaml("test_cells.yaml")
@@ -75,7 +74,6 @@ def get_data() -> dict:
     cell_map = cells["cells"]
 
     logger.info(f"Using data from {start_date} to {end_date}.")
-
 
     api = BackendClient()
 
@@ -93,17 +91,9 @@ def get_data() -> dict:
 
         # TODO Add override of global start/end date
 
-        power = api.power_data(
-            cell,
-            start_date,
-            end_date
-        )
+        power = api.power_data(cell, start_date, end_date)
 
-        teros = api.teros_data(
-            cell,
-            start_date,
-            end_date
-        )
+        teros = api.teros_data(cell, start_date, end_date)
 
         bme280_cell = api.cell_from_name(attr["bme280"])
 
@@ -157,14 +147,11 @@ def get_data() -> dict:
         open_dfs_list.append(slice_range("open"))
         closed_dfs_list.append(slice_range("closed"))
 
-
-
     # combine data, reset index
     all_data = pd.concat(all_dfs_list, axis=0, ignore_index=True)
     incubation_data = pd.concat(incubation_dfs_list, axis=0, ignore_index=True)
     open_data = pd.concat(open_dfs_list, axis=0, ignore_index=True)
     closed_data = pd.concat(closed_dfs_list, axis=0, ignore_index=True)
-
 
     data = {
         "all": all_data,
@@ -201,48 +188,50 @@ def run_pca(
     # don't dominate the components
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(df[feature_cols].values)
- 
+
     pca = PCA(n_components=n_components, random_state=random_state)
     pcs = pca.fit_transform(X_scaled)
- 
+
     pc_names = [f"PC{i + 1}" for i in range(pcs.shape[1])]
- 
+
     scores = pd.DataFrame(pcs, columns=pc_names, index=df.index)
     scores[META_COLS] = df[META_COLS]
- 
+
     cumulative = np.cumsum(pca.explained_variance_ratio_)
-    explained = pd.DataFrame({
-        "PC": pc_names,
-        "eigenvalues": pca.explained_variance_,
-        "explained_variance_ratio": pca.explained_variance_ratio_,
-        "cumulative": cumulative,
-    })
- 
+    explained = pd.DataFrame(
+        {
+            "PC": pc_names,
+            "eigenvalues": pca.explained_variance_,
+            "explained_variance_ratio": pca.explained_variance_ratio_,
+            "cumulative": cumulative,
+        }
+    )
+
     loadings = pd.DataFrame(pca.components_.T, columns=pc_names, index=feature_cols)
- 
+
     # Note: if the 5 kept components never reach 95%, this returns 1.
     n_95 = int(np.argmax(cumulative >= 0.95) + 1)
- 
-    return PCAResult(pca, scaler, feature_cols, pc_names,
-                     scores, explained, loadings, n_95)
-  
- 
+
+    return PCAResult(
+        pca, scaler, feature_cols, pc_names, scores, explained, loadings, n_95
+    )
+
+
 def print_pca_results(result: PCAResult, n_loading_pcs: int = 4) -> None:
     print(result.explained.to_string(index=False))
     print(f"\nComponents needed for 95% variance: {result.n_95}")
- 
+
     print(f"\nLoadings (first {n_loading_pcs} PCs):")
     print(result.loadings.iloc[:, :n_loading_pcs].round(3))
- 
- 
- 
+
+
 def plot_scree(ax: plt.Axes, result: PCAResult) -> None:
     """Scree plot: variance ratios on the left axis, eigenvalues on the right."""
     pca = result.pca
     ratios = pca.explained_variance_ratio_
     eigenvalues = pca.explained_variance_
     x = np.arange(1, len(result.pc_names) + 1)
- 
+
     ax.bar(x, ratios, alpha=0.7, label="Individual ratio")
     ax.plot(x, np.cumsum(ratios), "o-", color="red", label="Cumulative ratio")
     ax.axhline(0.95, color="gray", ls="--", lw=1)
@@ -250,24 +239,24 @@ def plot_scree(ax: plt.Axes, result: PCAResult) -> None:
     ax.set_ylabel("Explained variance ratio")
     ax.set_title("Scree plot")
     ax.set_ylim(0, 1.05)
- 
+
     # Total variance across *all* components (ratio = eigenvalue / total_var),
     # so the eigenvalue axis lines up with the ratio axis even when only a
     # subset of components is kept.
     total_var = eigenvalues.sum() / ratios.sum()
- 
+
     ax2 = ax.twinx()
     ax2.plot(x, eigenvalues, "s--", color="green", label="Eigenvalue")
     ax2.axhline(1, color="green", ls=":", lw=1, alpha=0.6)  # Kaiser criterion
     ax2.set_ylabel("Eigenvalue", color="green")
     ax2.tick_params(axis="y", labelcolor="green")
     ax2.set_ylim(0, 1.05 * total_var)
- 
+
     h1, l1 = ax.get_legend_handles_labels()
     h2, l2 = ax2.get_legend_handles_labels()
     ax.legend(h1 + h2, l1 + l2, loc="center right")
- 
- 
+
+
 def plot_scores(ax: plt.Axes, result: PCAResult, by: str = "type") -> None:
     """PC1 vs PC2 scores, colored by a metadata column."""
     ratios = result.pca.explained_variance_ratio_
@@ -277,8 +266,8 @@ def plot_scores(ax: plt.Axes, result: PCAResult, by: str = "type") -> None:
     ax.set_ylabel(f"PC2 ({ratios[1]:.1%})")
     ax.set_title(f"PCA scores by {by}")
     ax.legend(markerscale=4)
- 
- 
+
+
 def plot_loadings(ax: plt.Axes, result: PCAResult) -> None:
     """Biplot-style loading arrows for PC1 vs PC2."""
     for feat in result.feature_cols:
@@ -293,8 +282,8 @@ def plot_loadings(ax: plt.Axes, result: PCAResult) -> None:
     ax.set_ylabel("PC2 loading")
     ax.set_title("Feature loadings")
     ax.set_aspect("equal")
- 
- 
+
+
 def plot_pca_summary(result: PCAResult) -> plt.Figure:
     """Compose the three PCA subplots into one figure."""
     fig, axes = plt.subplots(1, 3, figsize=(20, 6))
@@ -303,10 +292,14 @@ def plot_pca_summary(result: PCAResult) -> plt.Figure:
     plot_loadings(axes[2], result)
     fig.tight_layout()
     return fig
- 
- 
-def plot_pairplot(df: pd.DataFrame, feature_cols: list[str],
-                  n_sample: int = 2000, random_state: int = 42) -> sns.PairGrid:
+
+
+def plot_pairplot(
+    df: pd.DataFrame,
+    feature_cols: list[str],
+    n_sample: int = 2000,
+    random_state: int = 42,
+) -> sns.PairGrid:
     """Pairplot of the raw features, subsampled for speed."""
     plot_df = df[feature_cols + ["type"]].sample(
         n=min(n_sample, len(df)), random_state=random_state
@@ -315,7 +308,7 @@ def plot_pairplot(df: pd.DataFrame, feature_cols: list[str],
         plot_df,
         vars=feature_cols,
         hue="type",
-        corner=True,                 # lower triangle only, halves the panels
+        corner=True,  # lower triangle only, halves the panels
         diag_kind="kde",
         plot_kws={"s": 6, "alpha": 0.4, "linewidth": 0},
         diag_kws={"common_norm": False, "fill": True},
@@ -336,9 +329,20 @@ def analyze(data: dict, key: str):
     #
 
     feature_cols = [
-        "i", "p", "v", "ec", "raw_vwc", "temp", "vwc",
-        "temperature", "pressure", "humidity",
-        "sand", "silt", "clay", "om",
+        "i",
+        "p",
+        "v",
+        "ec",
+        "raw_vwc",
+        "temp",
+        "vwc",
+        "temperature",
+        "pressure",
+        "humidity",
+        "sand",
+        "silt",
+        "clay",
+        "om",
     ]
 
     df = data[key][feature_cols + META_COLS].copy()
@@ -353,8 +357,6 @@ def analyze(data: dict, key: str):
     plot_pairplot(df, feature_cols)
 
 
-
-
 def main(plots, output, _format):
     """Run an evaluation.
 
@@ -362,7 +364,6 @@ def main(plots, output, _format):
         plots: Show sensor plots if true.
         output: Output directory for plots.
     """
-
 
     data = get_data()
 
@@ -374,9 +375,7 @@ def main(plots, output, _format):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="SMFC analysis script"
-    )
+    parser = argparse.ArgumentParser(description="SMFC analysis script")
 
     # Verbosity: -v, -vv, -vvv
     parser.add_argument(
@@ -389,20 +388,23 @@ def parse_args():
 
     # Optional flag to display plots
     parser.add_argument(
-        "-p", "--plots",
+        "-p",
+        "--plots",
         action="store_true",
         default=True,
         help="Display plots",
     )
 
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         type=str,
         help="Output directory for plots",
     )
 
     parser.add_argument(
-        "-f", "--format",
+        "-f",
+        "--format",
         type=str,
         default="jpg",
         help="File format of plots",
@@ -430,10 +432,10 @@ if __name__ == "__main__":
     if args.output:
         logger.info(f"Saving plots to '{args.output}' in '{args.format}' format")
 
-    #print(f"Verbosity level: {args.verbose}")
-    #print(f"Show plots? {args.plots}")
+    # print(f"Verbosity level: {args.verbose}")
+    # print(f"Show plots? {args.plots}")
     main(args.plots, args.output, args.format)
 
-    if (args.plots):
+    if args.plots:
         plt.show(block=False)
         input("\nPress enter to close figures...")
