@@ -1,9 +1,9 @@
 """Client interface with dirtviz.
 """
 
-from datetime import datetime
-import json
 import hashlib
+import json
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -13,18 +13,30 @@ import requests
 class Cell:
     """Class representing a cell in the Dirtviz API."""
 
-    def __init__(self, data: str):
-        """Initialize the Cell object from a cell ID.
+    def __init__(self, data: dict):
+        """Initialize the Cell object from a cell dictionary.
 
         Args:
-            data: json data from the Dirtviz API containing cell information.
+            data: json data dictionary from the Dirtviz API containing cell information.
         """
 
         self.id = data["id"]
         self.name = data["name"]
-        self.location = data["location"]
-        self.latitude = data["latitude"]
-        self.longitude = data["longitude"]
+        self.location = data.get("location")
+        self.latitude = data.get("latitude")
+        self.longitude = data.get("longitude")
+        self.archive = data.get("archive", False)
+
+    def to_dict(self) -> dict:
+        """Convert Cell to dictionary representation."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "location": self.location,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "archive": self.archive,
+        }
 
     def __repr__(self):
         return f"Cell(id={self.id}, name={self.name})"
@@ -33,7 +45,11 @@ class Cell:
 class BackendClient:
     """Client for interacting with the Dirtviz API."""
 
-    def __init__(self, base_url: str = "https://dirtviz.jlab.ucsc.edu/api/", cache_dir: str = None):
+    def __init__(
+        self,
+        base_url: str = "https://dirtviz.jlab.ucsc.edu/api/",
+        cache_dir: str | Path | None = None,
+    ):
         """Initialize the BackendClient.
 
         Sets the base URL for the API. Defaults to the Dirtviz API.
@@ -53,7 +69,7 @@ class BackendClient:
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-    def get(self, endpoint: str, params: dict = None) -> dict:
+    def get(self, endpoint: str, params: dict | None = None):
         """Get request to the API with disk-based caching.
 
         Args:
@@ -61,29 +77,29 @@ class BackendClient:
             params: Optional parameters for the request.
 
         Returns:
-            A dictionary containing the response data.
+            The parsed response data (dict or list).
         """
 
         cache_path = self._get_cache_path(endpoint, params)
 
         # Check if response is cached
         if cache_path.exists():
-            with open(cache_path, 'r') as f:
+            with open(cache_path, "r") as f:
                 return json.load(f)
 
-        url = f"{self.base_url}{endpoint}"
+        url = f"{self.base_url}{endpoint.lstrip('/')}"
         response = requests.get(url, params=params)
         response.raise_for_status()
 
         result = response.json()
 
         # Save to cache
-        with open(cache_path, 'w') as f:
+        with open(cache_path, "w") as f:
             json.dump(result, f)
 
         return result
 
-    def _get_cache_path(self, endpoint: str, params: dict = None) -> Path:
+    def _get_cache_path(self, endpoint: str, params: dict | None = None) -> Path:
         """Generate a cache file path from endpoint and parameters.
 
         Args:
@@ -135,56 +151,84 @@ class BackendClient:
 
         return params
 
-    def power_data(self, cell: Cell, start: datetime, end: datetime) -> pd.DataFrame:
-        """Gets power data for a specific cell by name.
+    def power_data(
+        self,
+        cell: Cell | str | int,
+        start: datetime,
+        end: datetime,
+        resample: str = "none",
+    ) -> pd.DataFrame:
+        """Gets power data for a specific cell by name, id, or Cell object.
 
         Args:
-            cell: The Cell object for which to get power data.
+            cell: The Cell object, cell name, or cell ID for which to get power data.
             start: The start date of the data.
             end: The end date of the data.
+            resample: Optional resampling interval ('none', 'hour', 'day', etc.).
 
         Returns:
             A pandas DataFrame containing the power data.
         """
 
-        endpoint = f"/power/{cell.id}"
+        cell_obj = self.resolve_cell(cell)
+        endpoint = f"/power/{cell_obj.id}"
 
         params = self.time_to_params(start, end)
+        if resample != "none":
+            params["resample"] = resample
 
         data = self.get(endpoint, params=params)
 
+        if not data or (isinstance(data, dict) and not any(data.values())):
+            return pd.DataFrame(columns=["timestamp", "v", "i", "p"])
+
         data_df = pd.DataFrame(data)
-        data_df["timestamp"] = pd.to_datetime(data_df["timestamp"])
+        if "timestamp" in data_df.columns:
+            data_df["timestamp"] = pd.to_datetime(data_df["timestamp"])
 
         return data_df
 
-    def teros_data(self, cell: Cell, start: datetime, end: datetime) -> pd.DataFrame:
-        """Gets teros data for a specific cell
+    def teros_data(
+        self,
+        cell: Cell | str | int,
+        start: datetime,
+        end: datetime,
+        resample: str = "none",
+    ) -> pd.DataFrame:
+        """Gets teros data for a specific cell by name, id, or Cell object.
 
         Args:
-            cell: The Cell object for which to get teros data.
+            cell: The Cell object, cell name, or cell ID for which to get teros data.
             start: The start date of the data.
             end: The end date of the data.
+            resample: Optional resampling interval ('none', 'hour', 'day', etc.).
 
         Returns:
             A pandas DataFrame containing the teros data with columns vwc_raw,
             vwc_adj, temp, ec.
         """
 
-        endpoint = f"/teros/{cell.id}"
+        cell_obj = self.resolve_cell(cell)
+        endpoint = f"/teros/{cell_obj.id}"
 
         params = self.time_to_params(start, end)
+        if resample != "none":
+            params["resample"] = resample
 
         data = self.get(endpoint, params=params)
 
+        if not data or (isinstance(data, dict) and not any(data.values())):
+            return pd.DataFrame(columns=["timestamp", "vwc", "temp", "ec", "raw_vwc"])
+
         data_df = pd.DataFrame(data)
-        data_df["timestamp"] = pd.to_datetime(data_df["timestamp"])
+        if "timestamp" in data_df.columns:
+            data_df["timestamp"] = pd.to_datetime(data_df["timestamp"])
 
         return data_df
 
     def sensor_data(
         self,
-        cell: Cell,
+        cell: Cell | str | int,
         name: str,
         meas: str,
         start: datetime,
@@ -193,57 +237,88 @@ class BackendClient:
     ) -> pd.DataFrame:
         """Gets generic sensor data for a specific cell.
 
-        Returns a dataframe with the following column:
+        Returns a dataframe with the following columns:
         data, measurement, timestamp, type, unit
 
         Args:
-            cell: The Cell object for which to get sensor data.
-            name: Name of the sensor (e.g., "power", "teros").
-            meas: The measurement type (e.g., "v", "i", "vwc", "temp", "ec").
+            cell: The Cell object, cell name, or cell ID for which to get sensor data.
+            name: Name of the sensor (e.g., "power", "teros", "bme280").
+            meas: The measurement type (e.g., "v", "i", "vwc", "temp", "temperature").
             start: The start date of the data.
             end: The end date of the data.
+            resample: Optional resampling interval ('none', 'hour', 'day', etc.).
 
         Returns:
             A pandas DataFrame containing the sensor data.
         """
 
+        cell_obj = self.resolve_cell(cell)
         endpoint = "/sensor/"
 
         params = {
-            "cellId": cell.id,
+            "cellId": cell_obj.id,
             "name": name,
             "measurement": meas,
         }
+
+        if resample != "none":
+            params["resample"] = resample
 
         params = params | self.time_to_params(start, end)
 
         data = self.get(endpoint, params=params)
 
+        if not data or (isinstance(data, dict) and not any(data.values())):
+            return pd.DataFrame(
+                columns=["timestamp", "data", "measurement", "type", "unit"]
+            )
+
         data_df = pd.DataFrame(data)
-        data_df["timestamp"] = pd.to_datetime(data_df["timestamp"])
+        if "timestamp" in data_df.columns:
+            data_df["timestamp"] = pd.to_datetime(data_df["timestamp"])
 
         return data_df
 
     def sensor_data_simple(
         self,
-        *args,
-        **kwargs
+        cell: Cell | str | int,
+        name: str,
+        meas: str,
+        start: datetime,
+        end: datetime,
+        resample: str = "none",
     ) -> pd.DataFrame:
         """Gets simplified version of sensor data.
 
-        See self.sensor_data
-
-        Has the following columns:
+        See self.sensor_data. Returns a DataFrame with columns:
         timestamp, {meas}
 
+        Args:
+            cell: Cell instance, name, or ID.
+            name: Sensor name (e.g. "bme280", "power").
+            meas: Measurement name (used as the renamed data column).
+            start: Start datetime.
+            end: End datetime.
+            resample: Optional resampling interval ('none', 'hour', 'day').
+
         Returns:
-            A pandas DataFrame containing the sensor data.
+            A pandas DataFrame with columns 'timestamp' and '{meas}'.
         """
 
-        raw = self.sensor_data(*args, **kwargs)
+        raw = self.sensor_data(
+            cell=cell,
+            name=name,
+            meas=meas,
+            start=start,
+            end=end,
+            resample=resample,
+        )
 
-        simplified = raw[["timestamp", "data"]]
-        simplified = simplified.rename(columns={"data": args[2]})
+        if raw.empty or "data" not in raw.columns:
+            return pd.DataFrame(columns=["timestamp", meas])
+
+        simplified = raw[["timestamp", "data"]].copy()
+        simplified = simplified.rename(columns={"data": meas})
 
         return simplified
 
@@ -315,8 +390,6 @@ class BackendClient:
             A list of Cell objects that have the specified tag.
         """
 
-        cell_list = []
-
         # Get all tags
         endpoint = "/tag/"
         cell_data_list = self.get(endpoint)
@@ -352,3 +425,116 @@ class BackendClient:
             cell_list.append(cell)
 
         return cell_list
+
+    def resolve_cell(self, identifier: Cell | str | int) -> Cell:
+        """Resolve a cell from a Cell object, numeric ID, or cell name.
+
+        Matching is case-insensitive if an exact name match is not found.
+
+        Args:
+            identifier: Cell instance, integer ID, numeric string ID, or cell name.
+
+        Returns:
+            The resolved Cell instance.
+
+        Raises:
+            ValueError: If the cell cannot be found.
+        """
+
+        if isinstance(identifier, Cell):
+            return identifier
+
+        if isinstance(identifier, int) or (
+            isinstance(identifier, str) and identifier.isdigit()
+        ):
+            cell = self.cell_from_id(int(identifier))
+            if cell is not None:
+                return cell
+        else:
+            cell = self.cell_from_name(str(identifier))
+            if cell is not None:
+                return cell
+
+            # Case-insensitive search fallback
+            cells = self.cells()
+            ident_lower = str(identifier).lower()
+            for c in cells:
+                if c.name.lower() == ident_lower:
+                    return c
+
+        all_names = [c.name for c in self.cells()]
+        raise ValueError(f"Cell '{identifier}' not found. Available cells: {all_names}")
+
+    def cell_sensors(self, cell: Cell | int | str) -> list[dict]:
+        """Get all sensors associated with a specific cell.
+
+        Queries the cell's sensor list endpoint (/cell/<id>/sensors). If empty or
+        unavailable, falls back to the sensor catalog endpoint.
+
+        Args:
+            cell: Cell instance, integer ID, or cell name.
+
+        Returns:
+            A list of dictionaries describing each sensor.
+        """
+
+        cell_obj = self.resolve_cell(cell)
+        endpoint = f"/cell/{cell_obj.id}/sensors"
+
+        try:
+            sensors = self.get(endpoint)
+            if isinstance(sensors, list) and len(sensors) > 0:
+                return sensors
+        except (requests.RequestException, KeyError):
+            pass
+
+        try:
+            catalog = self.sensor_catalog(cell_obj)
+            return catalog.get("entries", [])
+        except (requests.RequestException, KeyError):
+            return []
+
+    def sensor_catalog(self, cell: Cell | int | str) -> dict:
+        """Get the chartable sensor catalog for a cell.
+
+        Args:
+            cell: Cell instance, integer ID, or cell name.
+
+        Returns:
+            A dictionary containing the cell ID and catalog entries.
+        """
+
+        cell_obj = self.resolve_cell(cell)
+        endpoint = f"/catalog/sensors?cell_id={cell_obj.id}"
+        return self.get(endpoint)
+
+    def cell_availability(
+        self, cell_ids: list[int | str | Cell] | int | str | Cell
+    ) -> dict:
+        """Get data availability (earliest, latest timestamp) for one or more cells.
+
+        Args:
+            cell_ids: Single cell or list of cells (Cell instances, IDs, or names).
+
+        Returns:
+            Dictionary with earliest_timestamp, latest_timestamp, and has_recent_data.
+        """
+
+        if isinstance(cell_ids, (Cell, str)):
+            resolved = self.resolve_cell(cell_ids)
+            ids_param = str(resolved.id)
+        elif isinstance(cell_ids, int):
+            ids_param = str(cell_ids)
+        elif isinstance(cell_ids, (list, tuple)):
+            resolved_ids = []
+            for item in cell_ids:
+                if isinstance(item, Cell):
+                    resolved_ids.append(item.id)
+                elif isinstance(item, (int, str)):
+                    resolved_ids.append(self.resolve_cell(item).id)
+            ids_param = ",".join(str(i) for i in resolved_ids)
+        else:
+            ids_param = str(cell_ids)
+
+        endpoint = "/data-availability/"
+        return self.get(endpoint, params={"cell_ids": ids_param})

@@ -30,10 +30,14 @@ dependencies = [
 gui = [
   'PyQt5',
 ]
+mcp = [
+  'mcp>=1.0.0',
+]
 
 dev = [
   "black",
   "ruff",
+  "mcp>=1.0.0",
 ]
 
 [project.scripts]

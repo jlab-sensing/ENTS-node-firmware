@@ -28,9 +28,14 @@ reinstall it.
 pip install -e .[dev]
 ```
 
-To install the *deprecated* user config gui, use the following: =
+To install with Model Context Protocol (MCP) server support:
 ```bash
-pip install -e ents[gui]
+pip install -e ".[mcp]"
+```
+
+To install the *deprecated* user config gui, use the following:
+```bash
+pip install -e ".[gui]"
 ```
 
 
@@ -123,6 +128,137 @@ total: 2, failed: 2, avg (ms): 13.668950000000002, last (ms): 3.9517999999999995
 total: 3, failed: 3, avg (ms): 10.795566666666668, last (ms): 5.0488
 total: 4, failed: 4, avg (ms): 8.97235, last (ms): 3.5027000000000004
 ```
+
+## DirtViz Python Client
+
+The `ents.dirtviz` module provides a Python interface to interact directly with the [DirtViz](https://dirtviz.jlab.ucsc.edu/) REST API, including disk-backed response caching.
+
+### Initialization
+
+```python
+from ents.dirtviz import BackendClient
+
+# Connect to DirtViz API (default: https://dirtviz.jlab.ucsc.edu/api/)
+client = BackendClient()
+
+# Or specify a custom instance and cache location:
+client = BackendClient(
+    base_url="http://localhost:8000/api/",
+    cache_dir="~/.cache/dirtviz",
+)
+```
+
+### Cell Discovery & Lookup
+
+```python
+# List all cells
+cells = client.cells()
+for cell in cells:
+    print(cell.id, cell.name, cell.location, cell.archive)
+
+# Look up a cell by name or ID
+cell = client.cell_from_name("Garden_Plot_1")
+cell = client.cell_from_id(1)
+
+# Flexible resolver (accepts Cell, int, numeric str, or case-insensitive name)
+cell = client.resolve_cell("garden_plot_1")
+
+# List cells by tag
+sc_cells = client.cells_from_tag_name("Santa Cruz")
+tag_cells = client.cells_from_tag_id(2)
+```
+
+### Sensor Metadata & Availability
+
+```python
+# List all sensors and measurement types for a cell
+sensors = client.cell_sensors(cell)
+
+# Retrieve the chartable dashboard sensor catalog
+catalog = client.sensor_catalog(cell)
+
+# Check timestamp range and recent upload status
+availability = client.cell_availability(cell)
+print("Earliest:", availability["earliest_timestamp"])
+print("Latest:", availability["latest_timestamp"])
+print("Active in last 14 days:", availability["has_recent_data"])
+```
+
+### Querying Timeseries Data
+
+```python
+from datetime import datetime
+
+start = datetime(2026, 3, 1)
+end = datetime(2026, 3, 20)
+
+# Power measurements (columns: timestamp, v, i, p)
+df_power = client.power_data(cell, start, end, resample="hour")
+
+# TEROS-12 soil measurements (columns: timestamp, vwc, temp, ec)
+df_teros = client.teros_data(cell, start, end, resample="hour")
+
+# Generic sensor measurements (columns: timestamp, data, measurement, unit)
+df_temp = client.sensor_data(cell, name="bme280", meas="BME280_TEMP", start=start, end=end)
+```
+
+---
+
+## DirtViz Model Context Protocol (MCP) Server
+
+`ents.dirtviz.mcp` provides a Model Context Protocol (MCP) server that interfaces directly with the DirtViz API. It exposes discovery tools so AI coding assistants (such as Claude Desktop, Cursor, or Antigravity) can inspect the data schema and generate custom statistical analysis or plotting scripts.
+
+### Running the MCP Server
+
+Ensure optional MCP dependencies are installed:
+```bash
+pip install -e ".[mcp]"
+```
+
+#### Via CLI command:
+```bash
+# Run stdio transport (standard for local desktop AI tools)
+ents dirtviz-mcp
+
+# Or run as an SSE server on port 8001
+ents dirtviz-mcp --transport sse --host 0.0.0.0 --port 8001
+
+# Override API URL or disable caching:
+ents dirtviz-mcp --url http://localhost:8000/api/ --no-cache
+```
+
+#### Via module invocation:
+```bash
+python -m ents.dirtviz.mcp --transport stdio
+```
+
+### Desktop AI Assistant Integration (stdio)
+
+Add the following configuration to your MCP client config (e.g. `claude_desktop_config.json` or Antigravity):
+
+```json
+{
+  "mcpServers": {
+    "dirtviz": {
+      "command": "ents",
+      "args": ["dirtviz-mcp"]
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+| Tool | Parameters | Description |
+| :--- | :--- | :--- |
+| `list_cells` | `archive: bool = False` | List all cells with ID, name, coordinates, location, and archive status. |
+| `get_cell` | `cell: str` | Get metadata for a specific cell by name or ID. |
+| `list_cell_sensors` | `cell: str` | List available sensor names, measurement types, and units for a cell. |
+| `get_cell_availability` | `cell: str` | Retrieve earliest and latest recorded timestamp bounds for a cell. |
+| `get_cells_with_recent_data` | `hours: int = 24` | Find cells that have had data uploaded within the last $N$ hours. |
+| `get_cells_by_tag` | `tag: str` | List cells tagged with a specific tag name or ID. |
+
+---
 
 ## Testing
 
