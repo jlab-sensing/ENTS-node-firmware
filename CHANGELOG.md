@@ -8,6 +8,12 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
+## Unreleased - 2026 - XX - XX
+
+### Updated
+
+- Images and various improvements to the quickstart guide [#378](https://github.com/jlab-sensing/ENTS-node-firmware/pull/378).
+
 ## [2.3.13] - 2026-11-16
 
 ### Added
