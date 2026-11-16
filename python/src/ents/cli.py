@@ -50,6 +50,7 @@ def entry():
     create_calib_parser(subparsers)
     create_sim_parser(subparsers)
     create_sim_generic_parser(subparsers)
+    create_dirtviz_mcp_parser(subparsers)
 
     args = parser.parse_args()
     args.func(args)
@@ -856,3 +857,60 @@ def save_csv(data: dict[str, list], path: str, name: str):
     """
     path = os.path.join(path, name)
     pd.DataFrame(data).to_csv(path, index=False)
+
+
+def run_dirtviz_mcp_cli(args):
+    """CLI handler for dirtviz-mcp command"""
+    from .dirtviz.mcp.server import run_mcp_server
+
+    run_mcp_server(
+        transport=args.transport,
+        host=args.host,
+        port=args.port,
+        url=args.url,
+        no_cache=args.no_cache,
+    )
+
+
+def create_dirtviz_mcp_parser(subparsers):
+    """Creates the DirtViz MCP server subparser
+
+    Args:
+        subparsers: Reference to subparser group
+    """
+    p = subparsers.add_parser(
+        "dirtviz-mcp",
+        help="Run the DirtViz MCP server for AI tooling and direct API integration",
+    )
+    p.add_argument(
+        "--transport",
+        choices=["stdio", "sse"],
+        default="stdio",
+        help="MCP transport type (default: stdio)",
+    )
+    p.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host address for SSE transport (default: 0.0.0.0)",
+    )
+    p.add_argument(
+        "--port",
+        type=int,
+        default=8001,
+        help="Port number for SSE transport (default: 8001)",
+    )
+    p.add_argument(
+        "--url",
+        default=None,
+        help="Override DirtViz API base URL (default: https://dirtviz.jlab.ucsc.edu/api/)",
+    )
+    p.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable persistent caching of API responses",
+    )
+    p.set_defaults(func=run_dirtviz_mcp_cli)
+
+
+if __name__ == "__main__":
+    entry()

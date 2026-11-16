@@ -8,7 +8,7 @@ and this project adheres to
 minor versions follow hardware versioning with patches used to iterate on
 firmware versions for a hardware version.
 
-## [Unreleased] - 2026-XX-XX
+## [2.3.13] - 2026-11-16
 
 ### Added
 
@@ -25,6 +25,9 @@ firmware versions for a hardware version.
 - Removed `test_ads` from the standard internal test suite since the ADS1219 is not built into the >=v3.0.0 ENTS boards anymore [#369](https://github.com/jlab-sensing/ENTS-node-firmware/pull/369) [#371](https://github.com/jlab-sensing/ENTS-node-firmware/pull/371).
 - Adjusted ESP32 partition table to expand program flash by reducing file system space [#369](https://github.com/jlab-sensing/ENTS-node-firmware/pull/369).
 - CI/CD pipeline linting and python version fixed [#384](https://github.com/jlab-sensing/ENTS-node-firmware/pull/384).
+- Updated `metrics.py` with tx and rx [#385](https://github.com/jlab-sensing/ENTS-node-firmware/pull/385)
+- Enabled merge queue [#386](https://github.com/jlab-sensing/ENTS-node-firmware/pull/386).
+- Added functionality to python dirtviz interface [#314](https://github.com/jlab-sensing/ENTS-node-firmware/pull/314)
 
 ## [2.3.12] - 2026-08-19
 

@@ -11,7 +11,8 @@ RANGES = {
     "overall": (0., 200.),
     "idle": (0., 10.),
     "measure": (10., 20.),
-    "comm": (80., 200.),
+    "tx": (80., 200.),
+    "rx": (16, 30),
 }
 
 def calculate_metrics(df: pd.DataFrame) -> dict:
