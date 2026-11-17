@@ -1,0 +1,108 @@
+# Configuration for Principal Component Analysis (PCA) of Measured Parameters
+# Quantifying Multivariate Relationships with Guaranteed Sample Independence
+
+# Random seed for reproducibility
+random_seed: 42
+
+# Dataset 1: Bioelectrochemical Power Harvesting & Hydrological Matrix Architecture
+power_matrix_dataset:
+  start_date: "2026-03-12"
+  end_date: "2026-06-15"
+  resample: "hour"
+  thinning_interval_days: 14
+  cells:
+    - "gt_black_none_1"
+    - "gt_black_none_2"
+    - "gt_black_none_3"
+    - "gt_black_inorganics_1"
+    - "gt_black_inorganics_2"
+    - "gt_black_inorganics_3"
+    - "gt_red_none_1"
+    - "gt_red_none_2"
+    - "gt_red_none_3"
+    - "gt_red_compost_1"
+    - "gt_red_compost_2"
+    - "gt_red_compost_3"
+    - "gt_red_compost_inorganics_1"
+    - "gt_red_compost_inorganics_2"
+    - "gt_red_compost_inorganics_3"
+  soil_texture:
+    gt_black_none:
+      sand: 73.22
+      clay: 14.72
+    gt_black_inorganics:
+      sand: 34.90
+      clay: 31.80
+    gt_red_none:
+      sand: 38.00
+      clay: 29.00
+    gt_red_compost:
+      sand: 42.00
+      clay: 28.00
+    gt_red_compost_inorganics:
+      sand: 71.20
+      clay: 14.70
+  features:
+    - name: "p"
+      label: "Power (uW)"
+    - name: "v"
+      label: "Operating Voltage (mV)"
+    - name: "i"
+      label: "Current (uA)"
+    - name: "r_cell"
+      label: "Internal Resistance (kOhm)"
+    - name: "vwc"
+      label: "Moisture (VWC %)"
+    - name: "temp"
+      label: "Soil Temperature (deg C)"
+    - name: "ec"
+      label: "Electrical Conductivity (uS/cm)"
+    - name: "sand"
+      label: "Sand Fraction (%)"
+    - name: "clay"
+      label: "Clay Fraction (%)"
+
+# Dataset 2: Multi-Site Ambient-Coupled Environmental & Soil Matrix Space
+environmental_dataset:
+  start_date: "2025-09-15"
+  end_date: "2026-03-09"
+  resample: "hour"
+  thinning_interval_days: 21
+  sites:
+    Site_A:
+      ambient_cell: "gt_bme280"
+      cells:
+        - "gt_black_none_1"
+        - "gt_black_none_2"
+        - "gt_black_none_3"
+        - "gt_red_none_1"
+        - "gt_red_none_2"
+        - "gt_red_none_3"
+    Site_B:
+      ambient_cell: "nu_ambient"
+      cells:
+        - "nu_local_ENTS_1"
+        - "nu_local_ENTS_2"
+        - "nu_local_ENTS_3"
+        - "nu_synth_ENTS_1"
+        - "nu_synth_ENTS_2"
+        - "nu_synth_ENTS_3"
+  features:
+    - name: "v"
+      label: "Cell Potential (mV)"
+    - name: "vwc"
+      label: "Soil Moisture (VWC %)"
+    - name: "temp"
+      label: "Soil Temperature (deg C)"
+    - name: "ec"
+      label: "Soil EC (uS/cm)"
+    - name: "amb_temp"
+      label: "Ambient Temperature (deg C)"
+    - name: "amb_rh"
+      label: "Ambient RH (%)"
+    - name: "amb_press"
+      label: "Barometric Pressure (hPa)"
+    - name: "vpd"
+      label: "Vapor Pressure Deficit (kPa)"
+    - name: "temp_diff"
+      label: "Soil-Air Delta T (deg C)"

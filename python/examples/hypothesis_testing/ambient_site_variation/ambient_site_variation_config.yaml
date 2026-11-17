@@ -1,0 +1,46 @@
+# Configuration for Multi-Site Ambient Environment Variation Hypothesis Testing
+# Hypothesis: "Ambient environment parameters while soil saturation remains consistent
+# will have little effect on the variations between the site"
+
+# Overall evaluation window (Concurrent multi-site monitoring)
+start_date: "2025-09-15"
+end_date: "2026-03-09"
+resample: "hour"
+
+# Target electrical variable
+target_variable: "v"
+target_label: "Cell Potential (mV)"
+
+# Equivalence margin for between-site contrast shift
+equivalence_margin_delta: 25.0
+
+# Fixed saturation stratum for physically holding saturation consistent
+saturation_stratum:
+  min_vwc: 35.0
+  max_vwc: 40.0
+
+# Site definitions and monitored units
+sites:
+  Site_A:
+    description: "Subtropical outdoor soil testbed"
+    ambient_cell: "gt_bme280"
+    is_reference: true
+    cells:
+      - "gt_black_none_1"
+      - "gt_black_none_2"
+      - "gt_black_none_3"
+      - "gt_red_none_1"
+      - "gt_red_none_2"
+      - "gt_red_none_3"
+
+  Site_B:
+    description: "Temperate outdoor soil testbed"
+    ambient_cell: "nu_ambient"
+    is_reference: false
+    cells:
+      - "nu_local_ENTS_1"
+      - "nu_local_ENTS_2"
+      - "nu_local_ENTS_3"
+      - "nu_synth_ENTS_1"
+      - "nu_synth_ENTS_2"
+      - "nu_synth_ENTS_3"
