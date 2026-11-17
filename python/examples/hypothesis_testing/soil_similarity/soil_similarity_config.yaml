@@ -1,0 +1,75 @@
+# Configuration for Soil Trajectory Similarity Hypothesis Testing
+# Hypothesis: "For both soil startup and incubation through stability,
+# the GT black and GT red amended soil (to black) will behave similarly over time."
+
+# Overall evaluation window (Startup through Open Circuit Stability)
+start_date: "2025-09-15"
+end_date: "2026-03-09"
+resample: "hour"
+
+# Ambient reference sensor
+bme280_cell: "gt_bme280"
+
+# Target variable for electrical behavior
+target_variable: "v"
+target_label: "Voltage (mV)"
+
+# Equivalence margin (delta) for Two One-Sided Tests (TOST)
+# 25 mV represents ~5-10% of typical MFC open-circuit potential
+equivalence_margin_delta: 25.0
+
+# Phase definitions
+phases:
+  startup:
+    name: "Startup & Incubation"
+    start: "2025-09-15"
+    end: "2025-11-24"
+  stabilized:
+    name: "Stabilized Open Circuit"
+    start: "2025-11-24"
+    end: "2026-03-09"
+
+# Soil Groups and cell mappings
+# Reference group should be listed first or specified as reference
+groups:
+  GT_Black_Natural:
+    description: "Natural Georgia Tech black soil (unamended reference)"
+    is_reference: true
+    cells:
+      - "gt_black_none_1"
+      - "gt_black_none_2"
+      - "gt_black_none_3"
+
+  GT_Red_Amended:
+    description: "Georgia Tech red soil amended with inorganics + compost (matched to black texture & OM)"
+    is_target_test: true
+    cells:
+      - "gt_red_compost_inorganics_1"
+      - "gt_red_compost_inorganics_2"
+      - "gt_red_compost_inorganics_3"
+
+  GT_Red_Natural:
+    description: "Natural Georgia Tech red soil (negative control, unamended)"
+    is_negative_control: true
+    cells:
+      - "gt_red_none_1"
+      - "gt_red_none_2"
+      - "gt_red_none_3"
+
+  GT_Black_Amended:
+    description: "Georgia Tech black soil amended with inorganics + compost"
+    cells:
+      - "gt_black_inorganics_compost_1"
+      - "gt_black_inorganics_compost_2"
+      - "gt_black_inorganics_compost_3"
+
+# Covariates to include in Linear Mixed-Effects Model
+covariates:
+  teros:
+    - "raw_vwc"
+    - "temp"
+    - "ec"
+  ambient:
+    - "temperature"
+    - "humidity"
+    - "pressure"

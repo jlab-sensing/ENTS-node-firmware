@@ -1,0 +1,76 @@
+# Configuration for Soil Texture and Wetting/Drying Cycles Hypothesis Testing
+# Hypothesis: "Soil texture/soil wetting and drying cycles impacts the power output"
+
+# Evaluation window: Closed-circuit power generation
+start_date: "2026-03-12"
+end_date: "2026-06-15"
+resample: "hour"
+
+# Ambient reference sensor
+bme280_cell: "gt_bme280"
+
+# Target variable: Power output in microwatts (uW)
+target_variable: "p"
+target_label: "Power Output (uW)"
+
+# Texture groups categorized by sand/clay content
+texture_classes:
+  Sandy_Coarse:
+    description: "High sand content (>70%), rapid drainage, high aeration"
+    sand_fraction: 0.72
+    clay_fraction: 0.15
+    cells:
+      - "gt_black_none_1"
+      - "gt_black_none_2"
+      - "gt_black_none_3"
+      - "gt_red_compost_inorganics_1"
+      - "gt_red_compost_inorganics_2"
+      - "gt_red_compost_inorganics_3"
+
+  Clayey_Fine:
+    description: "High clay/silt content (>50% fine, sand <48%), high water retention, low drainage"
+    sand_fraction: 0.38
+    clay_fraction: 0.29
+    cells:
+      - "gt_black_inorganics_1"
+      - "gt_black_inorganics_2"
+      - "gt_black_inorganics_3"
+      - "gt_red_none_1"
+      - "gt_red_none_2"
+      - "gt_red_none_3"
+      - "gt_red_compost_1"
+      - "gt_red_compost_2"
+      - "gt_red_compost_3"
+
+# Soil physical compositions
+soil_types:
+  gt_black:
+    sand: 0.7322
+    silt: 0.1206
+    clay: 0.1472
+    texture_class: "Sandy_Coarse"
+  gt_red_compost_inorganics:
+    sand: 0.7120
+    silt: 0.1410
+    clay: 0.1470
+    texture_class: "Sandy_Coarse"
+  gt_black_inorganics:
+    sand: 0.3490
+    silt: 0.3330
+    clay: 0.3180
+    texture_class: "Clayey_Fine"
+  gt_red:
+    sand: 0.4789
+    silt: 0.3053
+    clay: 0.2158
+    texture_class: "Clayey_Fine"
+  gt_red_compost:
+    sand: 0.3498
+    silt: 0.3195
+    clay: 0.3307
+    texture_class: "Clayey_Fine"
+
+# Cycle detection parameters
+cycle_detection:
+  wetting_threshold_rate: 0.15   # Minimum d(VWC)/dt (%/hr) to identify wetting pulse
+  min_cycle_duration_hours: 24   # Minimum duration for a complete wetting/drying cycle
