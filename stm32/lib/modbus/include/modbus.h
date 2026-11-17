@@ -25,3 +25,4 @@ ModbusStatus ModubsWriteRegister(uint8_t id, uint16_t addr, uint16_t value);
 
 ModbusStatus ModbusTransaction(uint8_t *tx, uint16_t tx_len, uint8_t *rx,
                                uint16_t rx_len);
+void ModbusGpioInit(void);

@@ -17,7 +17,20 @@ uint16_t crc16(const uint8_t *data, size_t length) {
 
   return crc;
 }
+void ModbusGpioInit(void) {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  // Start low: driver off, receiver on (with /RE tied to DE)
+  HAL_GPIO_WritePin(MODBUS_DE_GPIO_Port, MODBUS_DE_PIN, GPIO_PIN_RESET);
+
+  GPIO_InitStruct.Pin = MODBUS_DE_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(MODBUS_DE_GPIO_Port, &GPIO_InitStruct);
+}
 static bool ModbusCheckResponse(uint8_t *rx, uint16_t len) {
   if (len < 5) return false;
 
@@ -156,9 +169,33 @@ ModbusStatus ModbusTransaction(uint8_t *tx, uint16_t tx_len, uint8_t *rx,
 
   if (ret == HAL_OK) {
     while (__HAL_UART_GET_FLAG(&hlpuart1, UART_FLAG_TC) == RESET);
-  }
+    HAL_GPIO_WritePin(MODBUS_DE_GPIO_Port, MODBUS_DE_PIN, GPIO_PIN_RESET);
+    if (ret != HAL_OK) return MODBUS_ERR;
 
-  HAL_GPIO_WritePin(MODBUS_DE_GPIO_Port, MODBUS_DE_PIN, GPIO_PIN_RESET);
+    __HAL_UART_CLEAR_OREFLAG(&hlpuart1);
+    __HAL_UART_CLEAR_FEFLAG(&hlpuart1);
+    __HAL_UART_CLEAR_NEFLAG(&hlpuart1);
+
+    //its unclear to me how this works
+    uint8_t b = 0;
+    uint32_t start = HAL_GetTick();
+    do {
+      ret = HAL_UART_Receive(&hlpuart1, &b, 1, 100);
+      if (ret == HAL_ERROR) {
+        __HAL_UART_CLEAR_OREFLAG(&hlpuart1);
+        __HAL_UART_CLEAR_FEFLAG(&hlpuart1);
+        __HAL_UART_CLEAR_NEFLAG(&hlpuart1);
+      }
+      if (HAL_GetTick() - start > 1000) return MODBUS_TIM;
+    } while (ret != HAL_OK || b != tx[0]);
+
+    rx[0] = b;
+    ret = HAL_UART_Receive(&hlpuart1, &rx[1], rx_len - 1, 1000);
+
+    if (ret == HAL_OK) return MODBUS_OK;
+    if (ret == HAL_TIMEOUT) return MODBUS_TIM;
+    return MODBUS_ERR;
+  }
 
   if (ret != HAL_OK) return MODBUS_ERR;
 

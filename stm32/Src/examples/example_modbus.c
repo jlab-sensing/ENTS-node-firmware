@@ -8,7 +8,7 @@
  * @date 2026-11-12
  */
 
-// Includes     
+// Includes
 #include <stdio.h>
 
 #include "board.h"
@@ -34,9 +34,19 @@ int main(void) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_LPUART1_UART_Init();
-  MX_USART2_UART_Init();
 
+  MX_LPUART1_UART_Init();
+
+  HAL_UART_DeInit(&hlpuart1);
+  hlpuart1.Init.BaudRate = 9600;
+  hlpuart1.Init.WordLength = UART_WORDLENGTH_8B;
+  hlpuart1.Init.StopBits = UART_STOPBITS_1;
+  hlpuart1.Init.Parity = UART_PARITY_NONE;
+  if (HAL_UART_Init(&hlpuart1) != HAL_OK) {
+    Error_Handler();
+  }
+  MX_USART2_UART_Init();
+  ModbusGpioInit();
   uint16_t registers[4] = {0};
   uint32_t read_count = 1;
 
@@ -54,6 +64,6 @@ int main(void) {
     }
 
     read_count++;
-    HAL_Delay(1000);
+    HAL_Delay(5000);
   }
 }
