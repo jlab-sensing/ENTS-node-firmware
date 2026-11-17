@@ -2,7 +2,19 @@
 
 This Quickstart guide explains how to get started with a prepared ENTS board (board assembled and bootloader unlocked).
 
+## Overview
+0. Check the [Prerequisites](#prerequisites) and the note [about selecting ports](#about-selecting-ports).
+1. [Run unit tests on the STM32](#1-run-unit-tests-on-the-stm32)
+2. [Flash the latest firmware for the STM32 and the ESP32](#2-flash-the-latest-firmware-for-the-stm32-and-the-esp32)
+3. [Log in to your instance of the ENTS-backend](#3-log-in-to-your-instance-of-the-ents-backend)
+4. [Register the logger on ENTS-backend](#4-register-the-logger-on-ents-backend)
+5. [Create a cell on ENTS-backend](#5-create-a-cell-on-ents-backend)
+6. [Use the wifi userconfig to set device parameters](#6-use-the-wifi-userconfig-to-set-device-parameters)
+
 ## Prerequisites
+
+![Prerequisites (not pictured: computer with PlatformIO)](/images/quickstart_prerequisites_annotated.png)
+
 - Prepared ENTS board (board assembled and bootloader unlocked/cleared).
     - To know if your ENTS board is prepared or not, check the back of the board. If some of the solder jumpers on the back of the board are soldered (such as JP12 for enabling the PB5 user LED), then you have a prepared ENTS board.
 - ST-LINKV3 MINIE STM32 programming tool
@@ -11,6 +23,7 @@ This Quickstart guide explains how to get started with a prepared ENTS board (bo
 - A computer running Windows, Linux, or MacOS.
     - At least two available USB ports. You can use a USB hub if you need additional USB ports.
     - VS Code with the PlatformIO extension installed (see [Installing PlatformIO](#installing-platformio))
+    - If you are using a [Mac with Apple silicon](https://support.apple.com/en-us/116943), you may need to [install Rosetta for compatibility with the build toolchain for the ESP32](https://support.apple.com/en-us/102527). Open a terminal and run the following command: `softwareupdate --install-rosetta`
 
 ## About selecting ports
 In this guide, you will be asked to select the correct ports for uploading programs, running tests, and opening serial monitors.
@@ -18,26 +31,58 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - PlatformIO automatically detects the ST-LINK and uses it for uploading the program to the STM32, so the `--upload-port` argument does not need to specified for STM32-related commands.
 - If your USB to TTL adapter also uses the CP2102 chip, be sure to correctly identify which device corresponds to the Wio-E5 and which corresponds to your USB to TTL adapter. You can determine this easily by unplugging the USB to TTL adapter and running `pio device list` again to show the currently connected devices.
 
+![All Connections](/images/quickstart_all_connections_annotated.png)
+
+Typical output of `pio device list` when run on a Windows computer given the connection setup shown above (identical to what you may have connected during step 2: [Flash the latest firmware for the STM32 and the ESP32](#2-flash-the-latest-firmware-for-the-stm32-and-the-esp32)):
+- When run on a Mac computer, you will typically see `/dev/cu.usbserial-xxxx` instead of `COMx`.
+- When run on a Linux computer, you will typically see `/dev/ttyUSBx` or `/dev/ttyACMx` instead of `COMx`.
+
+```
+// Below is the serial communication chip for communicating + testing with the STM32.
+// You should specify this port as the --test-port when running unit tests on the STM32.
+COM32
+-----
+Hardware ID: USB VID:PID=10C4:EA60 SER=18C6AE24B9F7F011A3B81412364A576B LOCATION=1-1.4
+Description: Silicon Labs CP210x USB to UART Bridge (COM32)
+
+// Below is the STLINK programmer tool for flashing the STM32.
+// This is automatically selected when flashing, you do not need to specify it.
+COM18
+-----
+Hardware ID: USB VID:PID=0483:3754 SER=0023003A3235511237333439 LOCATION=1-1.3:x.1
+Description: STMicroelectronics STLink Virtual COM Port (COM18)
+
+// Below is the USB-TTL adapter for flashing + communicating with the ESP32.
+// You should specify this port as the --upload-port when flashing the ESP32.
+COM35
+-----
+Hardware ID: USB VID:PID=1A86:7523 SER= LOCATION=1-1.1:x.1
+Description: USB-SERIAL CH340 (COM35)
+```
+
 ## 1. Run unit tests on the STM32
 - Prerequisites:
     - Connect the STLINK to the J4 JTAG header located near the USB-C port, then connect the STLINK to your computer.
-    - Use a USB-C cable to connect the ENTS board to your computer.
-- Open a PlatformIO terminal in the `stm32/` folder and run the following command: `pio test -e --test-port COMx`
+    - Use a USB-C cable to connect the ENTS board to your computer. This provides power and a serial connection to the ENTS board.
+- Open a PlatformIO terminal in the `stm32/` folder and run the following command: `pio test -e tests --test-port COMx`
     - Replace `COMx` with the port for the Wio-E5 (identified as the CP2102 chip).
     - Example: `pio test -e tests --test-port COM10`
     - KNOWN ISSUE: If you attempt to run these tests after clearing the STM32 bootloader, the Wio-E5 will fail to respond. Use CTRL+C in the terminal running the test to cancel it, and physically disconnect/reconnect the USB cable connecting the Wio-E5 to your computer. Then, try to run the tests again.
 - Follow the prompts to press the Wio-E5's RST button if the first test in any of the test environments hangs for more than 10 seconds with no progress.
-    - `test_fram` will take a few minutes to read and write to the FRAM chip's entire memory.
+    - `test_fram` will take a few minutes (~2 min) to read and write to the FRAM chip's entire memory. It may appear to be frozen, but it is still running!
+    - The entire test suite takes approximately 3-4 minutes to run.
 
 ## 2. Flash the latest firmware for the STM32 and the ESP32
+![ESP32 USB TTL Adapter Connection](/images/quickstart_ESP32_flash_connection.png)
 - Prerequisites:
     - (Same as previous step) Connect the STLINK to the J4 JTAG header located near the USB-C port, then connect the STLINK to your computer.
     - (Same as previous step) Use a USB-C cable to connect the ENTS board to your computer.
-    - Use a USB to TTL adapter to connect the ESP32 (via the J14 header's GND, TX, and RX pins) to your computer. Be sure to connect your TTL adapter's TX pin to the ESP32's RX pin and vice versa. If you only have two USB ports available, you can disconnect the STLINK after you have finished flashing the STM32 and plug in your USB to TTL adapter.
+    - Use a USB to TTL adapter to connect the ESP32 (via the J14 header's GND, TX, and RX pins) to your computer. Be sure to connect your TTL adapter's TX pin to the ESP32's RX pin and vice versa as shown in the image above.
 - Open a PlatformIO terminal in the `stm32/` folder and run the following command: `pio run -e stm32 -t upload -t monitor --monitor-port COMx`
     - Replace `COMx` with the port for the Wio-E5 (identified as the CP2102 chip).
     - Example: `pio run -e stm32 -t upload -t monitor --monitor-port COM10`
-- Save the Wio-E5's LoRaWAN information, which is prepended by `######`. You will need the AppEUI/JoinEUI, DevEUI, and AppKey. Only the last 4 bytes of the DevEUI (i.e. DevAddr) should vary between boards.
+    - After flashing the STM32, you can disconnect the STLINK.
+- Save the Wio-E5's LoRaWAN information, which is prepended by `######`. You will need the DevEUI. Only the last 4 bytes of the DevEUI (i.e. DevAddr) should vary between boards. If you do not see this information, try pressing the SW1 RESET button near the USB-C port.
     - The monitor port can be closed with CTRL+C. Additionally, the monitor port can be opened independently of the `upload` command: `pio device monitor -b 115200 -p COMx`
     - NOTE FOR UCSC: Copy and paste the STM32's serial output (only lines with ######) into the [board inventory column L "Key Dump"](https://docs.google.com/spreadsheets/d/1CHnVyCUWfR958FQWvbkh7DhEm4VlopQin3-EASD9zO0/edit?gid=0#gid=0&range=L1). The regex will automatically extract the DevEUI, JoinEUI (AppEUI), and AppKey.
 - Open a PlatformIO terminal in (or move your existing terminal to) the `esp32/` folder and perform/run the following:
@@ -55,22 +100,38 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - NOTE FOR UCSC: Save the ESP32's wifi MAC. The wifi MAC is made available near the tail end of the ESP32's build log, after it connects to the ESP32 but before it begins writing the firmware. The wifi MAC is required to whitelist the device on the UCSC-Devices wifi network. This is the wifi join MAC, which is not the same as the wifi AP MAC.
 - Tap the SW1 RESET button next to the USB-C port to restart the ENTS board.
 
-## 3. Register the logger on ENTS-backend (which performs The Things Network registration to enable LoRaWAN communication)
-- Log in to your instance of the ENTS-backend and go to your profile's Loggers page. For DirtViz, this would be: https://dirtviz.jlab.ucsc.edu/profile/loggers
-- Click on the "+" icon in the top right to begin adding a new logger.
-    - Logger Name: Provide a unique name for the logger.
+## 3. Log in to your instance of the ENTS-backend
+
+![Logging in](/images/quickstart_backend_login_annotated.png)
+
+- Log in to your instance of the ENTS-backend via the log in button on the homepage.
+- Then, go to your profile page. For DirtViz, this would be: https://dirtviz.jlab.ucsc.edu/profile/
+
+## 4. Register the logger on ENTS-backend
+
+![Registering a logger](/images/quickstart_backend_logger_annotated.png)
+
+- On your profile page, navigate to the "Loggers" page.
+    - Loggers are hardware devices that upload data, such as the ENTS board. The ENTS-backend performs The Things Network registration to enable LoRaWAN communication for the ENTS boards.
+- Then, click on the "+" icon in the top right to begin adding a new logger.
+- Use the saved LoRaWAN info `######` from the previous step to fill out the form and complete the logger registration.
+    - Logger Name: Provide a unique name for the logger. You can edit this field after registration.
         - NOTE FOR UCSC: This should match the hardware revision and serial number of the device. See column A of the spreadsheet. Ex. 2.2.3-071
     - Logger Type: ENTS
-    - Device EUI: Enter the DeviceEUI
-    - Join EUI: Enter the JoinEUI/AppEUI
-    - App Key: Enter the AppKey
-    - Description: optional
+    - Device EUI: Enter the DeviceEUI. This is necessary if you want the ENTS board to be able to upload data wirelessly using LoRaWAN instead of WiFi.
+    - Description: Optional. You can edit this field after registration.
 - Once registered, note down the logger ID which will be used to configure the ENTS board later.
     - NOTE FOR UCSC: Save the logger ID and the owner's name into the board inventory spreadsheet.
 
-## 4. Create a cell on ENTS-backend
-- Log in to your instance of the ENTS-backend and go to your profile's Cells page. For DirtViz, this would be: https://dirtviz.jlab.ucsc.edu/profile/cells
+## 5. Create a cell on ENTS-backend
+
+![Registering a logger](/images/quickstart_backend_cell_annotated.png)
+
+- On your profile page, navigate to the "Cells" page.
+    - Cells are essentially groups of sensor readings, and typically correlate one-to-one with some physical phenomena or location that you want to study (such as a soil microbial fuel cell).
+    - Each cell can have multiple kinds of sensors (e.g. TEROS-12 soil sensor and a BME280 air sensor), but only up to one of each kind (e.g. cannot have two TEROS-12 uploading to the same cell since you would not be able to distinguish which data is from which sensor connected to your ENTS board, you must instead create a separate cell for each non-unique sensor).
 - Click on the "+" icon in the top right to begin adding a new cell.
+- Fill out the form and complete the cell creation. Cell information can be edited after creation.
     - Cell Name: Try to use something descriptive, since cells are sorted alphabetically in the dropdown list on the dashboard.
         - Example: `nu_local_open_1`
     - Location: Location of the cell. Used for your own reference.
@@ -82,11 +143,14 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - Once created, note down the cell ID which will be used to configure the ENTS board later.
     - NOTE FOR UCSC: Save the cell ID to the board inventory spreadsheet (to the logger(s) which upload to that cell).
 
-## 5. Use the wifi userconfig to set device parameters
+## 6. Use the wifi userconfig to set device parameters
+
+![Userconfig snipped](/images/quickstart_userconfig_snipped.png)
+
 - Prerequisites:
     - Device must have the `stm32` (STM32) and `release` (ESP32) firmware flashed (done in the previous step).
 - Restart the ENTS board by tapping the SW1 RESET button next to the USB-C port.
-- On your computer, connect to the wifi network broadcasted by the ENTS board. The network name is `ents-<last_4_bytes_of_devEUI>`.
+- On your computer, connect to the wifi network broadcasted by the ENTS board. The network name is `ents-<last_4_bytes_of_devEUI>`. The default password is `ilovedirt`, which may be changed in [stm32/Src/user_config.c](/stm32/Src/user_config.c#L26).
     - Example: `ents-05471EA7`
     - This network is disabled after a few minutes with no clients connected, so you may need to restart the ENTS board again if you do not join it in time.
 - Use a web browser to navigate to http://192.168.4.1
@@ -94,7 +158,7 @@ In this guide, you will be asked to select the correct ports for uploading progr
 - Input the values into the userConfig interface. You can click on the expandable text above most fields to expand the help text.
     - Logger ID: Enter the logger ID that you registered previously. You can find it on your profile's Loggers page.
     - Default Cell ID: This Default Cell ID is applied to any sensors in which you do not specify a Cell ID. Enter the cell ID that you created previously. You can find it on your profile's Cells page.
-    - Upload method: Using LoRa requires a LoRaWAN gateway such as the [Sentrius RG191](https://www.ezurio.com/part/rg191). To get started more easily, wifi is recommended. Enterprise wifi requiring a username and password (or a login / acknowledgement portal) will not work. For best results, use an open or WPA2-PSK standard password-protected wifi network.
+    - Upload method: Using LoRa requires a LoRaWAN gateway (see the other guides for setting up a [RG191](/docs/rg191.md) or [SenseCAP M2](/docs/sensecap-m2.md) gateway). To get started more easily, wifi is recommended. Enterprise wifi requiring a username and password (or a login / acknowledgement portal) will not work. For best results, use an open or WPA2-PSK standard password-protected wifi network.
     - Upload Interval: The upload interval may not be less than 10 seconds. It is recommended to choose an upload interval >= 60 seconds.
     - Select the sensors that you have attached to the ENTS board.
         - In some cases, the Index field may be clicked twice (or press the up/down arrow while selecting it) to see the valid inputs, typically for selecting which GPIO pin the sensor uses.
