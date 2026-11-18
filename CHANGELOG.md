@@ -14,6 +14,10 @@ firmware versions for a hardware version.
 
 - Images and various improvements to the quickstart guide [#378](https://github.com/jlab-sensing/ENTS-node-firmware/pull/378).
 
+### Fixed
+
+- Fixed stm32 OpenOCD version to 3.1200.0 [#391](https://github.com/jlab-sensing/ENTS-node-firmware/pull/391).
+
 ## [2.3.13] - 2026-11-16
 
 ### Added
