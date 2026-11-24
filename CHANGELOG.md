@@ -16,6 +16,7 @@ firmware versions for a hardware version.
 
 ### Fixed
 
+- Stack overflow with esp32 i2c communication [#381](https://github.com/jlab-sensing/ENTS-node-firmware/issues/381)
 - Fixed stm32 OpenOCD version to 3.1200.0 [#391](https://github.com/jlab-sensing/ENTS-node-firmware/pull/391).
 
 ## [2.3.13] - 2026-11-16
