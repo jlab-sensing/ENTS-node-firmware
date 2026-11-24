@@ -24,12 +24,13 @@ This Quickstart guide explains how to get started with a prepared ENTS board (bo
     - At least two available USB ports. You can use a USB hub if you need additional USB ports.
     - VS Code with the PlatformIO extension installed (see [Installing PlatformIO](#installing-platformio))
     - If you are using a [Mac with Apple silicon](https://support.apple.com/en-us/116943), you may need to [install Rosetta for compatibility with the build toolchain for the ESP32](https://support.apple.com/en-us/102527). Open a terminal and run the following command: `softwareupdate --install-rosetta`
+    - Install drivers for the [ST-LINK](https://docs.platformio.org/en/stable/plus/debug-tools/stlink.html#drivers), [CP2102](https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads), and (if necessary) the USB-TTL adapter.
 
 ## About selecting ports
 In this guide, you will be asked to select the correct ports for uploading programs, running tests, and opening serial monitors.
 - In any PlatformIO terminal, use the command `pio device list` to list all currently connected devices.
 - PlatformIO automatically detects the ST-LINK and uses it for uploading the program to the STM32, so the `--upload-port` argument does not need to specified for STM32-related commands.
-- If your USB to TTL adapter also uses the CP2102 chip, be sure to correctly identify which device corresponds to the Wio-E5 and which corresponds to your USB to TTL adapter. You can determine this easily by unplugging the USB to TTL adapter and running `pio device list` again to show the currently connected devices.
+- If your USB to TTL adapter also uses the CP2102 chip, be sure to correctly identify which device corresponds to the Wio-E5 (this is the repackaged STM32 module, which uses an external CP2102 USB to TTL adapter for serial output) and which corresponds to your USB to TTL adapter. You can determine this easily by unplugging the USB to TTL adapter and running `pio device list` again to show the currently connected devices.
 
 ![All Connections](/images/quickstart_all_connections_annotated.png)
 

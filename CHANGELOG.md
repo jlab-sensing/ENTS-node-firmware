@@ -12,7 +12,7 @@ firmware versions for a hardware version.
 
 ### Updated
 
-- Images and various improvements to the quickstart guide [#378](https://github.com/jlab-sensing/ENTS-node-firmware/pull/378).
+- Images and various improvements to the quickstart guide [#378](https://github.com/jlab-sensing/ENTS-node-firmware/pull/378) [#393](https://github.com/jlab-sensing/ENTS-node-firmware/pull/393).
 
 ### Fixed
 
